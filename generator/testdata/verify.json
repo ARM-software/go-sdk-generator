@@ -1,0 +1,271 @@
+{
+  "specification": {
+    "package_name": "verify-cmsis-example-sdk",
+    "main_module": "verify",
+    "name": "ExampleVerify",
+    "description": "Verify a project is compatible with cmsis tools",
+    "additional_types": [
+      {
+        "name": "Project",
+        "description": "A project",
+        "fields": [
+          {
+            "name": "Path",
+            "lang_type": "string",
+            "json_tag": "path",
+            "mapstructure_tag": "path",
+            "required": true,
+            "description": "Path to a project file"
+          },
+          {
+            "name": "Name",
+            "lang_type": "string",
+            "json_tag": "name",
+            "mapstructure_tag": "name",
+            "description": "Name of the project"
+          },
+          {
+            "name": "Title",
+            "lang_type": "string",
+            "json_tag": "title",
+            "mapstructure_tag": "title",
+            "description": "Human readable title for the project"
+          },
+          {
+            "name": "Version",
+            "lang_type": "string",
+            "json_tag": "version",
+            "mapstructure_tag": "version",
+            "description": "The version of the project"
+          },
+          {
+            "name": "Description",
+            "lang_type": "string",
+            "json_tag": "description",
+            "mapstructure_tag": "description",
+            "description": "The description of the project"
+          },
+          {
+            "name": "DocumentationURL",
+            "lang_type": "string",
+            "json_tag": "documentation_url",
+            "mapstructure_tag": "documentation_url",
+            "description": "The URL to the documentation for the example"
+          },
+          {
+            "name": "Format",
+            "lang_type": "string",
+            "json_tag": "format",
+            "mapstructure_tag": "format",
+            "description": "Format of the project (e.g. uvprojx/csolution)"
+          },
+          {
+            "name": "Source",
+            "lang_type": "project.Origin",
+            "json_tag": "source",
+            "mapstructure_tag": "source",
+            "description": "Source (URL and type) of the project"
+          },
+          {
+            "name": "Archive",
+            "lang_type": "project.Archive",
+            "json_tag": "archive",
+            "mapstructure_tag": "archive",
+            "description": "Archive information for the project"
+          },
+          {
+            "name": "Convertible",
+            "lang_type": "bool",
+            "json_tag": "convertible",
+            "mapstructure_tag": "convertible",
+            "description": "Is the project convertible to csolution"
+          },
+          {
+            "name": "Requirements",
+            "lang_type": "project.Requirements",
+            "json_tag": "requirements",
+            "mapstructure_tag": "requirements",
+            "description": "Requirements (e.g. toolchains) needed for the project"
+          },
+          {
+            "name": "Keywords",
+            "lang_type": "[]string",
+            "json_tag": "keywords",
+            "mapstructure_tag": "keywords",
+            "description": "Keywords for this project"
+          },
+          {
+            "name": "Categories",
+            "lang_type": "[]string",
+            "json_tag": "categories",
+            "mapstructure_tag": "categories",
+            "description": "Categories for this project"
+          },
+          {
+            "name": "BoardID",
+            "lang_type": "string",
+            "json_tag": "board_id",
+            "mapstructure_tag": "board_id",
+            "description": "Unique board ID that this project refers to"
+          },
+          {
+            "name": "RelatedPack",
+            "lang_type": "string",
+            "json_tag": "related_pack",
+            "mapstructure_tag": "related_pack",
+            "description": "Pack that contains this project"
+          }
+        ]
+      }
+    ],
+    "interface": {
+      "methods": [
+        {
+          "name": "Verify",
+          "description": "Verify that a project is valid csolution or uvprojx project",
+          "args": [
+            {
+              "name": "project",
+              "lang_type": "types.Project",
+              "reference": true,
+              "description": "The project to verify"
+            },
+            {
+              "name": "outDir",
+              "lang_type": "string",
+              "description": "The directory to output artefacts from the verification (logs and zipped project etc.)"
+            },
+            {
+              "name": "projectDir",
+              "lang_type": "string",
+              "description": "The root directory of the project"
+            }
+          ],
+          "returns": [
+            {
+              "name": "ok",
+              "lang_type": "bool",
+              "description": "Whether the project was verifiable"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the verification step failed"
+            }
+          ]
+        }
+      ]
+    },
+    "command_line_commands": {
+      "binary": "verify-example",
+      "root_environment_var": "VERIFY_EXAMPLE",
+      "description": "CLI for verifying an individual example is compatible with cmsis tools",
+      "functions": [
+        {
+          "name": "Verify",
+          "description": "Verify that a project is valid csolution or uvprojx project",
+          "configuration": [
+            {
+              "name": "Project",
+              "lang_type": "types.Project",
+              "mapstructure_tag": "project",
+              "description": "Project configuration",
+              "is_root": true,
+              "default_value": "*types.DefaultProject()",
+              "bindings": [
+                {
+                  "name": "Path",
+                  "description": "path to a project file within the project directory",
+                  "arg": "path",
+                  "mapstructure_tag": "path",
+                  "lang_type": "string"
+                }
+              ]
+            },
+            {
+              "name": "OutDir",
+              "lang_type": "string",
+              "required": true,
+              "mapstructure_tag": "out_dir",
+              "description": "The directory to output artefacts from the verification (logs and zipped project etc.)"
+            },
+            {
+              "name": "ProjectDir",
+              "lang_type": "string",
+              "required": true,
+              "mapstructure_tag": "project_dir",
+              "description": "The root directory of the project"
+            },
+            {
+              "name": "BearerToken",
+              "lang_type": "string",
+              "required": true,
+              "is_root": true,
+              "mapstructure_tag": "bearer_token",
+              "pattern": "[a-zA-Z0-9]+",
+              "description": "An authorisation token for the services"
+            },
+            {
+              "name": "Debug",
+              "lang_type": "bool",
+              "mapstructure_tag": "debug",
+              "is_root": true,
+              "description": "Whether to show debug information during verification"
+            },
+            {
+              "name": "LogError",
+              "lang_type": "verify.ErrorOutputType",
+              "is_root": true,
+              "mapstructure_tag": "log_error",
+              "description": "Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY"
+            }
+          ]
+        }
+      ]
+    },
+    "global_configuration": [
+      {
+        "name": "BearerToken",
+        "lang_type": "string",
+        "required": true,
+        "mapstructure_tag": "bearer_token",
+        "pattern": "[a-zA-Z0-9]+",
+        "description": "An authorisation token for the services"
+      },
+      {
+        "name": "Host",
+        "lang_type": "string",
+        "required": true,
+        "mapstructure_tag": "host",
+        "pattern": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?",
+        "description": "The host to use for access to the solar services",
+        "default": "https://all.api.keil.arm.com"
+      },
+      {
+        "name": "UserAgent",
+        "lang_type": "string",
+        "pattern": ".+?[/\\s][\\d.]+",
+        "mapstructure_tag": "user_agent",
+        "description": "The user agent for the requests"
+      },
+      {
+        "name": "Debug",
+        "lang_type": "bool",
+        "mapstructure_tag": "debug",
+        "description": "Whether to show debug information during verification"
+      },
+      {
+        "name": "LogError",
+        "lang_type": "verify.ErrorOutputType",
+        "mapstructure_tag": "log_error",
+        "description": "Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY"
+      }
+    ],
+    "extra_imports": [
+      {
+        "import_url": "github.com/Arm-Debug/solar-pack-project-importer/importer/project",
+        "import_ref": "project"
+      }
+    ]
+  }
+}

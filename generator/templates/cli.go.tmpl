@@ -1,0 +1,114 @@
+{{ $package := .Specification.MainModule }}
+{{ $interfaceName := .Specification.Name }}
+package cmd
+
+import (
+	"context"
+	"fmt"
+
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/spf13/cobra"
+
+
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"	
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}"	
+)
+
+const (
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ $functionName := .Name -}}
+	{{ range .Configuration -}}
+	{{ if not .is_root -}}
+	{{ $mapstructure:= .mapstructure_tag -}}
+	{{ if .bindings -}}
+	{{ range .bindings -}}
+	{{ $functionName | lower }}{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
+	{{ else -}}
+	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+)
+
+func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelFunc) {
+	cancellableCtx, cancel = context.WithCancel(ctx)
+	end := make(chan error, 1)
+	go func() {
+		// Waits for a user interrupt or SIGTERM or expired/cancelled context
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+		for wait := true; wait; {
+			select {
+			case <-shutdown:
+				wait = false
+			case <-ctx.Done():
+				wait = false
+			}
+		}
+
+		cancel()
+		close(end)
+	}()
+	return
+}
+
+{{ range .Specification.CommandLineCommands.Functions }}
+{{ $nameLower := .Name | lower }}
+var {{ $nameLower }}Cfg config.{{ .Name }}Configuration
+
+var {{ $nameLower }}Func func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error = nil
+
+var {{ $nameLower }}Cmd = &cobra.Command{
+	Use:   "{{ $nameLower }}",
+	Short: "{{ .Description }}",
+	Long:  "{{ .Description }}",
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		logger, err := logs.NewStdLogger("{{ .Name }}")
+		if err != nil {
+			fmt.Printf("failed initialising the logger: %v\n", err.Error())
+			os.Exit(1)
+		}
+
+		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.NewDefault{{ .Name }}Configuration())
+		if err != nil {
+			logger.LogError(err, "failed initialising {{ $nameLower }} command")
+			os.Exit(1)
+		}
+
+		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
+		defer cancel()
+
+		err = {{ $package }}.{{ .Name }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $nameLower }}Func)
+		if err != nil {
+			logger.LogError(err)
+			cancel()
+			os.Exit(1)
+		}
+	},
+}
+{{ end }}
+
+func init() {
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ $functionName := .Name | lower -}}
+	{{ range .Configuration -}}
+	{{ if not .is_root -}}
+	{{ $mapstructure:= .mapstructure_tag -}}
+	{{ if .bindings -}}
+	{{ range .bindings -}}
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | title }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
+	{{ end -}}
+	{{ else -}}
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | title }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
+	{{ end -}}
+	{{ end -}}
+	{{ end }}
+	rootCmd.AddCommand({{ $functionName }}Cmd)
+	{{ end }}
+}

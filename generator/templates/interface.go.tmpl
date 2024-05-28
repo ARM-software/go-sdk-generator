@@ -1,0 +1,33 @@
+package {{ .Specification.MainModule }}
+
+import (
+	_ "github.com/golang/mock/gomock"
+
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+)
+
+//go:generate mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks github.com/Arm-Debug/{{ .Specification.PackageName }}/$GOPACKAGE I{{ .Specification.Name }}
+
+{{ $interfaceName := .Specification.Name -}}
+// {{ .Specification.Description }}
+type I{{ .Specification.Name }} interface {
+	// GetConfig returns the configuration for {{ .Specification.Name }}CLI
+	GetConfig() *config.{{ .Specification.Name }}Configuration
+	{{ range .Specification.Interface.Methods -}}
+/* 
+{{ .Description }}
+
+Input arguments:
+
+  * ctx: A context to pass into the method. Can be used tocancel long running tasks
+{{ range .Args }}
+  * {{ .name }}: {{ .description }}
+{{ end }}
+Return values:
+{{ range .Returns }}
+  * {{ .name }}: {{ .description }}
+{{ end }}
+*/
+	{{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
+	{{ end -}}
+}

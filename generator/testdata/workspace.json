@@ -1,0 +1,230 @@
+{
+  "specification": {
+    "package_name": "workspace-service-sdk",
+    "main_module": "workspace",
+    "name": "Workspace",
+    "description": "Create and manipulate workspaces",
+    "interface": {
+      "methods": [
+        {
+          "name": "SetWorkspaceName",
+          "description": "Set the workspace name",
+          "args": [
+            {
+              "name": "name",
+              "lang_type": "string",
+              "description": "The workspace name"
+            }
+          ],
+          "returns": [
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the fetch failed"
+            }
+          ]
+        },
+        {
+          "name": "GetWorkspaceName",
+          "description": "Get the workspace name",
+          "returns": [
+            {
+              "name": "name",
+              "lang_type": "string",
+              "reference": true,
+              "description": "The workspace name"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the fetch failed"
+            }
+          ]
+        },
+        {
+          "name": "CreateWorkspace",
+          "description": "Create a workspace",
+          "args": [
+            {
+              "name": "name",
+              "lang_type": "string",
+              "description": "The workspace name"
+            },
+            {
+              "name": "sourceName",
+              "lang_type": "string",
+              "description": "The workspace source type (git/zip)"
+            }
+          ],
+          "returns": [
+            {
+              "name": "item",
+              "lang_type": "client.WorkspaceItem",
+              "reference": true,
+              "description": "The workspace item"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the creation failed"
+            }
+          ]
+        },
+        {
+          "name": "RetainWorkspace",
+          "description": "Retain a workspace",
+          "args": [
+            {
+              "name": "name",
+              "lang_type": "string",
+              "description": "The workspace name"
+            }
+          ],
+          "returns": [
+            {
+              "name": "item",
+              "lang_type": "client.WorkspaceItem",
+              "reference": true,
+              "description": "The workspace item"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the retain failed"
+            }
+          ]
+        },
+        {
+          "name": "ListWorkspaces",
+          "description": "List workspaces",
+          "returns": [
+            {
+              "name": "collection",
+              "lang_type": "client.WorkspaceCollection",
+              "reference": true,
+              "description": "The collection of workspaces"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the list failed"
+            }
+          ]
+        },
+        {
+          "name": "GetWorkspaceZipSourceEtag",
+          "description": "Get the ETAG for a workspace source of type zip",
+          "args": [
+            {
+              "name": "name",
+              "lang_type": "string",
+              "description": "The workspace name"
+            }
+          ],
+          "returns": [
+            {
+              "name": "etag",
+              "lang_type": "string",
+              "description": "The etag for the zip source"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the etag fetch failed"
+            }
+          ]
+        },
+        {
+          "name": "UploadWorkspaceContent",
+          "description": "Upload content to a workspace",
+          "args": [
+            {
+              "name": "artefact",
+              "lang_type": "string",
+              "description": "The artefact to upload"
+            }
+          ],
+          "returns": [
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the upload failed"
+            }
+          ]
+        },
+        {
+          "name": "FetchRepository",
+          "description": "Fetch content from a git repository",
+          "args": [
+            {
+              "name": "url",
+              "lang_type": "string",
+              "description": "Repository URL"
+            },
+            {
+              "name": "ref",
+              "lang_type": "string",
+              "description": "Repository reference"
+            }
+          ],
+          "returns": [
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the fetch failed"
+            }
+          ]
+        },
+        {
+          "name": "ZipWorkspace",
+          "description": "Zip a directory for a worspace",
+          "args": [
+            {
+              "name": "uuid",
+              "lang_type": "string",
+              "description": "Unique identifier for the zip"
+            },
+            {
+              "name": "inputPath",
+              "lang_type": "string",
+              "description": "Path to the zip"
+            },
+            {
+              "name": "ignoreRegex",
+              "lang_type": "[]string",
+              "description": "List of regexes to ignore during zip"
+            }
+          ],
+          "returns": [
+            {
+              "name": "zipOutput",
+              "lang_type": "string",
+              "description": "Path to the zipped output"
+            },
+            {
+              "name": "err",
+              "lang_type": "error",
+              "description": "Whether the zip failed"
+            }
+          ]
+        }
+      ]
+    },
+    "global_configuration": [
+      {
+        "name": "BearerToken",
+        "lang_type": "string",
+        "required": true,
+        "mapstructure_tag": "bearer_token",
+        "pattern": "[a-z]+",
+        "description": "An authorisation token for the services"
+      }
+    ],
+    "extra_imports": [
+      {
+        "import_url": "github.com/ARM-software/embedded-development-services-client/client",
+        "import_ref": "client"
+      }
+    ]
+  }
+}

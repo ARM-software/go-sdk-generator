@@ -1,0 +1,18 @@
+name: Dependabot
+on:
+  pull_request_target:
+    branches: dependabot/**
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+  contents: write
+jobs:
+  dependabot:
+    uses: Arm-Debug/OTG-Services-Workflows/.github/workflows/dependabot.yml@latest
+    secrets: inherit
+    with: # we call update-client so need these inputs
+      branch: ${{ "{{" }} github.head_ref || github.ref }}
+      dockerfile: Dockerfile.importer
+      go_module: importer
+      pr_url: ${{ "{{" }}github.event.pull_request.html_url}}

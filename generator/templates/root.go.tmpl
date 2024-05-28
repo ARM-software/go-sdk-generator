@@ -1,0 +1,70 @@
+package cmd
+
+import (
+	"os"
+
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+const (
+	app = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ range .Configuration -}}
+	{{ if .is_root -}}
+	{{ if notSeenRootCmd .name -}}
+	{{ $mapstructure:= .mapstructure_tag -}}
+	{{ if .bindings -}}
+	{{ range .bindings -}}
+	root{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
+	{{ else -}}
+	root{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ resetNotSeenRootCmd -}}
+)
+
+var (
+	viperSession = viper.New()
+)
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "{{ .Specification.CommandLineCommands.Binary }}",
+	Short: "{{ .Specification.CommandLineCommands.Description }}",
+	Long: "{{ .Specification.CommandLineCommands.Description }}",
+}
+
+func Execute() {
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func init() {
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ range .Configuration -}}
+	{{ if .is_root -}}
+	{{ if notSeenRootCmd .name -}}
+	{{ $mapstructure:= .mapstructure_tag -}}
+	{{ if .bindings -}}
+	{{ range .bindings -}}
+	rootCmd.PersistentFlags().{{ .lang_type | title }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	{{ end -}}
+	{{ else -}}
+	rootCmd.PersistentFlags().{{ .lang_type | title }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ .mapstructure_tag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ end -}}
+	{{ end }}
+	{{ resetNotSeenRootCmd -}}
+}

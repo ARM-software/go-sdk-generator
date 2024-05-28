@@ -1,0 +1,33 @@
+version: 2
+registries:
+  github:
+    type: git
+    url: https://github.com
+    username: x-access-token
+    password: ${{ "{{" }}secrets.GIT_SECRET}}
+updates:
+- package-ecosystem: gomod
+  directory: "/importer"
+  schedule:
+    interval: daily
+    timezone: Europe/London
+  open-pull-requests-limit: 10
+  rebase-strategy: disabled
+  registries:
+    - github
+- package-ecosystem: gomod
+  directory: "/cli"
+  schedule:
+    interval: daily
+    timezone: Europe/London
+  open-pull-requests-limit: 10
+  rebase-strategy: disabled
+  registries:
+    - github
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    timezone: Europe/London
+  open-pull-requests-limit: 10
+  rebase-strategy: disabled

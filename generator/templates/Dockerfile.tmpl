@@ -1,0 +1,16 @@
+FROM golang:1.21.0 as build
+
+WORKDIR /build
+ADD {{ .Specification.MainModule }} {{ .Specification.MainModule }}
+ADD cli cli
+
+WORKDIR /build/cli
+RUN go mod download
+RUN go build -o /output/{{ .Specification.MainModule }}
+
+FROM alpine:3.19.1
+
+# Install go binary
+COPY --from=build /output/{{ .Specification.MainModule }} /usr/local/bin/{{ .Specification.MainModule }}
+
+ENTRYPOINT ["{{ .Specification.MainModule }}"]

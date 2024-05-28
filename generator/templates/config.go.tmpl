@@ -1,0 +1,84 @@
+package config
+
+import (
+	"regexp"
+
+	"github.com/ARM-software/golang-utils/utils/logs"
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
+	{{ if .Specification.AdditionalTypes -}}
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"	
+	{{ end -}}
+)
+
+// Configuration for {{ .Specification.Name }}
+type {{ .Specification.Name }}Configuration struct {
+	{{ range .Specification.GlobalConfiguration -}}
+	// {{ .description }}
+	{{ .name }} {{ .lang_type }} `mapstructure:"{{ .mapstructure_tag }}"`
+	{{ end }}
+}
+
+func (cfg *{{ .Specification.Name }}Configuration) Validate() error {
+	return validation.ValidateStruct(cfg,
+	{{ range .Specification.GlobalConfiguration -}}
+	{{ if .required -}}
+		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ end -}}
+	{{ end }}
+	)
+}
+
+func NewDefault{{ .Specification.Name }}Configuration() *{{ .Specification.Name }}Configuration {
+	return &{{ .Specification.Name }}Configuration{
+	{{ range .Specification.GlobalConfiguration -}}
+	{{ if .default_value -}}
+	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ end -}}
+	{{ end }}
+	}
+}
+
+{{ if .Specification.CommandLineCommands -}}
+{{ range .Specification.CommandLineCommands.Functions -}}
+// Configuration for {{ .Name }} function
+type {{ .Name }}Configuration struct {
+	{{ range .Configuration -}}
+		// {{ .description }}
+		{{ .name }} {{ .lang_type }} `mapstructure:"{{ .mapstructure_tag }}"`
+	{{ end }}
+}
+
+func (cfg *{{ .Name }}Configuration) Validate() error {
+	err := configUtils.ValidateEmbedded(cfg)
+	if err != nil {
+		return err
+	}
+	
+	return validation.ValidateStruct(cfg,
+	{{ range .Configuration -}}
+	{{ if not .bindings }}
+	{{ if .required }}
+		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ end }}
+	{{ end }}
+	{{ end }}
+	)
+}
+
+func NewDefault{{ .Name }}Configuration() *{{ .Name }}Configuration {
+	return &{{ .Name }}Configuration{
+	{{ range .Configuration -}}
+	{{ if not .bindings }}
+	{{ if .default_value -}}
+	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ end -}}
+	{{ else }}
+	{{ .name }}: {{ .default_value }},
+	{{ end }}
+	{{ end }}
+	}
+}
+{{ end }}
+{{ end }}

@@ -1,0 +1,83 @@
+package {{ .Specification.MainModule }}
+
+import (
+	"github.com/ARM-software/golang-utils/utils" 
+
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+
+	{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ end -}}
+)
+
+{{ $interfaceName := .Specification.Name -}}
+
+// The implementation of I{{ .Specification.Name }}
+type {{ .Specification.Name }} struct {
+	cfg *config.{{ .Specification.Name }}Configuration
+	Delegate I{{ .Specification.Name }}
+}
+
+{{ range .Specification.Interface.Methods -}}
+/* 
+{{ .Description }}
+
+Input arguments:
+
+  * ctx: A context to pass into the method. Can be used tocancel long running tasks
+{{ range .Args }}
+  * {{ .name }}: {{ .description }}
+{{ end }}
+Return values:
+{{ range .Returns }}
+  * {{ .name }}: {{ .description }}
+{{ end }}
+*/
+func (imp *{{ $interfaceName }}){{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) {
+	if imp.Delegate == nil {
+		err = fmt.Errorf("%w: delegate must be defined", commonerrors.ErrUndefined)
+		return
+	}
+
+	return imp.Delegate.{{ .Name }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }}{{ end }})
+}
+
+{{ end -}}
+
+// GetConfig returns the configuration for {{ .Specification.Name }}
+func (imp *{{ .Specification.Name }})GetConfig() *config.{{ .Specification.Name }}Configuration {
+	return imp.cfg
+}
+
+// New{{ .Specification.Name }} returns a new {{ .Specification.Name }} with the configuration provided by cfg
+func NewDefault{{ .Specification.Name }}(cfg *config.{{ .Specification.Name }}Configuration) *{{ .Specification.Name }} {
+	return &{{ .Specification.Name }}{
+		cfg: cfg,
+	}
+}
+
+// New{{ .Specification.Name }}WithDelegate returns a new I{{ .Specification.Name }} that uses the delegate implementation provided by d
+func New{{ .Specification.Name }}WithDelegate(d I{{ .Specification.Name }}) I{{ .Specification.Name }} {
+	return &{{ .Specification.Name }}{
+		cfg: d.GetConfig(),
+		Delegate: d,
+	}
+}
+
+{{ if .Specification.CommandLineCommands -}}
+{{ range .Specification.CommandLineCommands.Functions -}}
+/* 
+{{ .Description }}
+*/
+func {{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name }}Configuration, f func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error) (err error) {
+	if f == nil {
+		err = fmt.Errorf("%w: must provide an implementation of %T to {{ .Name }}", commonerrors.ErrUndefined, f)	
+		return
+	}
+	
+	return f(ctx, logger, cfg)
+}
+
+{{ end -}}
+{{ end -}}

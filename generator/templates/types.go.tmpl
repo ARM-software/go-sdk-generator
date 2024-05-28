@@ -1,0 +1,32 @@
+package types
+
+{{ range .Specification.AdditionalTypes }}
+// {{ .Description }}
+type {{ .Name }} struct {
+{{ range .Fields -}}
+	// {{ .description }}
+	{{ .name }} {{ .lang_type }} `json:"{{ .json_tag }}" mapstructure:"{{ .mapstructure_tag }}"`
+	{{ end }}	
+}
+
+func (cfg *{{ .Name }}) Validate() error {
+	return validation.ValidateStruct(cfg,
+	{{ range .Fields -}}
+	{{ if .required }}
+		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ end }}
+	{{ end }}
+	)
+}
+
+func Default{{ .Name }}() *{{ .Name }} {
+	return &{{ .Name }}{
+	{{ range .Fields -}}
+	{{ if .default_value -}}
+	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ end -}}
+	{{ end }}
+	}
+}
+{{ end }}
+
