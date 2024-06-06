@@ -1,0 +1,35 @@
+project_name: {{ .Specification.PackageName }}
+env:
+  - GO111MODULE=on
+# Commented out because requires Pro features
+# before:
+# hooks:
+# - cmd: go mod tidy
+# dir: ./{{ .Specification.MainModule }}
+# - cmd: go generate ./...
+# dir: ./{{ .Specification.MainModule }}
+builds:
+  - skip: true
+archives:
+  - name_template: >-
+      {{ "{{" }} .ProjectName }}_
+      {{ "{{" }}- title .Os }}_
+      {{ "{{" }}- if eq .Arch "amd64" }}x86_64
+      {{ "{{" }}- else if eq .Arch "386" }}i386
+      {{ "{{" }}- else }}{{ "{{" }} .Arch }}{{ "{{" }} end }}
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ "{{" }} incpatch .Tag }}-dev"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^changes:"
+      - "^test:"
+release:
+  discussion_category_name: Releases
+  # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease
+  prerelease: auto
+  name_template: "Release {{ "{{" }}.Version}}"

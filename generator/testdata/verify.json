@@ -261,6 +261,7 @@
         "description": "Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY"
       }
     ],
+    "release_to_artifactory": true,
     "extra_imports": [
       {
         "import_url": "github.com/Arm-Debug/solar-pack-project-importer/importer/project",

@@ -44,6 +44,7 @@ const (
 	dependabotWorkflowFile = "templates/dependabot.workflow.yml.tmpl"
 	releaseWorkflowFile    = "templates/release.yml.tmpl"
 	goreleaserFile         = "templates/goreleaser.yaml.tmpl"
+	goreleaserLibraryFile  = "templates/goreleaser-library.yaml.tmpl"
 	golangciFile           = "templates/golangci.yaml.tmpl"
 	golangciPrecommitFile  = "templates/golangci.pre-commit.yaml.tmpl"
 )
@@ -257,7 +258,9 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	}
 
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
-		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(goreleaserFile, fmt.Sprintf("%v/.goreleaser.yaml", cfg.Output)))
+		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(goreleaserFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output)))
+	} else {
+		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(goreleaserLibraryFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output)))
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {

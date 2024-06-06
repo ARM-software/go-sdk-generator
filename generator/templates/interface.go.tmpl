@@ -19,7 +19,7 @@ type I{{ .Specification.Name }} interface {
 
 Input arguments:
 
-  * ctx: A context to pass into the method. Can be used tocancel long running tasks
+  * ctx: A context to pass into the method. Can be used to cancel long running tasks
 {{ range .Args }}
   * {{ .name }}: {{ .description }}
 {{ end }}
