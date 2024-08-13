@@ -12,6 +12,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/idgen"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"golang.org/x/tools/imports"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
@@ -150,8 +152,18 @@ var templateFuncMap = template.FuncMap{
 			return "0"
 		case strings.HasPrefix(s, "float"):
 			return "0.0"
+		case s == "time.Duration":
+			return "0"
 		default:
 			return "nil"
+		}
+	},
+	"argtype": func(s string) string {
+		switch s {
+		case "time.Duration":
+			return "Duration"
+		default:
+			return cases.Title(language.English).String(fmt.Sprintf("%T", s))
 		}
 	},
 }

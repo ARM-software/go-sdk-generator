@@ -100,11 +100,11 @@ func init() {
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	{{ $functionName }}Cmd.Flags().{{ .lang_type | title }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | argtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
 	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
 	{{ end -}}
 	{{ else -}}
-	{{ $functionName }}Cmd.Flags().{{ .lang_type | title }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | argtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
 	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
 	{{ end -}}
 	{{ end -}}
