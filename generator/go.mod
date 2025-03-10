@@ -1,6 +1,6 @@
 module github.com/Arm-Debug/go-sdk-generator/generator
 
-go 1.22
+go 1.24
 
 require (
 	github.com/ARM-software/golang-utils/utils v1.62.0
