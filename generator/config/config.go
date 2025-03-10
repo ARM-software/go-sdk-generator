@@ -6,14 +6,16 @@ import (
 )
 
 type GenerateConfig struct {
-	Input  string `mapstructure:"input"`
-	Output string `mapstructure:"output"`
+	Input        string `mapstructure:"input"`
+	Output       string `mapstructure:"output"`
+	NoRegenGoMod bool   `mapstructure:"no_regen_gomod"`
 }
 
 func DefaultGenerateConfig() *GenerateConfig {
 	return &GenerateConfig{
-		Input:  "",
-		Output: "",
+		Input:        "",
+		Output:       "",
+		NoRegenGoMod: false,
 	}
 }
 

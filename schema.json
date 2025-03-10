@@ -30,6 +30,10 @@
           "type": "string",
           "description": "The description of the SDK"
         },
+        "conf_file": {
+          "type": "string",
+          "description": "An optional configuration file that will be used to load values from (in addtion to cli args and env vars)"
+        },
         "additional_types": {
           "$ref": "#/$defs/types"
         },

@@ -30,7 +30,7 @@ func (cfg *{{ .Specification.Name }}Configuration) Validate() error {
 	)
 }
 
-func NewDefault{{ .Specification.Name }}Configuration() *{{ .Specification.Name }}Configuration {
+func Default{{ .Specification.Name }}Configuration() *{{ .Specification.Name }}Configuration {
 	return &{{ .Specification.Name }}Configuration{
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .default_value -}}
@@ -67,7 +67,7 @@ func (cfg *{{ .Name }}Configuration) Validate() error {
 	)
 }
 
-func NewDefault{{ .Name }}Configuration() *{{ .Name }}Configuration {
+func Default{{ .Name }}Configuration() *{{ .Name }}Configuration {
 	return &{{ .Name }}Configuration{
 	{{ range .Configuration -}}
 	{{ if not .bindings }}

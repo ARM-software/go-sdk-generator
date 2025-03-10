@@ -1,5 +1,6 @@
 {{ $package := .Specification.MainModule }}
 {{ $interfaceName := .Specification.Name }}
+{{ $confFile := .Specification.ConfFile }}
 package cmd
 
 import (
@@ -8,6 +9,7 @@ import (
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
 
@@ -73,7 +75,16 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.NewDefault{{ .Name }}Configuration())
+		{{ if $confFile }}
+		confFile := "{{ $confFile }}"
+		if filesystem.Exists(confFile) {
+			err = configUtils.LoadFromEnvironment(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration(), confFile)
+		} else {
+			err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration())
+		} 
+		{{ else -}}
+		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration())
+		{{ end -}}
 		if err != nil {
 			logger.LogError(err, "failed initialising {{ $nameLower }} command")
 			os.Exit(1)
@@ -92,7 +103,32 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 }
 {{ end }}
 
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Prints tool's version",
+	Long:  "Prints tool's version in standard output (StdOut). The version follows SemVer.",
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		logger, err := logs.NewStdLogger("Version")
+		if err != nil {
+			fmt.Printf("failed initialising the logger: %v\n", err.Error())
+			os.Exit(1)
+		}
+		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
+		defer cancel()
+
+		version, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
+		if err != nil {
+			logger.LogError(err)
+			cancel()
+			os.Exit(1)
+		}
+		fmt.Println(version)
+	},
+}
+
 func init() {
+	rootCmd.AddCommand(versionCmd)
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ $functionName := .Name | lower -}}
 	{{ range .Configuration -}}

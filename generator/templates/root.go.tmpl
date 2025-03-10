@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"embed"
 	"os"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
@@ -30,6 +31,8 @@ const (
 )
 
 var (
+	//go:embed module.properties
+	embeddedFS   embed.FS
 	viperSession = viper.New()
 )
 

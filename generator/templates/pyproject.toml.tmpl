@@ -5,17 +5,21 @@
 [ProjectConfig]
 # Only path variables can and must contain 'DIR', 'PATH' or 'ROOT' in their name as
 # these tokens are used to identify path variables from other variable types.
-PROJECT_NAME = "{{ .Specification.Description }}"
+PROJECT_NAME = "{{ .Specification.Name }}"
 PACKAGE_NAME = "{{ .Specification.PackageName }}"
 PROJECT_UUID = '{{ uuid }}'
 PROJECT_ROOT = "."
 NEWS_DIR = "changes/"
 SOURCE_DIR = "{{ .Specification.MainModule }}"
 RELEASE_BRANCH_PATTERN = "^release.*$"
-MODULE_TO_DOCUMENT = "generator"
+MODULE_TO_DOCUMENT = "{{ .Specification.MainModule }}"
 DOCUMENTATION_DEFAULT_OUTPUT_PATH = "./docs"
 DOCUMENTATION_PRODUCTION_OUTPUT_PATH = "./docs"
+{{ if .Specification.CommandLineCommands -}}
+VERSION_FILE_PATH = "cli/cmd/module.properties"
+{{else}}
 VERSION_FILE_PATH = "module.properties"
+{{end}}
 CHANGELOG_FILE_PATH = "CHANGELOG.md"
 AWS_BUCKET=""
 PROGRAMMING_LANGUAGE = "Golang"
@@ -27,7 +31,11 @@ CONFIG_NAME = "JAVA"
 PRERELEASE_TOKEN = "beta"
 BUILD_TOKEN = "dev"
 TAG_TEMPLATE = "release/{version}"
+{{ if .Specification.CommandLineCommands -}}
+targets = [ "cli/cmd/module.properties",]
+{{else}}
 targets = [ "module.properties",]
+{{end}}
 
 [AutoVersionConfig.key_aliases]
 Version = "VERSION_KEY"

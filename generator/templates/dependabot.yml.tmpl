@@ -7,7 +7,7 @@ registries:
     password: ${{ "{{" }}secrets.GIT_SECRET}}
 updates:
 - package-ecosystem: gomod
-  directory: "/importer"
+  directory: "/{{ .Specification.MainModule }}"
   schedule:
     interval: daily
     timezone: Europe/London

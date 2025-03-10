@@ -13,10 +13,10 @@ type Binding struct {
 	// The description of the field
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The go type for the field
+	// The type for the field
 	LangType *string `json:"lang_type,omitempty" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
 
-	// The mapstructure
+	// The tag fragment used when building the environment variable key
 	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
 
 	// The name of the field
@@ -39,6 +39,30 @@ type CliFunction struct {
 
 type CliFunctionConfigurationElem interface{}
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *CliFunction) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["configuration"]; raw != nil && !ok {
+		return fmt.Errorf("field configuration in CliFunction: required")
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in CliFunction: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in CliFunction: required")
+	}
+	type Plain CliFunction
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = CliFunction(plain)
+	return nil
+}
+
 type CommandArgument interface{}
 
 // A CLI command
@@ -54,6 +78,24 @@ type CommandLineCommands struct {
 
 	// Environment variable prefix
 	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *CommandLineCommands) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["functions"]; raw != nil && !ok {
+		return fmt.Errorf("field functions in CommandLineCommands: required")
+	}
+	type Plain CommandLineCommands
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = CommandLineCommands(plain)
+	return nil
 }
 
 // The configuration options for the exported implementation
@@ -101,6 +143,45 @@ type InterfaceMethodArgsElem interface{}
 
 type InterfaceMethodReturnsElem interface{}
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *InterfaceMethod) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in InterfaceMethod: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in InterfaceMethod: required")
+	}
+	type Plain InterfaceMethod
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = InterfaceMethod(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Interface) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["methods"]; raw != nil && !ok {
+		return fmt.Errorf("field methods in Interface: required")
+	}
+	type Plain Interface
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = Interface(plain)
+	return nil
+}
+
 // A command argument or code parameter
 type Parameter struct {
 	// Bind congifuration options to variables
@@ -139,6 +220,30 @@ type Parameter struct {
 	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Parameter) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	type Plain Parameter
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	*j = Parameter(plain)
+	return nil
+}
+
 // Whether to release the package to artifactory. Will require a .goreleaser file
 // or equivalent file to be set up
 type ReleaseToArtifactory bool
@@ -160,6 +265,10 @@ type SDKSpecification struct {
 	// CommandLineCommands corresponds to the JSON schema field
 	// "command_line_commands".
 	CommandLineCommands *CommandLineCommands `json:"command_line_commands,omitempty" yaml:"command_line_commands,omitempty" mapstructure:"command_line_commands,omitempty"`
+
+	// An optional configuration file that will be used to load values from (in
+	// addtion to cli args and env vars)
+	ConfFile *string `json:"conf_file,omitempty" yaml:"conf_file,omitempty" mapstructure:"conf_file,omitempty"`
 
 	// The description of the SDK
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
@@ -190,68 +299,47 @@ type SDKSpecification struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Interface) UnmarshalJSON(b []byte) error {
+func (j *SDKSpecification) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["methods"]; !ok || v == nil {
-		return fmt.Errorf("field methods in Interface: required")
+	if _, ok := raw["global_configuration"]; raw != nil && !ok {
+		return fmt.Errorf("field global_configuration in SDKSpecification: required")
 	}
-	type Plain Interface
+	if _, ok := raw["interface"]; raw != nil && !ok {
+		return fmt.Errorf("field interface in SDKSpecification: required")
+	}
+	if _, ok := raw["main_module"]; raw != nil && !ok {
+		return fmt.Errorf("field main_module in SDKSpecification: required")
+	}
+	if _, ok := raw["package_name"]; raw != nil && !ok {
+		return fmt.Errorf("field package_name in SDKSpecification: required")
+	}
+	type Plain SDKSpecification
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = Interface(plain)
+	*j = SDKSpecification(plain)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Parameter) UnmarshalJSON(b []byte) error {
+func (j *SDK) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	type Plain Parameter
+	if _, ok := raw["specification"]; raw != nil && !ok {
+		return fmt.Errorf("field specification in SDK: required")
+	}
+	type Plain SDK
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	if v, ok := raw["is_root"]; !ok || v == nil {
-		plain.IsRoot = false
-	}
-	if v, ok := raw["reference"]; !ok || v == nil {
-		plain.Reference = false
-	}
-	if v, ok := raw["required"]; !ok || v == nil {
-		plain.Required = false
-	}
-	*j = Parameter(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CliFunction) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["configuration"]; !ok || v == nil {
-		return fmt.Errorf("field configuration in CliFunction: required")
-	}
-	if v, ok := raw["description"]; !ok || v == nil {
-		return fmt.Errorf("field description in CliFunction: required")
-	}
-	if v, ok := raw["name"]; !ok || v == nil {
-		return fmt.Errorf("field name in CliFunction: required")
-	}
-	type Plain CliFunction
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = CliFunction(plain)
+	*j = SDK(plain)
 	return nil
 }
 
@@ -275,13 +363,13 @@ func (j *Type) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["description"]; !ok || v == nil {
+	if _, ok := raw["description"]; raw != nil && !ok {
 		return fmt.Errorf("field description in Type: required")
 	}
-	if v, ok := raw["fields"]; !ok || v == nil {
+	if _, ok := raw["fields"]; raw != nil && !ok {
 		return fmt.Errorf("field fields in Type: required")
 	}
-	if v, ok := raw["name"]; !ok || v == nil {
+	if _, ok := raw["name"]; raw != nil && !ok {
 		return fmt.Errorf("field name in Type: required")
 	}
 	type Plain Type
@@ -295,87 +383,3 @@ func (j *Type) UnmarshalJSON(b []byte) error {
 
 // A set of entities to export
 type Types []Type
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *InterfaceMethod) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["description"]; !ok || v == nil {
-		return fmt.Errorf("field description in InterfaceMethod: required")
-	}
-	if v, ok := raw["name"]; !ok || v == nil {
-		return fmt.Errorf("field name in InterfaceMethod: required")
-	}
-	type Plain InterfaceMethod
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = InterfaceMethod(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SDKSpecification) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["global_configuration"]; !ok || v == nil {
-		return fmt.Errorf("field global_configuration in SDKSpecification: required")
-	}
-	if v, ok := raw["interface"]; !ok || v == nil {
-		return fmt.Errorf("field interface in SDKSpecification: required")
-	}
-	if v, ok := raw["main_module"]; !ok || v == nil {
-		return fmt.Errorf("field main_module in SDKSpecification: required")
-	}
-	if v, ok := raw["package_name"]; !ok || v == nil {
-		return fmt.Errorf("field package_name in SDKSpecification: required")
-	}
-	type Plain SDKSpecification
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = SDKSpecification(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CommandLineCommands) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["functions"]; !ok || v == nil {
-		return fmt.Errorf("field functions in CommandLineCommands: required")
-	}
-	type Plain CommandLineCommands
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = CommandLineCommands(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *SDK) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["specification"]; !ok || v == nil {
-		return fmt.Errorf("field specification in SDK: required")
-	}
-	type Plain SDK
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = SDK(plain)
-	return nil
-}

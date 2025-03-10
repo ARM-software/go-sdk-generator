@@ -202,6 +202,11 @@ func populateTemplate(ctx context.Context, data SDK, templateFile string, output
 	if err != nil {
 		return
 	}
+	defer func() {
+		if outFile != nil {
+			_ = outFile.Close()
+		}
+	}()
 
 	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), data)
 	if err != nil {
@@ -248,7 +253,6 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		NewTemplateToPopulate(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(configFile, fmt.Sprintf("%v/%v/config/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)),
-		NewTemplateToPopulate(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(readmeFile, fmt.Sprintf("%v/README.md", cfg.Output)),
 		NewTemplateToPopulate(contribFile, fmt.Sprintf("%v/CONTRIBUTING.md", cfg.Output)),
 		NewTemplateToPopulate(developmentFile, fmt.Sprintf("%v/DEVELOPMENT.md", cfg.Output)),
@@ -265,6 +269,12 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		NewTemplateToPopulate(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output)),
 	}
 
+	if !cfg.NoRegenGoMod {
+		templatesToPopulate = append(templatesToPopulate,
+			NewTemplateToPopulate(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule)),
+		)
+	}
+
 	if len(sdk.Specification.AdditionalTypes) > 0 {
 		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)))
 	}
@@ -277,15 +287,25 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 
 	if sdk.Specification.CommandLineCommands != nil {
 		templatesToPopulate = append(templatesToPopulate, []templateToPopulate{
-			NewTemplateToPopulate(goModCliFile, fmt.Sprintf("%v/cli/go.mod", cfg.Output)),
 			NewTemplateToPopulate(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule)),
 			NewTemplateToPopulate(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output)),
 			NewTemplateToPopulate(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output)),
 		}...)
+
+		if !cfg.NoRegenGoMod {
+			templatesToPopulate = append(templatesToPopulate,
+				NewTemplateToPopulate(goModCliFile, fmt.Sprintf("%v/cli/go.mod", cfg.Output)),
+			)
+		}
 	}
 
+	var modulePropertiesFilePath string
+	if sdk.Specification.CommandLineCommands == nil {
+		modulePropertiesFilePath = fmt.Sprintf("%v/module.properties", cfg.Output)
+	} else {
+		modulePropertiesFilePath = fmt.Sprintf("%v/cli/cmd/module.properties", cfg.Output)
+	}
 	// Don't regenerate files that contain state
-	modulePropertiesFilePath := fmt.Sprintf("%v/module.properties", cfg.Output)
 	if !filesystem.Exists(modulePropertiesFilePath) {
 		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(modulePropertiesFile, modulePropertiesFilePath))
 	}

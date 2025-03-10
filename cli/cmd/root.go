@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	app       = "sdk_generator"
-	inputArg  = "input"
-	outputArg = "output"
+	app             = "sdk_generator"
+	inputArg        = "input"
+	outputArg       = "output"
+	noRegenGoModArg = "no-regen-gomod"
 )
 
 var (
@@ -63,7 +64,9 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringP(inputArg, "i", "", "path to SDK schema file")
 	rootCmd.Flags().StringP(outputArg, "o", "", "destination of the output")
+	rootCmd.Flags().BoolP(noRegenGoModArg, "g", false, "don't regenerate go mod files")
 
 	_ = configUtils.BindFlagToEnv(viperSession, app, "INPUT", rootCmd.Flags().Lookup(inputArg))
 	_ = configUtils.BindFlagToEnv(viperSession, app, "OUTPUT", rootCmd.Flags().Lookup(outputArg))
+	_ = configUtils.BindFlagToEnv(viperSession, app, "NO_REGEN_GOMOD", rootCmd.Flags().Lookup(noRegenGoModArg))
 }
