@@ -1,4 +1,29 @@
 <!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
+"0.3.0" (2025-03-10)
+====================
+
+Features
+--------
+
+- :sparkles: Add support for not regenerating gomod files (#20240918125706)
+- :sparkles: Add support for config files (#20240918125718)
+- :sparkles: Add `version` command for all CLIs (#20250310161007)
+
+
+Bugfixes
+--------
+
+- :bug: Make sure that the go.mod does not have superfluous replace directives (#20240617115401)
+- Dependency upgrade: golang-1.22.6 (#20240813150941)
+- :arrow_up: Upgrade dependencies (#20250310161018)
+- Dependency upgrade: alpine-3.21.3 (#20250310162303)
+- Dependency upgrade: golang-1.24.1 (#20250310162310)
+
+
+<!--
 Copyright (C) 2020-2024 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
