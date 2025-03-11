@@ -209,7 +209,7 @@ func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string,
 		expectedFileContent, err := filesystem.ReadFile(expectedFilePath)
 		assert.NoError(t, err)
 
-		assert.Equal(t, string(expectedFileContent), string(createdFileContent))
+		assert.Equal(t, string(expectedFileContent), string(createdFileContent), "file %v", relativePath)
 		return nil
 	})
 	assert.NoError(t, err)
