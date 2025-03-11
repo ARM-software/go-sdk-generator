@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.4.0" (2025-03-11)
+====================
+
+Features
+--------
+
+- :sparkles: Update `mockgen` import to use `go 24` [tool command](https://go.dev/doc/go1.24#tools) (#20250311104426)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.3.0" (2025-03-10)
 ====================
 
