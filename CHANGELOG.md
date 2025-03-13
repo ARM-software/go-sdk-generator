@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.4.1" (2025-03-13)
+====================
+
+Bugfixes
+--------
+
+- :bug: Fix variadic argument forwarding in function definition (#20250312175334)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.4.0" (2025-03-11)
 ====================
 
