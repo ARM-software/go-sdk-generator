@@ -139,6 +139,11 @@
               "name": "projectDir",
               "lang_type": "string",
               "description": "The root directory of the project"
+            },
+            {
+              "name": "extraArgs",
+              "lang_type": "...string",
+              "description": "A set of extra arguments for the job"
             }
           ],
           "returns": [

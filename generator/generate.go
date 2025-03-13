@@ -166,6 +166,9 @@ var templateFuncMap = template.FuncMap{
 			return cases.Title(language.English).String(fmt.Sprintf("%T", s))
 		}
 	},
+	"isVariadicArg": func(s string) bool {
+		return strings.HasPrefix(strings.TrimSpace(s), "...")
+	},
 }
 
 func populateTemplate(ctx context.Context, data SDK, templateFile string, output string) (err error) {

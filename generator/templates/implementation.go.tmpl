@@ -40,7 +40,7 @@ func (imp *{{ $interfaceName }}){{ .Name }}(ctx context.Context, {{ range $i, $a
 		return
 	}
 
-	return imp.Delegate.{{ .Name }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }}{{ end }})
+	return imp.Delegate.{{ .Name }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }}{{ if isVariadicArg $arg.lang_type }}...{{ end }}{{ end }})
 }
 
 {{ end -}}
