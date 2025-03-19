@@ -197,7 +197,7 @@
             {
               "name": "ProjectDir",
               "lang_type": "string",
-              "required": true,
+              "condition": "OutDir != '.'",
               "mapstructure_tag": "project_dir",
               "description": "The root directory of the project"
             },

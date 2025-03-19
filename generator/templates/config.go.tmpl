@@ -10,6 +10,9 @@ import (
 	{{ if .Specification.AdditionalTypes -}}
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"	
 	{{ end -}}
+	{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ end -}}
 )
 
 // Configuration for {{ .Specification.Name }}
@@ -25,6 +28,8 @@ func (cfg *{{ .Specification.Name }}Configuration) Validate() error {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .required -}}
 		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ else if .condition -}}
+		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
 	{{ end -}}
 	{{ end }}
 	)
@@ -61,6 +66,8 @@ func (cfg *{{ .Name }}Configuration) Validate() error {
 	{{ if not .bindings }}
 	{{ if .required }}
 		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ else if .condition -}}
+		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
 	{{ end }}
 	{{ end }}
 	{{ end }}

@@ -271,6 +271,11 @@
           "default": false,
           "description": "Whether the configuration value is required"
         },
+        "condition": {
+          "type": "string",
+          "default": "",
+          "description": "A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once"
+        },
         "reference": {
           "type": "boolean",
           "default": false,

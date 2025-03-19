@@ -187,6 +187,10 @@ type Parameter struct {
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
+	// A condition in which to require the value. It should be based on one other
+	// configuration variable
+	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
 	// An optional default value for use when creating a new instance of the
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
@@ -230,6 +234,9 @@ func (j *Parameter) UnmarshalJSON(b []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
 	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false

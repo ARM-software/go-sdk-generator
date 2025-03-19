@@ -1,5 +1,13 @@
 package types
 
+{{ if .Specification.ExtraImports -}}
+import (
+	{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ end -}}
+)
+{{ end -}}
+
 {{ range .Specification.AdditionalTypes }}
 // {{ .Description }}
 type {{ .Name }} struct {
@@ -14,6 +22,8 @@ func (cfg *{{ .Name }}) Validate() error {
 	{{ range .Fields -}}
 	{{ if .required }}
 		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+	{{ else if .condition -}}
+		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
 	{{ end }}
 	{{ end }}
 	)
