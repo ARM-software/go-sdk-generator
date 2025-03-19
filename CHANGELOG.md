@@ -2,6 +2,25 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.5.0" (2025-03-19)
+====================
+
+Features
+--------
+
+- :sparkles: Add support for conditional validation of fields (#20250319103210)
+
+
+Bugfixes
+--------
+
+- :bug: Make sure that extra imports are included in config.go and types.go (#20250319115417)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.4.1" (2025-03-13)
 ====================
 
