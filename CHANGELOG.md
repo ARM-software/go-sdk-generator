@@ -2,6 +2,26 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.6.0" (2025-04-10)
+====================
+
+Features
+--------
+
+- :sparkles: Add support for using yml directly (#20250409162959)
+- :sparkles: Add information on the installation of the tool to DEVELOPMENT.md template (#20250409163025)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.24.2 (#20250402045325)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.5.0" (2025-03-19)
 ====================
 
