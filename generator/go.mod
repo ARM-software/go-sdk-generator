@@ -8,6 +8,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/text v0.23.0
 	golang.org/x/tools v0.31.0
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (

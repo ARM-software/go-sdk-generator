@@ -246,7 +246,11 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	}
 
 	var sdk SDK
-	err = sdk.UnmarshalJSON(spec)
+	if ext := filepath.Ext(cfg.Input); ext == ".yml" || ext == ".yaml" {
+		err = sdk.UnmarshalYAML(spec)
+	} else {
+		err = sdk.UnmarshalJSON(spec)
+	}
 	if err != nil {
 		err = fmt.Errorf("%w: the file '%v' does not comply with the schema and thus, cannot be parsed: %v", commonerrors.ErrInvalid, cfg.Input, err.Error())
 		return

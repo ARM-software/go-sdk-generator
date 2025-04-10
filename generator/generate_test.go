@@ -235,11 +235,30 @@ func TestGenerate(t *testing.T) {
 		checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
 	})
 
-	t.Run("Yes CLI (verify cmsis example sdk)", func(t *testing.T) {
+	t.Run("Yes CLI (verify cmsis example sdk (json))", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
 		cfg := &config.GenerateConfig{
 			Input:  filepath.Join("testdata", "verify.json"),
+			Output: tmpDir,
+		}
+
+		err := Generate(ctx, cfg)
+		assert.NoError(t, err)
+
+		tmpDir2 := t.TempDir()
+		zipped := filepath.Join("testdata", "verify.zip")
+		_, err = filesystem.Unzip(zipped, tmpDir2)
+		require.NoError(t, err)
+
+		checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
+	})
+
+	t.Run("Yes CLI (verify cmsis example sdk (yaml))", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := &config.GenerateConfig{
+			Input:  filepath.Join("testdata", "verify.yml"),
 			Output: tmpDir,
 		}
 
