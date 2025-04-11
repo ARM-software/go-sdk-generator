@@ -1,0 +1,1 @@
+:bug: Make sure that when a default value is a function it doesn't wrap it in quotes

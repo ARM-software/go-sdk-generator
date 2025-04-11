@@ -39,7 +39,7 @@ func Default{{ .Specification.Name }}Configuration() *{{ .Specification.Name }}C
 	return &{{ .Specification.Name }}Configuration{
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .default_value -}}
-	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ .name }}: {{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }}{{ .default_value }}{{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }},
 	{{ end -}}
 	{{ end }}
 	}
@@ -79,7 +79,7 @@ func Default{{ .Name }}Configuration() *{{ .Name }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .bindings }}
 	{{ if .default_value -}}
-	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ .name }}: {{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }}{{ .default_value }}{{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }},
 	{{ end -}}
 	{{ else }}
 	{{ .name }}: {{ .default_value }},

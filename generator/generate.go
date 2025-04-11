@@ -123,6 +123,9 @@ var templateFuncMap = template.FuncMap{
 	"replaceUnderscores": func(s string) string {
 		return strings.ReplaceAll(s, "_", "-")
 	},
+	"is_func": func(s any) bool {
+		return strings.Contains(fmt.Sprint(s), "func()")
+	},
 	"lower": strings.ToLower,
 	"notSeenRootCmd": func(s string) bool {
 		_, ok := rootCmds[s]
@@ -163,7 +166,7 @@ var templateFuncMap = template.FuncMap{
 		case "time.Duration":
 			return "Duration"
 		default:
-			return cases.Title(language.English).String(fmt.Sprintf("%T", s))
+			return cases.Title(language.English).String(s)
 		}
 	},
 	"isVariadicArg": func(s string) bool {
