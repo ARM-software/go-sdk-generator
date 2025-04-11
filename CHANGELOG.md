@@ -2,6 +2,20 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.6.1" (2025-04-11)
+====================
+
+Bugfixes
+--------
+
+- :bug: Make sure that when a default value is a function it doesn't wrap it in quotes (#20250411142251)
+- :bug: Make sure that the type of an argument in the CLI is respected (#20250411142323)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.6.0" (2025-04-10)
 ====================
 
