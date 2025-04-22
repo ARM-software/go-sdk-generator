@@ -4,7 +4,7 @@ import (
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
 )
 
-//go:generate mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks github.com/Arm-Debug/{{ .Specification.PackageName }}/$GOPACKAGE I{{ .Specification.Name }}
+//go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks github.com/Arm-Debug/{{ .Specification.PackageName }}/$GOPACKAGE I{{ .Specification.Name }}
 
 {{ $interfaceName := .Specification.Name -}}
 // {{ .Specification.Description }}

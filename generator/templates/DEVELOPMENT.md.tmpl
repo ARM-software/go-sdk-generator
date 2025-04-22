@@ -54,7 +54,7 @@ If you add a new interface file and want mocks to be generated for it you will n
 
 For example, to run mockgen, add this comment:
 ```
-//go:generate mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks <package namespace>/$GOPACKAGE IMyInterface
+//go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks <package namespace>/$GOPACKAGE IMyInterface
 ```
 
 You can then generate all mocks by running:
