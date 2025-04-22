@@ -2,6 +2,20 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.6.2" (2025-04-22)
+====================
+
+Bugfixes
+--------
+
+- :camel: Upgrade dependencies (#20250422112455)
+- :gear: Use `go 1.24 tool` command for generators (#20250422112541)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.6.1" (2025-04-11)
 ====================
 
