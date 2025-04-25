@@ -2,6 +2,29 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.7.0" (2025-04-25)
+====================
+
+Features
+--------
+
+- :sparkles: Make go version configurable (#20250422163652)
+- :sparkles: `[boom]` change interface name to be more explicit (#20250422181756)
+- :sparkles: Improve the argument validations (#20250423172034)
+- :sparkles: extend the possible types for lang_type (#20250423172050)
+
+
+Bugfixes
+--------
+
+- :gear: Specify required go tools (#20250422160754)
+- :recycle: Split CLI code from SDK code (#20250422160826)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.6.2" (2025-04-22)
 ====================
 
