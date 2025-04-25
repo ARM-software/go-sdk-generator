@@ -13,6 +13,7 @@ const (
 	app = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ range .Configuration -}}
+	{{ if isValidArgType .lang_type }}
 	{{ if .is_root -}}
 	{{ if notSeenRootCmd .name -}}
 	{{ $mapstructure:= .mapstructure_tag -}}
@@ -22,6 +23,7 @@ const (
 	{{ end -}}
 	{{ else -}}
 	root{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -54,16 +56,18 @@ func init() {
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ range .Configuration -}}
 	{{ if .is_root -}}
+	{{ if isValidArgType .lang_type }}
 	{{ if notSeenRootCmd .name -}}
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	rootCmd.PersistentFlags().{{ .lang_type | title }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	rootCmd.PersistentFlags().{{ .lang_type | argFlagtype }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
 	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
 	{{ end -}}
 	{{ else -}}
-	rootCmd.PersistentFlags().{{ .lang_type | title }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
-	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ .mapstructure_tag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	rootCmd.PersistentFlags().{{ .lang_type | argFlagtype }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .mapstructure_tag }}", rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}

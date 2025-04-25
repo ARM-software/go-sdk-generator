@@ -5,50 +5,50 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
-	"github.com/ARM-software/golang-utils/utils/idgen"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"golang.org/x/tools/imports"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
-//go:generate go-jsonschema -p generator ../schema.json -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
+//go:generate go tool go-jsonschema -p generator ../schema.json -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
-	implementationFile     = "templates/implementation.go.tmpl"
-	interfaceFile          = "templates/interface.go.tmpl"
-	configFile             = "templates/config.go.tmpl"
-	cliFile                = "templates/cli.go.tmpl"
-	readmeFile             = "templates/readme.md.tmpl"
-	rootCliFile            = "templates/root.go.tmpl"
-	mainCliFile            = "templates/main.go.tmpl"
-	typesFile              = "templates/types.go.tmpl"
-	goModSdkFile           = "templates/go.mod.sdk.tmpl"
-	goModCliFile           = "templates/go.mod.cli.tmpl"
-	codeOfConductFile      = "templates/CODE_OF_CONDUCT.md.tmpl"
-	dockerFile             = "templates/Dockerfile.tmpl"
-	pyprojectFile          = "templates/pyproject.toml.tmpl"
-	modulePropertiesFile   = "templates/module.properties.tmpl"
-	knownIssuesFile        = "templates/KNOWN_ISSUES.md.tmpl"
-	developmentFile        = "templates/DEVELOPMENT.md.tmpl"
-	contribFile            = "templates/CONTRIBUTING.md.tmpl"
-	codeOwnersFile         = "templates/CODEOWNERS.tmpl"
-	dependabotFile         = "templates/dependabot.yml.tmpl"
-	prTemplateFile         = "templates/PULL_REQUEST_TEMPLATE.md.tmpl"
-	ciWorkflowFile         = "templates/ci.yml.tmpl"
-	dependabotWorkflowFile = "templates/dependabot.workflow.yml.tmpl"
-	releaseWorkflowFile    = "templates/release.yml.tmpl"
-	goreleaserFile         = "templates/goreleaser.yaml.tmpl"
-	goreleaserLibraryFile  = "templates/goreleaser-library.yaml.tmpl"
-	golangciFile           = "templates/golangci.yaml.tmpl"
-	golangciPrecommitFile  = "templates/golangci.pre-commit.yaml.tmpl"
+	implementationFile           = "templates/implementation.go.tmpl"
+	implementationCLIFile        = "templates/implementation.cli.go.tmpl"
+	implementationWrapperCLIFile = "templates/wrapper.cli.go.tmpl"
+	interfaceFile                = "templates/interface.go.tmpl"
+	configCLIFile                = "templates/config.cli.go.tmpl"
+	configFile                   = "templates/config.go.tmpl"
+	cliFile                      = "templates/cli.go.tmpl"
+	readmeFile                   = "templates/readme.md.tmpl"
+	documentationFile            = "templates/documentation.md.tmpl"
+	rootCliFile                  = "templates/root.go.tmpl"
+	mainCliFile                  = "templates/main.go.tmpl"
+	typesFile                    = "templates/types.go.tmpl"
+	goModSdkFile                 = "templates/go.mod.sdk.tmpl"
+	goModCliFile                 = "templates/go.mod.cli.tmpl"
+	codeOfConductFile            = "templates/CODE_OF_CONDUCT.md.tmpl"
+	dockerFile                   = "templates/Dockerfile.tmpl"
+	pyprojectFile                = "templates/pyproject.toml.tmpl"
+	modulePropertiesFile         = "templates/module.properties.tmpl"
+	knownIssuesFile              = "templates/KNOWN_ISSUES.md.tmpl"
+	developmentFile              = "templates/DEVELOPMENT.md.tmpl"
+	contribFile                  = "templates/CONTRIBUTING.md.tmpl"
+	codeOwnersFile               = "templates/CODEOWNERS.tmpl"
+	dependabotFile               = "templates/dependabot.yml.tmpl"
+	prTemplateFile               = "templates/PULL_REQUEST_TEMPLATE.md.tmpl"
+	ciWorkflowFile               = "templates/ci.yml.tmpl"
+	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
+	releaseWorkflowFile          = "templates/release.yml.tmpl"
+	goreleaserFile               = "templates/goreleaser.yaml.tmpl"
+	goreleaserLibraryFile        = "templates/goreleaser-library.yaml.tmpl"
+	golangciFile                 = "templates/golangci.yaml.tmpl"
+	golangciPrecommitFile        = "templates/golangci.pre-commit.yaml.tmpl"
 )
 
 //go:embed templates
@@ -59,7 +59,7 @@ type templateToPopulate struct {
 	output       string
 }
 
-func (t *templateToPopulate) Populate(ctx context.Context, data SDK) (err error) {
+func (t *templateToPopulate) Populate(ctx context.Context, data *DataModel) (err error) {
 	err = populateTemplate(ctx, data, t.templateFile, t.output)
 	return
 }
@@ -73,7 +73,7 @@ func NewTemplateToPopulate(templateFile, output string) templateToPopulate {
 
 type templates []templateToPopulate
 
-func (t *templates) Populate(ctx context.Context, data SDK) (err error) {
+func (t *templates) Populate(ctx context.Context, data *DataModel) (err error) {
 	for _, tp := range *t {
 		err = tp.Populate(ctx, data)
 		if err != nil {
@@ -91,7 +91,7 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 
 	src, err := filesystem.ReadFile(path)
 	if err != nil {
-		err = fmt.Errorf("%w: file '%v' doesn't exist %v", commonerrors.ErrNotFound, path, err.Error())
+		err = commonerrors.WrapErrorf(commonerrors.ErrNotFound, err, "file '%v' doesn't exist", path)
 		return
 	}
 
@@ -103,7 +103,7 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 		FormatOnly: false,
 	})
 	if err != nil {
-		err = fmt.Errorf("%w: could not cleanup imports for file '%v': %v", commonerrors.ErrUnexpected, path, err.Error())
+		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not cleanup imports for file '%v'", path)
 		return
 	}
 
@@ -113,70 +113,18 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 
 var rootCmds map[string]any = make(map[string]any)
 
-var templateFuncMap = template.FuncMap{
-	"title": func(s string) string {
-		if len(s) == 1 {
-			return strings.ToUpper(s)
-		}
-		return fmt.Sprintf("%s%s", strings.ToUpper(string(s[0])), s[1:])
-	},
-	"replaceUnderscores": func(s string) string {
-		return strings.ReplaceAll(s, "_", "-")
-	},
-	"is_func": func(s any) bool {
-		return strings.Contains(fmt.Sprint(s), "func()")
-	},
-	"lower": strings.ToLower,
-	"notSeenRootCmd": func(s string) bool {
-		_, ok := rootCmds[s]
-		if !ok {
-			rootCmds[s] = true
-		}
-		return !ok
-	},
-	"resetNotSeenRootCmd": func() string {
-		rootCmds = make(map[string]any)
-		return ""
-	},
-	"uuid": func() string {
-		uuid, err := idgen.GenerateUUID4()
-		for err != nil {
-			uuid, err = idgen.GenerateUUID4()
-		}
-		return uuid
-	},
-	"zero": func(s string) string {
-		switch {
-		case s == "string":
-			return "\"\""
-		case s == "bool":
-			return "false"
-		case strings.HasPrefix(s, "int"):
-			return "0"
-		case strings.HasPrefix(s, "float"):
-			return "0.0"
-		case s == "time.Duration":
-			return "0"
-		default:
-			return "nil"
-		}
-	},
-	"argtype": func(s string) string {
-		switch s {
-		case "time.Duration":
-			return "Duration"
-		default:
-			return cases.Title(language.English).String(s)
-		}
-	},
-	"isVariadicArg": func(s string) bool {
-		return strings.HasPrefix(strings.TrimSpace(s), "...")
-	},
+type DataModel struct {
+	SDK
+	TargetedGoVersion string
 }
 
-func populateTemplate(ctx context.Context, data SDK, templateFile string, output string) (err error) {
+func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string) (err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
+		return
+	}
+	if data == nil {
+		err = commonerrors.UndefinedVariable("data model")
 		return
 	}
 
@@ -185,7 +133,7 @@ func populateTemplate(ctx context.Context, data SDK, templateFile string, output
 		Funcs(templateFuncMap).
 		ParseFS(fs, templateFile)
 	if err != nil {
-		err = fmt.Errorf("%w: could not create template: %v", commonerrors.ErrUnexpected, err.Error())
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not read template")
 		return
 	}
 
@@ -214,9 +162,9 @@ func populateTemplate(ctx context.Context, data SDK, templateFile string, output
 		}
 	}()
 
-	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), data)
+	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), *data)
 	if err != nil {
-		err = fmt.Errorf("%w: could not execute template: %v", commonerrors.ErrUnexpected, err.Error())
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not execute template")
 		return
 	}
 
@@ -238,13 +186,13 @@ func populateTemplate(ctx context.Context, data SDK, templateFile string, output
 
 func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	if cfg == nil {
-		err = fmt.Errorf("%w: generate configuration must be defined", commonerrors.ErrUndefined)
+		err = commonerrors.UndefinedVariable("generator configuration")
 		return
 	}
 
 	spec, err := filesystem.ReadFile(cfg.Input)
 	if err != nil {
-		err = fmt.Errorf("%w: could not read file '%v'", commonerrors.ErrUnexpected, cfg.Input)
+		err = commonerrors.Newf(commonerrors.ErrUnexpected, "could not read file '%v'", cfg.Input)
 		return
 	}
 
@@ -255,7 +203,7 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		err = sdk.UnmarshalJSON(spec)
 	}
 	if err != nil {
-		err = fmt.Errorf("%w: the file '%v' does not comply with the schema and thus, cannot be parsed: %v", commonerrors.ErrInvalid, cfg.Input, err.Error())
+		err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "the file '%v' does not comply with the schema and thus, cannot be parsed", cfg.Input)
 		return
 	}
 
@@ -263,27 +211,26 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		NewTemplateToPopulate(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(configFile, fmt.Sprintf("%v/%v/config/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)),
-		NewTemplateToPopulate(readmeFile, fmt.Sprintf("%v/README.md", cfg.Output)),
+		NewTemplateToPopulate(documentationFile, fmt.Sprintf("%v/DOCUMENTATION.md", cfg.Output)),
 		NewTemplateToPopulate(contribFile, fmt.Sprintf("%v/CONTRIBUTING.md", cfg.Output)),
 		NewTemplateToPopulate(developmentFile, fmt.Sprintf("%v/DEVELOPMENT.md", cfg.Output)),
 		NewTemplateToPopulate(codeOfConductFile, fmt.Sprintf("%v/CODE_OF_CONDUCT.md", cfg.Output)),
-		NewTemplateToPopulate(dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(knownIssuesFile, fmt.Sprintf("%v/KNOWN_ISSUES.md", cfg.Output)),
 		NewTemplateToPopulate(golangciFile, fmt.Sprintf("%v/.golangci.yaml", cfg.Output)),
 		NewTemplateToPopulate(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output)),
 		NewTemplateToPopulate(codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output)),
 		NewTemplateToPopulate(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output)),
 		NewTemplateToPopulate(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output)),
-		NewTemplateToPopulate(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output)),
-		NewTemplateToPopulate(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output)),
-		NewTemplateToPopulate(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output)),
 	}
 
-	if !cfg.NoRegenGoMod {
-		templatesToPopulate = append(templatesToPopulate,
-			NewTemplateToPopulate(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule)),
-		)
-	}
+	templatesToPopulate = addStateFile(templatesToPopulate, readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite)
+	templatesToPopulate = addStateFile(templatesToPopulate, goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)
+
+	updateGoVersion := cfg.Overwrite || cfg.TargetedGoVersion != config.DefaultGenerateConfig().TargetedGoVersion
+	templatesToPopulate = addStateFile(templatesToPopulate, dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule), updateGoVersion)
+	templatesToPopulate = addStateFile(templatesToPopulate, ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion)
+	templatesToPopulate = addStateFile(templatesToPopulate, dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion)
+	templatesToPopulate = addStateFile(templatesToPopulate, releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion)
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
 		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)))
@@ -296,17 +243,17 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
+
 		templatesToPopulate = append(templatesToPopulate, []templateToPopulate{
 			NewTemplateToPopulate(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule)),
 			NewTemplateToPopulate(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output)),
 			NewTemplateToPopulate(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output)),
+			NewTemplateToPopulate(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule)),
+			NewTemplateToPopulate(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule)),
 		}...)
 
-		if !cfg.NoRegenGoMod {
-			templatesToPopulate = append(templatesToPopulate,
-				NewTemplateToPopulate(goModCliFile, fmt.Sprintf("%v/cli/go.mod", cfg.Output)),
-			)
-		}
+		templatesToPopulate = addStateFile(templatesToPopulate, implementationCLIFile, fmt.Sprintf("%v/cli/cmd/%v/implementations.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)
+		templatesToPopulate = addStateFile(templatesToPopulate, goModCliFile, fmt.Sprintf("%v/cli/go.mod", cfg.Output), cfg.Overwrite)
 	}
 
 	var modulePropertiesFilePath string
@@ -315,16 +262,21 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	} else {
 		modulePropertiesFilePath = fmt.Sprintf("%v/cli/cmd/module.properties", cfg.Output)
 	}
-	// Don't regenerate files that contain state
-	if !filesystem.Exists(modulePropertiesFilePath) {
-		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(modulePropertiesFile, modulePropertiesFilePath))
-	}
+	templatesToPopulate = addStateFile(templatesToPopulate, modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite)
+	templatesToPopulate = addStateFile(templatesToPopulate, pyprojectFile, fmt.Sprintf("%v/pyproject.toml", cfg.Output), cfg.Overwrite)
 
-	pyprojectFilePath := fmt.Sprintf("%v/pyproject.toml", cfg.Output)
-	if !filesystem.Exists(pyprojectFilePath) {
-		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(pyprojectFile, pyprojectFilePath))
-	}
-
-	err = templatesToPopulate.Populate(ctx, sdk)
+	err = templatesToPopulate.Populate(ctx, &DataModel{
+		SDK:               sdk,
+		TargetedGoVersion: cfg.TargetedGoVersion,
+	})
 	return
+}
+
+func addStateFile(templatesList templates, templateFile, dest string, overwrite bool) templates {
+	if !filesystem.Exists(dest) || overwrite {
+		templatesList = append(templatesList,
+			NewTemplateToPopulate(templateFile, dest),
+		)
+	}
+	return templatesList
 }

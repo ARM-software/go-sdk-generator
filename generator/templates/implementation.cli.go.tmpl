@@ -1,0 +1,34 @@
+package {{ .Specification.MainModule }}
+
+import (
+	"github.com/ARM-software/golang-utils/utils" 
+
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+
+	{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ end -}}
+)
+
+{{ range .Specification.CommandLineCommands.Functions -}}
+/*
+    {{ .Name }} function: {{ .Description }}
+*/
+func {{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name }}Configuration) (err error) {
+
+    // TODO implement me
+	return commonerrors.New(commonerrors.ErrNotImplemented,"missing `{{ .Name }}()` implementation", )
+}
+
+
+
+{{ end -}}
+
+
+func init(){
+ // TODO uncomment when implemented
+{{ range .Specification.CommandLineCommands.Functions -}}
+    //  {{ .Name }}ImplFunc = {{ .Name }}
+{{ end -}}
+}

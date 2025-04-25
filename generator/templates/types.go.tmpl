@@ -1,5 +1,17 @@
 package types
 
+
+import (
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
+    {{ if .Specification.ExtraImports -}}
+	{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ end -}}
+	{{ end -}}
+)
 {{ if .Specification.ExtraImports -}}
 import (
 	{{ range .Specification.ExtraImports -}}
@@ -13,17 +25,25 @@ import (
 type {{ .Name }} struct {
 {{ range .Fields -}}
 	// {{ .description }}
-	{{ .name }} {{ .lang_type }} `json:"{{ .json_tag }}" mapstructure:"{{ .mapstructure_tag }}"`
+	{{ .name }} {{ .lang_type | convertLangType }} `json:"{{ .json_tag }}" mapstructure:"{{ .mapstructure_tag }}"`
 	{{ end }}	
 }
 
 func (cfg *{{ .Name }}) Validate() error {
+	err := configUtils.ValidateEmbedded(cfg)
+	if err != nil {
+		return err
+	}
+
 	return validation.ValidateStruct(cfg,
 	{{ range .Fields -}}
-	{{ if .required }}
-		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
-	{{ else if .condition -}}
-		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
+	{{ $validation := .lang_type | validationLangType -}}
+    {{ if .required }}
+        validation.Field(&cfg.{{ .name }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+    {{ else if .condition -}}
+        validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
+    {{ else if $validation -}}
+        validation.Field(&cfg.{{ .name }}{{ $validation }}),
 	{{ end }}
 	{{ end }}
 	)
@@ -33,9 +53,9 @@ func Default{{ .Name }}() *{{ .Name }} {
 	return &{{ .Name }}{
 	{{ range .Fields -}}
 	{{ if .default_value -}}
-	{{ .name }}: {{ if eq .lang_type "string" }}"{{ end }}{{ .default_value }}{{ if eq .lang_type "string" }}"{{ end }},
+	{{ .name }}: {{ defaultValue .lang_type .default_value }},
 	{{ end -}}
-	{{ end }}
+	{{ end -}}
 	}
 }
 {{ end }}

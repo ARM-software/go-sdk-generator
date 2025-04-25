@@ -13,14 +13,15 @@ import (
 	"github.com/spf13/cobra"
 
 
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"	
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}"	
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/{{ .Specification.MainModule }}"
 )
 
 const (
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ $functionName := .Name -}}
 	{{ range .Configuration -}}
+	{{ if isValidArgType .lang_type }}
 	{{ if not .is_root -}}
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
@@ -29,6 +30,7 @@ const (
 	{{ end -}}
 	{{ else -}}
 	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -59,9 +61,7 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 
 {{ range .Specification.CommandLineCommands.Functions }}
 {{ $nameLower := .Name | lower }}
-var {{ $nameLower }}Cfg config.{{ .Name }}Configuration
 
-var {{ $nameLower }}Func func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error = nil
 
 var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
@@ -74,6 +74,8 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 			fmt.Printf("failed initialising the logger: %v\n", err.Error())
 			os.Exit(1)
 		}
+
+		var {{ $nameLower }}Cfg config.{{ .Name }}Configuration
 
 		{{ if $confFile }}
 		confFile := "{{ $confFile }}"
@@ -93,7 +95,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel()
 
-		err = {{ $package }}.{{ .Name }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $nameLower }}Func)
+		err = {{ $package }}.Wrap{{ .Name }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
 		if err != nil {
 			logger.LogError(err)
 			cancel()
@@ -132,16 +134,18 @@ func init() {
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ $functionName := .Name | lower -}}
 	{{ range .Configuration -}}
+	{{ if isValidArgType .lang_type }}
 	{{ if not .is_root -}}
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	{{ $functionName }}Cmd.Flags().{{ .lang_type | argtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
-	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | argFlagtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ $mapstructure }}_{{ .mapstructure_tag }}", {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
 	{{ end -}}
 	{{ else -}}
-	{{ $functionName }}Cmd.Flags().{{ .lang_type | argtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
-	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ .mapstructure_tag }}", app), {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
+	{{ $functionName }}Cmd.Flags().{{ .lang_type | argFlagtype }}({{ $functionName }}{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .mapstructure_tag }}", {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .name }}Arg))
+	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end }}

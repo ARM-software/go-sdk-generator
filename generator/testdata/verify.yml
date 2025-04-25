@@ -2,87 +2,7 @@ specification:
   package_name: verify-cmsis-example-sdk
   main_module: verify
   name: ExampleVerify
-  description: Verify a project is compatible with cmsis tools
-  additional_types:
-    - name: Project
-      description: A project
-      fields:
-        - name: Path
-          lang_type: string
-          json_tag: path
-          mapstructure_tag: path
-          required: true
-          description: Path to a project file
-        - name: Name
-          lang_type: string
-          json_tag: name
-          mapstructure_tag: name
-          description: Name of the project
-        - name: Title
-          lang_type: string
-          json_tag: title
-          mapstructure_tag: title
-          description: Human readable title for the project
-        - name: Version
-          lang_type: string
-          json_tag: version
-          mapstructure_tag: version
-          description: The version of the project
-        - name: Description
-          lang_type: string
-          json_tag: description
-          mapstructure_tag: description
-          description: The description of the project
-        - name: DocumentationURL
-          lang_type: string
-          json_tag: documentation_url
-          mapstructure_tag: documentation_url
-          description: The URL to the documentation for the example
-        - name: Format
-          lang_type: string
-          json_tag: format
-          mapstructure_tag: format
-          description: Format of the project (e.g. uvprojx/csolution)
-        - name: Source
-          lang_type: project.Origin
-          json_tag: source
-          mapstructure_tag: source
-          description: Source (URL and type) of the project
-        - name: Archive
-          lang_type: project.Archive
-          json_tag: archive
-          mapstructure_tag: archive
-          description: Archive information for the project
-        - name: Convertible
-          lang_type: bool
-          json_tag: convertible
-          mapstructure_tag: convertible
-          description: Is the project convertible to csolution
-        - name: Requirements
-          lang_type: project.Requirements
-          json_tag: requirements
-          mapstructure_tag: requirements
-          description: Requirements (e.g. toolchains) needed for the project
-        - name: Keywords
-          lang_type: '[]string'
-          json_tag: keywords
-          mapstructure_tag: keywords
-          description: Keywords for this project
-        - name: Categories
-          lang_type: '[]string'
-          json_tag: categories
-          mapstructure_tag: categories
-          description: Categories for this project
-        - name: BoardID
-          lang_type: string
-          json_tag: board_id
-          mapstructure_tag: board_id
-          description: Unique board ID that this project refers to
-        - name: RelatedPack
-          lang_type: string
-          json_tag: related_pack
-          mapstructure_tag: related_pack
-          description: Pack that contains this project
+  description: Verify a project is compatible with [CMSIS](https://www.keil.arm.com/cmsis)
   interface:
     methods:
       - name: Verify
@@ -98,18 +18,23 @@ specification:
           - name: projectDir
             lang_type: string
             description: The root directory of the project
-          - name: extraArgs
-            lang_type: '...string'
-            description: A set of extra arguments for the job
+          - name: boardOverride
+            lang_type: types.RelatedBoard
+            reference: true
+            description: An optional board to use to use as the related board for the output project
         returns:
           - name: ok
             lang_type: bool
             description: Whether the project was verifiable
+          - name: jobName
+            lang_type: string
+            description: identifier of the verification job
           - name: err
             lang_type: error
             description: Whether the verification step failed
+
   command_line_commands:
-    binary: verify-example
+    binary: verify-cmsis-example-sdk
     root_environment_var: VERIFY_EXAMPLE
     description: CLI for verifying an individual example is compatible with cmsis tools
     functions:
@@ -121,7 +46,7 @@ specification:
             mapstructure_tag: project
             description: Project configuration
             is_root: true
-            default_value: '*types.DefaultProject()'
+            default_value: "*types.DefaultProject()"
             bindings:
               - name: Path
                 description: path to a project file within the project directory
@@ -135,43 +60,92 @@ specification:
             description: The directory to output artefacts from the verification (logs and zipped project etc.)
           - name: ProjectDir
             lang_type: string
-            condition: OutDir != '.'
+            required: true
             mapstructure_tag: project_dir
             description: The root directory of the project
-          - name: BearerToken
+          - name: APIKey
             lang_type: string
             required: true
             is_root: true
-            mapstructure_tag: bearer_token
-            pattern: '[a-zA-Z0-9]+'
-            description: An authorisation token for the services
+            mapstructure_tag: api_key
+            pattern: "[a-zA-Z0-9_-]+"
+            description: An API key enabling the use of the online services
+          - name: Host
+            lang_type: host
+            required: true
+            mapstructure_tag: host
+            pattern: '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
+            description: The host to use for accessing the online services
+            default_value: https://all.api.keil.arm.com
           - name: Debug
             lang_type: bool
             mapstructure_tag: debug
             is_root: true
-            description: Whether to show debug information during verification
+            description: Whether to show debug information and save intermediate artifacts during verification
           - name: LogError
-            lang_type: verify.ErrorOutputType
+            lang_type: int
             is_root: true
             mapstructure_tag: log_error
             description: Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY
+          - name: Quiet
+            lang_type: bool
+            is_root: true
+            mapstructure_tag: quiet
+            description: Whether to stream job messages. This will still show logs from the tool itself
+          - name: CleanUpOnSuccess
+            lang_type: bool
+            mapstructure_tag: cleanup
+            description: Whether to clean up job records on success.
+            is_root: true
+          - name: JobTimeout
+            lang_type: duration
+            default_value: 5m
+            is_root: true
+            mapstructure_tag: job_timeout
+            description: Timeout to use for waiting for a project to be verified. Important when starting many jobs simultaneously as the service can only handle a limited number at once and jobs may remain in the queue for a while
+          - name: OverrideBoard
+            lang_type: types.BoardID
+            mapstructure_tag: override_board
+            default_value: "types.BoardID{}"
+            description: An optional board override to use instead of parsing it from the project itself
+            bindings:
+              - name: Name
+                description: Name of the override board
+                arg: override-board-name
+                mapstructure_tag: name
+                lang_type: string
+              - name: Vendor
+                description: Vendor of the override board
+                arg: override-board-vendor
+                mapstructure_tag: vendor
+                lang_type: string
+              - name: Revision
+                description: Revision of the override board
+                arg: override-board-revision
+                mapstructure_tag: revision
+                lang_type: string
+          - name: OverrideBoardReference
+            lang_type: string
+            mapstructure_tag: override_board_reference
+            description: An optional board reference to use
+
   global_configuration:
-    - name: BearerToken
+    - name: APIKey
       lang_type: string
       required: true
-      mapstructure_tag: bearer_token
-      pattern: '[a-zA-Z0-9]+'
-      description: An authorisation token for the services
+      mapstructure_tag: api_key
+      pattern: "[a-zA-Z0-9_-]+"
+      description: An API key enabling the use of the online services
     - name: Host
-      lang_type: string
+      lang_type: host
       required: true
       mapstructure_tag: host
-      pattern: ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
-      description: The host to use for access to the solar services
-      default: https://all.api.keil.arm.com
+      pattern: '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
+      description: The host to use for accessing the online services
+      default_value: https://all.api.keil.arm.com
     - name: UserAgent
       lang_type: string
-      pattern: .+?[/\s][\d.]+
+      pattern: '.+?[/\s][\d.]+'
       mapstructure_tag: user_agent
       description: The user agent for the requests
     - name: Debug
@@ -179,10 +153,26 @@ specification:
       mapstructure_tag: debug
       description: Whether to show debug information during verification
     - name: LogError
-      lang_type: verify.ErrorOutputType
+      lang_type: uint32
       mapstructure_tag: log_error
       description: Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY
+    - name: Quiet
+      lang_type: bool
+      mapstructure_tag: quiet
+      description: Whether to stream job messages. This will still show logs from the tool itself
+    - name: CleanupOnSuccess
+      lang_type: bool
+      mapstructure_tag: cleanup_on_success
+      description: Whether to clean up job's records on success
+    - name: JobTimeout
+      lang_type: time.Duration
+      default_value: 5*time.Minute
+      required: true
+      mapstructure_tag: job_timeout
+      description: Timeout to use for waiting for a project to be verified. Important when starting many jobs simultaneously as the service can only handle a limited number at once and jobs may remain in the queue for a while
+
   release_to_artifactory: true
+
   extra_imports:
-    - import_url: github.com/Arm-Debug/solar-pack-project-importer/importer/project
-      import_ref: project
+    - import_url: github.com/Arm-Debug/cmsis-project-types/project/types
+      import_ref: types

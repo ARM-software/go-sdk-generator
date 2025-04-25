@@ -4,6 +4,120 @@
     "main_module": "workspace",
     "name": "Workspace",
     "description": "Create and manipulate workspaces",
+    "additional_types": [
+      {
+        "name": "Project",
+        "description": "A project",
+        "fields": [
+          {
+            "name": "Path",
+            "lang_type": "string",
+            "json_tag": "path",
+            "mapstructure_tag": "path",
+            "required": true,
+            "description": "Path to a project file"
+          },
+          {
+            "name": "Name",
+            "lang_type": "string",
+            "json_tag": "name",
+            "mapstructure_tag": "name",
+            "description": "Name of the project"
+          },
+          {
+            "name": "Title",
+            "lang_type": "string",
+            "json_tag": "title",
+            "mapstructure_tag": "title",
+            "description": "Human readable title for the project"
+          },
+          {
+            "name": "Version",
+            "lang_type": "version",
+            "json_tag": "version",
+            "mapstructure_tag": "version",
+            "description": "The version of the project"
+          },
+          {
+            "name": "Description",
+            "lang_type": "string",
+            "json_tag": "description",
+            "mapstructure_tag": "description",
+            "description": "The description of the project"
+          },
+          {
+            "name": "DocumentationURL",
+            "lang_type": "url",
+            "json_tag": "documentation_url",
+            "mapstructure_tag": "documentation_url",
+            "description": "The URL to the documentation for the example"
+          },
+          {
+            "name": "Format",
+            "lang_type": "string",
+            "json_tag": "format",
+            "mapstructure_tag": "format",
+            "description": "Format of the project (e.g. uvprojx/csolution)"
+          },
+          {
+            "name": "Source",
+            "lang_type": "project.Origin",
+            "json_tag": "source",
+            "mapstructure_tag": "source",
+            "description": "Source (URL and type) of the project"
+          },
+          {
+            "name": "Archive",
+            "lang_type": "project.Archive",
+            "json_tag": "archive",
+            "mapstructure_tag": "archive",
+            "description": "Archive information for the project"
+          },
+          {
+            "name": "Convertible",
+            "lang_type": "bool",
+            "json_tag": "convertible",
+            "mapstructure_tag": "convertible",
+            "description": "Is the project convertible to csolution"
+          },
+          {
+            "name": "Requirements",
+            "lang_type": "project.Requirements",
+            "json_tag": "requirements",
+            "mapstructure_tag": "requirements",
+            "description": "Requirements (e.g. toolchains) needed for the project"
+          },
+          {
+            "name": "Keywords",
+            "lang_type": "[]string",
+            "json_tag": "keywords",
+            "mapstructure_tag": "keywords",
+            "description": "Keywords for this project"
+          },
+          {
+            "name": "Categories",
+            "lang_type": "[]string",
+            "json_tag": "categories",
+            "mapstructure_tag": "categories",
+            "description": "Categories for this project"
+          },
+          {
+            "name": "BoardID",
+            "lang_type": "uuid",
+            "json_tag": "board_id",
+            "mapstructure_tag": "board_id",
+            "description": "Unique board ID that this project refers to"
+          },
+          {
+            "name": "RelatedPack",
+            "lang_type": "string",
+            "json_tag": "related_pack",
+            "mapstructure_tag": "related_pack",
+            "description": "Pack that contains this project"
+          }
+        ]
+      }
+    ],
     "interface": {
       "methods": [
         {
@@ -224,6 +338,10 @@
       {
         "import_url": "github.com/ARM-software/embedded-development-services-client/client",
         "import_ref": "client"
+      },
+      {
+        "import_url": "github.com/Arm-Debug/solar-pack-project-importer/importer/project",
+        "import_ref": "project"
       }
     ]
   }

@@ -6,20 +6,21 @@ import (
 	"log"
 	"os"
 
-	"github.com/Arm-Debug/go-sdk-generator/generator"
-	"github.com/Arm-Debug/go-sdk-generator/generator/config"
-
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/Arm-Debug/go-sdk-generator/generator"
+	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
 const (
-	app             = "sdk_generator"
-	inputArg        = "input"
-	outputArg       = "output"
-	noRegenGoModArg = "no-regen-gomod"
+	app           = "sdk_generator"
+	inputArg      = "input"
+	outputArg     = "output"
+	overwriteArg  = "overwrite"
+	targetedGoArg = "targeted-go"
 )
 
 var (
@@ -64,9 +65,11 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringP(inputArg, "i", "", "path to SDK schema file")
 	rootCmd.Flags().StringP(outputArg, "o", "", "destination of the output")
-	rootCmd.Flags().BoolP(noRegenGoModArg, "g", false, "don't regenerate go mod files")
+	rootCmd.Flags().BoolP(overwriteArg, "g", false, "regenerate all files")
+	rootCmd.Flags().StringP(targetedGoArg, "t", config.DefaultGenerateConfig().TargetedGoVersion, "targeted go version")
 
 	_ = configUtils.BindFlagToEnv(viperSession, app, "INPUT", rootCmd.Flags().Lookup(inputArg))
 	_ = configUtils.BindFlagToEnv(viperSession, app, "OUTPUT", rootCmd.Flags().Lookup(outputArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "NO_REGEN_GOMOD", rootCmd.Flags().Lookup(noRegenGoModArg))
+	_ = configUtils.BindFlagToEnv(viperSession, app, "OVERWRITE", rootCmd.Flags().Lookup(overwriteArg))
+	_ = configUtils.BindFlagToEnv(viperSession, app, "GO_VERSION", rootCmd.Flags().Lookup(targetedGoArg))
 }

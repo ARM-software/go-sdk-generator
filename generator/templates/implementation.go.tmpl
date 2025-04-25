@@ -1,22 +1,23 @@
+{{ $sdkInterfaceName := .Specification.Name -}}
 package {{ .Specification.MainModule }}
 
 import (
 	"github.com/ARM-software/golang-utils/utils" 
 
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"
+{{ if .Specification.AdditionalTypes -}}
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+{{ end -}}
 
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
 	{{ end -}}
 )
 
-{{ $interfaceName := .Specification.Name -}}
-
-// The implementation of I{{ .Specification.Name }}
-type {{ .Specification.Name }} struct {
-	cfg *config.{{ .Specification.Name }}Configuration
-	Delegate I{{ .Specification.Name }}
+// {{ $sdkInterfaceName }}Manager is an implementation of I{{ $sdkInterfaceName }}Manager
+type {{ $sdkInterfaceName }}Manager struct {
+	cfg *config.{{ $sdkInterfaceName }}ManagerConfiguration
+	Delegate I{{ $sdkInterfaceName }}Manager
 }
 
 {{ range .Specification.Interface.Methods -}}
@@ -34,9 +35,9 @@ Return values:
   * {{ .name }}: {{ .description }}
 {{ end }}
 */
-func (imp *{{ $interfaceName }}){{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) {
+func (imp *{{ $sdkInterfaceName }}Manager){{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) {
 	if imp.Delegate == nil {
-		err = fmt.Errorf("%w: delegate must be defined", commonerrors.ErrUndefined)
+		err = commonerrors.UndefinedVariable("delegate")
 		return
 	}
 
@@ -45,39 +46,18 @@ func (imp *{{ $interfaceName }}){{ .Name }}(ctx context.Context, {{ range $i, $a
 
 {{ end -}}
 
-// GetConfig returns the configuration for {{ .Specification.Name }}
-func (imp *{{ .Specification.Name }})GetConfig() *config.{{ .Specification.Name }}Configuration {
+// GetConfig returns the configuration for {{ $sdkInterfaceName }}
+func (imp *{{ $sdkInterfaceName }}Manager)GetConfig() *config.{{ $sdkInterfaceName }}ManagerConfiguration {
 	return imp.cfg
 }
 
-// New{{ .Specification.Name }} returns a new {{ .Specification.Name }} with the configuration provided by cfg
-func NewDefault{{ .Specification.Name }}(cfg *config.{{ .Specification.Name }}Configuration) *{{ .Specification.Name }} {
-	return &{{ .Specification.Name }}{
-		cfg: cfg,
-	}
-}
-
-// New{{ .Specification.Name }}WithDelegate returns a new I{{ .Specification.Name }} that uses the delegate implementation provided by d
-func New{{ .Specification.Name }}WithDelegate(d I{{ .Specification.Name }}) I{{ .Specification.Name }} {
-	return &{{ .Specification.Name }}{
+// New{{ $sdkInterfaceName }}WithDelegate returns a new I{{ $sdkInterfaceName }}Manager that uses the delegate implementation provided by d
+func New{{ $sdkInterfaceName }}WithDelegate(d I{{ $sdkInterfaceName }}Manager) I{{ $sdkInterfaceName }}Manager {
+    if d == nil {
+        return nil
+    }
+	return &{{ $sdkInterfaceName }}Manager{
 		cfg: d.GetConfig(),
 		Delegate: d,
 	}
 }
-
-{{ if .Specification.CommandLineCommands -}}
-{{ range .Specification.CommandLineCommands.Functions -}}
-/* 
-{{ .Description }}
-*/
-func {{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name }}Configuration, f func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error) (err error) {
-	if f == nil {
-		err = fmt.Errorf("%w: must provide an implementation of %T to {{ .Name }}", commonerrors.ErrUndefined, f)	
-		return
-	}
-	
-	return f(ctx, logger, cfg)
-}
-
-{{ end -}}
-{{ end -}}

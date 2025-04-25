@@ -138,7 +138,7 @@ func TestPopulateTemplate(t *testing.T) {
 		require.NoDirExists(t, filepath.Dir(out))
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, SDK{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)
@@ -152,7 +152,7 @@ func TestPopulateTemplate(t *testing.T) {
 		require.NoDirExists(t, filepath.Dir(out))
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, SDK{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)
@@ -165,7 +165,7 @@ func TestPopulateTemplate(t *testing.T) {
 		out := filepath.Join(tmpDir, "out")
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, SDK{}, filepath.Join("templates", "test-not-exist.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test-not-exist.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 		assert.NoFileExists(t, out)
 	})
@@ -176,7 +176,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		err := populateTemplate(ctx, SDK{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 		assert.NoFileExists(t, out)
 	})
@@ -209,69 +209,54 @@ func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string,
 		expectedFileContent, err := filesystem.ReadFile(expectedFilePath)
 		assert.NoError(t, err)
 
-		assert.Equal(t, string(expectedFileContent), string(createdFileContent), "file %v", relativePath)
+		assert.Equal(t, strings.ReplaceAll(string(expectedFileContent), "\r", ""), strings.ReplaceAll(string(createdFileContent), "\r", ""), "file %v", relativePath)
 		return nil
 	})
 	assert.NoError(t, err)
 }
 
 func TestGenerate(t *testing.T) {
-	t.Run("No CLI (workspace service sdk) ", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ctx := context.Background()
-		cfg := &config.GenerateConfig{
-			Input:  filepath.Join("testdata", "workspace.json"),
-			Output: tmpDir,
-		}
+	tests := []struct {
+		title         string
+		recipe        string
+		regressionSrc string
+	}{
+		{
+			title:         "No CLI (workspace service sdk)",
+			recipe:        "workspace.json",
+			regressionSrc: "workspace.zip",
+		},
+		{
+			title:         "Yes CLI (verify cmsis example sdk (json))",
+			recipe:        "verify.json",
+			regressionSrc: "verify.zip",
+		},
+		{
+			title:         "Yes CLI (verify cmsis example sdk (yaml))",
+			recipe:        "verify.yml",
+			regressionSrc: "verify.zip",
+		},
+	}
+	for i := range tests {
+		test := tests[i]
+		t.Run(test.title, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			ctx := context.Background()
+			cfg := config.DefaultGenerateConfig()
+			cfg.Input = filepath.Join("testdata", test.recipe)
+			cfg.Output = tmpDir
 
-		err := Generate(ctx, cfg)
-		assert.NoError(t, err)
+			err := Generate(ctx, cfg)
+			assert.NoError(t, err)
 
-		tmpDir2 := t.TempDir()
-		zipped := filepath.Join("testdata", "workspace.zip")
-		_, err = filesystem.Unzip(zipped, tmpDir2)
-		require.NoError(t, err)
+			tmpDir2 := t.TempDir()
+			zipped := filepath.Join("testdata", test.regressionSrc)
+			_, err = filesystem.Unzip(zipped, tmpDir2)
+			require.NoError(t, err)
 
-		checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
-	})
-
-	t.Run("Yes CLI (verify cmsis example sdk (json))", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ctx := context.Background()
-		cfg := &config.GenerateConfig{
-			Input:  filepath.Join("testdata", "verify.json"),
-			Output: tmpDir,
-		}
-
-		err := Generate(ctx, cfg)
-		assert.NoError(t, err)
-
-		tmpDir2 := t.TempDir()
-		zipped := filepath.Join("testdata", "verify.zip")
-		_, err = filesystem.Unzip(zipped, tmpDir2)
-		require.NoError(t, err)
-
-		checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
-	})
-
-	t.Run("Yes CLI (verify cmsis example sdk (yaml))", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ctx := context.Background()
-		cfg := &config.GenerateConfig{
-			Input:  filepath.Join("testdata", "verify.yml"),
-			Output: tmpDir,
-		}
-
-		err := Generate(ctx, cfg)
-		assert.NoError(t, err)
-
-		tmpDir2 := t.TempDir()
-		zipped := filepath.Join("testdata", "verify.zip")
-		_, err = filesystem.Unzip(zipped, tmpDir2)
-		require.NoError(t, err)
-
-		checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
-	})
+			checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
+		})
+	}
 
 	t.Run("Missing config", func(t *testing.T) {
 		ctx := context.Background()

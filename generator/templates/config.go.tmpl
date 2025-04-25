@@ -5,6 +5,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/logs"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	{{ if .Specification.AdditionalTypes -}}
@@ -15,77 +16,40 @@ import (
 	{{ end -}}
 )
 
-// Configuration for {{ .Specification.Name }}
-type {{ .Specification.Name }}Configuration struct {
+// {{ .Specification.Name }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
+type {{ .Specification.Name }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
 	// {{ .description }}
-	{{ .name }} {{ .lang_type }} `mapstructure:"{{ .mapstructure_tag }}"`
+	{{ .name }} {{ .lang_type | convertLangType }} `mapstructure:"{{ .mapstructure_tag }}"`
 	{{ end }}
 }
 
-func (cfg *{{ .Specification.Name }}Configuration) Validate() error {
-	return validation.ValidateStruct(cfg,
-	{{ range .Specification.GlobalConfiguration -}}
-	{{ if .required -}}
-		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
-	{{ else if .condition -}}
-		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
-	{{ end -}}
-	{{ end }}
-	)
-}
-
-func Default{{ .Specification.Name }}Configuration() *{{ .Specification.Name }}Configuration {
-	return &{{ .Specification.Name }}Configuration{
-	{{ range .Specification.GlobalConfiguration -}}
-	{{ if .default_value -}}
-	{{ .name }}: {{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }}{{ .default_value }}{{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }},
-	{{ end -}}
-	{{ end }}
-	}
-}
-
-{{ if .Specification.CommandLineCommands -}}
-{{ range .Specification.CommandLineCommands.Functions -}}
-// Configuration for {{ .Name }} function
-type {{ .Name }}Configuration struct {
-	{{ range .Configuration -}}
-		// {{ .description }}
-		{{ .name }} {{ .lang_type }} `mapstructure:"{{ .mapstructure_tag }}"`
-	{{ end }}
-}
-
-func (cfg *{{ .Name }}Configuration) Validate() error {
+func (cfg *{{ .Specification.Name }}ManagerConfiguration) Validate() error {
 	err := configUtils.ValidateEmbedded(cfg)
 	if err != nil {
 		return err
 	}
-	
+
 	return validation.ValidateStruct(cfg,
-	{{ range .Configuration -}}
-	{{ if not .bindings }}
+	{{ range .Specification.GlobalConfiguration -}}
+	{{ $validation := .lang_type | validationLangType }}
 	{{ if .required }}
-		validation.Field(&cfg.{{ .name }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
+		validation.Field(&cfg.{{ .name }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
 	{{ else if .condition -}}
-		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
-	{{ end }}
-	{{ end }}
+		validation.Field(&cfg.{{ .name }}, validation.When(cfg.{{ .condition }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
+	{{ else if $validation -}}
+		validation.Field(&cfg.{{ .name }}{{ $validation }}),
+	{{ end -}}
 	{{ end }}
 	)
 }
 
-func Default{{ .Name }}Configuration() *{{ .Name }}Configuration {
-	return &{{ .Name }}Configuration{
-	{{ range .Configuration -}}
-	{{ if not .bindings }}
+func Default{{ .Specification.Name }}ManagerConfiguration() *{{ .Specification.Name }}ManagerConfiguration {
+	return &{{ .Specification.Name }}ManagerConfiguration{
+	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .default_value -}}
-	{{ .name }}: {{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }}{{ .default_value }}{{ if and (eq .lang_type "string") (not (is_func .default_value)) }}"{{ end }},
+	{{ .name }}: {{ defaultValue .lang_type .default_value }},
 	{{ end -}}
-	{{ else }}
-	{{ .name }}: {{ .default_value }},
-	{{ end }}
-	{{ end }}
+	{{ end -}}
 	}
 }
-{{ end }}
-{{ end }}

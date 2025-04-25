@@ -1,8 +1,8 @@
 module github.com/Arm-Debug/{{ .Specification.PackageName }}/cli
 
-go 1.24
+go {{ .TargetedGoVersion }}
 
-toolchain go1.24.0
+toolchain go{{ .TargetedGoVersion }}
 
 replace github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }} => ../{{ .Specification.MainModule }}
 

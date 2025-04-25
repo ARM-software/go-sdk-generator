@@ -15,6 +15,7 @@ updates:
   rebase-strategy: disabled
   registries:
     - github
+{{ if .Specification.CommandLineCommands -}}
 - package-ecosystem: gomod
   directory: "/cli"
   schedule:
@@ -24,6 +25,7 @@ updates:
   rebase-strategy: disabled
   registries:
     - github
+{{ end -}}
 - package-ecosystem: docker
   directory: "/"
   schedule:

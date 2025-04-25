@@ -43,8 +43,10 @@ On Red Hat based systems:
 2. Run the Go SDK Generator
 
 ```
-go-sdk-generator -i payload.yml -o ../ # or payload.json
+go-sdk-generator -i {{ .Specification.MainModule }}.yml -o ./ # or {{ .Specification.MainModule }}.json
 ```
+
+> :book: Note: Adding `--overwrite` will regenerate all the files including `go.mod` and files containing some state.
 
 ### Generating Mocks
 
@@ -56,6 +58,7 @@ For example, to run mockgen, add this comment:
 ```
 //go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks <package namespace>/$GOPACKAGE IMyInterface
 ```
+This assumes the `go version` used is greater than 1.24.
 
 You can then generate all mocks by running:
 ```

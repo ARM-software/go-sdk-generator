@@ -1,85 +1,13 @@
 # {{ .Specification.Name }} SDK
 
-[![Go Badge](https://img.shields.io/badge/go-v1.24-blue)](https://golang.org/)
+[![Go Badge](https://img.shields.io/badge/go-v{{ .TargetedGoVersion }}-blue)](https://golang.org/)
 
 {{ .Specification.Description }}
 
-## Types defined in this package
-{{ range .Specification.AdditionalTypes }}
-### `{{ .Name }}`
-
-{{ .Description }}
-
-#### Fields
-{{ range .Fields }}
-- **`{{ .name }} : {{ .lang_type }}`** - {{ .description }} {{ if .required }}(required){{ end }}
-{{ end }}
-{{ end }}
-### {{ .Specification.Name }}Configuration
-
-{{ .Specification.Name }}Configuration contains configuration that may be useful.
-
-#### Fields
-{{ range .Specification.GlobalConfiguration }}
-- **`{{ .name }} : {{ .lang_type }}`** - {{ .description }} {{ if .required }}(required){{ end }}
-{{ if .pattern }}  - This field has to follow the pattern `{{ .pattern }}`{{ end }}
-{{ end }}
-
-## Interface defined in this package `I{{ .Specification.Name }}`
-{{ range .Specification.Interface.Methods }}
-{{ .Description }}
-
-```go
-{{ .Name }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
-```
-
-Input arguments:
-{{ range .Args }}
-  * `{{ .name }} : {{ .lang_type }}`: {{ .description }}
-{{ end }}
-Return values:
-{{ range .Returns }}
-  * `{{ .name }} : {{ .lang_type }}`: {{ .description }}
-{{ end }}
-{{ end -}}
 {{ if .Specification.CommandLineCommands -}}
-# {{ .Specification.Name }} CLI Usage
-
-{{ .Specification.CommandLineCommands.Description }}
-
-## Functions
-{{ range .Specification.CommandLineCommands.Functions }}
-### {{ .Name }}
-
-{{ .Description }}
-
-```go
-func(ctx context.Context, logger logs.Loggers, cfg config.{{ .Name }}Configuration)
-```
-
-#### `config.{{ .Name }}Configuration`
-
-```go
-type {{ .Name }}Configuration struct {
-	{{ range .Configuration -}}
-		// {{ .description }}
-		{{ .name }} {{ .lang_type }} `mapstructure:"{{ .mapstructure_tag }}"`
-	{{ end }}
-}
-```
-
-Functions to utilise this configuration are also provided:
-
-The `Validate()` function can be used to validate that all fields have been provided:
-
-```go
-func (cfg *{{ .Name }}Configuration) Validate() error
-```
-
-The `NewDefault{{ .Name }}Configuration()` function can be used to provide default values to the configuration:
-
-```go
-func NewDefault{{ .Name }}Configuration() *{{ .Name }}Configuration
-```
-{{ end }}
+> :gear: This project also comes with [CLI tools and commands](./Documentation.md#cli_tools) for ease of use
 {{ end -}}
+
+## Documentation
+
+To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)

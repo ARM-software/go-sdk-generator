@@ -1,19 +1,27 @@
 package {{ .Specification.MainModule }}
 
 import (
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"
+{{ if .Specification.AdditionalTypes -}}
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+{{ end -}}
+{{ range .Specification.ExtraImports -}}
+	{{ .ImportRef }} "{{ .ImportUrl }}"
+{{ end -}}
 )
 
-//go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks github.com/Arm-Debug/{{ .Specification.PackageName }}/$GOPACKAGE I{{ .Specification.Name }}
-
 {{ $interfaceName := .Specification.Name -}}
-// {{ .Specification.Description }}
-type I{{ .Specification.Name }} interface {
-	// GetConfig returns the configuration for {{ .Specification.Name }}CLI
-	GetConfig() *config.{{ .Specification.Name }}Configuration
+
+//go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks github.com/Arm-Debug/{{ .Specification.PackageName }}/$GOPACKAGE I{{ $interfaceName }}Manager
+
+
+// I{{ $interfaceName }}Manager defines the manager interface: {{ .Specification.Description }}
+type I{{ $interfaceName }}Manager interface {
+	// GetConfig returns the manager's configuration
+	GetConfig() *config.{{ .Specification.Name }}ManagerConfiguration
 	{{ range .Specification.Interface.Methods -}}
-/* 
-{{ .Description }}
+/*
+{{ .Name }} function: {{ .Description }}
 
 Input arguments:
 
@@ -26,6 +34,6 @@ Return values:
   * {{ .name }}: {{ .description }}
 {{ end }}
 */
-	{{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
+	{{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
 	{{ end -}}
 }
