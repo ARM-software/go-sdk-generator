@@ -1,6 +1,7 @@
 {{ $package := .Specification.MainModule }}
 {{ $interfaceName := .Specification.Name }}
 {{ $confFile := .Specification.ConfFile }}
+// Package cmd defines all the CLI commands for {{ .Specification.Name }}
 package cmd
 
 import (
@@ -8,6 +9,7 @@ import (
 	"fmt"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
@@ -94,6 +96,11 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel()
+
+        cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
+        if err == nil {
+            {{ $nameLower }}Cfg.ToolVersion = field.ToOptionalString(cliVersion)
+        }
 
 		err = {{ $package }}.Wrap{{ .Name }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
 		if err != nil {

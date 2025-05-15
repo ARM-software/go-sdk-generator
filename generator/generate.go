@@ -95,6 +95,7 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 		return
 	}
 
+	// FIXME It would be great to also simplify code as part of the process (gofmt -s). However, this is not possible in current go implementation https://github.com/golang/go/issues/21476
 	cleanedSrc, err := imports.Process(path, src, &imports.Options{
 		Comments:   true,
 		TabIndent:  true,

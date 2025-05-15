@@ -18,12 +18,14 @@ import (
 
 
 {{ range .Specification.CommandLineCommands.Functions -}}
-// Configuration for {{ .Name }} function
+// {{ .Name }}Configuration defines the configuration for {{ .Name }} command
 type {{ .Name }}Configuration struct {
 	{{ range .Configuration -}}
 		// {{ .description }}
 		{{ .name }} {{ .lang_type | convertLangType }} `mapstructure:"{{ .mapstructure_tag }}"`
 	{{ end }}
+	    // ToolVersion contains the version of the CLI tool
+		ToolVersion *string
 }
 
 func (cfg *{{ .Name }}Configuration) Validate() error {

@@ -1,10 +1,13 @@
-package {{ .Specification.MainModule }}
+{{ $packageName := .Specification.MainModule -}}
+// Package {{ $packageName }} contains the implementation for all the CLI commands.
+// Importing the package also performs the automatic binding between the definition and the implementation.
+package {{ $packageName }}
 
 import (
 	"github.com/ARM-software/golang-utils/utils" 
 
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ $packageName }}/types"
 
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
@@ -18,6 +21,8 @@ import (
 func {{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name }}Configuration) (err error) {
 
     // TODO implement me
+    // Note: this function code was generated to help setting up the project. It can be moved to separate files
+    //       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
 	return commonerrors.New(commonerrors.ErrNotImplemented,"missing `{{ .Name }}()` implementation", )
 }
 
@@ -27,6 +32,8 @@ func {{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name 
 
 
 func init(){
+  // Note: The following makes the link between the CLI command definitions and their actual implementations.
+  // The binding is performed at runtime when package {{ $packageName }} is imported.
  // TODO uncomment when implemented
 {{ range .Specification.CommandLineCommands.Functions -}}
     //  {{ .Name }}ImplFunc = {{ .Name }}

@@ -15,18 +15,19 @@ import (
 )
 
 // {{ $sdkInterfaceName }}Manager is an implementation of I{{ $sdkInterfaceName }}Manager
+// This implementation follows the delegate pattern and so, does not have any business logic.
 type {{ $sdkInterfaceName }}Manager struct {
 	cfg *config.{{ $sdkInterfaceName }}ManagerConfiguration
 	Delegate I{{ $sdkInterfaceName }}Manager
 }
 
 {{ range .Specification.Interface.Methods -}}
-/* 
-{{ .Description }}
+/*
+{{ .Name }} function: {{ .Description }}
 
 Input arguments:
 
-  * ctx: A context to pass into the method. Can be used to cancel long running tasks
+  * ctx: A context to pass into the method. Can be used to cancel long-running tasks
 {{ range .Args }}
   * {{ .name }}: {{ .description }}
 {{ end }}
