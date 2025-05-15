@@ -15,7 +15,7 @@ on:
       - main
 
 env:
-  go_version: "1.24.2"
+  go_version: "1.24.3"
 
 jobs:
   library:
