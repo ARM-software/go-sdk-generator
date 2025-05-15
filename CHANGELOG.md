@@ -2,6 +2,27 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.8.0" (2025-05-15)
+====================
+
+Features
+--------
+
+- :sparkles: Add a way to pass tool version information to each CLI commands (#20250430153155)
+
+
+Bugfixes
+--------
+
+- :book: Add doc strings to better explain the purpose of the different files and the next steps (#20250430153313)
+- :bug: Fix links and doc strings issues (#20250430153347)
+- Dependency upgrade: golang-1.24.3 (#20250507044720)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.7.0" (2025-04-25)
 ====================
 
