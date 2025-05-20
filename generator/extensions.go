@@ -21,7 +21,7 @@ var (
 
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
 
-	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
+	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas", "Https", "Http"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
 )
 
 var templateFuncMap = template.FuncMap{
