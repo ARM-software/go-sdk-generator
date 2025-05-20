@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.8.2" (2025-05-20)
+====================
+
+Bugfixes
+--------
+
+- :bug: update acronyms list to include `HTTP` (#20250520153505)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.8.1" (2025-05-20)
 ====================
 
