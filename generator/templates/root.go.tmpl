@@ -19,10 +19,10 @@ const (
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	root{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"
+	root{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ else -}}
-	root{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	root{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}

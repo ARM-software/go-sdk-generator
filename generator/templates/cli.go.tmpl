@@ -28,10 +28,10 @@ const (
 	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	{{ $functionName | lower }}{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ $functionName | lower }}{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ else -}}
-	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"
+	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -63,7 +63,7 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 
 {{ range .Specification.CommandLineCommands.Functions }}
 {{ $nameLower := .Name | lower }}
-
+{{ $configName:= .Name | toPascal -}}
 
 var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
@@ -71,23 +71,23 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 	Long:  "{{ .Description }}",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		logger, err := logs.NewStdLogger("{{ .Name }}")
+		logger, err := logs.NewStdLogger("{{ .Name | toPascal }}")
 		if err != nil {
 			fmt.Printf("failed initialising the logger: %v\n", err.Error())
 			os.Exit(1)
 		}
 
-		var {{ $nameLower }}Cfg config.{{ .Name }}Configuration
+		var {{ $nameLower }}Cfg config.{{ $configName }}Configuration
 
 		{{ if $confFile }}
 		confFile := "{{ $confFile }}"
 		if filesystem.Exists(confFile) {
-			err = configUtils.LoadFromEnvironment(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration(), confFile)
+			err = configUtils.LoadFromEnvironment(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration(), confFile)
 		} else {
-			err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration())
+			err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
 		} 
 		{{ else -}}
-		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ .Name }}Configuration())
+		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
 		{{ end -}}
 		if err != nil {
 			logger.LogError(err, "failed initialising {{ $nameLower }} command")
@@ -102,7 +102,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
             {{ $nameLower }}Cfg.ToolVersion = field.ToOptionalString(cliVersion)
         }
 
-		err = {{ $package }}.Wrap{{ .Name }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
+		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
 		if err != nil {
 			logger.LogError(err)
 			cancel()

@@ -1,4 +1,4 @@
-{{ $sdkInterfaceName := .Specification.Name -}}
+{{ $sdkInterfaceName := .Specification.Name | toPascal -}}
 package {{ .Specification.MainModule }}
 
 import (
@@ -23,7 +23,7 @@ type {{ $sdkInterfaceName }}Manager struct {
 
 {{ range .Specification.Interface.Methods -}}
 /*
-{{ .Name }} function: {{ .Description }}
+{{ .Name | toPascal }} function: {{ .Description }}
 
 Input arguments:
 
@@ -36,13 +36,14 @@ Return values:
   * {{ .name }}: {{ .description }}
 {{ end }}
 */
-func (imp *{{ $sdkInterfaceName }}Manager){{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) {
+{{ $functionName := .Name | toPascal -}}
+func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) {
 	if imp.Delegate == nil {
 		err = commonerrors.UndefinedVariable("delegate")
 		return
 	}
 
-	return imp.Delegate.{{ .Name }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }}{{ if isVariadicArg $arg.lang_type }}...{{ end }}{{ end }})
+	return imp.Delegate.{{ $functionName }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }}{{ if isVariadicArg $arg.lang_type }}...{{ end }}{{ end }})
 }
 
 {{ end -}}

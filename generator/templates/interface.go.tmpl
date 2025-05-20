@@ -1,4 +1,4 @@
-{{ $interfaceName := .Specification.Name -}}
+{{ $interfaceName := .Specification.Name | toPascal -}}
 // Package {{ .Specification.MainModule }} is the root of the SDK and defines manager I{{ $interfaceName }}Manager
 package {{ .Specification.MainModule }}
 
@@ -19,10 +19,10 @@ import (
 // I{{ $interfaceName }}Manager defines the manager interface: {{ .Specification.Description }}
 type I{{ $interfaceName }}Manager interface {
 	// GetConfig returns the manager's configuration
-	GetConfig() *config.{{ .Specification.Name }}ManagerConfiguration
+	GetConfig() *config.{{ .Specification.Name | toPascal }}ManagerConfiguration
 	{{ range .Specification.Interface.Methods -}}
 /*
-{{ .Name }} function: {{ .Description }}
+{{ .Name | toPascal }} function: {{ .Description }}
 
 Input arguments:
 
@@ -35,6 +35,6 @@ Return values:
   * {{ .name }}: {{ .description }}
 {{ end }}
 */
-	{{ .Name }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
+	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
 	{{ end -}}
 }

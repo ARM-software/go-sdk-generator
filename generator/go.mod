@@ -7,6 +7,7 @@ require (
 	github.com/go-faker/faker/v4 v4.6.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/stretchr/testify v1.10.0
+	github.com/sttk/stringcase v0.3.0
 	golang.org/x/text v0.24.0
 	golang.org/x/tools v0.32.0
 	sigs.k8s.io/yaml v1.4.0

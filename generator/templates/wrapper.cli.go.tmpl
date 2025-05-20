@@ -14,14 +14,14 @@ import (
 )
 
 {{ range .Specification.CommandLineCommands.Functions -}}
+{{ $functionName:= .Name  | toPascal -}}
+// {{ $functionName }}ImplFunc binds the implementation function (i.e. {{ $functionName }}()) when ready to the CLI definition
+var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error = nil
 
-// {{ .Name }}ImplFunc binds the implementation function (i.e. {{ .Name }}()) when ready to the CLI definition
-var {{ .Name }}ImplFunc func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error = nil
-
-// Wrap{{ .Name }} wraps around {{ .Name }}
-func Wrap{{ .Name }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ .Name }}Configuration, f func(context.Context, logs.Loggers, *config.{{ .Name }}Configuration) error) (err error) {
+// Wrap{{ $functionName }} wraps around {{ $functionName }}
+func Wrap{{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration, f func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error) (err error) {
 	if f == nil {
-		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ .Name }}",  f)
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}",  f)
 		return
 	}
 	

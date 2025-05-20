@@ -9,6 +9,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
+	"github.com/sttk/stringcase"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -17,6 +18,10 @@ var (
 	// validArgTypes lists all the types of variable which can be used in specification
 	// it tries to support special types such as the one defined by OpenAPI specification https://spec.openapis.org/registry/format/
 	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex"}
+
+	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
+
+	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
 )
 
 var templateFuncMap = template.FuncMap{
@@ -26,11 +31,9 @@ var templateFuncMap = template.FuncMap{
 		}
 		return fmt.Sprintf("%s%s", strings.ToUpper(string(s[0])), s[1:])
 	},
-	"replaceUnderscores": func(s string) string {
-		return strings.ReplaceAll(s, "_", "-")
-	},
-	"is_func": isFunc,
-	"lower":   strings.ToLower,
+	"replaceUnderscores": replaceUnderscores,
+	"is_func":            isFunc,
+	"lower":              strings.ToLower,
 	"notSeenRootCmd": func(s string) bool {
 		_, ok := rootCmds[s]
 		if !ok {
@@ -81,6 +84,40 @@ var templateFuncMap = template.FuncMap{
 	"convertLangType":    convertLangType,
 	"validationLangType": argValidationRule,
 	"defaultValue":       defaultValue,
+	"toCamel":            toCamelCase,
+	"toSnake":            toSnakeCase,
+	"toPascal":           toPascalCase,
+	"ignoreLinting":      ignoreLintingError,
+}
+
+func toPascalCase(s string) string {
+	pC := stringcase.PascalCase(s)
+	for i := range specialAcronyms {
+		pC = strings.ReplaceAll(pC, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
+	}
+	return pC
+}
+
+func toCamelCase(s string) string {
+	cS := stringcase.CamelCase(s)
+	for i := range specialAcronyms {
+		cS = strings.ReplaceAll(cS, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
+	}
+	return cS
+}
+
+func toSnakeCase(s string) string {
+	return stringcase.SnakeCase(s)
+}
+
+func ignoreLintingError(name string) bool {
+	nameLower := strings.ToLower(name)
+	for i := range namesWithLintErrorToIgnore {
+		if strings.Contains(nameLower, namesWithLintErrorToIgnore[i]) {
+			return true
+		}
+	}
+	return false
 }
 
 func determineZeroValue(s string) string {
@@ -110,13 +147,16 @@ func determineZeroValue(s string) string {
 func isFunc(s any) bool {
 	return strings.Contains(fmt.Sprint(s), "func()")
 }
-
-func defaultValue(s string, dValue string) string {
+func replaceUnderscores(value string) string {
+	return strings.ReplaceAll(value, "_", "-")
+}
+func defaultValue(s string, dValue any) string {
+	dValueStr := fmt.Sprintf("%v", dValue)
 	st := convertLangType(s)
 	switch {
 	case s == "json":
-		if strings.HasPrefix(dValue, `""`) {
-			return dValue
+		if strings.HasPrefix(dValueStr, `""`) {
+			return dValueStr
 		}
 		return fmt.Sprintf(`"%v"`, dValue)
 	case s == "datetime":
@@ -126,8 +166,8 @@ t, _ := time.Parse(time.RFC3339, "%v")
 return t
 }()`, dValue)
 	case st == "time.Duration":
-		if strings.Contains(dValue, "time.") {
-			return dValue
+		if strings.Contains(dValueStr, "time.") {
+			return dValueStr
 		}
 		return fmt.Sprintf(
 			`func() time.Duration {
@@ -136,7 +176,7 @@ return duration
 }()`, dValue)
 	case st == "string":
 		if isFunc(dValue) {
-			return dValue
+			return dValueStr
 		}
 		return fmt.Sprintf(`"%v"`, dValue)
 	case s == "hex":
@@ -145,10 +185,16 @@ return duration
 values, _ := hex.DecodeString("%v")
 return values
 }()`, dValue)
+	case strings.HasPrefix(st, "float"):
+		if strings.Contains(dValueStr, ".") {
+			return dValueStr
+		} else {
+			return fmt.Sprintf("%v.0", dValue)
+		}
 	case st == "[]byte":
 		return fmt.Sprintf(`[]byte("%v")`, dValue)
 	default:
-		return dValue
+		return dValueStr
 	}
 }
 
