@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.8.3" (2025-05-22)
+====================
+
+Bugfixes
+--------
+
+- :bug: fix problem with names containing identifier (#20250522155216)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.8.2" (2025-05-20)
 ====================
 
