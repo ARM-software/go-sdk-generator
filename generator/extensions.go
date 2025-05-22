@@ -91,23 +91,25 @@ var templateFuncMap = template.FuncMap{
 }
 
 func toPascalCase(s string) string {
-	pC := stringcase.PascalCase(s)
-	for i := range specialAcronyms {
-		pC = strings.ReplaceAll(pC, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
-	}
-	return pC
+	return handleAcronyms(stringcase.PascalCase(s))
 }
 
 func toCamelCase(s string) string {
-	cS := stringcase.CamelCase(s)
-	for i := range specialAcronyms {
-		cS = strings.ReplaceAll(cS, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
-	}
-	return cS
+	return handleAcronyms(stringcase.CamelCase(s))
 }
 
 func toSnakeCase(s string) string {
 	return stringcase.SnakeCase(s)
+}
+
+func handleAcronyms(pC string) string {
+	for i := range specialAcronyms {
+		pC = strings.ReplaceAll(pC, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
+	}
+	// The following is to deal with the ID specific acronym
+	pC = strings.ReplaceAll(pC, "IDentifier", "Identifier")
+	pC = strings.ReplaceAll(pC, "IDentification", "Identification")
+	return pC
 }
 
 func ignoreLintingError(name string) bool {
