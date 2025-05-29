@@ -27,6 +27,10 @@ type {{ $configName }}Configuration struct {
 	{{ end }}
 	    // ToolVersion contains the version of the CLI tool
 		ToolVersion *string
+	{{ if .AllowPositionalArgs -}}
+		// ExtraArgs contains any extra arguments that were passed through the cobra flags
+		ExtraArgs []string
+	{{ end }}
 }
 
 func (cfg *{{ $configName }}Configuration) Validate() error {

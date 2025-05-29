@@ -27,6 +27,9 @@ type CiExtraPackages []string
 
 // An CLI function
 type CliFunction struct {
+	// Allow the use of positional arguments specified after '--' in a POSIX fashion
+	AllowPositionalArgs *bool `json:"allow_positional_args,omitempty" yaml:"allow_positional_args,omitempty" mapstructure:"allow_positional_args,omitempty"`
+
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []CliFunctionConfigurationElem `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
@@ -40,9 +43,9 @@ type CliFunction struct {
 type CliFunctionConfigurationElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *CliFunction) UnmarshalJSON(b []byte) error {
+func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["configuration"]; raw != nil && !ok {
@@ -56,7 +59,7 @@ func (j *CliFunction) UnmarshalJSON(b []byte) error {
 	}
 	type Plain CliFunction
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = CliFunction(plain)
@@ -81,9 +84,9 @@ type CommandLineCommands struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *CommandLineCommands) UnmarshalJSON(b []byte) error {
+func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["functions"]; raw != nil && !ok {
@@ -91,7 +94,7 @@ func (j *CommandLineCommands) UnmarshalJSON(b []byte) error {
 	}
 	type Plain CommandLineCommands
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = CommandLineCommands(plain)
@@ -144,9 +147,9 @@ type InterfaceMethodArgsElem interface{}
 type InterfaceMethodReturnsElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *InterfaceMethod) UnmarshalJSON(b []byte) error {
+func (j *InterfaceMethod) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["description"]; raw != nil && !ok {
@@ -157,7 +160,7 @@ func (j *InterfaceMethod) UnmarshalJSON(b []byte) error {
 	}
 	type Plain InterfaceMethod
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = InterfaceMethod(plain)
@@ -165,9 +168,9 @@ func (j *InterfaceMethod) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Interface) UnmarshalJSON(b []byte) error {
+func (j *Interface) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["methods"]; raw != nil && !ok {
@@ -175,7 +178,7 @@ func (j *Interface) UnmarshalJSON(b []byte) error {
 	}
 	type Plain Interface
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = Interface(plain)
@@ -187,8 +190,9 @@ type Parameter struct {
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
-	// A condition in which to require the value. It should be based on one other
-	// configuration variable
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
 	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
@@ -225,14 +229,14 @@ type Parameter struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Parameter) UnmarshalJSON(b []byte) error {
+func (j *Parameter) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	type Plain Parameter
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	if v, ok := raw["condition"]; !ok || v == nil {
@@ -306,9 +310,9 @@ type SDKSpecification struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *SDKSpecification) UnmarshalJSON(b []byte) error {
+func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["global_configuration"]; raw != nil && !ok {
@@ -325,7 +329,7 @@ func (j *SDKSpecification) UnmarshalJSON(b []byte) error {
 	}
 	type Plain SDKSpecification
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = SDKSpecification(plain)
@@ -333,9 +337,9 @@ func (j *SDKSpecification) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *SDK) UnmarshalJSON(b []byte) error {
+func (j *SDK) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["specification"]; raw != nil && !ok {
@@ -343,7 +347,7 @@ func (j *SDK) UnmarshalJSON(b []byte) error {
 	}
 	type Plain SDK
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = SDK(plain)
@@ -365,9 +369,9 @@ type Type struct {
 type TypeFieldsElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *Type) UnmarshalJSON(b []byte) error {
+func (j *Type) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["description"]; raw != nil && !ok {
@@ -381,7 +385,7 @@ func (j *Type) UnmarshalJSON(b []byte) error {
 	}
 	type Plain Type
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = Type(plain)

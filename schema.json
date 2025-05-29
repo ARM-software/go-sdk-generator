@@ -205,8 +205,11 @@
           "items": {
             "$ref": "#/$defs/function_config_fields"
           }
-        }
-      },
+        },
+        "allow_positional_args": {
+          "description": "Allow the use of positional arguments specified after '--' in a POSIX fashion",
+          "type": "boolean"
+        }      },
       "additionalProperties": false
     },
     "function_config_fields": {
