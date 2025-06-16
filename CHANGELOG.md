@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.10.0" (2025-06-16)
+=====================
+
+Features
+--------
+
+- :sparkles: Make sure `TTL` is considered as an acronym (#202506161424)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.9.0" (2025-06-16)
 ====================
 
