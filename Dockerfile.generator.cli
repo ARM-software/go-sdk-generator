@@ -8,7 +8,7 @@ WORKDIR /build/cli
 RUN go mod download
 RUN go build -o /output/generate
 
-FROM alpine:3.21.3
+FROM alpine:3.22.0
 
 # Install go binary
 COPY --from=build /output/generate /usr/local/bin/generate
