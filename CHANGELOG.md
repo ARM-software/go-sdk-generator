@@ -2,6 +2,33 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.9.0" (2025-06-16)
+====================
+
+Features
+--------
+
+- :sparkles: Add support for POSIX style operands (#20250616100028)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.22.0 (#20250602050743)
+- :bug: Make sure that bindings work when using custom types (#20250603105205)
+- Dependency upgrade: golang-1.24.4 (#20250606041601)
+
+
+Misc
+----
+
+- #20250609111531
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.8.3" (2025-05-22)
 ====================
 
