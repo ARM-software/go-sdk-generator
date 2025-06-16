@@ -74,6 +74,10 @@ var templateFuncMap = template.FuncMap{
 			return cases.Title(language.English).String(st)
 		}
 	},
+	"addExtraValidType": func(extraType string) string {
+		validArgTypes = append(validArgTypes, extraType)
+		return "" // a return value is required
+	},
 	"isValidArgType": func(s string) bool {
 		_, found := collection.FindInSlice(false, validArgTypes, strings.TrimSpace(s))
 		return found

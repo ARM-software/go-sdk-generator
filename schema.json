@@ -49,6 +49,9 @@
         "extra_imports": {
           "$ref": "#/$defs/extra_imports"
         },
+        "extra_valid_types": {
+          "$ref": "#/$defs/extra_valid_types"
+        },
         "ci_extra_packages": {
           "$ref": "#/$defs/ci_extra_packages"
         },
@@ -172,6 +175,12 @@
         "$ref": "#/$defs/extra_import"
       }
     },
+    "extra_valid_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "ci_extra_packages": {
       "type": "array",
       "items": {
@@ -206,10 +215,11 @@
             "$ref": "#/$defs/function_config_fields"
           }
         },
-        "allow_positional_args": {
-          "description": "Allow the use of positional arguments specified after '--' in a POSIX fashion",
+        "operands": {
+          "description": "Allow the use of positional operands specified after '--' in a POSIX fashion",
           "type": "boolean"
-        }      },
+        }
+      },
       "additionalProperties": false
     },
     "function_config_fields": {

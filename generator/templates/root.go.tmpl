@@ -1,3 +1,8 @@
+{{ if .Specification.ExtraValidTypes -}}
+{{ range .Specification.ExtraValidTypes -}}
+{{ addExtraValidType . -}}
+{{ end -}}
+{{ end -}}
 package cmd
 
 import (

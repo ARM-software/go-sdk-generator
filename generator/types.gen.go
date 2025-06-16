@@ -27,9 +27,6 @@ type CiExtraPackages []string
 
 // An CLI function
 type CliFunction struct {
-	// Allow the use of positional arguments specified after '--' in a POSIX fashion
-	AllowPositionalArgs *bool `json:"allow_positional_args,omitempty" yaml:"allow_positional_args,omitempty" mapstructure:"allow_positional_args,omitempty"`
-
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []CliFunctionConfigurationElem `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
@@ -38,6 +35,9 @@ type CliFunction struct {
 
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// Allow the use of positional operands specified after '--' in a POSIX fashion
+	Operands *bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 }
 
 type CliFunctionConfigurationElem interface{}
@@ -118,6 +118,8 @@ type ExtraImport struct {
 }
 
 type ExtraImports []ExtraImport
+
+type ExtraValidTypes []string
 
 type FunctionConfigFields interface{}
 
@@ -286,6 +288,9 @@ type SDKSpecification struct {
 
 	// ExtraImports corresponds to the JSON schema field "extra_imports".
 	ExtraImports ExtraImports `json:"extra_imports,omitempty" yaml:"extra_imports,omitempty" mapstructure:"extra_imports,omitempty"`
+
+	// ExtraValidTypes corresponds to the JSON schema field "extra_valid_types".
+	ExtraValidTypes ExtraValidTypes `json:"extra_valid_types,omitempty" yaml:"extra_valid_types,omitempty" mapstructure:"extra_valid_types,omitempty"`
 
 	// GlobalConfiguration corresponds to the JSON schema field
 	// "global_configuration".

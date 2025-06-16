@@ -1,6 +1,11 @@
 {{ $package := .Specification.MainModule }}
 {{ $interfaceName := .Specification.Name }}
 {{ $confFile := .Specification.ConfFile }}
+{{ if .Specification.ExtraValidTypes -}}
+{{ range .Specification.ExtraValidTypes -}}
+{{ addExtraValidType . -}}
+{{ end -}}
+{{ end -}}
 // Package cmd defines all the CLI commands for {{ .Specification.Name }}
 package cmd
 
@@ -25,10 +30,9 @@ const (
 	{{ range .Configuration -}}
 	{{ if isValidArgType .lang_type }}
 	{{ if not .is_root -}}
-	{{ $mapstructure:= .mapstructure_tag -}}
 	{{ if .bindings -}}
 	{{ range .bindings -}}
-	{{ $functionName | lower }}{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
+	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end }}
 	{{ end -}}
 	{{ else -}}
 	{{ $functionName | lower }}{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
@@ -93,8 +97,8 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 			logger.LogError(err, "failed initialising {{ $nameLower }} command")
 			os.Exit(1)
 		}
-		{{ if .AllowPositionalArgs }}
-		{{ $nameLower }}Cfg.ExtraArgs = args
+		{{ if .Operands }}
+		{{ $nameLower }}Cfg.Operands = args
 		{{ end }}
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel()
