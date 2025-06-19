@@ -42,6 +42,7 @@ const (
 	codeOwnersFile               = "templates/CODEOWNERS.tmpl"
 	dependabotFile               = "templates/dependabot.yml.tmpl"
 	prTemplateFile               = "templates/PULL_REQUEST_TEMPLATE.md.tmpl"
+	qltyTemplateFile             = "templates/qlty.toml.tmpl"
 	ciWorkflowFile               = "templates/ci.yml.tmpl"
 	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
 	releaseWorkflowFile          = "templates/release.yml.tmpl"
@@ -225,11 +226,12 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		NewTemplateToPopulate(knownIssuesFile, fmt.Sprintf("%v/KNOWN_ISSUES.md", cfg.Output)),
 		NewTemplateToPopulate(golangciFile, fmt.Sprintf("%v/.golangci.yaml", cfg.Output)),
 		NewTemplateToPopulate(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output)),
-		NewTemplateToPopulate(codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output)),
 		NewTemplateToPopulate(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output)),
 		NewTemplateToPopulate(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output)),
+		NewTemplateToPopulate(qltyTemplateFile, fmt.Sprintf("%v/.qlty/qlty.toml", cfg.Output)), // See https://docs.qlty.sh/qlty-toml
 	}
 
+	templatesToPopulate = addStateFile(templatesToPopulate, codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output), cfg.Overwrite)
 	templatesToPopulate = addStateFile(templatesToPopulate, readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite)
 	templatesToPopulate = addStateFile(templatesToPopulate, goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)
 
