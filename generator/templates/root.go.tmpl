@@ -10,6 +10,8 @@ import (
 	"os"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/semver"
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -51,8 +53,15 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	err := rootCmd.Execute()
+	ctx := context.Background()
+
+	cliVersion, err := semver.DetermineEmbeddedVersion(ctx, &embeddedFS, nil)
 	if err != nil {
+		// This is for completeness but it is impossible at runtime since we need a valid module.properties in this location to release the package
+		cliVersion = "unknown"
+	}
+
+	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(cliVersion)); err != nil {
 		os.Exit(1)
 	}
 }

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd generator || exit 1
+go mod tidy
+go generate ./...
+cd .. || exit 1
+
+cd cli || exit 1
+go build -o go-sdk-generator .
+mkdir ../.manpages
+./go-sdk-generator man >../.manpages/go-sdk-generator.1

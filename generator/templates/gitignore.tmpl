@@ -25,3 +25,9 @@ go.work.sum
 .env*
 *.pem
 .idea
+{{ if .Specification.CommandLineCommands }}
+# used in build step
+dist
+.manpages
+{{ .Specification.CommandLineCommands.Binary }}
+{{ end }}

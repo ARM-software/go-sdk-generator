@@ -6,8 +6,12 @@
 
 {{ if .Specification.CommandLineCommands -}}
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli_tools) for ease of use
-{{ end -}}
 
+You can access the man page for the CLI via:
+```sh
+man {{ .Specification.CommandLineCommands.Binary }}
+```
+{{ end }}
 ## Documentation
 
 To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)

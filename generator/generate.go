@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"os"
 	"path/filepath"
 	"text/template"
 
@@ -50,6 +51,8 @@ const (
 	goreleaserLibraryFile        = "templates/goreleaser-library.yaml.tmpl"
 	golangciFile                 = "templates/golangci.yaml.tmpl"
 	golangciPrecommitFile        = "templates/golangci.pre-commit.yaml.tmpl"
+	preinstallFile               = "templates/pre.sh.tmpl"
+	gitignoreFile                = "templates/gitignore.tmpl"
 )
 
 //go:embed templates
@@ -58,10 +61,11 @@ var fs embed.FS
 type templateToPopulate struct {
 	templateFile string
 	output       string
+	mode         os.FileMode
 }
 
 func (t *templateToPopulate) Populate(ctx context.Context, data *DataModel) (err error) {
-	err = populateTemplate(ctx, data, t.templateFile, t.output)
+	err = populateTemplate(ctx, data, t.templateFile, t.output, t.mode)
 	return
 }
 
@@ -69,6 +73,14 @@ func NewTemplateToPopulate(templateFile, output string) templateToPopulate {
 	return templateToPopulate{
 		templateFile: templateFile,
 		output:       output,
+	}
+}
+
+func NewTemplateToPopulateWithMode(templateFile, output string, mode os.FileMode) templateToPopulate {
+	return templateToPopulate{
+		templateFile: templateFile,
+		output:       output,
+		mode:         mode,
 	}
 }
 
@@ -120,7 +132,7 @@ type DataModel struct {
 	TargetedGoVersion string
 }
 
-func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string) (err error) {
+func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string, mode os.FileMode) (err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
 		return
@@ -163,6 +175,12 @@ func populateTemplate(ctx context.Context, data *DataModel, templateFile string,
 			_ = outFile.Close()
 		}
 	}()
+	if mode != 0 {
+		err = filesystem.Chmod(output, mode)
+		if err != nil {
+			return
+		}
+	}
 
 	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), *data)
 	if err != nil {
@@ -228,6 +246,7 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 		NewTemplateToPopulate(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output)),
 		NewTemplateToPopulate(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output)),
 		NewTemplateToPopulate(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output)),
+		NewTemplateToPopulate(gitignoreFile, fmt.Sprintf("%v/.gitignore", cfg.Output)),
 		NewTemplateToPopulate(qltyTemplateFile, fmt.Sprintf("%v/.qlty/qlty.toml", cfg.Output)), // See https://docs.qlty.sh/qlty-toml
 	}
 
@@ -259,6 +278,7 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 			NewTemplateToPopulate(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output)),
 			NewTemplateToPopulate(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule)),
 			NewTemplateToPopulate(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule)),
+			NewTemplateToPopulateWithMode(preinstallFile, fmt.Sprintf("%v/scripts/pre.sh", cfg.Output), 0777),
 		}...)
 
 		templatesToPopulate = addStateFile(templatesToPopulate, implementationCLIFile, fmt.Sprintf("%v/cli/cmd/%v/implementations.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)

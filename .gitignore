@@ -1,3 +1,7 @@
 *.pem
 *.exe
 .idea
+
+dist
+.manpages
+go-sdk-generator

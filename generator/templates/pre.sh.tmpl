@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd {{ .Specification.MainModule }} || exit 1
+go mod tidy
+go generate ./...
+cd .. || exit 1
+
+cd cli || exit 1
+go build -o {{ .Specification.CommandLineCommands.Binary }} .
+mkdir ../.manpages
+./{{ .Specification.CommandLineCommands.Binary }} man >../.manpages/{{ .Specification.CommandLineCommands.Binary }}.1

@@ -25,7 +25,7 @@ type {{ $configName }}Configuration struct {
 		// {{ .Description }}
 		{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
-	    // ToolVersion contains the version of the CLI tool
+		// ToolVersion contains the version of the CLI tool
 		ToolVersion *string
 	{{ if .Operands -}}
 		// Operands contains any positional operands that were passed through the cobra flags after the '--' flag

@@ -2,12 +2,15 @@ package cmd
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"log"
 	"os"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/semver"
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -24,6 +27,9 @@ const (
 )
 
 var (
+	//go:embed module.properties
+	embeddedFS embed.FS
+
 	viperSession   = viper.New()
 	generateConfig config.GenerateConfig
 )
@@ -57,7 +63,14 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	ctx := context.Background()
+
+	cliVersion, err := semver.DetermineEmbeddedVersion(ctx, &embeddedFS, nil)
+	if err != nil {
+		cliVersion = "unknown"
+	}
+
+	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(cliVersion)); err != nil {
 		os.Exit(1)
 	}
 }

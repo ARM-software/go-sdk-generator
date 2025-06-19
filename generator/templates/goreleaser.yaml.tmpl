@@ -1,13 +1,6 @@
 project_name: {{ .Specification.PackageName }}
 env:
   - GO111MODULE=on
-# Commented out because requires Pro features
-# before:
-# hooks:
-# - cmd: go mod tidy
-# dir: ./{{ .Specification.MainModule }}
-# - cmd: go generate ./...
-# dir: ./{{ .Specification.MainModule }}
 builds:
   - dir: cli
     id: {{ .Specification.PackageName }}
@@ -22,6 +15,9 @@ builds:
     goarch:
       - amd64
       - arm64
+    hooks:
+      pre:
+        - scripts/pre.sh
 archives:
   - name_template: >-
       {{ "{{" }} .ProjectName }}_
@@ -49,6 +45,10 @@ nfpms:
     maintainer: Arm Online Services <monty-bot@arm.com>
     description: |-
       {{ .Specification.Description }}
+    contents:
+      - src: ./man/
+        dst: /usr/share/man/man1/
+        type: tree
 release:
   discussion_category_name: Releases
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease

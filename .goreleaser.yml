@@ -1,13 +1,6 @@
 project_name: go-sdk-generator
 env:
   - GO111MODULE=on
-# Commented out because requires Pro features
-# before:
-# hooks:
-# - cmd: go mod tidy
-# dir: ./api
-# - cmd: go generate ./...
-# dir: ./api
 builds:
   - dir: cli
     id: go-sdk-generator
@@ -22,6 +15,9 @@ builds:
     goarch:
       - amd64
       - arm64
+    hooks:
+      pre:
+        - scripts/pre.sh
 archives:
   - name_template: >-
       {{ .ProjectName }}_
@@ -47,6 +43,10 @@ nfpms:
       - rpm
     license: Proprietary
     maintainer: OTG Services team <monty-bot@arm.com>
+    contents:
+      - src: ./.manpages/
+        dst: /usr/share/man/man1/
+        type: tree
 
 release:
   discussion_category_name: Releases
