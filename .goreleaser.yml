@@ -42,12 +42,13 @@ nfpms:
       - deb
       - rpm
     license: Proprietary
-    maintainer: OTG Services team <monty-bot@arm.com>
+    maintainer: Arm Online Services <monty-bot@arm.com>
+    description: |-
+      SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
     contents:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
-
 release:
   discussion_category_name: Releases
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease

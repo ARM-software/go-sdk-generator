@@ -1,13 +1,14 @@
 module github.com/Arm-Debug/go-sdk-generator/cli
 
-replace github.com/Arm-Debug/go-sdk-generator/generator => ../generator
-
 go 1.24
+
+replace github.com/Arm-Debug/go-sdk-generator/generator => ../generator
 
 require (
 	github.com/ARM-software/golang-utils/utils v1.101.0
 	github.com/Arm-Debug/go-sdk-generator/generator v0.0.0-00010101000000-000000000000
 	github.com/charmbracelet/fang v0.1.0
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 )
@@ -36,7 +37,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofrs/uuid/v5 v5.3.2 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect

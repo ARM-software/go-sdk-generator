@@ -1,0 +1,52 @@
+package generator
+
+import (
+	"context"
+
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
+
+	"github.com/Arm-Debug/go-sdk-generator/generator/config"
+)
+
+// SdkGeneratorManager is an implementation of ISdkGeneratorManager
+// This implementation follows the delegate pattern and so, does not have any business logic.
+type SdkGeneratorManager struct {
+	cfg      *config.SdkGeneratorManagerConfiguration
+	Delegate ISdkGeneratorManager
+}
+
+/*
+Generate function: Generate the tool
+
+Input arguments:
+
+  - ctx: A context to pass into the method. Can be used to cancel long-running tasks
+
+Return values:
+
+  - err: Whether the generation failed or not
+*/
+func (imp *SdkGeneratorManager) Generate(ctx context.Context) (err error) {
+	if imp.Delegate == nil {
+		err = commonerrors.UndefinedVariable("delegate")
+		return
+	}
+
+	return imp.Delegate.Generate(ctx)
+}
+
+// GetConfig returns the configuration for SdkGenerator
+func (imp *SdkGeneratorManager) GetConfig() *config.SdkGeneratorManagerConfiguration {
+	return imp.cfg
+}
+
+// NewSdkGeneratorWithDelegate returns a new ISdkGeneratorManager that uses the delegate implementation provided by d
+func NewSdkGeneratorWithDelegate(d ISdkGeneratorManager) ISdkGeneratorManager {
+	if d == nil {
+		return nil
+	}
+	return &SdkGeneratorManager{
+		cfg:      d.GetConfig(),
+		Delegate: d,
+	}
+}

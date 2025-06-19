@@ -242,7 +242,7 @@ func TestGenerate(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			tmpDir := t.TempDir()
 			ctx := context.Background()
-			cfg := config.DefaultGenerateConfig()
+			cfg := config.DefaultSdkGeneratorManagerConfiguration()
 			cfg.Input = filepath.Join("testdata", test.recipe)
 			cfg.Output = tmpDir
 
@@ -267,7 +267,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("Context cancel", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		cfg := &config.GenerateConfig{
+		cfg := &config.SdkGeneratorManagerConfiguration{
 			Input:  filepath.Join("testdata", "verify.json"),
 			Output: "aaaa",
 		}
@@ -277,7 +277,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Run("Invalid specification", func(t *testing.T) {
 		ctx := context.Background()
-		cfg := &config.GenerateConfig{
+		cfg := &config.SdkGeneratorManagerConfiguration{
 			Input:  filepath.Join("testdata", "i-dont-exist.json"),
 			Output: "bbb",
 		}

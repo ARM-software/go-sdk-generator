@@ -1,7 +1,7 @@
 name: GitHub Release
 
 env:
-  go_version: "1.24.4"
+  go_version: "1.24.0"
 
 on:
   workflow_dispatch:
@@ -19,5 +19,6 @@ jobs:
       inherit
     with:
       release_type: ${{ inputs.release_type }}
+      save-outputs-as-artefact: go-sdk-generator-package
       release_to_artifactory: true
-      save-outputs-as-artefact: importer-package
+      

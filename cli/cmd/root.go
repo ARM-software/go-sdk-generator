@@ -3,63 +3,34 @@ package cmd
 import (
 	"context"
 	"embed"
-	"fmt"
-	"log"
 	"os"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/Arm-Debug/go-sdk-generator/generator"
-	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
 const (
-	app           = "sdk_generator"
-	inputArg      = "input"
-	outputArg     = "output"
-	overwriteArg  = "overwrite"
-	targetedGoArg = "targeted-go"
+	app = "SDK_GENERATOR"
+
+	rootInputArg    = "input"
+	rootOutputArg   = "output"
+	rootGenerateArg = "overwrite"
 )
 
 var (
 	//go:embed module.properties
-	embeddedFS embed.FS
-
-	viperSession   = viper.New()
-	generateConfig config.GenerateConfig
+	embeddedFS   embed.FS
+	viperSession = viper.New()
 )
 
+// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use: "sdk-generator",
-	RunE: func(_ *cobra.Command, _ []string) (err error) {
-		ctx := context.Background()
-
-		logger, err := logs.NewStdLogger("SDK Generator")
-		if err != nil {
-			log.Printf("Could not create logger: %v\n", err.Error())
-			return
-		}
-
-		err = configUtils.LoadFromViper(viperSession, app, &generateConfig, config.DefaultGenerateConfig())
-		if err != nil {
-			logger.Log(fmt.Sprintf("Failed to initialise CLI with error: %v\n", err.Error()))
-			return
-		}
-
-		err = generator.Generate(ctx, &generateConfig)
-		if err != nil {
-			logger.Log(fmt.Sprintf("Failed to generate SDK with error: %v\n", err.Error()))
-			return
-		}
-
-		return
-	},
-	SilenceUsage: true, // otherwise 'Usage' is printed after any error
+	Use:   "go-sdk-generator",
+	Short: "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)",
+	Long:  "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)",
 }
 
 func Execute() {
@@ -67,6 +38,7 @@ func Execute() {
 
 	cliVersion, err := semver.DetermineEmbeddedVersion(ctx, &embeddedFS, nil)
 	if err != nil {
+		// This is for completeness but it is impossible at runtime since we need a valid module.properties in this location to release the package
 		cliVersion = "unknown"
 	}
 
@@ -76,13 +48,14 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringP(inputArg, "i", "", "path to SDK schema file")
-	rootCmd.Flags().StringP(outputArg, "o", "", "destination of the output")
-	rootCmd.Flags().BoolP(overwriteArg, "g", false, "regenerate all files")
-	rootCmd.Flags().StringP(targetedGoArg, "t", config.DefaultGenerateConfig().TargetedGoVersion, "targeted go version")
 
-	_ = configUtils.BindFlagToEnv(viperSession, app, "INPUT", rootCmd.Flags().Lookup(inputArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "OUTPUT", rootCmd.Flags().Lookup(outputArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "OVERWRITE", rootCmd.Flags().Lookup(overwriteArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "GO_VERSION", rootCmd.Flags().Lookup(targetedGoArg))
+	rootCmd.PersistentFlags().String(rootInputArg, "", "path to tool definition file")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "input", rootCmd.PersistentFlags().Lookup(rootInputArg))
+
+	rootCmd.PersistentFlags().String(rootOutputArg, "", "destination of the generated code")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "output", rootCmd.PersistentFlags().Lookup(rootOutputArg))
+
+	rootCmd.PersistentFlags().Bool(rootGenerateArg, false, "regenerate all files")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "overwrite", rootCmd.PersistentFlags().Lookup(rootGenerateArg))
+
 }

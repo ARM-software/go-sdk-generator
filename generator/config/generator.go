@@ -1,0 +1,39 @@
+package config
+
+import (
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+)
+
+// SdkGeneratorManagerConfiguration provides some configuration data object for SDK Generator
+type SdkGeneratorManagerConfiguration struct {
+	// path to tool definition file
+	Input string `mapstructure:"input"`
+	// destination of the generated code
+	Output string `mapstructure:"output"`
+	// regenerate all files
+	Overwrite bool `mapstructure:"overwrite"`
+	// targeted go version for the tool
+	TargetedGoVersion string `mapstructure:"go_version"`
+}
+
+func (cfg *SdkGeneratorManagerConfiguration) Validate() error {
+	err := configUtils.ValidateEmbedded(cfg)
+	if err != nil {
+		return err
+	}
+
+	return validation.ValidateStruct(cfg,
+		validation.Field(&cfg.Input, validation.Required),
+		validation.Field(&cfg.Output, validation.Required),
+		validation.Field(&cfg.Overwrite),
+		validation.Field(&cfg.TargetedGoVersion, validation.Required, is.Semver),
+	)
+}
+
+func DefaultSdkGeneratorManagerConfiguration() *SdkGeneratorManagerConfiguration {
+	return &SdkGeneratorManagerConfiguration{
+		TargetedGoVersion: "1.24.4",
+	}
+}

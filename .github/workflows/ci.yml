@@ -15,7 +15,7 @@ on:
       - main
 
 env:
-  go_version: "1.24.4"
+  go_version: "1.24.0"
 
 jobs:
   library:
@@ -25,6 +25,6 @@ jobs:
       inherit
     with:
       branch: ${{ github.head_ref || github.ref }}
-      dockerfile: Dockerfile.generator.cli
+      dockerfile: Dockerfile.generator
       go_module: generator
-
+      

@@ -1,0 +1,69 @@
+specification:
+  package_name: go-sdk-generator
+  main_module: generator
+  name: SDK Generator
+  description: SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+  interface:
+    methods:
+      - name: Generate
+        description: Generate the tool
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether the generation failed or not
+
+  command_line_commands:
+    binary: go-sdk-generator
+    root_environment_var: SDK_GENERATOR
+    description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+    functions:
+      - name: Generate
+        description: Generate tool
+        configuration:
+          - name: Input
+            lang_type: string
+            mapstructure_tag: input
+            description: path to tool definition file
+            is_root: true
+            required: true
+          - name: Output
+            lang_type: string
+            mapstructure_tag: output
+            description: destination of the generated code
+            is_root: true
+            required: true
+          - name: Generate
+            lang_type: bool
+            required: true
+            is_root: true
+            mapstructure_tag: overwrite
+            description: regenerate all files
+          - name: TargetedGo
+            lang_type: version
+            description: targeted go version for the tool
+            mapstructure_tag: go_version
+            
+  global_configuration:
+          - name: input
+            lang_type: string
+            mapstructure_tag: input
+            description: path to tool definition file
+            required: true
+          - name: output
+            lang_type: string
+            mapstructure_tag: output
+            description: destination of the generated code
+            required: true
+          - name: overwrite
+            lang_type: bool
+            required: true
+            mapstructure_tag: overwrite
+            description: regenerate all files
+          - name: targetedGoVersion
+            lang_type: version
+            description: targeted go version for the tool
+            mapstructure_tag: go_version
+            default_value: "1.24.4"
+            required: true
+
+  release_to_artifactory: true

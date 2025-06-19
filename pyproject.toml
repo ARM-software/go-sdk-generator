@@ -5,7 +5,7 @@
 [ProjectConfig]
 # Only path variables can and must contain 'DIR', 'PATH' or 'ROOT' in their name as
 # these tokens are used to identify path variables from other variable types.
-PROJECT_NAME = "Go SDK Generator"
+PROJECT_NAME = "SDK Generator"
 PACKAGE_NAME = "go-sdk-generator"
 PROJECT_UUID = 'a066e87b-21f2-4071-a071-cc5ba3af0864'
 PROJECT_ROOT = "."
@@ -27,7 +27,8 @@ CONFIG_NAME = "JAVA"
 PRERELEASE_TOKEN = "beta"
 BUILD_TOKEN = "dev"
 TAG_TEMPLATE = "release/{version}"
-targets = [ "module.properties",]
+targets = [ "cli/cmd/module.properties",]
+
 
 [AutoVersionConfig.key_aliases]
 Version = "VERSION_KEY"
@@ -44,7 +45,7 @@ patch = "changes/*.bugfix"
 [tool.towncrier]
 directory = "changes"
 filename = "CHANGELOG.md"
-package = "workspace-service-sdk"
+package = "go-sdk-generator"
 title_format = "{version} ({project_date})"
 start_string = """
 [//]: # (begin_release_notes)

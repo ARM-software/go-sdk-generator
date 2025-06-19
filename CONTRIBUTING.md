@@ -4,7 +4,7 @@ SPDX-License-Identifier: Proprietary
 -->
 # Contribution Guide
 
-We really appreciate your contributions to the worker flavours. We are committed to 
+We really appreciate your contributions to this project. We are committed to 
 fostering a welcoming community, please see our Code of Conduct, which can be found here:
 
 - [Code of Conduct](./CODE_OF_CONDUCT.md)

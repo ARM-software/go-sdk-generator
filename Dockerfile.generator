@@ -1,0 +1,16 @@
+FROM golang:1.24.0 as build
+
+WORKDIR /build
+ADD generator generator
+ADD cli cli
+
+WORKDIR /build/cli
+RUN go mod download
+RUN go build -o /output/generator
+
+FROM alpine:3.20.0
+
+# Install go binary
+COPY --from=build /output/generator /usr/local/bin/generator
+
+ENTRYPOINT ["generator"]

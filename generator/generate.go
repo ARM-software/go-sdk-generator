@@ -204,7 +204,7 @@ func populateTemplate(ctx context.Context, data *DataModel, templateFile string,
 	return
 }
 
-func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
+func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration) (err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
@@ -254,7 +254,7 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	templatesToPopulate = addStateFile(templatesToPopulate, readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite)
 	templatesToPopulate = addStateFile(templatesToPopulate, goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)
 
-	updateGoVersion := cfg.Overwrite || cfg.TargetedGoVersion != config.DefaultGenerateConfig().TargetedGoVersion
+	updateGoVersion := cfg.Overwrite || cfg.TargetedGoVersion != config.DefaultSdkGeneratorManagerConfiguration().TargetedGoVersion
 	templatesToPopulate = addStateFile(templatesToPopulate, dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule), updateGoVersion)
 	templatesToPopulate = addStateFile(templatesToPopulate, ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion)
 	templatesToPopulate = addStateFile(templatesToPopulate, dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion)
