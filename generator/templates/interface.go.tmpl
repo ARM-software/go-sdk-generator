@@ -28,13 +28,13 @@ Input arguments:
 
   * ctx: A context to pass into the method. Can be used to cancel long running tasks
 {{ range .Args }}
-  * {{ .name }}: {{ .description }}
+  * {{ .Name }}: {{ .Description }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * {{ .name }}: {{ .description }}
+  * {{ .Name }}: {{ .Description }}
 {{ end }}
 */
-	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type }}{{ end }})
+	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType }}{{ end }})
 	{{ end -}}
 }

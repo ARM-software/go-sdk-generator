@@ -28,7 +28,7 @@ type CiExtraPackages []string
 // An CLI function
 type CliFunction struct {
 	// Configuration corresponds to the JSON schema field "configuration".
-	Configuration []CliFunctionConfigurationElem `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
+	Configuration []FunctionConfigFields `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
@@ -39,8 +39,6 @@ type CliFunction struct {
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
 	Operands *bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 }
-
-type CliFunctionConfigurationElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *CliFunction) UnmarshalJSON(value []byte) error {
@@ -66,7 +64,87 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-type CommandArgument interface{}
+// A command argument or code parameter
+type CommandArgument struct {
+	// The argument to bind to
+	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// Bind congifuration options to variables
+	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
+	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// An optional default value for use when creating a new instance of the
+	// configuration
+	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// The description of the field
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether the variable should be in the root command so it can be shared between
+	// sub commands
+	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+
+	// The JSON tag of the field
+	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+
+	// The language type for the field
+	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// The mapstructure tag of the field
+	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+
+	// The name of the field
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The pattern that the field should follow if it is a string
+	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Whether the value is a pointer
+	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+
+	// Whether the configuration value is required
+	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *CommandArgument) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in CommandArgument: required")
+	}
+	if _, ok := raw["lang_type"]; raw != nil && !ok {
+		return fmt.Errorf("field lang_type in CommandArgument: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in CommandArgument: required")
+	}
+	type Plain CommandArgument
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	*j = CommandArgument(plain)
+	return nil
+}
 
 // A CLI command
 type CommandLineCommands struct {
@@ -102,11 +180,177 @@ func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 }
 
 // The configuration options for the exported implementation
-type Configuration []interface{}
+type Configuration []ConfigurationOption
 
-type ConfigurationOption interface{}
+// A command argument or code parameter
+type ConfigurationOption struct {
+	// The argument to bind to
+	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
-type EntityField interface{}
+	// Bind congifuration options to variables
+	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
+	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// An optional default value for use when creating a new instance of the
+	// configuration
+	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// The description of the field
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether the variable should be in the root command so it can be shared between
+	// sub commands
+	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+
+	// The JSON tag of the field
+	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+
+	// The language type for the field
+	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// The mapstructure tag of the field
+	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
+
+	// The name of the field
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The pattern that the field should follow if it is a string
+	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Whether the value is a pointer
+	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+
+	// Whether the configuration value is required
+	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in ConfigurationOption: required")
+	}
+	if _, ok := raw["lang_type"]; raw != nil && !ok {
+		return fmt.Errorf("field lang_type in ConfigurationOption: required")
+	}
+	if _, ok := raw["mapstructure_tag"]; raw != nil && !ok {
+		return fmt.Errorf("field mapstructure_tag in ConfigurationOption: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in ConfigurationOption: required")
+	}
+	type Plain ConfigurationOption
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	*j = ConfigurationOption(plain)
+	return nil
+}
+
+// A command argument or code parameter
+type EntityField struct {
+	// The argument to bind to
+	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// Bind congifuration options to variables
+	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
+	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// An optional default value for use when creating a new instance of the
+	// configuration
+	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// The description of the field
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether the variable should be in the root command so it can be shared between
+	// sub commands
+	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+
+	// The JSON tag of the field
+	JsonTag string `json:"json_tag" yaml:"json_tag" mapstructure:"json_tag"`
+
+	// The language type for the field
+	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// The mapstructure tag of the field
+	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+
+	// The name of the field
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The pattern that the field should follow if it is a string
+	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Whether the value is a pointer
+	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+
+	// Whether the configuration value is required
+	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *EntityField) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in EntityField: required")
+	}
+	if _, ok := raw["json_tag"]; raw != nil && !ok {
+		return fmt.Errorf("field json_tag in EntityField: required")
+	}
+	if _, ok := raw["lang_type"]; raw != nil && !ok {
+		return fmt.Errorf("field lang_type in EntityField: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in EntityField: required")
+	}
+	type Plain EntityField
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	*j = EntityField(plain)
+	return nil
+}
 
 // An extra import
 type ExtraImport struct {
@@ -121,7 +365,90 @@ type ExtraImports []ExtraImport
 
 type ExtraValidTypes []string
 
-type FunctionConfigFields interface{}
+// A command argument or code parameter
+type FunctionConfigFields struct {
+	// The argument to bind to
+	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// Bind congifuration options to variables
+	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
+	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// An optional default value for use when creating a new instance of the
+	// configuration
+	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// The description of the field
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether the variable should be in the root command so it can be shared between
+	// sub commands
+	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+
+	// The JSON tag of the field
+	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+
+	// The language type for the field
+	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// The mapstructure tag of the field
+	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
+
+	// The name of the field
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The pattern that the field should follow if it is a string
+	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Whether the value is a pointer
+	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+
+	// Whether the configuration value is required
+	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in FunctionConfigFields: required")
+	}
+	if _, ok := raw["lang_type"]; raw != nil && !ok {
+		return fmt.Errorf("field lang_type in FunctionConfigFields: required")
+	}
+	if _, ok := raw["mapstructure_tag"]; raw != nil && !ok {
+		return fmt.Errorf("field mapstructure_tag in FunctionConfigFields: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in FunctionConfigFields: required")
+	}
+	type Plain FunctionConfigFields
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	*j = FunctionConfigFields(plain)
+	return nil
+}
 
 // An interface
 type Interface struct {
@@ -132,7 +459,7 @@ type Interface struct {
 // An interface method
 type InterfaceMethod struct {
 	// Args corresponds to the JSON schema field "args".
-	Args []InterfaceMethodArgsElem `json:"args,omitempty" yaml:"args,omitempty" mapstructure:"args,omitempty"`
+	Args []CommandArgument `json:"args,omitempty" yaml:"args,omitempty" mapstructure:"args,omitempty"`
 
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
@@ -141,12 +468,8 @@ type InterfaceMethod struct {
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// Returns corresponds to the JSON schema field "returns".
-	Returns []InterfaceMethodReturnsElem `json:"returns,omitempty" yaml:"returns,omitempty" mapstructure:"returns,omitempty"`
+	Returns []CommandArgument `json:"returns,omitempty" yaml:"returns,omitempty" mapstructure:"returns,omitempty"`
 }
-
-type InterfaceMethodArgsElem interface{}
-
-type InterfaceMethodReturnsElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *InterfaceMethod) UnmarshalJSON(value []byte) error {
@@ -184,76 +507,6 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 		return err
 	}
 	*j = Interface(plain)
-	return nil
-}
-
-// A command argument or code parameter
-type Parameter struct {
-	// Bind congifuration options to variables
-	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
-
-	// A condition in which to require the value. It should be based on one (and one
-	// only) other configuration variable. Condition MUST start with the name of the
-	// variable and only mention it once
-	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
-
-	// An optional default value for use when creating a new instance of the
-	// configuration
-	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
-
-	// The description of the field
-	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// Whether the variable should be in the root command so it can be shared between
-	// sub commands
-	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
-
-	// The JSON tag of the field
-	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
-
-	// The language type for the field
-	LangType *string `json:"lang_type,omitempty" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
-
-	// The mapstructure tag of the field
-	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
-
-	// The name of the field
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// The pattern that the field should follow if it is a string
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
-
-	// Whether the value is a pointer
-	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
-
-	// Whether the configuration value is required
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *Parameter) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	type Plain Parameter
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	if v, ok := raw["condition"]; !ok || v == nil {
-		plain.Condition = ""
-	}
-	if v, ok := raw["is_root"]; !ok || v == nil {
-		plain.IsRoot = false
-	}
-	if v, ok := raw["reference"]; !ok || v == nil {
-		plain.Reference = false
-	}
-	if v, ok := raw["required"]; !ok || v == nil {
-		plain.Required = false
-	}
-	*j = Parameter(plain)
 	return nil
 }
 
@@ -365,13 +618,11 @@ type Type struct {
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Fields corresponds to the JSON schema field "fields".
-	Fields []TypeFieldsElem `json:"fields" yaml:"fields" mapstructure:"fields"`
+	Fields []EntityField `json:"fields" yaml:"fields" mapstructure:"fields"`
 
 	// The name of the entity
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 }
-
-type TypeFieldsElem interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *Type) UnmarshalJSON(value []byte) error {

@@ -15,7 +15,7 @@ import (
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
-//go:generate go tool go-jsonschema -p generator ../schema.json -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
+//go:generate go tool go-jsonschema -p generator ../schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
 	implementationFile           = "templates/implementation.go.tmpl"
@@ -205,6 +205,12 @@ func Generate(ctx context.Context, cfg *config.GenerateConfig) (err error) {
 	}
 	if err != nil {
 		err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "the file '%v' does not comply with the schema and thus, cannot be parsed", cfg.Input)
+		return
+	}
+
+	err = ProcessBindings(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for bindings")
 		return
 	}
 

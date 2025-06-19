@@ -18,16 +18,16 @@ const (
 	app = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ range .Configuration -}}
-	{{ if isValidArgType .lang_type }}
-	{{ if .is_root -}}
-	{{ if notSeenRootCmd .name -}}
-	{{ $mapstructure:= .mapstructure_tag -}}
-	{{ if .bindings -}}
-	{{ range .bindings -}}
-	root{{ .name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
+	{{ if isValidArgType .LangType }}
+	{{ if .IsRoot -}}
+	{{ if notSeenRootCmd .Name -}}
+	{{ $mapstructure:= .MapstructureTag -}}
+	{{ if .Bindings -}}
+	{{ range .Bindings -}}
+	root{{ .Name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ else -}}
-	root{{ .name }}Arg = "{{ .mapstructure_tag | replaceUnderscores }}"{{ if ignoreLinting .name -}} //nolint:gosec // not a secret{{ end -}}
+	root{{ .Name }}Arg = "{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -60,18 +60,18 @@ func Execute() {
 func init() {
 	{{ range .Specification.CommandLineCommands.Functions -}}
 	{{ range .Configuration -}}
-	{{ if .is_root -}}
-	{{ if isValidArgType .lang_type }}
-	{{ if notSeenRootCmd .name -}}
-	{{ $mapstructure:= .mapstructure_tag -}}
-	{{ if .bindings -}}
-	{{ range .bindings -}}
-	rootCmd.PersistentFlags().{{ .lang_type | argFlagtype }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
-	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .mapstructure_tag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	{{ if .IsRoot -}}
+	{{ if isValidArgType .LangType }}
+	{{ if notSeenRootCmd .Name -}}
+	{{ $mapstructure:= .MapstructureTag -}}
+	{{ if .Bindings -}}
+	{{ range .Bindings -}}
+	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}(root{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .MapstructureTag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .Name }}Arg))
 	{{ end -}}
 	{{ else -}}
-	rootCmd.PersistentFlags().{{ .lang_type | argFlagtype }}(root{{ .name }}Arg, {{ .lang_type | zero }}, "{{ .description }}")
-	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .mapstructure_tag }}", rootCmd.PersistentFlags().Lookup(root{{ .name }}Arg))
+	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}(root{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
+	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .MapstructureTag }}", rootCmd.PersistentFlags().Lookup(root{{ .Name }}Arg))
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}

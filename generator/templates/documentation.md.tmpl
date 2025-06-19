@@ -18,7 +18,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Fields }}
-- **`{{ .name }} : {{ .lang_type }}`** - {{ .description }} {{ if .required }}(required){{ end }}
+- **`{{ .Name }} : {{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ end }}
 {{ end }}
 ### {{ .Specification.Name | toPascal }}ManagerConfiguration
@@ -27,8 +27,8 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .name }} : {{ .lang_type }}`** - {{ .description }} {{ if .required }}(required){{ end }}
-{{ if .pattern }}  - This field has to follow the pattern `{{ .pattern }}`{{ end }}
+- **`{{ .Name }} : {{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+{{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 
 ## Interface defined in this package `I{{ .Specification.Name }}Manager`
@@ -36,16 +36,16 @@ Documentation about {{ .Specification.Name }} SDK
 {{ .Description }}
 
 ```go
-{{ .Name  | toPascal  }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.name | toCamel }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.name | toCamel }} {{ if $arg.reference }}*{{ end }}{{ $arg.lang_type | convertLangType }}{{ end }})
+{{ .Name  | toPascal  }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }})
 ```
 
 Input arguments:
 {{ range .Args }}
-  * `{{ .name  | toCamel }} : {{ .lang_type }}`: {{ .description }}
+  * `{{ .Name  | toCamel }} : {{ .LangType }}`: {{ .Description }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * `{{ .name }} : {{ .lang_type }}`: {{ .description }}
+  * `{{ .Name }} : {{ .LangType }}`: {{ .Description }}
 {{ end }}
 {{ end -}}
 
@@ -71,8 +71,8 @@ func(ctx context.Context, logger logs.Loggers, cfg config.{{ $functionName }}Con
 ```go
 type {{ $functionName }}Configuration struct {
 	{{ range .Configuration -}}
-		// {{ .description }}
-		{{ .name }} {{ .lang_type | convertLangType }} `mapstructure:"{{ .mapstructure_tag }}"`
+		// {{ .Description }}
+		{{ .Name }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag }}"`
 	{{ end }}
 }
 ```

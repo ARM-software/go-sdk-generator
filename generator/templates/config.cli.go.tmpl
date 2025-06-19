@@ -22,8 +22,8 @@ import (
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
 type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
-		// {{ .description }}
-		{{ .name | toPascal }} {{ .lang_type | convertLangType }} `mapstructure:"{{ .mapstructure_tag | toSnake }}"`
+		// {{ .Description }}
+		{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	    // ToolVersion contains the version of the CLI tool
 		ToolVersion *string
@@ -41,21 +41,21 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	
 	return validation.ValidateStruct(cfg,
 	{{ range .Configuration -}}
-	{{ if not .bindings -}}
-	{{ $validation := .lang_type | validationLangType -}}
-	{{ if eq .lang_type "bool" -}}
-	{{ if .condition -}}
-	    validation.Field(&cfg.{{ .name | toPascal }}, validation.When(cfg.{{ .condition }}{{ $validation }})),
+	{{ if not .Bindings -}}
+	{{ $validation := .LangType | validationLangType -}}
+	{{ if eq .LangType "bool" -}}
+	{{ if .Condition -}}
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
 	{{ else -}}
-        validation.Field(&cfg.{{ .name | toPascal }}{{ $validation }}),
+        validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
 	{{ end -}}
 	{{ else -}}
-	{{ if .required -}}
-		validation.Field(&cfg.{{ .name | toPascal }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }}),
-	{{ else if .condition -}}
-		validation.Field(&cfg.{{ .name | toPascal }}, validation.When(cfg.{{ .condition }}, validation.Required{{ $validation }}{{ if .pattern }}, validation.Match(regexp.MustCompile(`{{ .pattern }}`)){{ end }})),
+	{{ if .Required -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+	{{ else if .Condition -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
 	{{ else if $validation -}}
-		validation.Field(&cfg.{{ .name | toPascal }}{{ $validation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -66,12 +66,12 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	return &{{ $configName }}Configuration{
 	{{ range .Configuration -}}
-	{{ if not .bindings }}
-	{{ if .default_value -}}
-	{{ .name  | toPascal }}: {{ defaultValue .lang_type .default_value }},
+	{{ if not .Bindings }}
+	{{ if .DefaultValue -}}
+	{{ .Name  | toPascal }}: {{ defaultValue .LangType (dereferenceString .DefaultValue) }},
 	{{ end -}}
 	{{ else }}
-	{{ .name  | toPascal }}: {{ defaultValue .lang_type .default_value }},
+	{{ .Name  | toPascal }}: {{ defaultValue .LangType (dereferenceString .DefaultValue) }},
 	{{ end -}}
 	{{ end -}}
 	}

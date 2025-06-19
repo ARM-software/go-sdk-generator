@@ -92,6 +92,7 @@ var templateFuncMap = template.FuncMap{
 	"toSnake":            toSnakeCase,
 	"toPascal":           toPascalCase,
 	"ignoreLinting":      ignoreLintingError,
+	"dereferenceString":  func(s *string) string { return field.Optional(s, "") },
 }
 
 func toPascalCase(s string) string {

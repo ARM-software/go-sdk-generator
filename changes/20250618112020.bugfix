@@ -1,0 +1,1 @@
+:bug: Make sure that generated types use concrete types instead of interface{}
