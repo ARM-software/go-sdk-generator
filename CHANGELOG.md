@@ -2,6 +2,37 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.11.0" (2025-06-19)
+=====================
+
+Features
+--------
+
+- :camel: change the schema to use yaml so that yaml aliases can be used (#20250618111945)
+- :sparkles: Automatic management of bindings (#20250619104617)
+- :sparkles: Generation of [QLTY](https://docs.qlty.sh/qlty-toml) configuration file (#20250619113601)
+- :sparkles: Automatically generate and install manpages during installation (#20250619140044)
+- :sparkles: Make the output of help and usage commands pretty using fang (#20250619140046)
+- :sparkles: Run go mod tidy and generate before releasing (#20250619144539)
+- :recycling: dogfooding! (#20250619144625)
+
+
+Bugfixes
+--------
+
+- :bug: Make sure that the arguments used in bindings take precedent over everything else when naming the arguments (#20250618084049)
+- :bug: If no argument is specified in a binding, make sure to use the full name of the field (#20250618084123)
+- :bug: Make sure that generated types use concrete types instead of interface{} (#20250618112020)
+- :camel: Upgrade dependencies (#20250619104756)
+- :bug: fix project definition template (#20250619111827)
+- :gear: make more files not overwritten if manually modified (#20250619112239)
+- :bug: Make sure that gitignore file is generated (#20250619144523)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.10.0" (2025-06-16)
 =====================
 
