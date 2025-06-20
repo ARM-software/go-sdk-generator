@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.11.2" (2025-06-20)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Explicitly call `chmod scripts/pre.sh` so that SDKs generated on windows will work (#20250620143449)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.11.1" (2025-06-20)
 =====================
 
