@@ -17,6 +17,7 @@ builds:
       - arm64
     hooks:
       pre:
+        - chmod +x scripts/pre.sh
         - scripts/pre.sh
 archives:
   - name_template: >-

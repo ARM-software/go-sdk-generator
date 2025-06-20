@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 	"text/template"
 
@@ -61,11 +60,10 @@ var fs embed.FS
 type templateToPopulate struct {
 	templateFile string
 	output       string
-	mode         os.FileMode
 }
 
 func (t *templateToPopulate) Populate(ctx context.Context, data *DataModel) (err error) {
-	err = populateTemplate(ctx, data, t.templateFile, t.output, t.mode)
+	err = populateTemplate(ctx, data, t.templateFile, t.output)
 	return
 }
 
@@ -73,14 +71,6 @@ func NewTemplateToPopulate(templateFile, output string) templateToPopulate {
 	return templateToPopulate{
 		templateFile: templateFile,
 		output:       output,
-	}
-}
-
-func NewTemplateToPopulateWithMode(templateFile, output string, mode os.FileMode) templateToPopulate {
-	return templateToPopulate{
-		templateFile: templateFile,
-		output:       output,
-		mode:         mode,
 	}
 }
 
@@ -132,7 +122,7 @@ type DataModel struct {
 	TargetedGoVersion string
 }
 
-func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string, mode os.FileMode) (err error) {
+func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string) (err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
 		return
@@ -175,12 +165,6 @@ func populateTemplate(ctx context.Context, data *DataModel, templateFile string,
 			_ = outFile.Close()
 		}
 	}()
-	if mode != 0 {
-		err = filesystem.Chmod(output, mode)
-		if err != nil {
-			return
-		}
-	}
 
 	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), *data)
 	if err != nil {
@@ -278,7 +262,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 			NewTemplateToPopulate(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output)),
 			NewTemplateToPopulate(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule)),
 			NewTemplateToPopulate(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule)),
-			NewTemplateToPopulateWithMode(preinstallFile, fmt.Sprintf("%v/scripts/pre.sh", cfg.Output), 0777),
+			NewTemplateToPopulate(preinstallFile, fmt.Sprintf("%v/scripts/pre.sh", cfg.Output)),
 		}...)
 
 		templatesToPopulate = addStateFile(templatesToPopulate, implementationCLIFile, fmt.Sprintf("%v/cli/cmd/%v/implementations.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite)

@@ -1,0 +1,1 @@
+:bug: Explicitly call `chmod scripts/pre.sh` so that SDKs generated on windows will work

@@ -138,7 +138,7 @@ func TestPopulateTemplate(t *testing.T) {
 		require.NoDirExists(t, filepath.Dir(out))
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out, 0)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)
@@ -152,7 +152,7 @@ func TestPopulateTemplate(t *testing.T) {
 		require.NoDirExists(t, filepath.Dir(out))
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out, 0)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)
@@ -165,7 +165,7 @@ func TestPopulateTemplate(t *testing.T) {
 		out := filepath.Join(tmpDir, "out")
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test-not-exist.go.tmpl"), out, 0)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test-not-exist.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 		assert.NoFileExists(t, out)
 	})
@@ -176,7 +176,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out, 0)
+		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 		assert.NoFileExists(t, out)
 	})
