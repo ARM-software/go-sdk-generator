@@ -2,6 +2,20 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.11.1" (2025-06-20)
+=====================
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.24.4 (#20250620043232)
+- Dependency upgrade: alpine-3.22.0 (#20250620043235)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.11.0" (2025-06-19)
 =====================
 
