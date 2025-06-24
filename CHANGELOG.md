@@ -2,6 +2,25 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.12.0" (2025-06-24)
+=====================
+
+Features
+--------
+
+- :sparkles: Add support for specifying short args on the CLI functions (#20250623152933)
+
+
+Bugfixes
+--------
+
+- :bug: Make sure that any extra LangTypes are included in the ExtraValidTypes (#20250623152922)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.11.2" (2025-06-20)
 =====================
 
