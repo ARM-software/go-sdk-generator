@@ -72,14 +72,22 @@ func init() {
 	{{ if .IsRoot -}}
 	{{ if isValidArgType .LangType }}
 	{{ if notSeenRootCmd .Name -}}
-	{{ $mapstructure:= .MapstructureTag -}}
+	{{ $mapstructure := .MapstructureTag -}}
 	{{ if .Bindings -}}
 	{{ range .Bindings -}}
+	{{ if .ArgShort }}
+	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}P(root{{ .Name }}Arg, "{{ .ArgShort }}", {{ .LangType | zero }}, "{{ .Description }}")
+	{{ else -}}
 	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}(root{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
+	{{ end -}}
 	_ = configUtils.BindFlagToEnv(viperSession, app, fmt.Sprintf("%s_{{ $mapstructure }}_{{ .MapstructureTag }}", app), rootCmd.PersistentFlags().Lookup(root{{ .Name }}Arg))
 	{{ end -}}
 	{{ else -}}
+	{{ if .ArgShort }}
+	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}P(root{{ .Name }}Arg, "{{ .ArgShort }}", {{ .LangType | zero }}, "{{ .Description }}")
+	{{ else -}}
 	rootCmd.PersistentFlags().{{ .LangType | argFlagtype }}(root{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
+	{{ end -}}
 	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .MapstructureTag }}", rootCmd.PersistentFlags().Lookup(root{{ .Name }}Arg))
 	{{ end -}}
 	{{ end -}}

@@ -220,21 +220,35 @@ func TestGenerate(t *testing.T) {
 		title         string
 		recipe        string
 		regressionSrc string
+		err           error
 	}{
 		{
 			title:         "No CLI (workspace service sdk)",
 			recipe:        "workspace.json",
 			regressionSrc: "workspace.zip",
+			err:           nil,
 		},
 		{
 			title:         "Yes CLI (verify cmsis example sdk (json))",
 			recipe:        "verify.json",
 			regressionSrc: "verify.zip",
+			err:           nil,
 		},
 		{
 			title:         "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe:        "verify.yml",
 			regressionSrc: "verify.zip",
+			err:           nil,
+		},
+		{
+			title:  "Yes CLI (verify cmsis example sdk (yaml))",
+			recipe: "verify.bad.yml",
+			err:    commonerrors.ErrConflict,
+		},
+		{
+			title:  "Yes CLI (verify cmsis example sdk (yaml))",
+			recipe: "verify.bad2.yml",
+			err:    commonerrors.ErrConflict,
 		},
 	}
 	for i := range tests {
@@ -247,14 +261,18 @@ func TestGenerate(t *testing.T) {
 			cfg.Output = tmpDir
 
 			err := Generate(ctx, cfg)
-			assert.NoError(t, err)
+			if test.err != nil {
+				errortest.AssertError(t, err, test.err)
+			} else {
+				assert.NoError(t, err)
 
-			tmpDir2 := t.TempDir()
-			zipped := filepath.Join("testdata", test.regressionSrc)
-			_, err = filesystem.Unzip(zipped, tmpDir2)
-			require.NoError(t, err)
+				tmpDir2 := t.TempDir()
+				zipped := filepath.Join("testdata", test.regressionSrc)
+				_, err = filesystem.Unzip(zipped, tmpDir2)
+				require.NoError(t, err)
 
-			checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
+				checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
+			}
 		})
 	}
 

@@ -51,6 +51,7 @@ specification:
               - name: Path
                 description: path to a project file within the project directory
                 arg: path
+                arg_short: p
                 mapstructure_tag: path
                 lang_type: string
           - name: OutDir
@@ -63,10 +64,12 @@ specification:
             required: true
             mapstructure_tag: project_dir
             description: The root directory of the project
+            arg_short: d 
           - name: APIKey
             lang_type: string
             required: true
             is_root: true
+            arg_short: t
             mapstructure_tag: api_key
             pattern: "[a-zA-Z0-9_-]+"
             description: An API key enabling the use of the online services

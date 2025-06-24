@@ -27,4 +27,3 @@ jobs:
       branch: ${{ github.head_ref || github.ref }}
       dockerfile: Dockerfile.generator
       go_module: generator
-      

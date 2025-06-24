@@ -1,0 +1,181 @@
+specification:
+  package_name: verify-cmsis-example-sdk
+  main_module: verify
+  name: ExampleVerify
+  description: Verify a project is compatible with [CMSIS](https://www.keil.arm.com/cmsis)
+  interface:
+    methods:
+      - name: Verify
+        description: Verify that a project is valid csolution or uvprojx project
+        args:
+          - name: project
+            lang_type: types.Project
+            reference: true
+            description: The project to verify
+          - name: outDir
+            lang_type: string
+            description: The directory to output artefacts from the verification (logs and zipped project etc.)
+          - name: projectDir
+            lang_type: string
+            description: The root directory of the project
+          - name: boardOverride
+            lang_type: types.RelatedBoard
+            reference: true
+            description: An optional board to use to use as the related board for the output project
+        returns:
+          - name: ok
+            lang_type: bool
+            description: Whether the project was verifiable
+          - name: jobName
+            lang_type: string
+            description: identifier of the verification job
+          - name: err
+            lang_type: error
+            description: Whether the verification step failed
+
+  command_line_commands:
+    binary: verify-cmsis-example-sdk
+    root_environment_var: VERIFY_EXAMPLE
+    description: CLI for verifying an individual example is compatible with cmsis tools
+    functions:
+      - name: Verify
+        description: Verify that a project is valid csolution or uvprojx project
+        configuration:
+          - name: Project
+            lang_type: types.Project
+            mapstructure_tag: project
+            description: Project configuration
+            is_root: true
+            default_value: "*types.DefaultProject()"
+            bindings:
+              - name: Path
+                description: path to a project file within the project directory
+                arg: path
+                arg_short: p
+                mapstructure_tag: path
+                lang_type: string
+          - name: OutDir
+            lang_type: string
+            required: true
+            mapstructure_tag: out_dir
+            description: The directory to output artefacts from the verification (logs and zipped project etc.)
+          - name: ProjectDir
+            lang_type: string
+            required: true
+            mapstructure_tag: project_dir
+            description: The root directory of the project
+            arg_short: t
+          - name: APIKey
+            lang_type: string
+            required: true
+            is_root: true
+            arg_short: t
+            mapstructure_tag: api_key
+            pattern: "[a-zA-Z0-9_-]+"
+            description: An API key enabling the use of the online services
+          - name: Host
+            lang_type: host
+            required: true
+            mapstructure_tag: host
+            pattern: '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
+            description: The host to use for accessing the online services
+            default_value: https://all.api.keil.arm.com
+          - name: Debug
+            lang_type: bool
+            mapstructure_tag: debug
+            is_root: true
+            description: Whether to show debug information and save intermediate artifacts during verification
+          - name: LogError
+            lang_type: int
+            is_root: true
+            mapstructure_tag: log_error
+            description: Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY
+          - name: Quiet
+            lang_type: bool
+            is_root: true
+            mapstructure_tag: quiet
+            description: Whether to stream job messages. This will still show logs from the tool itself
+          - name: CleanUpOnSuccess
+            lang_type: bool
+            mapstructure_tag: cleanup
+            description: Whether to clean up job records on success.
+            is_root: true
+          - name: JobTimeout
+            lang_type: duration
+            default_value: 5m
+            is_root: true
+            mapstructure_tag: job_timeout
+            description: Timeout to use for waiting for a project to be verified. Important when starting many jobs simultaneously as the service can only handle a limited number at once and jobs may remain in the queue for a while
+          - name: OverrideBoard
+            lang_type: types.BoardID
+            mapstructure_tag: override_board
+            default_value: "types.BoardID{}"
+            description: An optional board override to use instead of parsing it from the project itself
+            bindings:
+              - name: Name
+                description: Name of the override board
+                arg: override-board-name
+                mapstructure_tag: name
+                lang_type: string
+              - name: Vendor
+                description: Vendor of the override board
+                arg: override-board-vendor
+                mapstructure_tag: vendor
+                lang_type: string
+              - name: Revision
+                description: Revision of the override board
+                arg: override-board-revision
+                mapstructure_tag: revision
+                lang_type: string
+          - name: OverrideBoardReference
+            lang_type: string
+            mapstructure_tag: override_board_reference
+            description: An optional board reference to use
+
+  global_configuration:
+    - name: APIKey
+      lang_type: string
+      required: true
+      mapstructure_tag: api_key
+      pattern: "[a-zA-Z0-9_-]+"
+      description: An API key enabling the use of the online services
+    - name: Host
+      lang_type: host
+      required: true
+      mapstructure_tag: host
+      pattern: '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
+      description: The host to use for accessing the online services
+      default_value: https://all.api.keil.arm.com
+    - name: UserAgent
+      lang_type: string
+      pattern: '.+?[/\s][\d.]+'
+      mapstructure_tag: user_agent
+      description: The user agent for the requests
+    - name: Debug
+      lang_type: bool
+      mapstructure_tag: debug
+      description: Whether to show debug information during verification
+    - name: LogError
+      lang_type: uint32
+      mapstructure_tag: log_error
+      description: Whether to log the errors at the end of a job. 0 for no, 1 for printing to stdout, 2 for printing to GITHUB_SUMMARY
+    - name: Quiet
+      lang_type: bool
+      mapstructure_tag: quiet
+      description: Whether to stream job messages. This will still show logs from the tool itself
+    - name: CleanupOnSuccess
+      lang_type: bool
+      mapstructure_tag: cleanup_on_success
+      description: Whether to clean up job's records on success
+    - name: JobTimeout
+      lang_type: time.Duration
+      default_value: 5*time.Minute
+      required: true
+      mapstructure_tag: job_timeout
+      description: Timeout to use for waiting for a project to be verified. Important when starting many jobs simultaneously as the service can only handle a limited number at once and jobs may remain in the queue for a while
+
+  release_to_artifactory: true
+
+  extra_imports:
+    - import_url: github.com/Arm-Debug/cmsis-project-types/project/types
+      import_ref: types

@@ -10,6 +10,9 @@ type Binding struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
+	// The optional short version of the argument
+	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+
 	// The description of the field
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -68,6 +71,9 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 type CommandArgument struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// The short version of the argument to bind to
+	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
@@ -187,6 +193,9 @@ type ConfigurationOption struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
+	// The short version of the argument to bind to
+	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
@@ -271,6 +280,9 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 type EntityField struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// The short version of the argument to bind to
+	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
@@ -369,6 +381,9 @@ type ExtraValidTypes []string
 type FunctionConfigFields struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// The short version of the argument to bind to
+	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind congifuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`

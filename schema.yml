@@ -47,6 +47,9 @@ x-parameter: &x-parameter
     arg:
       type: string
       description: The argument to bind to
+    arg_short:
+      type: string
+      description: The short version of the argument to bind to
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -241,6 +244,9 @@ $defs:
       arg:
         type: string
         description: The argument to bind to
+      arg_short:
+        type: string
+        description: The optional short version of the argument
       mapstructure_tag:
         type: string
         description: The tag fragment used when building the environment variable key

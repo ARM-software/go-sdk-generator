@@ -38,6 +38,7 @@ func TestProcessBindings(t *testing.T) {
 		originalValidTypes := sdk.Specification.ExtraValidTypes
 		assert.NotContains(t, originalValidTypes, bindingTypes)
 		configuration := ConfigurationOption{
+			LangType: faker.Word(),
 			Bindings: []Binding{expectedBinding},
 		}
 		sdk.Specification.GlobalConfiguration = append(sdk.Specification.GlobalConfiguration, configuration)
@@ -46,6 +47,172 @@ func TestProcessBindings(t *testing.T) {
 			assert.Contains(t, sdk.Specification.ExtraValidTypes, originalValidTypes[i])
 		}
 		assert.Contains(t, sdk.Specification.ExtraValidTypes, bindingTypes)
+		assert.Contains(t, sdk.Specification.ExtraValidTypes, configuration.LangType)
 	})
 
+}
+
+func TestProcessArguments(t *testing.T) {
+	t.Run("context cancelled", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		errortest.AssertError(t, ProcessArguments(ctx, nil), commonerrors.ErrCancelled)
+	})
+
+	t.Run("no sdk", func(t *testing.T) {
+		errortest.AssertError(t, ProcessArguments(context.Background(), nil), commonerrors.ErrUndefined)
+	})
+
+	t.Run("no CommandLineCommands", func(t *testing.T) {
+		var sdk SDK
+		err := faker.FakeData(&sdk)
+		require.NoError(t, err)
+		// Remove commands
+		sdk.Specification.CommandLineCommands = nil
+		assert.NoError(t, ProcessArguments(context.Background(), &sdk))
+	})
+
+	t.Run("empty CommandLineCommands.Functions", func(t *testing.T) {
+		var sdk SDK
+		err := faker.FakeData(&sdk)
+		require.NoError(t, err)
+		sdk.Specification.CommandLineCommands = &CommandLineCommands{
+			Functions: []CliFunction{},
+		}
+		assert.NoError(t, ProcessArguments(context.Background(), &sdk))
+	})
+
+	t.Run("error from processArguments in bindings", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{
+				{
+					Bindings:        []Binding{{}},
+					Description:     faker.Sentence(),
+					LangType:        faker.Word(),
+					MapstructureTag: faker.Word(),
+					Name:            faker.FirstName(),
+				},
+			},
+			Description: faker.Sentence(),
+			Name:        faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{cliFunc},
+				},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		err := ProcessArguments(context.Background(), sdk)
+		errortest.AssertError(t, err, commonerrors.ErrUndefined)
+	})
+
+	t.Run("error from processArguments in param", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{
+				{
+					// No Arg, no MapstructureTag
+					Description:     faker.Sentence(),
+					LangType:        faker.Word(),
+					MapstructureTag: "", // empty tag, so will error
+					Name:            faker.FirstName(),
+				},
+			},
+			Description: faker.Sentence(),
+			Name:        faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{cliFunc},
+				},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		err := ProcessArguments(context.Background(), sdk)
+		errortest.AssertError(t, err, commonerrors.ErrUndefined)
+	})
+
+	t.Run("duplicate short args triggers error", func(t *testing.T) {
+		short := "x"
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{cliFunc},
+				},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		err := ProcessArguments(context.Background(), sdk)
+		errortest.AssertError(t, err, commonerrors.ErrConflict)
+	})
+
+	t.Run("happy path: all good", func(t *testing.T) {
+		short1 := "a"
+		short2 := "b"
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short1,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short2,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{cliFunc},
+				},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		assert.NoError(t, ProcessArguments(context.Background(), sdk))
+	})
 }

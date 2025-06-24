@@ -74,6 +74,7 @@
                   "name": "Path",
                   "description": "path to a project file within the project directory",
                   "arg": "path",
+                  "arg_short": "p",
                   "mapstructure_tag": "path",
                   "lang_type": "string"
                 }
@@ -91,13 +92,15 @@
               "lang_type": "string",
               "required": true,
               "mapstructure_tag": "project_dir",
-              "description": "The root directory of the project"
+              "description": "The root directory of the project",
+              "arg_short": "d"
             },
             {
               "name": "APIKey",
               "lang_type": "string",
               "required": true,
               "is_root": true,
+              "arg_short": "t",
               "mapstructure_tag": "api_key",
               "pattern": "[a-zA-Z0-9_-]+",
               "description": "An API key enabling the use of the online services"
@@ -246,10 +249,6 @@
       }
     ],
     "release_to_artifactory": true,
-    "extra_valid_types": [
-      "types.Project",
-      "types.BoardID"
-    ],
     "extra_imports": [
       {
         "import_url": "github.com/Arm-Debug/cmsis-project-types/project/types",

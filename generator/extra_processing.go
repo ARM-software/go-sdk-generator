@@ -26,6 +26,7 @@ func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 	}
 	for i := range sdk.Specification.GlobalConfiguration {
 		binds := sdk.Specification.GlobalConfiguration[i].Bindings
+		bindings.Add(sdk.Specification.GlobalConfiguration[i].LangType)
 		for j := range binds {
 			binding := binds[j]
 			bindings.Add(field.OptionalString(binding.LangType, ""))
@@ -45,6 +46,7 @@ func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fctCfg := sdk.Specification.CommandLineCommands.Functions[i].Configuration
 			for j := range fctCfg {
+				bindings.Add(fctCfg[j].LangType)
 				binds := fctCfg[j].Bindings
 				for k := range binds {
 					binding := binds[k]
@@ -59,5 +61,59 @@ func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 		validTypes = append(validTypes, types[i])
 	}
 	sdk.Specification.ExtraValidTypes = validTypes
+	return
+}
+
+func processArguments(arg *string, argShort *string, mapstructureTag *string, seenShortArguments mapset.Set[string]) (err error) {
+	if (arg == nil && mapstructureTag == nil) ||
+		(mapstructureTag != nil && reflection.IsEmpty(*mapstructureTag)) {
+		err = commonerrors.New(commonerrors.ErrUndefined, "A parameter must have at least one long argument (or mapstructure tag) to bind to")
+		return
+	}
+
+	if argShort == nil {
+		return
+	}
+
+	short := *argShort
+	if seenShortArguments.Contains(short) {
+		err = commonerrors.Newf(commonerrors.ErrConflict, "cannot specify duplicate short argument %v", short)
+		return
+	}
+
+	seenShortArguments.Add(short)
+	return
+}
+
+// ProcessArguments enforces that arguments are specified on commands and short arguments aren't duplicated
+func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
+		for _, cliFunc := range sdk.Specification.CommandLineCommands.Functions {
+			seenShortArguments := mapset.NewSet[string]()
+
+			for _, param := range cliFunc.Configuration {
+				for _, binding := range param.Bindings {
+					err = processArguments(binding.Arg, binding.ArgShort, binding.MapstructureTag, seenShortArguments)
+					if err != nil {
+						return
+					}
+				}
+
+				err = processArguments(param.Arg, param.ArgShort, &param.MapstructureTag, seenShortArguments)
+				if err != nil {
+					return
+				}
+			}
+		}
+	}
+
 	return
 }

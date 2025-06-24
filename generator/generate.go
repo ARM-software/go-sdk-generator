@@ -217,6 +217,11 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	err = ProcessArguments(ctx, &sdk)
+	if err != nil {
+		return
+	}
+
 	templatesToPopulate := templates{
 		NewTemplateToPopulate(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule)),
 		NewTemplateToPopulate(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule)),

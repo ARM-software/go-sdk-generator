@@ -7,6 +7,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/logs"
+
 	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
 )
 
