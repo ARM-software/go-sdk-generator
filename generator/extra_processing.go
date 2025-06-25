@@ -97,7 +97,7 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 	}
 	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
 		for _, cliFunc := range sdk.Specification.CommandLineCommands.Functions {
-			seenShortArguments := mapset.NewSet[string]()
+			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
 
 			for _, param := range cliFunc.Configuration {
 				for _, binding := range param.Bindings {

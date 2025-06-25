@@ -178,6 +178,48 @@ func TestProcessArguments(t *testing.T) {
 		errortest.AssertError(t, err, commonerrors.ErrConflict)
 	})
 
+	t.Run("h and v short args triggers error", func(t *testing.T) {
+		for _, arg := range []string{"h", "v"} {
+			t.Run(arg, func(t *testing.T) {
+				short := arg
+				arg1 := FunctionConfigFields{
+					Arg:             field.ToOptionalString(faker.Word()),
+					ArgShort:        &short,
+					Description:     faker.Sentence(),
+					LangType:        faker.Word(),
+					MapstructureTag: faker.Word(),
+					Name:            faker.FirstName(),
+				}
+				arg2 := FunctionConfigFields{
+					Arg:             field.ToOptionalString(faker.Word()),
+					ArgShort:        &short,
+					Description:     faker.Sentence(),
+					LangType:        faker.Word(),
+					MapstructureTag: faker.Word(),
+					Name:            faker.FirstName(),
+				}
+				cliFunc := CliFunction{
+					Configuration: []FunctionConfigFields{arg1, arg2},
+					Description:   faker.Sentence(),
+					Name:          faker.Name(),
+				}
+				sdk := &SDK{
+					Specification: SDKSpecification{
+						CommandLineCommands: &CommandLineCommands{
+							Functions: []CliFunction{cliFunc},
+						},
+						GlobalConfiguration: []ConfigurationOption{},
+						Interface:           Interface{},
+						MainModule:          "main",
+						PackageName:         "pkg",
+					},
+				}
+				err := ProcessArguments(context.Background(), sdk)
+				errortest.AssertError(t, err, commonerrors.ErrConflict)
+			})
+		}
+	})
+
 	t.Run("happy path: all good", func(t *testing.T) {
 		short1 := "a"
 		short2 := "b"
