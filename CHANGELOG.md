@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.12.2" (2025-07-01)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Make sure that gosec tags don't remove newlines in root template (#20250701093318)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.12.1" (2025-06-25)
 =====================
 
