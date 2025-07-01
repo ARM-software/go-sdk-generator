@@ -26,10 +26,10 @@ const (
 	{{ $mapstructure:= .MapstructureTag -}}
 	{{ if .Bindings -}}
 	{{ range .Bindings -}}
-	root{{ .Name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end -}}
+	root{{ .Name }}Arg = "{{ $mapstructure | replaceUnderscores }}-{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name }} //nolint:gosec // not a secret{{ end }}
 	{{ end -}}
 	{{ else -}}
-	root{{ .Name }}Arg = "{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end -}}
+	root{{ .Name }}Arg = "{{ .MapstructureTag | replaceUnderscores }}"{{ if ignoreLinting .Name }} //nolint:gosec // not a secret{{ end }}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
