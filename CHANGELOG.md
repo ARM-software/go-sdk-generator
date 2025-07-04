@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.12.3" (2025-07-04)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Make sure that gosec tags don't remove newlines in CLI template (#20250703155657)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.12.2" (2025-07-01)
 =====================
 
