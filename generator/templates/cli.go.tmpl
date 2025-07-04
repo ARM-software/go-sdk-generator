@@ -36,12 +36,13 @@ const (
 	{{ $functionName | lower }}{{ .Name }}Arg = "{{ if .Arg }}{{ .Arg }}{{ else }}{{ $parentName }}-{{ .MapstructureTag | replaceUnderscores }}{{ end }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end }}
 	{{ end -}}
 	{{ else -}}
-	{{ $functionName | lower }}{{ .Name }}Arg = "{{ if .Arg }}{{ .Arg }}{{ else }}{{ .MapstructureTag | replaceUnderscores }}{{ end }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end -}}
+	{{ $functionName | lower }}{{ .Name }}Arg = "{{ if .Arg }}{{ .Arg }}{{ else }}{{ .MapstructureTag | replaceUnderscores }}{{ end }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end }}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
+
 )
 
 func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelFunc) {
