@@ -73,9 +73,7 @@ func TestFuncMap(t *testing.T) {
 			Funcs(templateFuncMap).
 			Parse(strings.Join([]string{
 				"{{ .Data | title }}",
-				"{{ .Data | replaceUnderscores }}",
 				"{{ .Data | lower }}",
-				"{{ .Data | notSeenRootCmd }}",
 			}, "\n"))
 
 		require.NoError(t, err)
@@ -84,51 +82,8 @@ func TestFuncMap(t *testing.T) {
 		err = tmpl.ExecuteTemplate(&b, "test", struct{ Data string }{"this_is_A_WORD"})
 		require.NoError(t, err)
 
-		assert.Equal(t, b.String(), "This_is_A_WORD\nthis-is-A-WORD\nthis_is_a_word\ntrue")
-		assert.Contains(t, rootCmds, "this_is_A_WORD") // For notSeenRootCmd
+		assert.Equal(t, b.String(), "This_is_A_WORD\nthis_is_a_word")
 	})
-
-	t.Run("resetNotSeenRootCmd", func(t *testing.T) {
-		tmpl, err := template.
-			New("test").
-			Funcs(templateFuncMap).
-			Parse(strings.Join([]string{
-				"{{ .Data | notSeenRootCmd }}",
-				"{{ resetNotSeenRootCmd }}",
-			}, "\n"))
-
-		require.NoError(t, err)
-
-		var b strings.Builder
-		err = tmpl.ExecuteTemplate(&b, "test", struct{ Data string }{"this_is_A_WORD"})
-		require.NoError(t, err)
-
-		assert.Empty(t, rootCmds)
-	})
-
-	t.Run("Zero", func(t *testing.T) {
-		tmpl, err := template.
-			New("test").
-			Funcs(templateFuncMap).
-			Parse(strings.Join([]string{
-				"{{ \"string\" | zero }}",
-				"{{ \"bool\" | zero }}",
-				"{{ \"int\" | zero }}",
-				"{{ \"int32\" | zero }}",
-				"{{ \"float\" | zero }}",
-				"{{ \"float32\" | zero }}",
-				"{{ \"aaaaaa\" | zero }}",
-			}, "\n"))
-
-		require.NoError(t, err)
-
-		var b strings.Builder
-		err = tmpl.ExecuteTemplate(&b, "test", nil)
-		require.NoError(t, err)
-
-		assert.Equal(t, b.String(), "\"\"\nfalse\n0\n0\n0.0\n0.0\nnil")
-	})
-
 }
 
 func TestPopulateTemplate(t *testing.T) {
@@ -238,6 +193,12 @@ func TestGenerate(t *testing.T) {
 			title:         "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe:        "verify.yml",
 			regressionSrc: "verify.zip",
+			err:           nil,
+		},
+		{
+			title:         "Yes CLI (FPGA service agent (duplicate arguments))",
+			recipe:        "agent.yml",
+			regressionSrc: "agent.zip",
 			err:           nil,
 		},
 		{

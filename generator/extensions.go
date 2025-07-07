@@ -6,7 +6,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
 	"github.com/sttk/stringcase"
@@ -24,6 +23,28 @@ var (
 	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas", "Https", "Http", "Ttl"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
 )
 
+func argFlagType(s string) string {
+	st := strings.TrimSpace(s)
+	switch st {
+	case "time.Duration", "duration":
+		return "Duration"
+	case "[]byte{}", "hex":
+		return "BytesHex"
+	case "base64", "byte":
+		return "BytesBase64"
+	case "host", "url", "uri", "version", "semver", "uuid", "email", "json", "datetime", "regex", "binary":
+		return "String"
+	case "ip":
+		return "IP"
+	case "port":
+		return "Int"
+	case "decimal":
+		return "Float64"
+	default:
+		return cases.Title(language.English).String(st)
+	}
+}
+
 var templateFuncMap = template.FuncMap{
 	"title": func(s string) string {
 		if len(s) == 1 {
@@ -31,20 +52,7 @@ var templateFuncMap = template.FuncMap{
 		}
 		return fmt.Sprintf("%s%s", strings.ToUpper(string(s[0])), s[1:])
 	},
-	"replaceUnderscores": replaceUnderscores,
-	"is_func":            isFunc,
-	"lower":              strings.ToLower,
-	"notSeenRootCmd": func(s string) bool {
-		_, ok := rootCmds[s]
-		if !ok {
-			rootCmds[s] = true
-		}
-		return !ok
-	},
-	"resetNotSeenRootCmd": func() string {
-		rootCmds = make(map[string]any)
-		return ""
-	},
+	"lower": strings.ToLower,
 	"uuid": func() string {
 		uuid, err := idgen.GenerateUUID4()
 		for err != nil {
@@ -52,35 +60,9 @@ var templateFuncMap = template.FuncMap{
 		}
 		return uuid
 	},
-	"zero": determineZeroValue,
-	"argFlagtype": func(s string) string {
-		st := strings.TrimSpace(s)
-		switch st {
-		case "time.Duration", "duration":
-			return "Duration"
-		case "[]byte{}", "hex":
-			return "BytesHex"
-		case "base64", "byte":
-			return "BytesBase64"
-		case "host", "url", "uri", "version", "semver", "uuid", "email", "json", "datetime", "regex", "binary":
-			return "String"
-		case "ip":
-			return "IP"
-		case "port":
-			return "Int"
-		case "decimal":
-			return "Float64"
-		default:
-			return cases.Title(language.English).String(st)
-		}
-	},
 	"addExtraValidType": func(extraType string) string {
 		validArgTypes = append(validArgTypes, extraType)
 		return "" // a return value is required
-	},
-	"isValidArgType": func(s string) bool {
-		_, found := collection.FindInSlice(false, validArgTypes, strings.TrimSpace(s))
-		return found
 	},
 	"isVariadicArg": func(s string) bool {
 		return strings.HasPrefix(strings.TrimSpace(s), "...")

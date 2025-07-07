@@ -25,24 +25,9 @@ import (
 )
 
 const (
-	{{ range .Specification.CommandLineCommands.Functions -}}
-	{{ $functionName := .Name -}}
-	{{ range .Configuration -}}
-	{{ if isValidArgType .LangType }}
-	{{ if not .IsRoot -}}
-	{{ $parentName := .MapstructureTag | replaceUnderscores -}}
-	{{ if .Bindings -}}
-	{{ range .Bindings -}}
-	{{ $functionName | lower }}{{ .Name }}Arg = "{{ if .Arg }}{{ .Arg }}{{ else }}{{ $parentName }}-{{ .MapstructureTag | replaceUnderscores }}{{ end }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end }}
-	{{ end -}}
-	{{ else -}}
-	{{ $functionName | lower }}{{ .Name }}Arg = "{{ if .Arg }}{{ .Arg }}{{ else }}{{ .MapstructureTag | replaceUnderscores }}{{ end }}"{{ if ignoreLinting .Name -}} //nolint:gosec // not a secret{{ end }}
-	{{ end -}}
-	{{ end -}}
-	{{ end -}}
-	{{ end -}}
-	{{ end -}}
-
+	{{- range .CliArgConsts }}
+	{{ .Name }} = "{{ .Value }}"{{ if .NoLint }} //nolint:gosec // not a secret {{ end }}
+	{{- end }}
 )
 
 func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelFunc) {
@@ -121,32 +106,19 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 {{ end }}
 
 func init() {
-	{{ range .Specification.CommandLineCommands.Functions -}}
-	{{ $functionName := .Name | lower -}}
-	{{ range .Configuration -}}
-	{{ if isValidArgType .LangType }}
-	{{ if not .IsRoot -}}
-	{{ $mapstructure := .MapstructureTag -}}
-	{{ if .Bindings -}}
-	{{ range .Bindings -}}
-	{{ if .ArgShort }}
-	{{ $functionName }}Cmd.Flags().{{ .LangType | argFlagtype }}P({{ $functionName }}{{ .Name }}Arg, "{{ .ArgShort }}", {{ .LangType | zero }}, "{{ .Description }}")
-	{{ else -}}
-	{{ $functionName }}Cmd.Flags().{{ .LangType | argFlagtype }}({{ $functionName }}{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
-	{{ end -}}
-	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ $mapstructure }}_{{ .MapstructureTag }}", {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .Name }}Arg))
-	{{ end -}}
-	{{ else -}}
-	{{ if .ArgShort }}
-	{{ $functionName }}Cmd.Flags().{{ .LangType | argFlagtype }}P({{ $functionName }}{{ .Name }}Arg, "{{ .ArgShort }}", {{ .LangType | zero }}, "{{ .Description }}")
-	{{ else -}}
-	{{ $functionName }}Cmd.Flags().{{ .LangType | argFlagtype }}({{ $functionName }}{{ .Name }}Arg, {{ .LangType | zero }}, "{{ .Description }}")
-	{{ end -}}
-	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .MapstructureTag }}", {{ $functionName }}Cmd.Flags().Lookup({{ $functionName }}{{ .Name }}Arg))
-	{{ end -}}
-	{{ end -}}
-	{{ end -}}
-	{{ end }}
-	rootCmd.AddCommand({{ $functionName }}Cmd)
-	{{ end }}
+    {{- range .FlagRegistrations }}
+    {{ .FlagLine }}
+    {{- end }}
+
+	{{ range .CliEnvVarBindings }}
+	{{- if gt (len .FlagBindings) 1 }}
+	_ = configUtils.BindFlagsToEnv(viperSession, app, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})
+	{{- else }}
+	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .EnvVar }}", {{ index .FlagBindings 0 }})
+	{{- end }}
+	{{- end }}
+
+	{{ range .Specification.CommandLineCommands.Functions }}
+	rootCmd.AddCommand({{ .Name | lower }}Cmd)
+	{{- end }}
 }

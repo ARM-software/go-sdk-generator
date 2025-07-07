@@ -115,11 +115,15 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 	return
 }
 
-var rootCmds map[string]any = make(map[string]any)
-
 type DataModel struct {
 	SDK
-	TargetedGoVersion string
+	TargetedGoVersion     string
+	FlagRegistrations     []FlagRegistration
+	CliEnvVarBindings     []ArgFlagBindingInfo
+	CliArgConsts          []ArgDefinition
+	RootArgConsts         []ArgDefinition
+	RootFlagRegistrations []FlagRegistration
+	RootEnvVarBindings    []ArgFlagBindingInfo
 }
 
 func populateTemplate(ctx context.Context, data *DataModel, templateFile string, output string) (err error) {
@@ -254,9 +258,9 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
-		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(goreleaserFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output)))
+		templatesToPopulate = addStateFile(templatesToPopulate, goreleaserFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output), cfg.Overwrite)
 	} else {
-		templatesToPopulate = append(templatesToPopulate, NewTemplateToPopulate(goreleaserLibraryFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output)))
+		templatesToPopulate = addStateFile(templatesToPopulate, goreleaserLibraryFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output), cfg.Overwrite)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
@@ -283,10 +287,36 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate = addStateFile(templatesToPopulate, modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite)
 	templatesToPopulate = addStateFile(templatesToPopulate, pyprojectFile, fmt.Sprintf("%v/pyproject.toml", cfg.Output), cfg.Overwrite)
 
+	flagRegs, cliEnvVarBindings, err := PreComputeFlagsAndBindings(sdk.Specification.CommandLineCommands)
+	if err != nil {
+		return
+	}
+
+	argConsts, err := PrecomputeArgNames(sdk.Specification.CommandLineCommands)
+	if err != nil {
+		return
+	}
+
+	rootArgConsts, err := PrecomputeRootArgNames(sdk.Specification.CommandLineCommands)
+	if err != nil {
+		return
+	}
+	rootFlagRegs, rootEnvVarBindings, err := PreComputeRootFlagsAndBindings(sdk.Specification.CommandLineCommands)
+	if err != nil {
+		return
+	}
+
 	err = templatesToPopulate.Populate(ctx, &DataModel{
-		SDK:               sdk,
-		TargetedGoVersion: cfg.TargetedGoVersion,
+		SDK:                   sdk,
+		TargetedGoVersion:     cfg.TargetedGoVersion,
+		CliEnvVarBindings:     cliEnvVarBindings,
+		FlagRegistrations:     flagRegs,
+		CliArgConsts:          argConsts,
+		RootArgConsts:         rootArgConsts,
+		RootFlagRegistrations: rootFlagRegs,
+		RootEnvVarBindings:    rootEnvVarBindings,
 	})
+
 	return
 }
 

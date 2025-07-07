@@ -1,0 +1,279 @@
+x-fpga-manifest: &x-fpga-manifest
+  name: ManifestFile
+  lang_type: string
+  required: true
+  mapstructure_tag: manifest_file
+  description: The path to the FPGA manifest file
+x-sandpit: &x-sandpit
+  name: Sandpit
+  lang_type: string
+  required: true
+  default_value: "
+    func() string { \n
+    home, err := os.UserHomeDir() \n
+    if err != nil { \n
+    return filepath.Join(\"afaas\", \"sandpit\") \n
+    } \n
+    return filepath.Join(home, \".config\", \"afaas\", \"sandpit\") \n
+    }()"
+  mapstructure_tag: sandpit
+  description: The path to the directory where the Agent can store data/files/artefacts it needs to run
+x-afaas-host: &x-afaas-host
+  name: AFAASHost
+  lang_type: host
+  mapstructure_tag: afaas_service_host
+  required: true
+  default_value: https://all.api.test.keil.arm.com
+  description: The host of the FPGA service itself
+x-afaas-token: &x-afaas-token
+  name: AFAASToken
+  lang_type: string
+  mapstructure_tag: afaas_service_token
+  required: true
+  description: An API token for the agent to authenticate with the FPGA service itself
+x-afaas-store-host: &x-afaas-store-host
+  name: AFAASStoreHost
+  lang_type: host
+  required: true
+  mapstructure_tag: afaas_store_host
+  description: The host to the payload store
+x-afaas-store-token: &x-afaas-store-token
+  name: AFAASStoreToken
+  lang_type: string
+  required: true
+  mapstructure_tag: afaas_store_token
+  description: An API token for the agent to authenticate with the payload store
+x-afaas-store-payload-owners: &x-afaas-store-payload-owners
+  name: AFAASStorePayloadOwners
+  lang_type: string
+  default_value: fpga-payloads-api
+  mapstructure_tag: afaas_store_payload_owners
+  description: Comma separated list of payload owners accepted by this agent
+x-afaas-store-public-key: &x-afaas-store-public-key
+  name: AFAASStorePublicKey
+  lang_type: string
+  mapstructure_tag: afaas_store_public_key
+  description: The public key used to verify the authenticity of payloads
+  default_value: GfLHSQ8RMD90+FBRm7ugs/8QAFuZm8jVVs8kjBPXtvM=
+x-no-provisioning: &x-no-provisioning
+  name: NoProvision
+  lang_type: bool
+  mapstructure_tag: no_provision
+  description: Do not make provisioning requests to the service (provisioning or decommissioning)
+x-datastore-location: &x-datastore-location
+  name: DataFile
+  lang_type: string
+  required: true
+  default_value: "
+    func() string { \n
+    home, err := os.UserHomeDir() \n
+    if err != nil { \n
+    return filepath.Join(\"afaas\", \".afaas-agent.sqlite\") \n
+    } \n
+    return filepath.Join(home, \".config\", \"afaas\", \".afaas-agent.sqlite\") \n
+    }()"
+  mapstructure_tag: local_data_store
+  description: A path to a file that is used as persistent data storage for recording the state of the agent and its representation in AFaaS. If this file is deleted then the host will be treated as a new host in AFaaS.
+x-machine-hostname: &x-machine-hostname
+  name: MachineHostName
+  lang_type: string
+  required: true
+  default_value: "
+    func() string { \n
+    hostname, _ := os.Hostname() \n
+    return hostname \n
+    }()"
+  mapstructure_tag: host_name
+  description: the host name of the machine on which the agent runs
+
+specification:
+  package_name: fpga-service-agent
+  main_module: agent
+  name: FPGAServiceAgent
+  description: The FPGA Service Agent manages the FPGA host tools and the connection to the FPGA serial connection
+
+  additional_types:
+    - name: AuthenticationPayload
+      description: Authentication payload for authenticating a payload with the boundary controller
+      fields:
+        - name: MachineHostName
+          lang_type: string
+          mapstructure_tag: machine_host_name
+          json_tag: machine_host
+          description: The machine host name of currently running agent
+        - name: EncryptedPayload
+          lang_type: "*encryption.HybridAESRSAEncryptedPayload"
+          mapstructure_tag: encrypted_payload
+          json_tag: encrypted_payload,omitempty
+          description: A payload containing the worker authentication key encrypted with hybrid RSA AES encryption
+
+  interface:
+    methods:
+      - name: Initialise
+        description: Initialise the agent with information about the FPGA under supervision
+        args:
+          - name: manifestFile
+            lang_type: string
+            description: Path to the manifest file describing the FPGA under supervision
+          - name: agentCredentials
+            lang_type: "credentials.IFPGAAgentCredentials"
+            description: credentials necessary for setting up the agent with AFaaS
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether a halting error was hit causing the agent to exit
+      - name: Run
+        description: Run the agent
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether a halting error was hit causing the agent to exit
+
+  command_line_commands:
+    binary: fpga-service-agent
+    root_environment_var: FPGA_SERVICE_AGENT
+    description: CLI to control the FPGA service agent
+    functions:
+      - name: Serve
+        description: Start the FPGA service agent so it serves AFaaS job requests
+        configuration:
+          - <<: *x-sandpit
+          - <<: *x-datastore-location
+          - <<: *x-no-provisioning
+          - <<: *x-machine-hostname
+          - name: NoAPI
+            lang_type: bool
+            mapstructure_tag: no_api
+            description: Do not start the Agent's API server
+          - name: APIHost
+            lang_type: string
+            mapstructure_tag: api_host
+            default_value: localhost
+            condition: NoAPI == false
+            description: The host to run the agent API on
+          - name: APIPort
+            lang_type: int
+            mapstructure_tag: api_port
+            default_value: "8080"
+            condition: NoAPI == false
+            description: The port to run the agent API on
+          - name: DefaultJobTimeout
+            lang_type: duration
+            required: true
+            mapstructure_tag: default_job_timeout
+            default_value: 5m
+            description: The default timeout for jobs
+          - name: MockServer
+            lang_type: bool
+            mapstructure_tag: mock_server
+            description: Whether to run the server as a mock server (no FPGA access)
+          - name: RunJobWrapper
+            lang_type: string
+            mapstructure_tag: run_job_wrapper
+            default_value: /usr/bin/run_afaas_job.sh
+            description: Override the the wrapper script used for running and monitoring jobs on FPGA hosts
+      - name: Validate
+        description: Validate an FPGA manifest file
+        configuration:
+          - <<: *x-fpga-manifest
+          - name: Content
+            lang_type: bool
+            mapstructure_tag: content
+            default_value: "true"
+            description: Whether the validation should also include the validation of the content itself (not just syntax)
+      - name: Init
+        description: Initialise the internal datastore so it is available to the agent
+        configuration:
+          - name: AgentAPIToken
+            lang_type: string
+            mapstructure_tag: agent_api_token
+            default_value: "func() string { return rand.Text() }()"
+            description: An API token to enforce authorisation when communicating with the agent via the API server
+          - <<: *x-fpga-manifest
+          - <<: *x-sandpit
+          - <<: *x-afaas-host
+          - <<: *x-afaas-token
+          - <<: *x-afaas-store-host
+          - <<: *x-afaas-store-token
+          - <<: *x-afaas-store-public-key
+          - <<: *x-afaas-store-payload-owners
+          - <<: *x-datastore-location
+          - <<: *x-no-provisioning
+          - <<: *x-machine-hostname
+      - name: Decommission
+        description: Decommission a running FPGA agent
+        configuration:
+          - name: APIURL
+            lang_type: url
+            mapstructure_tag: api_url
+            default_value: http://localhost:8080
+            description: The URL the FPGA agent API is running on
+          - name: APIToken
+            lang_type: string
+            mapstructure_tag: api_token
+            description: The token used to authenticate with the FPGA agent API
+
+  global_configuration:
+    - name: Sandpit
+      lang_type: string
+      required: true
+      mapstructure_tag: sandpit
+      description: The path to the directory where the Agent can store data/files/artefacts it needs to run
+    - name: MachineHostName
+      lang_type: string
+      required: true
+      default_value: "
+        func() string { \n
+        hostname, _ := os.Hostname() \n
+        return hostname \n
+        }()"
+      mapstructure_tag: host_name
+      description: the host name of the machine on which the agent runs
+    - name: NoProvisioning
+      lang_type: bool
+      mapstructure_tag: no_provisioning
+      description: Exclude the provisioning steps (provisioning or decommissioning)
+    - name: NoHTTPServer
+      lang_type: bool
+      mapstructure_tag: no_api_server
+      description: whether to not start the Agent HTTP server
+    - name: APIHost
+      lang_type: host
+      mapstructure_tag: api_host
+      default_value: localhost
+      description: The host to run the agent HTTP server on
+    - name: APIPort
+      lang_type: port
+      mapstructure_tag: api_port
+      default_value: "8080"
+      description: The port to run the agent HTTP server on
+    - name: DataStore
+      lang_type: string
+      mapstructure_tag: data_store
+      required: true
+      description: A path to a store that will be used as a persistent data storage for recording the state of the agent and its representation in AFaaS. If this file is deleted then the host will be treated as a new host in AFaaS.
+    - name: MockAgent
+      lang_type: bool
+      mapstructure_tag: mock_agent
+      description: Whether to run the agent as mock
+    - name: DefaultJobTimeout
+      lang_type: duration
+      required: true
+      mapstructure_tag: default_job_timeout
+      default_value: 5m
+      description: The default timeout for jobs
+    - name: RunJobWrapper
+      lang_type: string
+      mapstructure_tag: run_job_wrapper
+      description: Override the wrapper script used for running and monitoring jobs on FPGA hosts
+
+  extra_imports:
+    - import_url: github.com/ARM-software/golang-utils/utils/encryption/aesrsa
+      import_ref: encryption
+    - import_url: github.com/ARM-software/golang-utils/utils/subprocess/supervisor
+      import_ref: supervisor
+    - import_url: github.com/Arm-Debug/fpga-service-common/common/agent/credentials
+      import_ref: credentials
+
+  release_to_artifactory: true
+

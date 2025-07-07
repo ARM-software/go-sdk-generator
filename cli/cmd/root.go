@@ -13,11 +13,10 @@ import (
 )
 
 const (
-	app = "SDK_GENERATOR"
-
+	app             = "SDK_GENERATOR"
+	rootGenerateArg = "overwrite"
 	rootInputArg    = "input"
 	rootOutputArg   = "output"
-	rootGenerateArg = "overwrite"
 )
 
 var (
@@ -48,14 +47,11 @@ func Execute() {
 }
 
 func init() {
-
-	rootCmd.PersistentFlags().String(rootInputArg, "", "path to tool definition file")
-	_ = configUtils.BindFlagToEnv(viperSession, app, "input", rootCmd.PersistentFlags().Lookup(rootInputArg))
-
-	rootCmd.PersistentFlags().String(rootOutputArg, "", "destination of the generated code")
-	_ = configUtils.BindFlagToEnv(viperSession, app, "output", rootCmd.PersistentFlags().Lookup(rootOutputArg))
-
 	rootCmd.PersistentFlags().Bool(rootGenerateArg, false, "regenerate all files")
-	_ = configUtils.BindFlagToEnv(viperSession, app, "overwrite", rootCmd.PersistentFlags().Lookup(rootGenerateArg))
+	rootCmd.PersistentFlags().String(rootInputArg, "", "path to tool definition file")
+	rootCmd.PersistentFlags().String(rootOutputArg, "", "destination of the generated code")
 
+	_ = configUtils.BindFlagToEnv(viperSession, app, "input", rootCmd.PersistentFlags().Lookup(rootInputArg))
+	_ = configUtils.BindFlagToEnv(viperSession, app, "output", rootCmd.PersistentFlags().Lookup(rootOutputArg))
+	_ = configUtils.BindFlagToEnv(viperSession, app, "overwrite", rootCmd.PersistentFlags().Lookup(rootGenerateArg))
 }

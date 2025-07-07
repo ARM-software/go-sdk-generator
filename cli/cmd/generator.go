@@ -82,8 +82,8 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
-
 	generateCmd.Flags().String(generateTargetedGoArg, "", "targeted go version for the tool")
+
 	_ = configUtils.BindFlagToEnv(viperSession, app, "go_version", generateCmd.Flags().Lookup(generateTargetedGoArg))
 
 	rootCmd.AddCommand(generateCmd)
