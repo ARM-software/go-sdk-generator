@@ -2,6 +2,20 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.13.0" (2025-07-07)
+=====================
+
+Features
+--------
+
+- :sparkles: Add support for binding multiple flags to a single argument (#20250704173259)
+- :sparkles: Only regenerate .goreleaser.yml if overwrite is enabled (#20250707150640)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.12.3" (2025-07-04)
 =====================
 
