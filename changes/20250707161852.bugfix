@@ -1,1 +1,0 @@
-:bug: Make sure that port validation rule expects a uint32 instead of a string

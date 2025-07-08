@@ -2,6 +2,19 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.13.1" (2025-07-08)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Make sure that port validation rule expects a uint32 instead of a string (#20250707161852)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.13.0" (2025-07-07)
 =====================
 
