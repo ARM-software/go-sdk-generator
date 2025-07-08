@@ -9,7 +9,7 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.101.0
+	github.com/ARM-software/golang-utils/utils v1.103.0
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/go-faker/faker/v4 v4.6.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -35,7 +35,7 @@ require (
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-yaml v1.17.1 // indirect
 	github.com/gofrs/uuid/v5 v5.3.2 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
@@ -58,7 +58,7 @@ require (
 	github.com/sanity-io/litter v1.5.8 // indirect
 	github.com/sasha-s/go-deadlock v0.3.5 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.25.5 // indirect
+	github.com/shirou/gopsutil/v4 v4.25.6 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect

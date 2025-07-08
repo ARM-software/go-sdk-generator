@@ -8,7 +8,7 @@ import (
 )
 
 func TestLangTypeValidationRule(t *testing.T) {
-	assert.Equal(t, ", is.Port", argValidationRule("port"))
+	assert.Equal(t, ", validationUtils.IsPort", argValidationRule("port"))
 	assert.Equal(t, ", is.UUID", argValidationRule("uuid"))
 	assert.Equal(t, ", is.URL", argValidationRule("host"))
 	assert.Empty(t, argValidationRule("string"))

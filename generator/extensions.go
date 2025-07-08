@@ -204,6 +204,7 @@ func convertLangType(s string) string {
 		return st
 	}
 }
+
 func argValidationRule(s string) string {
 	return field.OptionalString(func(st string) *string {
 		switch st {
@@ -224,7 +225,7 @@ func argValidationRule(s string) string {
 		case "ip":
 			return field.ToOptionalString(", is.IP")
 		case "port":
-			return field.ToOptionalString(", is.Port")
+			return field.ToOptionalString(", validationUtils.IsPort")
 		}
 		return nil
 	}(strings.TrimSpace(s)), "")
