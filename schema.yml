@@ -125,6 +125,10 @@ $defs:
     required:
       - methods
     properties:
+      notCloseable:
+        type: boolean
+        default: false
+        description: Whether the manager should be Closeable (i.e. has a Close() method to call whilst closing) or not.
       methods:
         type: array
         items:
@@ -209,6 +213,11 @@ $defs:
       operands:
         description: Allow the use of positional operands specified after '--' in a POSIX fashion
         type: boolean
+        default: false
+      loadFromKeyring:
+        description: Whether to load some configuration input from system's keyring service
+        type: boolean
+        default: false
     additionalProperties: false
   function_config_fields:
     <<: *x-parameter

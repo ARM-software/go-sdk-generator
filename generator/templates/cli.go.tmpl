@@ -55,6 +55,12 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 {{ range .Specification.CommandLineCommands.Functions }}
 {{ $nameLower := .Name | lower }}
 {{ $configName:= .Name | toPascal -}}
+{{ $loadFromEnvFunc := "LoadFromEnvironment" -}}
+{{ $loadFromViperFunc := "LoadFromViper" -}}
+{{ if .LoadFromKeyring }}
+    {{ $loadFromEnvFunc = "LoadFromEnvironment" -}}
+    {{ $loadFromViperFunc = "LoadFromViperAndSystem" -}}
+{{ end }}
 
 var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
@@ -73,12 +79,12 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		{{ if $confFile }}
 		confFile := "{{ $confFile }}"
 		if filesystem.Exists(confFile) {
-			err = configUtils.LoadFromEnvironment(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration(), confFile)
+			err = configUtils.{{ $loadFromEnvFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration(), confFile)
 		} else {
-			err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
+			err = configUtils.{{ $loadFromViperFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
 		} 
 		{{ else -}}
-		err = configUtils.LoadFromViper(viperSession, app, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
+		err = configUtils.{{ $loadFromViperFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
 		{{ end -}}
 		if err != nil {
 			return
@@ -112,9 +118,9 @@ func init() {
 
 	{{ range .CliEnvVarBindings }}
 	{{- if gt (len .FlagBindings) 1 }}
-	_ = configUtils.BindFlagsToEnv(viperSession, app, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})
+	_ = configUtils.BindFlagsToEnv(viperSession, config.App, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})
 	{{- else }}
-	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .EnvVar }}", {{ index .FlagBindings 0 }})
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "{{ .EnvVar }}", {{ index .FlagBindings 0 }})
 	{{- end }}
 	{{- end }}
 

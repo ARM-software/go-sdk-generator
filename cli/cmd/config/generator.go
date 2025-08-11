@@ -6,6 +6,10 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
+const (
+	App = "SDK_GENERATOR"
+)
+
 // GenerateConfiguration defines the configuration for Generate command
 type GenerateConfiguration struct {
 	// path to tool definition file

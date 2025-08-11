@@ -20,7 +20,16 @@ type {{ $sdkInterfaceName }}Manager struct {
 	cfg *config.{{ $sdkInterfaceName }}ManagerConfiguration
 	Delegate I{{ $sdkInterfaceName }}Manager
 }
-
+{{ if not .Specification.Interface.NotCloseable -}}
+// Close closes any opened resources (See io.Close).
+func (imp *{{ $sdkInterfaceName }}Manager) Close() (err error) {
+	if imp.Delegate == nil {
+		return
+	}
+	err = imp.Close()
+	return
+}
+{{ end -}}
 {{ range .Specification.Interface.Methods -}}
 /*
 {{ .Name | toPascal }} function: {{ .Description }}

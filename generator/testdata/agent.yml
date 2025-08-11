@@ -182,6 +182,7 @@ specification:
             default_value: "true"
             description: Whether the validation should also include the validation of the content itself (not just syntax)
       - name: Init
+        loadFromKeyring: true
         description: Initialise the internal datastore so it is available to the agent
         configuration:
           - name: AgentAPIToken

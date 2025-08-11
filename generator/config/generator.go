@@ -34,6 +34,6 @@ func (cfg *SdkGeneratorManagerConfiguration) Validate() error {
 
 func DefaultSdkGeneratorManagerConfiguration() *SdkGeneratorManagerConfiguration {
 	return &SdkGeneratorManagerConfiguration{
-		TargetedGoVersion: "1.24.4",
+		TargetedGoVersion: "1.24.6",
 	}
 }

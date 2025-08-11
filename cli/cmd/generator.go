@@ -58,7 +58,7 @@ var generateCmd = &cobra.Command{
 
 		var generateCfg config.GenerateConfiguration
 
-		err = configUtils.LoadFromViper(viperSession, app, &generateCfg, config.DefaultGenerateConfiguration())
+		err = configUtils.LoadFromViper(viperSession, config.App, &generateCfg, config.DefaultGenerateConfiguration())
 		if err != nil {
 			return
 		}
@@ -82,10 +82,9 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
-	generateCmd.Flags().String(generateTargetedGoArg, "", "targeted go version for the tool")
+	generateCmd.Flags().StringP(generateTargetedGoArg, "g", "", "targeted go version for the tool")
 
-	_ = configUtils.BindFlagToEnv(viperSession, app, "go_version", generateCmd.Flags().Lookup(generateTargetedGoArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "go_version", generateCmd.Flags().Lookup(generateTargetedGoArg))
 
 	rootCmd.AddCommand(generateCmd)
-
 }

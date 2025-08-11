@@ -36,11 +36,14 @@ type CliFunction struct {
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	// Whether to load some configuration input from system's keyring service
+	LoadFromKeyring bool `json:"loadFromKeyring,omitempty" yaml:"loadFromKeyring,omitempty" mapstructure:"loadFromKeyring,omitempty"`
+
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
-	Operands *bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
+	Operands bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -62,6 +65,12 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["loadFromKeyring"]; !ok || v == nil {
+		plain.LoadFromKeyring = false
+	}
+	if v, ok := raw["operands"]; !ok || v == nil {
+		plain.Operands = false
 	}
 	*j = CliFunction(plain)
 	return nil
@@ -469,6 +478,10 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 type Interface struct {
 	// Methods corresponds to the JSON schema field "methods".
 	Methods []InterfaceMethod `json:"methods" yaml:"methods" mapstructure:"methods"`
+
+	// Whether the manager should be Closeable (i.e. has a Close() method to call
+	// whilst closing) or not.
+	NotCloseable bool `json:"notCloseable,omitempty" yaml:"notCloseable,omitempty" mapstructure:"notCloseable,omitempty"`
 }
 
 // An interface method
@@ -520,6 +533,9 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["notCloseable"]; !ok || v == nil {
+		plain.NotCloseable = false
 	}
 	*j = Interface(plain)
 	return nil

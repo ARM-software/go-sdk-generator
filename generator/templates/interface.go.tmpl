@@ -3,6 +3,10 @@
 package {{ .Specification.MainModule }}
 
 import (
+    {{ if not .Specification.Interface.NotCloseable -}}
+	"io"
+
+    {{ end -}}
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"
 {{ if .Specification.AdditionalTypes -}}
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
@@ -18,6 +22,9 @@ import (
 
 // I{{ $interfaceName }}Manager defines the manager interface: {{ .Specification.Description }}
 type I{{ $interfaceName }}Manager interface {
+    {{ if not .Specification.Interface.NotCloseable -}}
+	io.Closer
+    {{ end -}}
 	// GetConfig returns the manager's configuration
 	GetConfig() *config.{{ .Specification.Name | toPascal }}ManagerConfiguration
 	{{ range .Specification.Interface.Methods -}}

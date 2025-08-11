@@ -14,14 +14,17 @@ import (
 	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
 )
 
+{{- if .RootArgConsts }}
 const (
-	app = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
 	{{- range .RootArgConsts }}
 	{{ .Name }} = "{{ .Value }}"{{ if .NoLint }} //nolint:gosec // not a secret {{ end }}
 	{{- end }}
 )
+{{- end }}
 
 var (
 	//go:embed module.properties
@@ -57,9 +60,9 @@ func init() {
 
 	{{ range .RootEnvVarBindings }}
 	{{- if gt (len .FlagBindings) 1 }}
-	_ = configUtils.BindFlagsToEnv(viperSession, app, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})
+	_ = configUtils.BindFlagsToEnv(viperSession, config.App, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})
 	{{- else }}
-	_ = configUtils.BindFlagToEnv(viperSession, app, "{{ .EnvVar }}", {{ index .FlagBindings 0 }})
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "{{ .EnvVar }}", {{ index .FlagBindings 0 }})
 	{{- end }}
 	{{- end }}
 }

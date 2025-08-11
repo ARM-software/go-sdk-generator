@@ -17,9 +17,14 @@ exclude_patterns = [
 "**/test/**",
 "**/tests/**",
 "**/vendor/**",
+"**/*.gen*",
+"**/gen/**",
 ]
 
 test_patterns = ["**/*_test.go", "**/spec/**"]
+
+[smells.return_statements]
+enabled = false
 
 [[source]]
 name = "default"

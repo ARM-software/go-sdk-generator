@@ -4,6 +4,7 @@ specification:
   name: SDK Generator
   description: SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
   interface:
+    notCloseable: true
     methods:
       - name: Generate
         description: Generate the tool
@@ -25,6 +26,7 @@ specification:
             mapstructure_tag: input
             description: path to tool definition file
             is_root: true
+            arg_short: "i"
             required: true
           - name: Output
             lang_type: string
@@ -32,17 +34,19 @@ specification:
             description: destination of the generated code
             is_root: true
             required: true
+            arg_short: "o"
           - name: Generate
             lang_type: bool
             required: true
             is_root: true
             mapstructure_tag: overwrite
             description: regenerate all files
+            arg_short: "a"
           - name: TargetedGo
             lang_type: version
+            arg_short: "g"
             description: targeted go version for the tool
             mapstructure_tag: go_version
-            
   global_configuration:
           - name: input
             lang_type: string
@@ -63,7 +67,7 @@ specification:
             lang_type: version
             description: targeted go version for the tool
             mapstructure_tag: go_version
-            default_value: "1.24.4"
+            default_value: "1.24.6"
             required: true
 
   release_to_artifactory: true

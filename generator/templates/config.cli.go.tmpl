@@ -17,6 +17,10 @@ import (
 	{{ end -}}
 )
 
+const (
+	App = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
+)
+
 
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $configName:= .Name | toPascal -}}

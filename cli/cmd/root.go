@@ -10,10 +10,11 @@ import (
 	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
 )
 
 const (
-	app             = "SDK_GENERATOR"
 	rootGenerateArg = "overwrite"
 	rootInputArg    = "input"
 	rootOutputArg   = "output"
@@ -47,11 +48,11 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().Bool(rootGenerateArg, false, "regenerate all files")
-	rootCmd.PersistentFlags().String(rootInputArg, "", "path to tool definition file")
-	rootCmd.PersistentFlags().String(rootOutputArg, "", "destination of the generated code")
+	rootCmd.PersistentFlags().BoolP(rootGenerateArg, "a", false, "regenerate all files")
+	rootCmd.PersistentFlags().StringP(rootInputArg, "i", "", "path to tool definition file")
+	rootCmd.PersistentFlags().StringP(rootOutputArg, "o", "", "destination of the generated code")
 
-	_ = configUtils.BindFlagToEnv(viperSession, app, "input", rootCmd.PersistentFlags().Lookup(rootInputArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "output", rootCmd.PersistentFlags().Lookup(rootOutputArg))
-	_ = configUtils.BindFlagToEnv(viperSession, app, "overwrite", rootCmd.PersistentFlags().Lookup(rootGenerateArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "input", rootCmd.PersistentFlags().Lookup(rootInputArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "output", rootCmd.PersistentFlags().Lookup(rootOutputArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "overwrite", rootCmd.PersistentFlags().Lookup(rootGenerateArg))
 }

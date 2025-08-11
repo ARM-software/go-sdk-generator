@@ -2,15 +2,33 @@ FROM golang:{{ .TargetedGoVersion }} as build
 
 WORKDIR /build
 ADD {{ .Specification.MainModule }} {{ .Specification.MainModule }}
+
+{{ if .Specification.CommandLineCommands -}}
 ADD cli cli
-
 WORKDIR /build/cli
-RUN go mod download
-RUN go build -o /output/{{ .Specification.MainModule }}
+{{ else -}}
+WORKDIR /build/{{ .Specification.MainModule }}
+{{ end -}}
 
-FROM alpine:3.20.0
+COPY scripts /tmp/scripts
+RUN --mount=type=secret,id=build-secrets . /run/secrets/build-secrets &&\
+    chmod -R +x /tmp/scripts/ &&\
+    mv /tmp/scripts/* /usr/local/bin/ &&\
+    rm -r /tmp/scripts &&\
+    setup_github.sh ${GITHUB_TOKEN} &&\
+    go mod download
 
+{{ if .Specification.CommandLineCommands -}}
+RUN CGO_ENABLED=0 go build -o /output/{{ .Specification.MainModule }}
+
+FROM alpine:3.22.1
 # Install go binary
 COPY --from=build /output/{{ .Specification.MainModule }} /usr/local/bin/{{ .Specification.MainModule }}
 
 ENTRYPOINT ["{{ .Specification.MainModule }}"]
+{{ else -}}
+RUN CGO_ENABLED=0 go build ./...
+{{ end -}}
+
+
+

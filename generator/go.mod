@@ -9,25 +9,27 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.103.0
+	github.com/ARM-software/golang-utils/utils v1.112.0
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/go-faker/faker/v4 v4.6.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/stretchr/testify v1.10.0
 	github.com/sttk/stringcase v0.3.0
 	go.uber.org/mock v0.5.2
-	golang.org/x/text v0.26.0
-	golang.org/x/tools v0.33.0
-	sigs.k8s.io/yaml v1.4.0
+	golang.org/x/text v0.28.0
+	golang.org/x/tools v0.36.0
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
+	al.essio.dev/pkg/shellescape v1.5.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/atombender/go-jsonschema v0.20.0 // indirect
 	github.com/avast/retry-go/v4 v4.6.1 // indirect
 	github.com/bmatcuk/doublestar/v3 v3.0.0 // indirect
+	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/djherbis/times v1.6.0 // indirect
 	github.com/dmarkham/enumer v1.5.11 // indirect
@@ -35,14 +37,17 @@ require (
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-yaml v1.17.1 // indirect
+	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gofrs/uuid/v5 v5.3.2 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/google/cabbie v1.0.2 // indirect
 	github.com/google/glazier v0.0.0-20211029225403-9f766cca891d // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/iamacarpet/go-win64api v0.0.0-20230324134531-ef6dbdd6db97 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/iamacarpet/go-win64api v0.0.0-20240507095429-873e84e85847 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
@@ -58,25 +63,27 @@ require (
 	github.com/sanity-io/litter v1.5.8 // indirect
 	github.com/sasha-s/go-deadlock v0.3.5 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.25.6 // indirect
+	github.com/shirou/gopsutil/v4 v4.25.7 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tklauser/go-sysconf v0.3.12 // indirect
-	github.com/tklauser/numcpus v0.6.1 // indirect
+	github.com/tklauser/go-sysconf v0.3.15 // indirect
+	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	github.com/zalando/go-keyring v0.2.6 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
+	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
