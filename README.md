@@ -1,6 +1,6 @@
 # SDK Generator SDK
 
-[![Go Badge](https://img.shields.io/badge/go-v1.24.5-blue)](https://golang.org/)
+[![Go Badge](https://img.shields.io/badge/go-v1.24.6-blue)](https://golang.org/)
 
 SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
 
