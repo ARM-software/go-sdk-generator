@@ -2,6 +2,29 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.14.0" (2025-08-11)
+=====================
+
+Features
+--------
+
+- :sparkles: define the manager as Closeable (#20250811133109)
+- :sparkles: define short arguments for the generator (#20250811151440)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.24.5 (#20250709050051)
+- Dependency upgrade: alpine-3.22.1 (#20250716045300)
+- Dependency upgrade: golang-1.24.6 (#20250807050811)
+- :camel: Upgrade dependencies (#20250811133148)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.13.1" (2025-07-08)
 =====================
 
