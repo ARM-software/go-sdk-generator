@@ -143,6 +143,14 @@
               "is_root": true
             },
             {
+              "name": "HiddenFlag",
+              "lang_type": "bool",
+              "mapstructure_tag": "hidden",
+              "description": "I am a hidden flag",
+              "hidden": true,
+              "is_root": true
+            },
+            {
               "name": "JobTimeout",
               "lang_type": "duration",
               "default_value": "5m",

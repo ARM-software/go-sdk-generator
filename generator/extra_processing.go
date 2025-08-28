@@ -146,17 +146,22 @@ func getArgName(prefix, cfgName, bindingName string, isRoot bool) string {
 	return fmt.Sprintf("%v%v%vArg", toCamelCase(prefix), toPascalCase(cfgName), toPascalCase(bindingName))
 }
 
-func buildFlagLine(isRoot bool, funcName, flagType, argName, argShort, zeroVal, desc string) string {
+func buildFlagLine(isRoot, hidden bool, funcName, flagType, argName, argShort, zeroVal, desc string) string {
 	cmdPrefix := "rootCmd.PersistentFlags()"
 	if !isRoot {
 		cmdPrefix = fmt.Sprintf("%v.Flags()", funcName)
 	}
 
-	if argShort != "" {
-		return fmt.Sprintf(`%v.%vP(%v, "%v", %v, "%v")`, cmdPrefix, flagType, argName, argShort, zeroVal, desc)
+	var hiddenStr string
+	if hidden {
+		hiddenStr = fmt.Sprintf("\n%v.MarkHidden(%v)", cmdPrefix, argName)
 	}
 
-	return fmt.Sprintf(`%v.%v(%v, %v, "%v")`, cmdPrefix, flagType, argName, zeroVal, desc)
+	if argShort != "" {
+		return fmt.Sprintf(`%v.%vP(%v, "%v", %v, "%v")%v`, cmdPrefix, flagType, argName, argShort, zeroVal, desc, hiddenStr)
+	}
+
+	return fmt.Sprintf(`%v.%v(%v, %v, "%v")%v`, cmdPrefix, flagType, argName, zeroVal, desc, hiddenStr)
 }
 
 func getBindingEnv(cfgMapstructureTag string, bindingMapstructureTag *string, prefix string) string {
@@ -219,7 +224,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 	argShort := field.Optional(binding.ArgShort, "")
 
 	argName = getArgName(cliFunc.Name, cfg.Name, bindingName, cfg.IsRoot)
-	flagLine = buildFlagLine(cfg.IsRoot, funcName, flagType, argName, argShort, zeroVal, desc)
+	flagLine = buildFlagLine(cfg.IsRoot, binding.Hidden, funcName, flagType, argName, argShort, zeroVal, desc)
 
 	if cfg.IsRoot {
 		envVar, err = determineNameFromPointer(binding.MapstructureTag, "mapstructure_tag")
@@ -256,7 +261,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 
 	funcName := fmt.Sprintf("%vCmd", strings.ToLower(cliFunc.Name))
 	argName = getArgName(cliFunc.Name, "", cfg.Name, cfg.IsRoot)
-	flagLine = buildFlagLine(cfg.IsRoot, funcName, flagType, argName, argShort, zeroVal, desc)
+	flagLine = buildFlagLine(cfg.IsRoot, cfg.Hidden, funcName, flagType, argName, argShort, zeroVal, desc)
 
 	envVar = cfg.MapstructureTag
 	if !cfg.IsRoot {

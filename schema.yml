@@ -50,6 +50,10 @@ x-parameter: &x-parameter
     arg_short:
       type: string
       description: The short version of the argument to bind to
+    hidden:
+      type: boolean
+      default: false
+      description: Whether to mark the flag as hidden in the command line
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -265,6 +269,10 @@ $defs:
       description:
         type: string
         description: The description of the field
+      hidden:
+        type: boolean
+        default: false
+        description: Whether to mark the flag as hidden in the command line
     additionalProperties: false
   extra_import:
     description: An extra import

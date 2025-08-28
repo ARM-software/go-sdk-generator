@@ -16,6 +16,9 @@ type Binding struct {
 	// The description of the field
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
 	// The type for the field
 	LangType *string `json:"lang_type,omitempty" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
 
@@ -24,6 +27,24 @@ type Binding struct {
 
 	// The name of the field
 	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *Binding) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	type Plain Binding
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
+	}
+	*j = Binding(plain)
+	return nil
 }
 
 type CiExtraPackages []string
@@ -99,6 +120,9 @@ type CommandArgument struct {
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
@@ -147,6 +171,9 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["condition"]; !ok || v == nil {
 		plain.Condition = ""
+	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
 	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
@@ -220,6 +247,9 @@ type ConfigurationOption struct {
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
@@ -272,6 +302,9 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 	if v, ok := raw["condition"]; !ok || v == nil {
 		plain.Condition = ""
 	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
+	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
 	}
@@ -307,6 +340,9 @@ type EntityField struct {
 
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
@@ -360,6 +396,9 @@ func (j *EntityField) UnmarshalJSON(value []byte) error {
 	if v, ok := raw["condition"]; !ok || v == nil {
 		plain.Condition = ""
 	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
+	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
 	}
@@ -408,6 +447,9 @@ type FunctionConfigFields struct {
 
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
@@ -460,6 +502,9 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["condition"]; !ok || v == nil {
 		plain.Condition = ""
+	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
 	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
