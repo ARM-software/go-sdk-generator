@@ -2,6 +2,28 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.15.0" (2025-09-24)
+=====================
+
+Features
+--------
+
+- :sparkles: Add support for hidden flags. See the `Hidden` field in cobra https://pkg.go.dev/github.com/spf13/cobra. `MarkHidden()` can be used to hide a flag. (#20250828120011)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.22.1 (#20250812130420)
+- Dependency upgrade: golang-1.25.0 (#20250814043649)
+- :bug: fix close stack overflow (#20250924164325)
+- :camel: Upgrade dependencies (#20250924165037)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.14.0" (2025-08-11)
 =====================
 
