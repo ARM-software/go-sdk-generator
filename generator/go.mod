@@ -1,6 +1,6 @@
 module github.com/Arm-Debug/go-sdk-generator/generator
 
-go 1.24
+go 1.25
 
 tool (
 	github.com/atombender/go-jsonschema

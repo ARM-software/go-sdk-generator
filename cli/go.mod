@@ -1,6 +1,6 @@
 module github.com/Arm-Debug/go-sdk-generator/cli
 
-go 1.24
+go 1.25
 
 replace github.com/Arm-Debug/go-sdk-generator/generator => ../generator
 
