@@ -437,6 +437,10 @@ func PreComputeRootFlagsAndBindings(cmds *CommandLineCommands) (flagRegistration
 						return
 					}
 
+					if !reflection.IsEmpty(flagLookupMap[bindingEnv]) {
+						continue
+					}
+
 					flagRegistration = append(flagRegistration, FlagRegistration{
 						FlagLine:   flagLine,
 						BindingEnv: bindingEnv,
@@ -452,6 +456,10 @@ func PreComputeRootFlagsAndBindings(cmds *CommandLineCommands) (flagRegistration
 				if subErr != nil {
 					err = subErr
 					return
+				}
+
+				if !reflection.IsEmpty(flagLookupMap[bindingEnv]) {
+					continue
 				}
 
 				flagRegistration = append(flagRegistration, FlagRegistration{

@@ -258,3 +258,96 @@ func TestProcessArguments(t *testing.T) {
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
 	})
 }
+
+func TestPrecomputeFlagsAndBindings(t *testing.T) {
+	t.Run("duplicate is_root results in only one root command", func(t *testing.T) {
+		name := faker.Word()
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			IsRoot:          true,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			IsRoot:          true,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		flagRegistrations, _, err := PreComputeRootFlagsAndBindings(&CommandLineCommands{
+			Functions: []CliFunction{cliFunc},
+		})
+		assert.NoError(t, err)
+		assert.Len(t, flagRegistrations, 1)
+		assert.Equal(t, fmt.Sprintf("root%vArg", name), flagRegistrations[0].ArgVar)
+	})
+
+	t.Run("duplicate normal results in extra binding", func(t *testing.T) {
+		name := faker.Word()
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		_, bindingInfo, err := PreComputeFlagsAndBindings(&CommandLineCommands{
+			Functions: []CliFunction{cliFunc},
+		})
+		assert.NoError(t, err)
+		require.Len(t, bindingInfo, 1)
+		assert.Len(t, bindingInfo[0].FlagBindings, 2)
+	})
+
+	t.Run("duplicate is_root results in only one binding", func(t *testing.T) {
+		name := faker.Word()
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			IsRoot:          true,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(name),
+			IsRoot:          true,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: name,
+			Name:            name,
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		_, bindingInfo, err := PreComputeRootFlagsAndBindings(&CommandLineCommands{
+			Functions: []CliFunction{cliFunc},
+		})
+		assert.NoError(t, err)
+		assert.Len(t, bindingInfo, 1)
+		assert.Len(t, bindingInfo[0].FlagBindings, 1)
+	})
+}
