@@ -2,6 +2,27 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.16.0" (2025-10-07)
+=====================
+
+Features
+--------
+
+- :sparkles: Support go-releaser version 2 (#20251007104310)
+- :sparkles: Support detect-secrets version 1.5.0 (#20251007104324)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.25.1 (#20250925041555)
+- :bug: Ensure that root flags specified as root across multiple commands are not duplicated (#20251007102340)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.15.0" (2025-09-24)
 =====================
 
