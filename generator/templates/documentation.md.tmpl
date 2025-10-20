@@ -18,7 +18,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Fields }}
-- **`{{ .Name }} : {{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ end }}
 {{ end }}
 ### {{ .Specification.Name | toPascal }}ManagerConfiguration
@@ -27,7 +27,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .Name }} : {{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 
@@ -41,11 +41,11 @@ Documentation about {{ .Specification.Name }} SDK
 
 Input arguments:
 {{ range .Args }}
-  * `{{ .Name  | toCamel }} : {{ .LangType }}`: {{ .Description }}
+  * `{{ .Name  | toCamel }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`: {{ .Description }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * `{{ .Name }} : {{ .LangType }}`: {{ .Description }}
+  * `{{ .Name }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`: {{ .Description }}
 {{ end }}
 {{ end -}}
 
@@ -72,7 +72,7 @@ func(ctx context.Context, logger logs.Loggers, cfg config.{{ $functionName }}Con
 type {{ $functionName }}Configuration struct {
 	{{ range .Configuration -}}
 		// {{ .Description }}
-		{{ .Name }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag }}"`
+		{{ .Name }} {{ if .Reference }}*{{ end }}{{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag }}"`
 	{{ end }}
 }
 ```
