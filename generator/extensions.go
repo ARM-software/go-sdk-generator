@@ -174,7 +174,7 @@ return duration
 values, _ := hex.DecodeString("%v")
 return values
 }()`, dValue)
-	case strings.HasPrefix(st, "float"):
+	case strings.HasPrefix(st, "float"), st == "decimal":
 		if strings.Contains(dValueStr, ".") {
 			return dValueStr
 		} else {
