@@ -2,6 +2,22 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.16.1" (2025-11-19)
+=====================
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.22.2 (#20251009041838)
+- :bug: Ensure that pointers are shown correctly in the generated documentation (#20251020144032)
+- Dependency upgrade: golang-1.25.4 (#20251110051731)
+- :bug: Ensure that `decimal` type uses floats as the default value (#20251118153521)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.16.0" (2025-10-07)
 =====================
 
