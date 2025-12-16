@@ -2,6 +2,26 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.17.0" (2025-12-16)
+=====================
+
+Features
+--------
+
+- :sparkles: Add support for controlling the exit code when the command receives an interrupt signal (#20251215161106)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.25.5 (#20251203051707)
+- Dependency upgrade: alpine-3.23.0 (#20251204051747)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.16.1" (2025-11-19)
 =====================
 
