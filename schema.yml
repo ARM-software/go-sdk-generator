@@ -147,6 +147,9 @@ $defs:
       binary:
         type: string
         description: Name of the executable
+      interrupt_exit_code:
+        type: integer
+        description: The exit code to return when an interrupt signal (SIGINT or SIGTERM) is received
       root_environment_var:
         type: string
         description: Environment variable prefix

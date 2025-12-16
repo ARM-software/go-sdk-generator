@@ -36,6 +36,7 @@ specification:
   command_line_commands:
     binary: verify-cmsis-example-sdk
     root_environment_var: VERIFY_EXAMPLE
+    interrupt_exit_code: 45
     description: CLI for verifying an individual example is compatible with cmsis tools
     functions:
       - name: Verify

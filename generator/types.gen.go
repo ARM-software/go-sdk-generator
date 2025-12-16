@@ -199,6 +199,10 @@ type CommandLineCommands struct {
 	// Functions corresponds to the JSON schema field "functions".
 	Functions []CliFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
 
+	// The exit code to return when an interrupt signal (SIGINT or SIGTERM) is
+	// received
+	InterruptExitCode *int `json:"interrupt_exit_code,omitempty" yaml:"interrupt_exit_code,omitempty" mapstructure:"interrupt_exit_code,omitempty"`
+
 	// Environment variable prefix
 	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
 }

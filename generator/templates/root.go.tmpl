@@ -10,6 +10,7 @@ import (
 	"os"
 
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
@@ -49,6 +50,11 @@ func Execute() {
 	}
 
 	if err := fang.Execute(ctx, rootCmd, fang.WithVersion(cliVersion)); err != nil {
+		{{ if .Specification.CommandLineCommands.InterruptExitCode }}
+		if commonerrors.Any(err, commonerrors.ErrInterrupted) {
+			os.Exit({{ .Specification.CommandLineCommands.InterruptExitCode }})
+		}
+		{{ end }}
 		os.Exit(1)
 	}
 }

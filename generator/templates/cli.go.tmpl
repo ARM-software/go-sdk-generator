@@ -30,8 +30,9 @@ const (
 	{{- end }}
 )
 
-func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelFunc) {
-	cancellableCtx, cancel = context.WithCancel(ctx)
+func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelCauseFunc) {
+	var cause error
+	cancellableCtx, cancel = context.WithCancelCause(ctx)
 	end := make(chan error, 1)
 	go func() {
 		// Waits for a user interrupt or SIGTERM or expired/cancelled context
@@ -39,14 +40,15 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 		signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 		for wait := true; wait; {
 			select {
-			case <-shutdown:
+			case s := <-shutdown:
+				cause = commonerrors.New(commonerrors.ErrInterrupted, "received signal '%v'", s)
 				wait = false
 			case <-ctx.Done():
 				wait = false
 			}
 		}
 
-		cancel()
+		cancel(cause)
 		close(end)
 	}()
 	return
@@ -93,7 +95,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		{{ $nameLower }}Cfg.Operands = args
 		{{ end }}
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
-		defer cancel()
+		defer cancel(nil)
 
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
         if err == nil {
@@ -102,7 +104,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 
 		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
 		if err != nil {
-			cancel()
+			cancel(nil)
 			return
 		}
 
