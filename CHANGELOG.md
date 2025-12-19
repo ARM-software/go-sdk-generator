@@ -2,6 +2,26 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.18.0" (2025-12-19)
+=====================
+
+Features
+--------
+
+- :sparkles: Generate a valid module name with invalid recipe input (#20251218170225)
+- :bug: Fix dependabot template file (#20251218170251)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.23.2 (#20251218051818)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.17.0" (2025-12-16)
 =====================
 
