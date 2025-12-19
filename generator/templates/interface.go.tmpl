@@ -1,6 +1,7 @@
 {{ $interfaceName := .Specification.Name | toPascal -}}
-// Package {{ .Specification.MainModule }} is the root of the SDK and defines manager I{{ $interfaceName }}Manager
-package {{ .Specification.MainModule }}
+{{ $packageName := .Specification.MainModule | toPackageName -}}
+// Package {{ $packageName }} is the root of the SDK and defines manager I{{ $interfaceName }}Manager
+package {{ $packageName }}
 
 import (
     {{ if not .Specification.Interface.NotCloseable -}}

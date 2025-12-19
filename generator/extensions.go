@@ -5,9 +5,11 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unicode"
 
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/sttk/stringcase"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -73,6 +75,7 @@ var templateFuncMap = template.FuncMap{
 	"toCamel":            toCamelCase,
 	"toSnake":            toSnakeCase,
 	"toPascal":           toPascalCase,
+	"toPackageName":      toPackageName,
 	"ignoreLinting":      ignoreLintingError,
 	"dereferenceString":  func(s *string) string { return field.Optional(s, "") },
 }
@@ -97,6 +100,26 @@ func handleAcronyms(pC string) string {
 	pC = strings.ReplaceAll(pC, "IDentifier", "Identifier")
 	pC = strings.ReplaceAll(pC, "IDentification", "Identification")
 	return pC
+}
+
+func toPackageName(value string) string {
+	value = strings.TrimSpace(value)
+
+	var builder strings.Builder
+
+	builder.Grow(len(value))
+	for _, r := range value {
+		if unicode.IsLetter(r) {
+			builder.WriteRune(unicode.ToLower(r))
+		}
+	}
+
+	pkg := builder.String()
+	if reflection.IsEmpty(pkg) {
+		return "main"
+	}
+
+	return pkg
 }
 
 func ignoreLintingError(name string) bool {

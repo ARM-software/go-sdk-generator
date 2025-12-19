@@ -78,3 +78,54 @@ func Test_ignoreLintingError(t *testing.T) {
 	assert.False(t, ignoreLintingError(faker.Paragraph()))
 	assert.False(t, ignoreLintingError(faker.Password()))
 }
+
+func Test_packageName(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "already_valid",
+			input:    "sdk",
+			expected: "sdk",
+		},
+		{
+			name:     "removes_dashes_and_upper_cases",
+			input:    "My-SDK",
+			expected: "mysdk",
+		},
+		{
+			name:     "invalid_characters",
+			input:    "sdk--tool!!",
+			expected: "sdktool",
+		},
+		{
+			name:     "leading_digit",
+			input:    "123module",
+			expected: "module",
+		},
+		{
+			name:     "multiple_underscores",
+			input:    "__sdk___module__",
+			expected: "sdkmodule",
+		},
+		{
+			name:     "default_only_invalid",
+			input:    "----",
+			expected: "main",
+		},
+		{
+			name:     "default_empty",
+			input:    "",
+			expected: "main",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expected, toPackageName(test.input))
+		})
+	}
+}

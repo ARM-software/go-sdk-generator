@@ -1,4 +1,5 @@
-{{ $package := .Specification.MainModule }}
+{{ $moduleDir := .Specification.MainModule }}
+{{ $package := $moduleDir | toPackageName }}
 {{ $interfaceName := .Specification.Name }}
 {{ $confFile := .Specification.ConfFile }}
 {{ if .Specification.ExtraValidTypes -}}
@@ -19,9 +20,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
-
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/{{ .Specification.MainModule }}"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/{{ $moduleDir }}"
 )
 
 const (
@@ -41,7 +41,7 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 		for wait := true; wait; {
 			select {
 			case s := <-shutdown:
-				cause = commonerrors.New(commonerrors.ErrInterrupted, "received signal '%v'", s)
+				cause = commonerrors.Newf(commonerrors.ErrInterrupted, "received signal '%v'", s)
 				wait = false
 			case <-ctx.Done():
 				wait = false

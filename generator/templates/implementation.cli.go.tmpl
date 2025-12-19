@@ -1,4 +1,5 @@
-{{ $packageName := .Specification.MainModule -}}
+{{ $moduleDir := .Specification.MainModule -}}
+{{ $packageName := $moduleDir | toPackageName -}}
 // Package {{ $packageName }} contains the implementation for all the CLI commands.
 // Importing the package also performs the automatic binding between the definition and the implementation.
 package {{ $packageName }}
@@ -7,7 +8,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils" 
 
 	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ $packageName }}/types"
+	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ $moduleDir }}/types"
 
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
