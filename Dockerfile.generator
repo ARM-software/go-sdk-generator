@@ -20,4 +20,3 @@ FROM alpine:3.23.2
 COPY --from=build /output/generator /usr/local/bin/generator
 
 ENTRYPOINT ["generator"]
-WORKDIR /build/generator

@@ -3,9 +3,11 @@ package generator
 import (
 	"context"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
@@ -24,39 +26,32 @@ func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 	}
 
 	bindings := mapset.NewSet[string]()
-	for i := range sdk.Specification.ExtraValidTypes {
-		bindings.Add(sdk.Specification.ExtraValidTypes[i])
-	}
-	for i := range sdk.Specification.GlobalConfiguration {
-		binds := sdk.Specification.GlobalConfiguration[i].Bindings
-		bindings.Add(sdk.Specification.GlobalConfiguration[i].LangType)
-		for j := range binds {
-			binding := binds[j]
+	collection.ForEach(sdk.Specification.ExtraValidTypes, func(extra string) {
+		bindings.Add(extra)
+	})
+	collection.ForEach(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) {
+		bindings.Add(cfg.LangType)
+		collection.ForEach(cfg.Bindings, func(binding Binding) {
 			bindings.Add(field.OptionalString(binding.LangType, ""))
-		}
-	}
-	for i := range sdk.Specification.Interface.Methods {
-		args := sdk.Specification.Interface.Methods[i].Args
-		for j := range args {
-			binds := args[j].Bindings
-			for k := range binds {
-				binding := binds[k]
+		})
+	})
+	collection.ForEach(sdk.Specification.Interface.Methods, func(method InterfaceMethod) {
+		collection.ForEach(method.Args, func(argument CommandArgument) {
+			collection.ForEach(argument.Bindings, func(binding Binding) {
 				bindings.Add(field.OptionalString(binding.LangType, ""))
-			}
-		}
-	}
+			})
+		})
+	})
+
 	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
-		for i := range sdk.Specification.CommandLineCommands.Functions {
-			fctCfg := sdk.Specification.CommandLineCommands.Functions[i].Configuration
-			for j := range fctCfg {
-				bindings.Add(fctCfg[j].LangType)
-				binds := fctCfg[j].Bindings
-				for k := range binds {
-					binding := binds[k]
+		collection.ForEach(sdk.Specification.CommandLineCommands.Functions, func(fct CliFunction) {
+			collection.ForEach(fct.Configuration, func(fctCfg FunctionConfigFields) {
+				bindings.Add(fctCfg.LangType)
+				collection.ForEach(fctCfg.Bindings, func(binding Binding) {
 					bindings.Add(field.OptionalString(binding.LangType, ""))
-				}
-			}
-		}
+				})
+			})
+		})
 	}
 	types := bindings.ToSlice()
 	validTypes := make(ExtraValidTypes, 0, len(types))
@@ -99,26 +94,74 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 		return
 	}
 	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
-		for _, cliFunc := range sdk.Specification.CommandLineCommands.Functions {
+		for i := range sdk.Specification.CommandLineCommands.Functions {
+			fct := sdk.Specification.CommandLineCommands.Functions[i]
 			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
-
-			for _, param := range cliFunc.Configuration {
-				for _, binding := range param.Bindings {
-					err = processArguments(binding.Arg, binding.ArgShort, binding.MapstructureTag, seenShortArguments)
-					if err != nil {
-						return
-					}
-				}
-
-				err = processArguments(param.Arg, param.ArgShort, &param.MapstructureTag, seenShortArguments)
-				if err != nil {
-					return
+			if fct.CallCloud {
+				subErr := updateCliFunctionArgumentsToCallCloud(&fct)
+				if subErr != nil {
+					return subErr
 				}
 			}
+			subErr := collection.Each(slices.Values(fct.Configuration), func(param FunctionConfigFields) error {
+				subErr := collection.Each(slices.Values(param.Bindings), func(binding Binding) error {
+					return processArguments(binding.Arg, binding.ArgShort, binding.MapstructureTag, seenShortArguments)
+				})
+				if subErr != nil {
+					return subErr
+				}
+				return processArguments(param.Arg, param.ArgShort, &param.MapstructureTag, seenShortArguments)
+			})
+			if subErr != nil {
+				return subErr
+			}
+			sdk.Specification.CommandLineCommands.Functions[i] = fct
 		}
 	}
-
 	return
+}
+
+func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
+	if fct == nil {
+		return commonerrors.UndefinedVariable("command line function")
+	}
+
+	args := map[string]FunctionConfigFields{
+		"APIKey": {
+			ArgShort:        field.ToOptionalStringOrNilIfEmpty("k"),
+			Description:     "An API key enabling the use of the online services",
+			IsRoot:          true,
+			LangType:        "string",
+			MapstructureTag: "api_key",
+			Name:            "APIKey",
+			Pattern:         field.ToOptionalStringOrNilIfEmpty("^(?!.*\\s)[!-~]+$"),
+			Reference:       false,
+			Required:        true,
+		},
+		"Host": {
+			Arg:             nil,
+			ArgShort:        nil,
+			Bindings:        nil,
+			Condition:       "",
+			DefaultValue:    field.ToOptionalStringOrNilIfEmpty("https://all.api.keil.arm.com"),
+			Description:     "The host to use for accessing the online services",
+			Hidden:          false,
+			IsRoot:          true,
+			JsonTag:         nil,
+			LangType:        "host",
+			MapstructureTag: "host",
+			Name:            "Host",
+			Pattern:         nil,
+			Reference:       false,
+			Required:        true,
+		},
+	}
+	collection.ForEach(fct.Configuration, func(arg FunctionConfigFields) {
+		args[arg.Name] = arg
+	})
+	fct.Configuration = slices.Collect(maps.Values(args))
+	slices.SortFunc(fct.Configuration, func(a, b FunctionConfigFields) int { return strings.Compare(a.Name, b.Name) })
+	return nil
 }
 
 type ArgDefinition struct {

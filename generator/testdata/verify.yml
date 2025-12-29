@@ -41,6 +41,7 @@ specification:
     functions:
       - name: Verify
         description: Verify that a project is valid csolution or uvprojx project
+        callCloud: true
         configuration:
           - name: Project
             lang_type: types.Project
@@ -66,21 +67,6 @@ specification:
             mapstructure_tag: project_dir
             description: The root directory of the project
             arg_short: d 
-          - name: APIKey
-            lang_type: string
-            required: true
-            is_root: true
-            arg_short: t
-            mapstructure_tag: api_key
-            pattern: "[a-zA-Z0-9_-]+"
-            description: An API key enabling the use of the online services
-          - name: Host
-            lang_type: host
-            required: true
-            mapstructure_tag: host
-            pattern: '^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?'
-            description: The host to use for accessing the online services
-            default_value: https://all.api.keil.arm.com
           - name: Debug
             lang_type: bool
             mapstructure_tag: debug

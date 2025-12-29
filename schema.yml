@@ -221,6 +221,12 @@ $defs:
         description: Allow the use of positional operands specified after '--' in a POSIX fashion
         type: boolean
         default: false
+      callCloud:
+        type: boolean
+        description: |
+            Whether the command needs to call the Arm Cloud hosted online services.
+            When enabled, default API key and host arguments are injected only if they are not explicitly defined.
+        default: false
       loadFromKeyring:
         description: Whether to load some configuration input from system's keyring service
         type: boolean

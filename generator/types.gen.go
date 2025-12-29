@@ -51,6 +51,13 @@ type CiExtraPackages []string
 
 // An CLI function
 type CliFunction struct {
+	//
+	// Whether the command needs to call the Arm Cloud hosted online services.
+	// When enabled, default API key and host arguments are injected only if they are
+	// not explicitly defined.
+	//
+	CallCloud bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
+
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []FunctionConfigFields `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
@@ -86,6 +93,9 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["callCloud"]; !ok || v == nil {
+		plain.CallCloud = false
 	}
 	if v, ok := raw["loadFromKeyring"]; !ok || v == nil {
 		plain.LoadFromKeyring = false

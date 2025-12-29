@@ -91,9 +91,11 @@ func TestPopulateTemplate(t *testing.T) {
 		tmpDir := t.TempDir()
 		out := filepath.Join(tmpDir, "out1", "out2", "out.go")
 		require.NoDirExists(t, filepath.Dir(out))
+		testFs, err := filesystem.NewEmbedFileSystem(&fs)
+		require.NoError(t, err)
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)
@@ -105,9 +107,10 @@ func TestPopulateTemplate(t *testing.T) {
 		tmpDir := t.TempDir()
 		out := filepath.Join(tmpDir, "out1", "out2")
 		require.NoDirExists(t, filepath.Dir(out))
-
+		testFs, err := filesystem.NewEmbedFileSystem(&fs)
+		require.NoError(t, err)
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
 		assert.NoError(t, err)
 
 		content, err := filesystem.ReadFile(out)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -43,9 +44,9 @@ func TestProcessBindings(t *testing.T) {
 		}
 		sdk.Specification.GlobalConfiguration = append(sdk.Specification.GlobalConfiguration, configuration)
 		require.NoError(t, ProcessBindings(context.Background(), &sdk))
-		for i := range originalValidTypes {
-			assert.Contains(t, sdk.Specification.ExtraValidTypes, originalValidTypes[i])
-		}
+		collection.ForEach(originalValidTypes, func(s string) {
+			assert.Contains(t, sdk.Specification.ExtraValidTypes, s)
+		})
 		assert.Contains(t, sdk.Specification.ExtraValidTypes, bindingTypes)
 		assert.Contains(t, sdk.Specification.ExtraValidTypes, configuration.LangType)
 	})
@@ -255,7 +256,49 @@ func TestProcessArguments(t *testing.T) {
 				PackageName:         "pkg",
 			},
 		}
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
+	})
+	t.Run("happy path: with calls to Cloud", func(t *testing.T) {
+		short1 := "a"
+		short2 := "b"
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short1,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(faker.Word()),
+			ArgShort:        &short2,
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.Word(),
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+			CallCloud:     true,
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{cliFunc},
+				},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
+		assert.NoError(t, ProcessArguments(context.Background(), sdk))
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 4)
 	})
 }
 
