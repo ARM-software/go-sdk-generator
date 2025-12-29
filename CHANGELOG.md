@@ -2,6 +2,25 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.19.0" (2025-12-29)
+=====================
+
+Features
+--------
+
+- :sparkles: Add a way to specify a command calls Arm online services and so, required arguments will be added if missing (#20251222112700)
+
+
+Bugfixes
+--------
+
+- :camel: Upgrade dependencies (#20251222112614)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.18.0" (2025-12-19)
 =====================
 
