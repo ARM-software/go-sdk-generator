@@ -298,7 +298,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
-		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 4)
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 5)
 	})
 }
 

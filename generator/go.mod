@@ -9,7 +9,7 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.142.0
+	github.com/ARM-software/golang-utils/utils v1.145.0
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/go-faker/faker/v4 v4.7.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0

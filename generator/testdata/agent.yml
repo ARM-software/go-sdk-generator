@@ -136,6 +136,7 @@ specification:
     functions:
       - name: Serve
         description: Start the FPGA service agent so it serves AFaaS job requests
+        callCloud: true
         configuration:
           - <<: *x-sandpit
           - <<: *x-datastore-location
@@ -201,18 +202,30 @@ specification:
           - <<: *x-datastore-location
           - <<: *x-no-provisioning
           - <<: *x-machine-hostname
+      - name: Credentials
+        storeToKeyring: true
+        description: Store AFaaS agent's credentials securely in the platform
+        configuration:
+          - <<: *x-sandpit
+          - <<: *x-afaas-host
+          - <<: *x-afaas-token
+          - <<: *x-afaas-store-host
+          - <<: *x-afaas-store-token
+          - <<: *x-datastore-location
+          - <<: *x-afaas-store-public-key
+          - <<: *x-machine-hostname
+      - name: AFaaSCredentials
+        storeToKeyring: true
+        callCloud: true
+        description: Store AFaaS service's credentials securely in the platform
+        configuration:
+          - <<: *x-sandpit
+          - <<: *x-datastore-location
       - name: Decommission
+        callCloud: true
         description: Decommission a running FPGA agent
         configuration:
-          - name: APIURL
-            lang_type: url
-            mapstructure_tag: api_url
-            default_value: http://localhost:8080
-            description: The URL the FPGA agent API is running on
-          - name: APIToken
-            lang_type: string
-            mapstructure_tag: api_token
-            description: The token used to authenticate with the FPGA agent API
+          - <<: *x-datastore-location
 
   global_configuration:
     - name: Sandpit

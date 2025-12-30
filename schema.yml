@@ -241,6 +241,10 @@ $defs:
         description: Whether to load some configuration input from system's keyring service
         type: boolean
         default: false
+      storeToKeyring:
+        description: Whether to store the configuration to system's keyring service
+        type: boolean
+        default: false
     additionalProperties: false
   function_config_fields:
     <<: *x-parameter

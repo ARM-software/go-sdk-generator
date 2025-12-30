@@ -16,6 +16,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/keyring"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
@@ -57,12 +58,7 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 {{ range .Specification.CommandLineCommands.Functions }}
 {{ $nameLower := .Name | lower }}
 {{ $configName:= .Name | toPascal -}}
-{{ $loadFromEnvFunc := "LoadFromEnvironment" -}}
-{{ $loadFromViperFunc := "LoadFromViper" -}}
-{{ if .LoadFromKeyring }}
-    {{ $loadFromEnvFunc = "LoadFromEnvironment" -}}
-    {{ $loadFromViperFunc = "LoadFromViperAndSystem" -}}
-{{ end }}
+
 
 var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
@@ -77,30 +73,40 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		}
 
 		var {{ $nameLower }}Cfg config.{{ $configName }}Configuration
+        cfgLoadOptions := []configUtils.LoadingOption{
+            configUtils.WithEnvVarPrefix(config.App),
+            configUtils.WithDefaultConfiguration(config.Default{{ $configName }}Configuration()),
+            configUtils.WithViperSession(viperSession),
+        }
+        {{ if $confFile -}}
+        confFile := "{{ $confFile }}"
+        if filesystem.Exists(confFile) {
+            cfgLoadOptions = append(cfgLoadOptions, configUtils.WithConfigFile(confFile))
+        }
+        {{ end -}}
+        {{ if .LoadFromKeyring -}}
+            cfgLoadOptions = append(cfgLoadOptions, configUtils.WithKeyring(!cmd.Flags().Changed({{ toCLIArgNameConstantRef .Name "NoKeyring" false }})))
+        {{ end -}}
 
-		{{ if $confFile }}
-		confFile := "{{ $confFile }}"
-		if filesystem.Exists(confFile) {
-			err = configUtils.{{ $loadFromEnvFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration(), confFile)
-		} else {
-			err = configUtils.{{ $loadFromViperFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
-		} 
-		{{ else -}}
-		err = configUtils.{{ $loadFromViperFunc }}(viperSession, config.App, &{{ $nameLower }}Cfg, config.Default{{ $configName }}Configuration())
-		{{ end -}}
-		if err != nil {
-			return
-		}
+        err = configUtils.LoadUsing(&{{ $nameLower }}Cfg, cfgLoadOptions...)
+        if err != nil {
+            return
+        }
+
 		{{ if .Operands }}
 		{{ $nameLower }}Cfg.Operands = args
 		{{ end }}
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
+       {{ if .StoreToKeyring -}}
+           {{ $nameLower }}Cfg.ToolVersion = nil
+       {{ else }}
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
         if err == nil {
             {{ $nameLower }}Cfg.ToolVersion = field.ToOptionalString(cliVersion)
         }
+        {{ end -}}
 
 		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
 		if err != nil {
@@ -108,6 +114,19 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 			return
 		}
 
+       {{ if .StoreToKeyring -}}
+            err = keyring.Store[config.{{ $configName }}Configuration](cancellableCtx, config.App, &{{ $nameLower }}Cfg)
+            if err != nil {
+                cancel(nil)
+                if commonerrors.Any(err, commonerrors.ErrUnsupported) {
+                    err = commonerrors.WrapError(commonerrors.ErrUnsupported, err, "configuration cannot be stored in system's keyring")
+                } else {
+                    err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed storing configuration into system's keyring")
+                }
+                return
+            }
+            logger.Log("successfully stored credentials in system's keyring")
+        {{ end -}}
 		return
 	},
     {{ if .SilenceUsage -}}

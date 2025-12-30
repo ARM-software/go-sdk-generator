@@ -5,7 +5,7 @@ go 1.25
 replace github.com/Arm-Debug/go-sdk-generator/generator => ../generator
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.142.0
+	github.com/ARM-software/golang-utils/utils v1.145.0
 	github.com/Arm-Debug/go-sdk-generator/generator v0.0.0-00010101000000-000000000000
 	github.com/charmbracelet/fang v0.1.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0

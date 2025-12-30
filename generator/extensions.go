@@ -77,7 +77,10 @@ var templateFuncMap = template.FuncMap{
 	"toPascal":           toPascalCase,
 	"toPackageName":      toPackageName,
 	"ignoreLinting":      ignoreLintingError,
-	"dereferenceString":  func(s *string) string { return field.Optional(s, "") },
+	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
+		return getArgName(cliFuncName, arg, "", isRoot)
+	},
+	"dereferenceString": func(s *string) string { return field.Optional(s, "") },
 }
 
 func toPascalCase(s string) string {

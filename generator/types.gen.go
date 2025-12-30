@@ -83,6 +83,9 @@ type CliFunction struct {
 	// Whether to silence usage when an error occurs.
 	//
 	SilenceUsage bool `json:"silenceUsage,omitempty" yaml:"silenceUsage,omitempty" mapstructure:"silenceUsage,omitempty"`
+
+	// Whether to store the configuration to system's keyring service
+	StoreToKeyring bool `json:"storeToKeyring,omitempty" yaml:"storeToKeyring,omitempty" mapstructure:"storeToKeyring,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -119,6 +122,9 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["silenceUsage"]; !ok || v == nil {
 		plain.SilenceUsage = false
+	}
+	if v, ok := raw["storeToKeyring"]; !ok || v == nil {
+		plain.StoreToKeyring = false
 	}
 	*j = CliFunction(plain)
 	return nil

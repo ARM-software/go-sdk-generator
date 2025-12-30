@@ -97,8 +97,17 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
 			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
+			if fct.StoreToKeyring && fct.LoadFromKeyring {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
+			}
 			if fct.CallCloud {
 				subErr := updateCliFunctionArgumentsToCallCloud(&fct)
+				if subErr != nil {
+					return subErr
+				}
+			}
+			if fct.LoadFromKeyring {
+				subErr := updateCliFunctionArgumentsToLoadFromKeyring(&fct)
 				if subErr != nil {
 					return subErr
 				}
@@ -121,11 +130,28 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 	return
 }
 
+func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
+	args := map[string]FunctionConfigFields{
+		"NoKeyring": {
+			ArgShort:        nil,
+			Description:     "Disable loading configuration from the system keyring",
+			IsRoot:          false,
+			LangType:        "bool",
+			MapstructureTag: "no_keyring",
+			Name:            "NoKeyring",
+			Pattern:         nil,
+			Reference:       false,
+			Required:        false,
+		},
+	}
+	return updateCliFunctionArguments(fct, args)
+}
+
 func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
 	if fct == nil {
 		return commonerrors.UndefinedVariable("command line function")
 	}
-
+	fct.LoadFromKeyring = !fct.StoreToKeyring
 	args := map[string]FunctionConfigFields{
 		"APIKey": {
 			ArgShort:        field.ToOptionalStringOrNilIfEmpty("k"),
@@ -156,10 +182,21 @@ func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
 			Required:        true,
 		},
 	}
+	return updateCliFunctionArguments(fct, args)
+}
+
+func updateCliFunctionArguments(fct *CliFunction, additionalArguments map[string]FunctionConfigFields) error {
+	if fct == nil {
+		return commonerrors.UndefinedVariable("command line function")
+	}
+	if additionalArguments == nil {
+		additionalArguments = make(map[string]FunctionConfigFields)
+	}
+
 	collection.ForEach(fct.Configuration, func(arg FunctionConfigFields) {
-		args[arg.Name] = arg
+		additionalArguments[arg.Name] = arg
 	})
-	fct.Configuration = slices.Collect(maps.Values(args))
+	fct.Configuration = slices.Collect(maps.Values(additionalArguments))
 	slices.SortFunc(fct.Configuration, func(a, b FunctionConfigFields) int { return strings.Compare(a.Name, b.Name) })
 	return nil
 }
