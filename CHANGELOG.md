@@ -2,6 +2,26 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.20.0" (2025-12-30)
+=====================
+
+Features
+--------
+
+- :sparkles: Add ability to mark a CLI function as Hidden or SilenceUsage (#20251229165247)
+
+
+Bugfixes
+--------
+
+- :bug: Fix typo in template (#20251229165334)
+- :gear: Handle automatically the different extensions for yaml (#20251229171340)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.19.0" (2025-12-29)
 =====================
 
