@@ -62,7 +62,9 @@
         {
           "name": "Verify",
           "description": "Verify that a project is valid csolution or uvprojx project",
-		  "callCloud": true,
+          "callCloud": true,
+          "silenceUsage": true,
+          "hidden": true,
           "configuration": [
             {
               "name": "Project",

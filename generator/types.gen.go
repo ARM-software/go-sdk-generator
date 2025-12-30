@@ -52,7 +52,7 @@ type CiExtraPackages []string
 // An CLI function
 type CliFunction struct {
 	//
-	// Whether the command needs to call the Arm Cloud hosted online services.
+	// Whether the function needs to call the Arm Cloud hosted online services.
 	// When enabled, default API key and host arguments are injected only if they are
 	// not explicitly defined.
 	//
@@ -64,6 +64,12 @@ type CliFunction struct {
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	//
+	// Whether this function is hidden and should NOT show up in the list of available
+	// commands.
+	//
+	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
 	// Whether to load some configuration input from system's keyring service
 	LoadFromKeyring bool `json:"loadFromKeyring,omitempty" yaml:"loadFromKeyring,omitempty" mapstructure:"loadFromKeyring,omitempty"`
 
@@ -72,6 +78,11 @@ type CliFunction struct {
 
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
 	Operands bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
+
+	//
+	// Whether to silence usage when an error occurs.
+	//
+	SilenceUsage bool `json:"silenceUsage,omitempty" yaml:"silenceUsage,omitempty" mapstructure:"silenceUsage,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -97,11 +108,17 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	if v, ok := raw["callCloud"]; !ok || v == nil {
 		plain.CallCloud = false
 	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
+	}
 	if v, ok := raw["loadFromKeyring"]; !ok || v == nil {
 		plain.LoadFromKeyring = false
 	}
 	if v, ok := raw["operands"]; !ok || v == nil {
 		plain.Operands = false
+	}
+	if v, ok := raw["silenceUsage"]; !ok || v == nil {
+		plain.SilenceUsage = false
 	}
 	*j = CliFunction(plain)
 	return nil

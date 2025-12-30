@@ -265,6 +265,6 @@ func TestGenerate(t *testing.T) {
 		}
 
 		err := Generate(ctx, cfg)
-		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
+		errortest.AssertError(t, err, commonerrors.ErrUnexpected, commonerrors.ErrNotFound)
 	})
 }

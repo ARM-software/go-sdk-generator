@@ -5,11 +5,14 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"text/template"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	"golang.org/x/tools/imports"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
@@ -197,6 +200,36 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
 	}
+	if reflection.IsEmpty(cfg.Input) {
+		err = commonerrors.UndefinedVariable("SDK specification file")
+		return
+	}
+	ext := filepath.Ext(cfg.Input)
+	ext = strings.ToLower(ext)
+	_, found := collection.FindInSlice(false, []string{".yml", ".yaml", ".json"}, ext)
+	if !found {
+		err = commonerrors.Newf(commonerrors.ErrUnsupported, "file [%v]'s format [%v] is not supported by the generator", cfg.Input, ext)
+		return
+	}
+
+	if !filesystem.Exists(cfg.Input) {
+		if strings.EqualFold(ext, ".json") {
+			err = commonerrors.Newf(commonerrors.ErrNotFound, "could not read file '%v'", cfg.Input)
+			return
+		}
+		if strings.EqualFold(ext, ".yml") {
+			ext = ".yaml"
+		} else if strings.EqualFold(ext, ".yaml") {
+			ext = ".yml"
+		}
+		alternativeInput := filepath.Join(filepath.Dir(cfg.Input), fmt.Sprintf("%v%v", filesystem.FilepathStem(cfg.Input), ext))
+		if filesystem.Exists(alternativeInput) {
+			cfg.Input = alternativeInput
+		} else {
+			err = commonerrors.Newf(commonerrors.ErrNotFound, "could not read file '%v'", cfg.Input)
+			return
+		}
+	}
 
 	spec, err := filesystem.ReadFile(cfg.Input)
 	if err != nil {
@@ -205,7 +238,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	var sdk SDK
-	if ext := filepath.Ext(cfg.Input); ext == ".yml" || ext == ".yaml" {
+	if ext == ".yml" || ext == ".yaml" {
 		err = sdk.UnmarshalYAML(spec)
 	} else {
 		err = sdk.UnmarshalJSON(spec)

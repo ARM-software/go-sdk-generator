@@ -224,8 +224,18 @@ $defs:
       callCloud:
         type: boolean
         description: |
-            Whether the command needs to call the Arm Cloud hosted online services.
+            Whether the function needs to call the Arm Cloud hosted online services.
             When enabled, default API key and host arguments are injected only if they are not explicitly defined.
+        default: false
+      silenceUsage:
+        type: boolean
+        description: |
+            Whether to silence usage when an error occurs.
+        default: false
+      hidden:
+        type: boolean
+        description: |
+            Whether this function is hidden and should NOT show up in the list of available commands.
         default: false
       loadFromKeyring:
         description: Whether to load some configuration input from system's keyring service

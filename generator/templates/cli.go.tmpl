@@ -110,6 +110,12 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 
 		return
 	},
+    {{ if .SilenceUsage -}}
+    SilenceUsage: true, // otherwise 'Usage' is printed after any error
+    {{ end -}}
+    {{ if .Hidden -}}
+    Hidden: true,
+    {{ end -}}
 }
 {{ end }}
 

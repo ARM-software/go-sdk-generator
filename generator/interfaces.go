@@ -19,7 +19,7 @@ type ISdkGeneratorManager interface {
 
 		Input arguments:
 
-		  * ctx: A context to pass into the method. Can be used to cancel long running tasks
+		  * ctx: A context to pass into the method. Can be used to cancel long-running tasks
 
 		Return values:
 
