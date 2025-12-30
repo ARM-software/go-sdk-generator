@@ -2,6 +2,25 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.21.0" (2025-12-30)
+=====================
+
+Features
+--------
+
+- :sparkles: Better load configuration from system/environment (#20251230141827)
+
+
+Bugfixes
+--------
+
+- :camel: Upgrade dependencies (#20251230141756)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.20.0" (2025-12-30)
 =====================
 
