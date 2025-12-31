@@ -80,6 +80,10 @@ properties:
       description:
         type: string
         description: The description of the SDK
+      licence:
+        type: string
+        description: The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
+        default: Proprietary
       conf_file:
         type: string
         description: An optional configuration file that will be used to load values from (in addtion to cli args and env vars)

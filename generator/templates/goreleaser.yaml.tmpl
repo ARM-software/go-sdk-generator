@@ -1,5 +1,7 @@
 version: 2
 project_name: {{ .Specification.PackageName }}
+# Whether to enable the size reporting or not.
+report_sizes: true
 env:
   - GO111MODULE=on
 builds:
@@ -27,6 +29,8 @@ archives:
       {{ "{{" }}- if eq .Arch "amd64" }}x86_64
       {{ "{{" }}- else if eq .Arch "386" }}i386
       {{ "{{" }}- else }}{{ "{{" }} .Arch }}{{ "{{" }} end }}
+sboms:
+  - artifacts: binary
 checksum:
   name_template: "checksums.txt"
 snapshot:
@@ -43,7 +47,7 @@ nfpms:
       - apk
       - deb
       - rpm
-    license: Proprietary
+    license: {{ .Specification.Licence }}
     maintainer: Arm Online Services <monty-bot@arm.com>
     description: |-
       {{ .Specification.Description }}

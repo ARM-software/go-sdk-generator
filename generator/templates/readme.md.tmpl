@@ -1,6 +1,8 @@
 # {{ .Specification.Name }} SDK
 
 [![Go Badge](https://img.shields.io/badge/go-v{{ .TargetedGoVersion }}-blue)](https://golang.org/)
+[![License](https://img.shields.io/badge/Licence-{{ .Specification.Licence | toURIEncoded }}-blue.svg)](https://opensource.org/licenses/{{ .Specification.Licence | toURIEncoded }})
+
 
 {{ .Specification.Description }}
 
@@ -15,3 +17,47 @@ man {{ .Specification.CommandLineCommands.Binary }}
 ## Documentation
 
 To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)
+
+## Using this SDK
+
+To include and use this SDK in your go project, add the following line to your `go.mod`:
+```go
+require (
+    github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}   latest
+    ...
+)
+```
+
+run `go mod tidy`
+
+## Releases
+
+For release notes and a history of changes of all **production** releases, please see the following:
+
+- [Changelog](CHANGELOG.md)
+
+## Project Structure
+
+The follow described the major aspects of the project structure:
+```
+{{ if .Specification.CommandLineCommands }}
+    cli/ - Definition of the CLI to use the tool directly from a terminal.
+{{- end }}
+    {{ .Specification.MainModule }}/ - Go source files describing the SDK.
+    changes/ - Collection of news files for unreleased changes.
+    scripts/ - Automation scripts for continuous integration (CI) and package control tasks such as building, validating, and releasing packages.
+    .*/ - Configuration for development tooling such as continuous integration, static analysis (linters), and version control (Git).
+```
+
+## Getting Help
+
+- For a list of known issues and possible workarounds, please see [Known Issues](KNOWN_ISSUES.md).
+- To raise a defect or enhancement please use [GitHub Issues](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/issues) or [GitHub discussions](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/discussions).
+
+## Contributing
+
+- We are committed to fostering a welcoming community, please see our
+  [Code of Conduct](CODE_OF_CONDUCT.md) for more information.
+- For ways to contribute to the project, please see the [Contributions Guidelines](CONTRIBUTING.md)
+- For a technical introduction into developing this package, please see the [Development Guide](DEVELOPMENT.md)
+

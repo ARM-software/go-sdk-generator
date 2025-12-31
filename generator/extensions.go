@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"text/template"
 	"time"
@@ -77,6 +78,8 @@ var templateFuncMap = template.FuncMap{
 	"toPascal":           toPascalCase,
 	"toPackageName":      toPackageName,
 	"ignoreLinting":      ignoreLintingError,
+	"nowYear":            nowYear,
+	"toURIEncoded":       toURIEncoded,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -95,6 +98,12 @@ func toSnakeCase(s string) string {
 	return stringcase.SnakeCase(s)
 }
 
+func toURIEncoded(s string) string {
+	return url.PathEscape(s)
+}
+func nowYear() string {
+	return fmt.Sprint(time.Now().Year())
+}
 func handleAcronyms(pC string) string {
 	for i := range specialAcronyms {
 		pC = strings.ReplaceAll(pC, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))

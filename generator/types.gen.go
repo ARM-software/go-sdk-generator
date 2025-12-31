@@ -665,6 +665,9 @@ type SDKSpecification struct {
 	// Interface corresponds to the JSON schema field "interface".
 	Interface Interface `json:"interface" yaml:"interface" mapstructure:"interface"`
 
+	// The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
+	Licence string `json:"licence,omitempty" yaml:"licence,omitempty" mapstructure:"licence,omitempty"`
+
 	// The module within the package e.g. sdk within Arm-Debug/test/sdk for a go
 	// project
 	MainModule string `json:"main_module" yaml:"main_module" mapstructure:"main_module"`
@@ -702,6 +705,9 @@ func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["licence"]; !ok || v == nil {
+		plain.Licence = "Proprietary"
 	}
 	*j = SDKSpecification(plain)
 	return nil

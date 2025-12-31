@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLangTypeValidationRule(t *testing.T) {
@@ -26,6 +27,14 @@ func TestZeros(t *testing.T) {
 	assert.Equal(t, `"{}"`, determineZeroValue("json"))
 	assert.Equal(t, "[]byte{}", determineZeroValue("hex"))
 	assert.Equal(t, "false", determineZeroValue("bool"))
+}
+
+func TestNowYear(t *testing.T) {
+	require.NotEmpty(t, nowYear())
+}
+
+func TestToURIEncoded(t *testing.T) {
+	assert.Equal(t, "Apache%202.0", toURIEncoded("Apache 2.0"))
 }
 
 func TestDefaults(t *testing.T) {

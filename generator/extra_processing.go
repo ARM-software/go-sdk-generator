@@ -197,7 +197,9 @@ func updateCliFunctionArguments(fct *CliFunction, additionalArguments map[string
 		additionalArguments[arg.Name] = arg
 	})
 	fct.Configuration = slices.Collect(maps.Values(additionalArguments))
-	slices.SortFunc(fct.Configuration, func(a, b FunctionConfigFields) int { return strings.Compare(a.Name, b.Name) })
+	slices.SortFunc(fct.Configuration, func(a, b FunctionConfigFields) int {
+		return compareArgs(a.Name, b.Name)
+	})
 	return nil
 }
 
@@ -434,7 +436,7 @@ func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefini
 	}
 
 	slices.SortFunc(out, func(a, b ArgDefinition) int {
-		return strings.Compare(a.Name, b.Name)
+		return compareArgs(a.Name, b.Name)
 	})
 
 	return
@@ -486,11 +488,11 @@ func PreComputeFlagsAndBindings(cmds *CommandLineCommands) (flagRegistrations []
 	}
 
 	slices.SortFunc(flagRegistrations, func(a, b FlagRegistration) int {
-		return strings.Compare(a.ArgVar, b.ArgVar)
+		return compareArgs(a.ArgVar, b.ArgVar)
 	})
 
 	slices.SortFunc(bindings, func(a, b ArgFlagBindingInfo) int {
-		return strings.Compare(a.EnvVar, b.EnvVar)
+		return compareEnv(a.EnvVar, b.EnvVar)
 	})
 	return
 }
@@ -562,11 +564,11 @@ func PreComputeRootFlagsAndBindings(cmds *CommandLineCommands) (flagRegistration
 	}
 
 	slices.SortFunc(flagRegistration, func(a, b FlagRegistration) int {
-		return strings.Compare(a.ArgVar, b.ArgVar)
+		return compareArgs(a.ArgVar, b.ArgVar)
 	})
 
 	slices.SortFunc(bindings, func(a, b ArgFlagBindingInfo) int {
-		return strings.Compare(a.EnvVar, b.EnvVar)
+		return compareEnv(a.EnvVar, b.EnvVar)
 	})
 
 	return
@@ -580,4 +582,12 @@ func PrecomputeArgNames(cmds *CommandLineCommands) (out []ArgDefinition, err err
 // PrecomputeRootArgNames will determine the names of the command line arguments so they match the flag bindings for the root command line functions
 func PrecomputeRootArgNames(cmds *CommandLineCommands) (out []ArgDefinition, err error) {
 	return preComputeArgNames(cmds, true)
+}
+
+func compareArgs(a, b string) int {
+	return strings.Compare(toPascalCase(a), toPascalCase(b))
+}
+
+func compareEnv(a, b string) int {
+	return strings.Compare(toSnakeCase(a), toSnakeCase(b))
 }
