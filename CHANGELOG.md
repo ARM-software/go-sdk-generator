@@ -2,6 +2,25 @@
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.22.0" (2025-12-31)
+=====================
+
+Features
+--------
+
+- :sparkles: add ability to specify the licence (#20251231113050)
+
+
+Bugfixes
+--------
+
+- :bug: fix argument/parameter name casing (#20251231111234)
+
+
+<!--
+Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.21.0" (2025-12-30)
 =====================
 
