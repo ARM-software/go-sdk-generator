@@ -1,4 +1,17 @@
 <!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
+"0.22.1" (2026-01-02)
+=====================
+
+Bugfixes
+--------
+
+- :bug: fix API key regex which is not supported by go (#20260102144124)
+
+
+<!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
