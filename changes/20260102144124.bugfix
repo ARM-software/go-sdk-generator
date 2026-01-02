@@ -1,0 +1,1 @@
+:bug: fix API key regex which is not supported by go

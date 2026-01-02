@@ -160,7 +160,7 @@ func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
 			LangType:        "string",
 			MapstructureTag: "api_key",
 			Name:            "APIKey",
-			Pattern:         field.ToOptionalStringOrNilIfEmpty("^(?!.*\\s)[!-~]+$"),
+			Pattern:         field.ToOptionalStringOrNilIfEmpty(`^[!-~\w]+[!-~\w\s]*$`),
 			Reference:       false,
 			Required:        true,
 		},
