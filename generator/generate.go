@@ -119,6 +119,7 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 }
 
 type DataModel struct {
+	SchemaFileName string
 	SDK
 	TargetedGoVersion     string
 	FlagRegistrations     []FlagRegistration
@@ -340,6 +341,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	err = templatesToPopulate.Populate(ctx, &DataModel{
+		SchemaFileName:        filesystem.FilepathStem(cfg.Input),
 		SDK:                   sdk,
 		TargetedGoVersion:     cfg.TargetedGoVersion,
 		CliEnvVarBindings:     cliEnvVarBindings,

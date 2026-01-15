@@ -8,7 +8,7 @@ SPDX-License-Identifier: {{ .Specification.Licence }}
 
 ### Generating the SDK
 
-The interface that this project provides, including what CLI commands are available and what configuration is required is defined in [`{{ .Specification.MainModule }}.yml`](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/blob/main/{{ .Specification.MainModule }}.yml). From this file the Go SDK code is generated using the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator). Follow these steps to make changes to the interface.
+The interface that this project provides, including what CLI commands are available and what configuration is required is defined in [`{{ .SchemaFileName }}.yml`](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/blob/main/{{ .SchemaFileName }}.yml). From this file the Go SDK code is generated using the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator). Follow these steps to make changes to the interface.
 
 #### Prerequisites
 
@@ -39,11 +39,11 @@ On Red Hat based systems:
 
 #### Steps
 
-1. Manually change the interface definition in `{{ .Specification.MainModule }}.yml` (or `{{ .Specification.MainModule }}.json`).
+1. Manually change the interface definition in `{{ .SchemaFileName }}.yml` (or `{{ .SchemaFileName }}.json`).
 2. Run the Go SDK Generator
 
 ```
-go-sdk-generator -i {{ .Specification.MainModule }}.yml -o ./ # or {{ .Specification.MainModule }}.json
+go-sdk-generator generate -i {{ .SchemaFileName }}.yml -o ./ # or {{ .SchemaFileName }}.json
 ```
 
 > :book: Note: Adding `--overwrite` will regenerate all the files including `go.mod` and files containing some state.
