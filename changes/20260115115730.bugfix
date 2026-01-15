@@ -1,1 +1,0 @@
-🐛 : Generate correct command in development template, adding missing keyword , using schema file name instead of module name as input path name

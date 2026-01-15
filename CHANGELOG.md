@@ -2,6 +2,25 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.22.2" (2026-01-15)
+=====================
+
+Bugfixes
+--------
+
+- 🐛 : Generate correct command in development template, adding missing keyword , using schema file name instead of module name as input path name (#20260115115730)
+
+
+Improved Documentation
+----------------------
+
+- :sparkles: Update development template, adding github secret note (#20260114090753)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.22.1" (2026-01-02)
 =====================
 
