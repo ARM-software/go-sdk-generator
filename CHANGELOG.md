@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.22.3" (2026-01-16)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Add build cli job in ci workflow (#20260116123201)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.22.2" (2026-01-15)
 =====================
 
