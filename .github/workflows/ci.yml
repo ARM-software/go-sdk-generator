@@ -27,3 +27,24 @@ jobs:
       branch: ${{ github.head_ref || github.ref }}
       dockerfile: Dockerfile.generator
       go_module: generator
+  cli:
+    name: Build CLI to ensure it compiles
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.go_version }}
+
+      - name: Configure Git with secret
+        run: |
+          git config --global url."https://${{ secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
+        env:
+          GIT_SECRET: ${{ secrets.GIT_SECRET }}
+
+      - name: Build CLI
+        working-directory: ./cli
+        run: go build ./...
