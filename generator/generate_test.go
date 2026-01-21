@@ -3,6 +3,7 @@ package generator
 import (
 	"context"
 	fSys "io/fs"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -266,5 +267,28 @@ func TestGenerate(t *testing.T) {
 
 		err := Generate(ctx, cfg)
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected, commonerrors.ErrNotFound)
+	})
+
+	t.Run("Multiline YAML defaults generate valid code", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg.Input = filepath.Join("testdata", "multiline-defaults.yml")
+		cfg.Output = tmpDir
+
+		err := Generate(ctx, cfg)
+		assert.NoError(t, err, "Code generation should succeed with multiline YAML defaults")
+
+		configFile := filepath.Join(tmpDir, "multilinetest", "config", "multilinetest.go")
+		typesFile := filepath.Join(tmpDir, "multilinetest", "types", "multilinetest.go")
+
+		configContent, err := os.ReadFile(configFile)
+		require.NoError(t, err, "Generated config file should exist")
+
+		typesContent, err := os.ReadFile(typesFile)
+		require.NoError(t, err, "Generated types file should exist")
+
+		assert.NotContains(t, string(configContent), "\n,", "Generated config should not have commas on new lines")
+		assert.NotContains(t, string(typesContent), "\n,", "Generated types should not have commas on new lines")
 	})
 }

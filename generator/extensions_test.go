@@ -44,7 +44,7 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, `"https://blah.com"`, defaultValue("host", "https://blah.com"))
 	assert.Equal(t, `"adrien.cabarbaye@arm.com"`, defaultValue("email", "adrien.cabarbaye@arm.com"))
 	assert.Equal(t, `""`, defaultValue("string", ""))
-	assert.Equal(t, `func() string{return ""\n}`, defaultValue("string", `func() string{return ""\n}`))
+	assert.Equal(t, `func() string{return ""}`, defaultValue("string", `func() string{return ""}`))
 	assert.Equal(t, "0.0", defaultValue("float64", "0.0"))
 	assert.Equal(t, "0.0", defaultValue("float64", 0.0))
 	assert.Equal(t, "51.45494", defaultValue("float64", 51.45494))
@@ -58,6 +58,18 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, "func() time.Duration {\nduration, _ := time.ParseDuration(\"5m\")\nreturn duration\n}()", defaultValue("duration", "5m"))
 	assert.Equal(t, "5 * time.Minute", defaultValue("duration", "5 * time.Minute"))
 	assert.Equal(t, "false", defaultValue("bool", "false"))
+}
+
+func TestDefaultsWithMultilines(t *testing.T) {
+	assert.Equal(t, `"test value"`, defaultValue("string", "test value\n"))
+	assert.Equal(t, `"test value"`, defaultValue("string", "test value\n\n"))
+	assert.Equal(t, `"test value"`, defaultValue("string", "  test value  \n"))
+	assert.Equal(t, `"test value"`, defaultValue("string", "  test value\r\n"))
+	assert.Equal(t, "func(){}", defaultValue("string", "func(){}\n"))
+	assert.Equal(t, "123", defaultValue("int", "123\n"))
+	assert.Equal(t, "42.5", defaultValue("float64", "42.5\n"))
+	assert.Equal(t, "5 * time.Minute", defaultValue("duration", "5 * time.Minute\n"))
+	assert.Equal(t, `"{"test":1}"`, defaultValue("json", "{\"test\":1}\n"))
 }
 
 func Test_toCase(t *testing.T) {

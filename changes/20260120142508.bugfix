@@ -1,0 +1,1 @@
+:bug: Trim trailing newlines when generating multiline YAML default values (| / >)

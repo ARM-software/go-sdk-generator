@@ -176,19 +176,20 @@ func replaceUnderscores(value string) string {
 }
 func defaultValue(s string, dValue any) string {
 	dValueStr := fmt.Sprintf("%v", dValue)
+	dValueStr = strings.TrimSpace(dValueStr)
 	st := convertLangType(s)
 	switch {
 	case s == "json":
 		if strings.HasPrefix(dValueStr, `""`) {
 			return dValueStr
 		}
-		return fmt.Sprintf(`"%v"`, dValue)
+		return fmt.Sprintf(`"%v"`, dValueStr)
 	case s == "datetime":
 		return fmt.Sprintf(
 			`func() time.Time {
 t, _ := time.Parse(time.RFC3339, "%v")
 return t
-}()`, dValue)
+}()`, dValueStr)
 	case st == "time.Duration":
 		if strings.Contains(dValueStr, "time.") {
 			return dValueStr
@@ -197,26 +198,26 @@ return t
 			`func() time.Duration {
 duration, _ := time.ParseDuration("%v")
 return duration
-}()`, dValue)
+}()`, dValueStr)
 	case st == "string":
-		if isFunc(dValue) {
+		if isFunc(dValueStr) {
 			return dValueStr
 		}
-		return fmt.Sprintf(`"%v"`, dValue)
+		return fmt.Sprintf(`"%v"`, dValueStr)
 	case s == "hex":
 		return fmt.Sprintf(
 			`func() []byte {
 values, _ := hex.DecodeString("%v")
 return values
-}()`, dValue)
+}()`, dValueStr)
 	case strings.HasPrefix(st, "float"), st == "decimal":
 		if strings.Contains(dValueStr, ".") {
 			return dValueStr
 		} else {
-			return fmt.Sprintf("%v.0", dValue)
+			return fmt.Sprintf("%v.0", dValueStr)
 		}
 	case st == "[]byte":
-		return fmt.Sprintf(`[]byte("%v")`, dValue)
+		return fmt.Sprintf(`[]byte("%v")`, dValueStr)
 	default:
 		return dValueStr
 	}
