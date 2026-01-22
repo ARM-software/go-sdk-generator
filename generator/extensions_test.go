@@ -16,6 +16,11 @@ func TestLangTypeValidationRule(t *testing.T) {
 	assert.Empty(t, argValidationRule(faker.Word()))
 }
 
+func TestArgFlagType(t *testing.T) {
+	assert.Equal(t, "StringArray", argFlagType("[]string"))
+	assert.Equal(t, "StringArray", argFlagType(" []string "))
+}
+
 func TestZeros(t *testing.T) {
 	assert.Equal(t, "0", determineZeroValue("port"))
 	assert.Equal(t, `""`, determineZeroValue("uuid"))
@@ -27,6 +32,7 @@ func TestZeros(t *testing.T) {
 	assert.Equal(t, `"{}"`, determineZeroValue("json"))
 	assert.Equal(t, "[]byte{}", determineZeroValue("hex"))
 	assert.Equal(t, "false", determineZeroValue("bool"))
+	assert.Equal(t, "[]string{}", determineZeroValue("[]string"))
 }
 
 func TestNowYear(t *testing.T) {

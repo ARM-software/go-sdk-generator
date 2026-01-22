@@ -19,7 +19,7 @@ import (
 var (
 	// validArgTypes lists all the types of variable which can be used in specification
 	// it tries to support special types such as the one defined by OpenAPI specification https://spec.openapis.org/registry/format/
-	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex"}
+	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex", "[]string"}
 
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
 
@@ -41,6 +41,8 @@ func argFlagType(s string) string {
 		return "IP"
 	case "port":
 		return "Int"
+	case "[]string":
+		return "StringArray"
 	case "decimal":
 		return "Float64"
 	default:
@@ -169,6 +171,8 @@ func determineZeroValue(s string) string {
 		return "0"
 	case st == "[]byte":
 		return "[]byte{}"
+	case st == "[]string":
+		return "[]string{}"
 	default:
 		return "nil"
 	}
