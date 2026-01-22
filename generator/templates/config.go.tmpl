@@ -21,7 +21,7 @@ import (
 // {{ $configName }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
-	// {{ .Description }}
+	// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
 	{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 }

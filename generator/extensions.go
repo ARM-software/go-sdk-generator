@@ -56,6 +56,12 @@ var templateFuncMap = template.FuncMap{
 		return fmt.Sprintf("%s%s", strings.ToUpper(string(s[0])), s[1:])
 	},
 	"lower": strings.ToLower,
+	"lowerFirst": func(s string) string {
+		if s == "" {
+			return s
+		}
+		return strings.ToLower(string(s[0])) + s[1:]
+	},
 	"uuid": func() string {
 		uuid, err := idgen.GenerateUUID4()
 		for err != nil {

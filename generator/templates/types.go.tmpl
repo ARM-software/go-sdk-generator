@@ -16,10 +16,10 @@ import (
 
 {{ range .Specification.AdditionalTypes }}
 {{ $structName := .Name | toPascal -}}
-// {{ .Description }}
+// {{ $structName  }} represents {{ .Description | lowerFirst }}
 type {{ $structName  }} struct {
 {{ range .Fields -}}
-	// {{ .Description }}
+	// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
 	{{ .Name | toPascal }} {{ if .Reference }}*{{ end }}{{ .LangType | convertLangType }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}	
 }

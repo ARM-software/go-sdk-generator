@@ -27,7 +27,7 @@ const (
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
 type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
-		// {{ .Description }}
+		// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
 		{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 		// ToolVersion contains the version of the CLI tool
