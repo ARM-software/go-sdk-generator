@@ -394,3 +394,17 @@ func TestPrecomputeFlagsAndBindings(t *testing.T) {
 		assert.Len(t, bindingInfo[0].FlagBindings, 1)
 	})
 }
+
+func TestBuildFlagLine(t *testing.T) {
+	t.Run("normal flag", func(t *testing.T) {
+		result := buildFlagLine(true, false, "someCmd", "Bool", "someArg", "a", "false", "normal flag")
+		expected := `rootCmd.PersistentFlags().BoolP(someArg, "a", false, "normal flag")`
+		assert.Equal(t, expected, result)
+	})
+	t.Run("hidden flag", func(t *testing.T) {
+		result := buildFlagLine(true, true, "someCmd", "Bool", "someArg", "a", "false", "normal flag")
+		expected := `rootCmd.PersistentFlags().BoolP(someArg, "a", false, "normal flag")
+_ = rootCmd.PersistentFlags().MarkHidden(someArg)`
+		assert.Equal(t, expected, result)
+	})
+}

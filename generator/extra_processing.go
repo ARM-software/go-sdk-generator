@@ -236,7 +236,7 @@ func buildFlagLine(isRoot, hidden bool, funcName, flagType, argName, argShort, z
 
 	var hiddenStr string
 	if hidden {
-		hiddenStr = fmt.Sprintf("\n%v.MarkHidden(%v)", cmdPrefix, argName)
+		hiddenStr = fmt.Sprintf("\n_ = %v.MarkHidden(%v)", cmdPrefix, argName)
 	}
 
 	if argShort != "" {
