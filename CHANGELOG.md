@@ -2,6 +2,28 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.23.0" (2026-01-23)
+=====================
+
+Features
+--------
+
+- :sparkles: Support mapping []string to StringArray argument in cobra (#20260122131137)
+
+
+Bugfixes
+--------
+
+- :bug: Trim trailing newlines when generating multiline YAML default values (| / >) (#20260120142508)
+- :bug: Fix docstrings not followinng standard Go documentation conventions (#20260121143611)
+- :bug: Fix Qlty template to disable start line. Rename unused argument in root template. Add targeted Go version flag in development template (#20260122091519)
+- :bug: Ensure that the use of cobra.Flags().MarkHidden() is assigned to _ = so the the linter is happy (#20260122165416)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.22.3" (2026-01-16)
 =====================
 
