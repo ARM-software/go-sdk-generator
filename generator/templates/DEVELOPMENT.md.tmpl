@@ -43,8 +43,10 @@ On Red Hat based systems:
 2. Run the Go SDK Generator
 
 ```
-go-sdk-generator generate -i {{ .SchemaFileName }}.yml -o ./ # or {{ .SchemaFileName }}.json
+go-sdk-generator generate -i {{ .SchemaFileName }}.yml -o ./ -g {{ .TargetedGoVersion }} # or {{ .SchemaFileName }}.json
 ```
+
+> :book: Note: The `-g` flag specifies the targeted Go version in semver format (e.g., `1.25.0`). Use the Go version from your project's `go.mod` file.
 
 > :book: Note: Adding `--overwrite` will regenerate all the files including `go.mod` and files containing some state.
 

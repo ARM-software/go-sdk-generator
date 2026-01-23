@@ -1,0 +1,1 @@
+:bug: Fix Qlty template to disable start line. Rename unused argument in root template. Add targeted Go version flag in development template

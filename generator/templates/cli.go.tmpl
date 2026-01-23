@@ -64,7 +64,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
 	Short: "{{ .Description }}",
 	Long:  "{{ .Description }}",
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, {{ if .Operands }}args []string{{ else }}_ []string{{ end }}) (err error) {
 		ctx := context.Background()
 		logger, err := logs.NewStdLogger("{{ .Name | toPascal }}")
 		if err != nil {
