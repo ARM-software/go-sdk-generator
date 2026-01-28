@@ -68,7 +68,6 @@ func processArguments(arg *string, argShort *string, mapstructureTag *string, se
 		err = commonerrors.New(commonerrors.ErrUndefined, "A parameter must have at least one long argument (or mapstructure tag) to bind to")
 		return
 	}
-
 	if argShort == nil {
 		return
 	}
@@ -78,9 +77,63 @@ func processArguments(arg *string, argShort *string, mapstructureTag *string, se
 		err = commonerrors.Newf(commonerrors.ErrConflict, "cannot specify duplicate short argument %v", short)
 		return
 	}
-
 	seenShortArguments.Add(short)
 	return
+}
+
+// processCallCloud enforces that
+// callCloud at the root level commands sets the associated arguments as root for all functions except for those storing credentials to keyring (storeToKeyring true)
+// callCloud at the function level sets the associated arguments as root for all functions that have callCloud true when all functions have either callCloud true or storeToKeyring true
+// callCloud at the function level sets the associated arguments as non-root when some or all functions neither have callCloud true nor storeToKeyring true and root level callCloud is not set
+func processCallCloud(cmds *CommandLineCommands) (err error) {
+	if reflection.IsEmpty(cmds) {
+		return
+	}
+
+	isCallCloudTrue := isCallCloudTrue(cmds.Functions)
+	if isCallCloudTrue {
+		cmds.CallCloud = field.ToOptionalBool(true)
+	}
+
+	if !field.Optional(cmds.CallCloud, false) {
+		for i := range cmds.Functions {
+			fct := cmds.Functions[i]
+			if fct.CallCloud {
+				subErr := updateCliFunctionArgumentsToCallCloud(&fct, false)
+				if subErr != nil {
+					err = subErr
+					return
+				}
+			}
+			cmds.Functions[i] = fct
+		}
+		return
+	}
+
+	for i := range cmds.Functions {
+		fct := cmds.Functions[i]
+		if fct.StoreToKeyring {
+			continue
+		}
+		subErr := updateCliFunctionArgumentsToCallCloud(&fct, true)
+		if subErr != nil {
+			err = subErr
+			return
+		}
+		cmds.Functions[i] = fct
+	}
+	return
+}
+
+// isCallCloudTrue checks if all functions either have CallCloud set to true or are storing credentials to keyring.
+func isCallCloudTrue(fcts []CliFunction) bool {
+	if len(fcts) == 0 {
+		return false
+	}
+
+	return !collection.AnyFunc(fcts, func(fct CliFunction) bool {
+		return !fct.CallCloud && !fct.StoreToKeyring
+	})
 }
 
 // ProcessArguments enforces that arguments are specified on commands and short arguments aren't duplicated
@@ -94,17 +147,16 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 		return
 	}
 	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
+		err = processCallCloud(sdk.Specification.CommandLineCommands)
+		if err != nil {
+			return
+		}
+
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
 			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
 			if fct.StoreToKeyring && fct.LoadFromKeyring {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
-			}
-			if fct.CallCloud {
-				subErr := updateCliFunctionArgumentsToCallCloud(&fct)
-				if subErr != nil {
-					return subErr
-				}
 			}
 			if fct.LoadFromKeyring {
 				subErr := updateCliFunctionArgumentsToLoadFromKeyring(&fct)
@@ -147,7 +199,7 @@ func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
 	return updateCliFunctionArguments(fct, args)
 }
 
-func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
+func updateCliFunctionArgumentsToCallCloud(fct *CliFunction, isRoot bool) error {
 	if fct == nil {
 		return commonerrors.UndefinedVariable("command line function")
 	}
@@ -156,7 +208,7 @@ func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
 		"APIKey": {
 			ArgShort:        field.ToOptionalStringOrNilIfEmpty("k"),
 			Description:     "An API key enabling the use of the online services",
-			IsRoot:          true,
+			IsRoot:          isRoot,
 			LangType:        "string",
 			MapstructureTag: "api_key",
 			Name:            "APIKey",
@@ -172,7 +224,7 @@ func updateCliFunctionArgumentsToCallCloud(fct *CliFunction) error {
 			DefaultValue:    field.ToOptionalStringOrNilIfEmpty("https://all.api.keil.arm.com"),
 			Description:     "The host to use for accessing the online services",
 			Hidden:          false,
-			IsRoot:          true,
+			IsRoot:          isRoot,
 			JsonTag:         nil,
 			LangType:        "host",
 			MapstructureTag: "host",

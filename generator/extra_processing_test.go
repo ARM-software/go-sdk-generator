@@ -408,3 +408,113 @@ _ = rootCmd.PersistentFlags().MarkHidden(someArg)`
 		assert.Equal(t, expected, result)
 	})
 }
+
+func TestCliRootLevelCallCloud(t *testing.T) {
+	t.Run("nil CommandLineCommands does not panic", func(t *testing.T) {
+
+		cmds := &CommandLineCommands{}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+	})
+
+	t.Run("functions is unchanged when callCloud is not set at both root and function levels", func(t *testing.T) {
+
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{
+				{Name: "func", Description: "test", Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+		assert.Empty(t, cmds.Functions[0].Configuration)
+	})
+
+	t.Run("callCloud is non-root when root-level callCloud and some function-level callCloud are not set to true", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			CallCloud: field.ToOptionalBool(false),
+			Functions: []CliFunction{
+				{Name: "someFunc", Description: "test", CallCloud: true, Configuration: []FunctionConfigFields{}},
+				{Name: "anotherFunc", Description: "test", Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+
+		// Verify the first function has non-root configuration
+		for _, cfg := range cmds.Functions[0].Configuration {
+			if cfg.Name == "APIKey" || cfg.Name == "Host" {
+				assert.False(t, cfg.IsRoot, "%s should be non-root", cfg.Name)
+			}
+		}
+
+		// Verify the second function has no configuration
+		assert.Empty(t, cmds.Functions[1].Configuration)
+	})
+
+	t.Run("callCloud is promoted to root level when all functions have callCloud set to true", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{
+				{Name: "someFunc", Description: "test", CallCloud: true, Configuration: []FunctionConfigFields{}},
+				{Name: "anotherFunc", Description: "test", CallCloud: true, Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+
+		assertRootCallCloudConfiguration(t, cmds.Functions)
+	})
+
+	t.Run("callCloud is promoted to root level when all functions have either callCloud or storeToKeyring set to true", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			CallCloud: field.ToOptionalBool(true),
+			Functions: []CliFunction{
+				{Name: "someFunc", Description: "test", CallCloud: true, Configuration: []FunctionConfigFields{}},
+				{Name: "anotherFunc", Description: "test", StoreToKeyring: true, Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+
+		// Verify the first function has root configuration
+		for _, cfg := range cmds.Functions[0].Configuration {
+			if cfg.Name == "APIKey" || cfg.Name == "Host" {
+				assert.True(t, cfg.IsRoot, "%s should be root", cfg.Name)
+			}
+		}
+
+		// Verify the second function has no configuration
+		assert.Empty(t, cmds.Functions[1].Configuration)
+	})
+
+	t.Run("root callCloud applies to all functions", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			CallCloud: field.ToOptionalBool(true),
+			Functions: []CliFunction{
+				{Name: "someFunc", Description: "test", Configuration: []FunctionConfigFields{}},
+				{Name: "anotherFunc", Description: "test", Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+
+		assertRootCallCloudConfiguration(t, cmds.Functions)
+	})
+
+	t.Run("root callCloud sets LoadFromKeyring", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			CallCloud: field.ToOptionalBool(true),
+			Functions: []CliFunction{
+				{Name: "func", Description: "test", Configuration: []FunctionConfigFields{}},
+			},
+		}
+		err := processCallCloud(cmds)
+		assert.NoError(t, err)
+		assert.True(t, cmds.Functions[0].LoadFromKeyring)
+	})
+}

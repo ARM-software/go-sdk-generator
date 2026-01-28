@@ -51,7 +51,6 @@ type CiExtraPackages []string
 
 // An CLI function
 type CliFunction struct {
-	//
 	// Whether the function needs to call the Arm Cloud hosted online services.
 	// When enabled, default API key and host arguments are injected only if they are
 	// not explicitly defined.
@@ -64,7 +63,6 @@ type CliFunction struct {
 	// The description of the field
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
-	//
 	// Whether this function is hidden and should NOT show up in the list of available
 	// commands.
 	//
@@ -79,7 +77,6 @@ type CliFunction struct {
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
 	Operands bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 
-	//
 	// Whether to silence usage when an error occurs.
 	//
 	SilenceUsage bool `json:"silenceUsage,omitempty" yaml:"silenceUsage,omitempty" mapstructure:"silenceUsage,omitempty"`
@@ -225,6 +222,9 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 type CommandLineCommands struct {
 	// Name of the executable
 	Binary *string `json:"binary,omitempty" yaml:"binary,omitempty" mapstructure:"binary,omitempty"`
+
+	// CallCloud corresponds to the JSON schema field "callCloud".
+	CallCloud *bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
 
 	// The description of the CLI binary
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
