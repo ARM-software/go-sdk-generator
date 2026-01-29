@@ -2,6 +2,26 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.24.0" (2026-01-29)
+=====================
+
+Features
+--------
+
+- :sparkles: Allow callCloud to be defined at the top level of the CLI manifest with conditional root-level handling of APIKey and Host arguments (#20260123174444)
+
+
+Bugfixes
+--------
+
+- :bug: Add the generator name and version to the header comment of all generated files. Add a badge to Documentation.md indicating the go-sdk-generator version used. (#20260127011427)
+- Dependency upgrade: alpine-3.23.3 (#20260128053123)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.23.0" (2026-01-23)
 =====================
 
