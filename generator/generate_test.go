@@ -12,6 +12,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -224,6 +225,7 @@ func TestGenerate(t *testing.T) {
 			cfg := config.DefaultSdkGeneratorManagerConfiguration()
 			cfg.Input = filepath.Join("testdata", test.recipe)
 			cfg.Output = tmpDir
+			cfg.ToolVersion = field.ToOptionalString("0.23.0")
 
 			err := Generate(ctx, cfg)
 			if test.err != nil {

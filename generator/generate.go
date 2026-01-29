@@ -10,6 +10,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
@@ -122,6 +123,7 @@ type DataModel struct {
 	SchemaFileName string
 	SDK
 	TargetedGoVersion     string
+	ToolVersion           string
 	FlagRegistrations     []FlagRegistration
 	CliEnvVarBindings     []ArgFlagBindingInfo
 	CliArgConsts          []ArgDefinition
@@ -344,6 +346,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		SchemaFileName:        filesystem.FilepathStem(cfg.Input),
 		SDK:                   sdk,
 		TargetedGoVersion:     cfg.TargetedGoVersion,
+		ToolVersion:           field.OptionalString(cfg.ToolVersion, ""),
 		CliEnvVarBindings:     cliEnvVarBindings,
 		FlagRegistrations:     flagRegs,
 		CliArgConsts:          argConsts,

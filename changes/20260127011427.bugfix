@@ -1,0 +1,1 @@
+:bug: Add the generator name and version to the header comment of all generated files. Add a badge to Documentation.md indicating the go-sdk-generator version used.

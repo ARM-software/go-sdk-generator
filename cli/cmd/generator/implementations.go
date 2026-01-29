@@ -27,6 +27,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.GenerateConf
 	gCfg.Output = cfg.Output
 	gCfg.Overwrite = cfg.Generate
 	gCfg.TargetedGoVersion = cfg.TargetedGo
+	gCfg.ToolVersion = cfg.ToolVersion
 	g, err := generator.NewSdkGenerator(gCfg)
 	if err != nil {
 		return
