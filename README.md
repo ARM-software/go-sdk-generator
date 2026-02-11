@@ -1,4 +1,4 @@
-# SDK Generator SDK
+# GO SDK/CLI Generator
 
 [![Go Badge](https://img.shields.io/badge/go-v1.25.5-blue)](https://golang.org/)
 
