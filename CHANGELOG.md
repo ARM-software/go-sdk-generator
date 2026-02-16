@@ -2,6 +2,32 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.25.0" (2026-02-16)
+=====================
+
+Features
+--------
+
+- :sparkles: Added an [EditorConfig](https://editorconfig.org/) to help with files formatting (#20260212174129)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.23.3 (#20260216100308)
+- Dependency upgrade: golang-1.26rc2 (#20260216105014)
+
+
+Misc
+----
+
+- #20260212165336, #20260212174040
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.24.0" (2026-01-29)
 =====================
 
