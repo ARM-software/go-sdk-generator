@@ -225,7 +225,7 @@ func TestGenerate(t *testing.T) {
 			cfg := config.DefaultSdkGeneratorManagerConfiguration()
 			cfg.Input = filepath.Join("testdata", test.recipe)
 			cfg.Output = tmpDir
-			cfg.ToolVersion = field.ToOptionalString("0.23.0")
+			cfg.ToolVersion = field.ToOptionalString("0.24.0")
 
 			err := Generate(ctx, cfg)
 			if test.err != nil {

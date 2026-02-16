@@ -1,16 +1,17 @@
 repos:
-- repo: local
-  hooks:
-  - id: golangci-lint
-    name: golangci-lint
-    description: Fast linters runner for Go.
-    # Disabling Go module support is necessary to avoid it complaining about a missing go.mod file in the root
-    entry: env GO111MODULE=off golangci-lint run --config=.golangci.pre-commit.yaml ./...
-    language: system
-    types: [go]
-    pass_filenames: false
-- repo: https://github.com/Yelp/detect-secrets
-  rev: v1.0.3
-  hooks:
-  - id: detect-secrets
-    args: ['--baseline', '.secrets.baseline', '--exclude-files ".*go\.sum$"']
+  - repo: local
+    hooks:
+      - id: golangci-lint
+        name: golangci-lint
+        description: Fast linters runner for Go.
+        # Disabling Go module support is necessary to avoid it complaining about a missing go.mod file in the root
+        entry: env GO111MODULE=off golangci-lint run --config=.golangci.pre-commit.yaml ./...
+        language: system
+        types: [go]
+        pass_filenames: false
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.0.3
+    hooks:
+      - id: detect-secrets
+        args:
+          ["--baseline", ".secrets.baseline", '--exclude-files ".*go\.sum$"']

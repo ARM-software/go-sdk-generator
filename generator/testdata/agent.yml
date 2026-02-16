@@ -290,4 +290,3 @@ specification:
       import_ref: credentials
 
   release_to_artifactory: true
-

@@ -68,7 +68,7 @@ specification:
             required: true
             mapstructure_tag: project_dir
             description: The root directory of the project
-            arg_short: d 
+            arg_short: d
           - name: Debug
             lang_type: bool
             mapstructure_tag: debug

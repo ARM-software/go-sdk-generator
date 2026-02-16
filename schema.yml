@@ -36,7 +36,7 @@ x-parameter: &x-parameter
       type: array
       description: Bind congifuration options to variables
       items:
-        $ref: '#/$defs/binding'
+        $ref: "#/$defs/binding"
     description:
       type: string
       description: The description of the field
@@ -88,27 +88,27 @@ properties:
         type: string
         description: An optional configuration file that will be used to load values from (in addtion to cli args and env vars)
       additional_types:
-        $ref: '#/$defs/types'
+        $ref: "#/$defs/types"
       interface:
-        $ref: '#/$defs/interface'
+        $ref: "#/$defs/interface"
       command_line_commands:
-        $ref: '#/$defs/command_line_commands'
+        $ref: "#/$defs/command_line_commands"
       global_configuration:
-        $ref: '#/$defs/configuration'
+        $ref: "#/$defs/configuration"
       extra_imports:
-        $ref: '#/$defs/extra_imports'
+        $ref: "#/$defs/extra_imports"
       extra_valid_types:
-        $ref: '#/$defs/extra_valid_types'
+        $ref: "#/$defs/extra_valid_types"
       ci_extra_packages:
-        $ref: '#/$defs/ci_extra_packages'
+        $ref: "#/$defs/ci_extra_packages"
       release_to_artifactory:
-        $ref: '#/$defs/release_to_artifactory'
+        $ref: "#/$defs/release_to_artifactory"
 $defs:
   types:
     type: array
     description: A set of entities to export
     items:
-      $ref: '#/$defs/type'
+      $ref: "#/$defs/type"
   type:
     description: A entity type
     type: object
@@ -126,7 +126,7 @@ $defs:
       fields:
         type: array
         items:
-          $ref: '#/$defs/entity_field'
+          $ref: "#/$defs/entity_field"
   interface:
     description: An interface
     type: object
@@ -140,7 +140,7 @@ $defs:
       methods:
         type: array
         items:
-          $ref: '#/$defs/interface_method'
+          $ref: "#/$defs/interface_method"
     additionalProperties: false
   command_line_commands:
     description: A CLI command
@@ -163,12 +163,12 @@ $defs:
       callCloud:
         type: boolean
         description: |
-            Whether all functions need to call the Arm Cloud hosted online services.
-            When enabled, default API key and host arguments are injected only if they are not explicitly defined. They will also be defined as root arguments, required by all functions.
+          Whether all functions need to call the Arm Cloud hosted online services.
+          When enabled, default API key and host arguments are injected only if they are not explicitly defined. They will also be defined as root arguments, required by all functions.
       functions:
         type: array
         items:
-          $ref: '#/$defs/cli_function'
+          $ref: "#/$defs/cli_function"
     additionalProperties: false
   interface_method:
     description: An interface method
@@ -186,16 +186,16 @@ $defs:
       args:
         type: array
         items:
-          $ref: '#/$defs/command_argument'
+          $ref: "#/$defs/command_argument"
       returns:
         type: array
         items:
-          $ref: '#/$defs/command_argument'
+          $ref: "#/$defs/command_argument"
     additionalProperties: false
   extra_imports:
     type: array
     items:
-      $ref: '#/$defs/extra_import'
+      $ref: "#/$defs/extra_import"
   extra_valid_types:
     type: array
     items:
@@ -225,7 +225,7 @@ $defs:
       configuration:
         type: array
         items:
-          $ref: '#/$defs/function_config_fields'
+          $ref: "#/$defs/function_config_fields"
       operands:
         description: Allow the use of positional operands specified after '--' in a POSIX fashion
         type: boolean
@@ -233,18 +233,18 @@ $defs:
       callCloud:
         type: boolean
         description: |
-            Whether the function needs to call the Arm Cloud hosted online services.
-            When enabled, default API key and host arguments are injected only if they are not explicitly defined.
+          Whether the function needs to call the Arm Cloud hosted online services.
+          When enabled, default API key and host arguments are injected only if they are not explicitly defined.
         default: false
       silenceUsage:
         type: boolean
         description: |
-            Whether to silence usage when an error occurs.
+          Whether to silence usage when an error occurs.
         default: false
       hidden:
         type: boolean
         description: |
-            Whether this function is hidden and should NOT show up in the list of available commands.
+          Whether this function is hidden and should NOT show up in the list of available commands.
         default: false
       loadFromKeyring:
         description: Whether to load some configuration input from system's keyring service
@@ -278,7 +278,7 @@ $defs:
       - json_tag
       - description
     additionalProperties: false
-        
+
   binding:
     description: A variable binding to a parameter
     type: object
@@ -321,7 +321,7 @@ $defs:
     type: array
     description: The configuration options for the exported implementation
     items:
-      $ref: '#/$defs/configuration_option'
+      $ref: "#/$defs/configuration_option"
   configuration_option:
     <<: *x-parameter
     required:

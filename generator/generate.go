@@ -22,6 +22,8 @@ import (
 //go:generate go tool go-jsonschema -p generator ../schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
+	precommitConfigFile          = "templates/preconfig.yaml.tmpl"
+	editorConfigFile             = "templates/editorconfig.tmpl"
 	implementationFile           = "templates/implementation.go.tmpl"
 	implementationCLIFile        = "templates/implementation.cli.go.tmpl"
 	implementationWrapperCLIFile = "templates/wrapper.cli.go.tmpl"
@@ -272,6 +274,8 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		NewTemplateToPopulate(codeOfConductFile, fmt.Sprintf("%v/CODE_OF_CONDUCT.md", cfg.Output)),
 		NewTemplateToPopulate(knownIssuesFile, fmt.Sprintf("%v/KNOWN_ISSUES.md", cfg.Output)),
 		NewTemplateToPopulate(golangciFile, fmt.Sprintf("%v/.golangci.yaml", cfg.Output)),
+		NewTemplateToPopulate(editorConfigFile, fmt.Sprintf("%v/.editorconfig", cfg.Output)),
+		NewTemplateToPopulate(precommitConfigFile, fmt.Sprintf("%v/.pre-commit-config.yaml", cfg.Output)),
 		NewTemplateToPopulate(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output)),
 		NewTemplateToPopulate(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output)),
 		NewTemplateToPopulate(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output)),

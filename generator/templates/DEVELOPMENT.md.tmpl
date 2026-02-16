@@ -75,7 +75,7 @@ go generate ./...
 A [pre-commit](https://pre-commit.com/) hook configuration is provided to enforce some tasks on `git commit`.
 Run `pre-commit install` to install pre-commit into your git hooks. pre-commit will now run on every commit.
 
-If you want to manually run all pre-commit hooks on a repository without creating hooks, run `pre-commit run --all-files`. 
+If you want to manually run all pre-commit hooks on a repository without creating hooks, run `pre-commit run --all-files`.
 
 To run individual hooks use `pre-commit run <hook_id>`.
 
@@ -98,7 +98,7 @@ Add `GIT_SECRET` in **both** of the following locations (required for both norma
 
 # Dependency upgrades
 
-For dependency upgrades, dependabot is relied upon and news files are auto-generated in order to document such change. 
+For dependency upgrades, dependabot is relied upon and news files are auto-generated in order to document such change.
 For this to work though, the secret described above needs to be set
 
 # Releasing
@@ -112,18 +112,18 @@ The CI supports three release flows:
 - `beta` for pre-releases
 
 
-|   Type      |   Purpose   | Version Number Format | GitHub Release | News Files Deleted |
-|-------------|-------------|-----------------------|:--------------:|:------------------:|
-| Release     | General Availability | `<minor>.<major>.<patch>`                            | Yes | Yes |
-| Beta        | Integration Testing  | `<minor>.<major>.<patch>-beta.<commit number>`       | Yes | No  |
-| Development | Development Testing  | `<minor>.<major>.<patch>-dev+<git hash>`             | No  | No  |
+| Type        | Purpose              | Version Number Format                          | GitHub Release | News Files Deleted |
+| ----------- | -------------------- | ---------------------------------------------- | :------------: | :----------------: |
+| Release     | General Availability | `<minor>.<major>.<patch>`                      |      Yes       |        Yes         |
+| Beta        | Integration Testing  | `<minor>.<major>.<patch>-beta.<commit number>` |      Yes       |         No         |
+| Development | Development Testing  | `<minor>.<major>.<patch>-dev+<git hash>`       |       No       |         No         |
 
 > :warning: releases can be made from any branches but
 > it is recommended that they are only made from the `main` branch.
 
 ### Release workflow
 
-1. Navigate to the [GitHub Actions](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/actions/workflows/release.yml) page.
+1. Navigate to the [GitHub Actions](https://github.com/Arm-Debug/go-sdk-generator/actions/workflows/release.yml) page.
 2. Select the **Run Workflow** button and type which kind of release you would like to make (i.e. release, beta or development).
 
 ### Version Numbers
@@ -133,6 +133,7 @@ The version number will be automatically calculated, based on the news files.
 # Detecting secrets
 
 So that no secrets are committed back to the repository, a combination of two tools are run in CI:
+
 - [GitLeaks]() : Scans the git history for usual secrets (e.g. AWS keys, etc.)
 - [detect-secrets](https://github.com/Yelp/detect-secrets): Scans only the current state of the repository for anything which can look like secrets (strings with high entropy)
 

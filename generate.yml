@@ -48,26 +48,26 @@ specification:
             description: targeted go version for the tool
             mapstructure_tag: go_version
   global_configuration:
-          - name: input
-            lang_type: string
-            mapstructure_tag: input
-            description: path to tool definition file
-            required: true
-          - name: output
-            lang_type: string
-            mapstructure_tag: output
-            description: destination of the generated code
-            required: true
-          - name: overwrite
-            lang_type: bool
-            required: true
-            mapstructure_tag: overwrite
-            description: regenerate all files
-          - name: targetedGoVersion
-            lang_type: version
-            description: targeted go version for the tool
-            mapstructure_tag: go_version
-            default_value: "1.24.6"
-            required: true
+    - name: input
+      lang_type: string
+      mapstructure_tag: input
+      description: path to tool definition file
+      required: true
+    - name: output
+      lang_type: string
+      mapstructure_tag: output
+      description: destination of the generated code
+      required: true
+    - name: overwrite
+      lang_type: bool
+      required: true
+      mapstructure_tag: overwrite
+      description: regenerate all files
+    - name: targetedGoVersion
+      lang_type: version
+      description: targeted go version for the tool
+      mapstructure_tag: go_version
+      default_value: "1.24.6"
+      required: true
 
   release_to_artifactory: true
