@@ -3,7 +3,7 @@
 name: GitHub Release
 
 env:
-  go_version: "1.25.7"
+  go_version: "1.26.0"
 
 on:
   workflow_dispatch:
