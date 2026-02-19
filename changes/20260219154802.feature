@@ -1,0 +1,1 @@
+:sparkles: Generate .gitattributes file to ensure that generated files are actually recognised by GitHub. See [this page](https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github) for more information.
