@@ -2,6 +2,26 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.26.0" (2026-02-20)
+=====================
+
+Features
+--------
+
+- :sparkles: Generate .gitattributes file to ensure that generated files are actually recognised by GitHub. See [this page](https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github) for more information. (#20260219154802)
+
+
+Bugfixes
+--------
+
+- :gear: Update release.yml template (#20260218155956)
+- :bug: Add back accidentally deleted tests (#20260219175758)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.25.0" (2026-02-16)
 =====================
 
