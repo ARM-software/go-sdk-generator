@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.26.1" (2026-02-25)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Fix comment syntax on `go.mod.cli.tmpl` (#20260225160803)
+- :gear: Include generation comment in `go.mod.sdk.tmpl` (#20260225160955)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.26.0" (2026-02-20)
 =====================
 
