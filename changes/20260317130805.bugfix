@@ -1,1 +1,0 @@
-:bug: Ensure that the release workflow is valid and uses the target go version in the inputs for the release workflow

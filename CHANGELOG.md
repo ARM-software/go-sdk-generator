@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.26.2" (2026-03-19)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Ensure that the release workflow is valid and uses the target go version in the inputs for the release workflow (#20260317130805)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.26.1" (2026-02-25)
 =====================
 
