@@ -2,9 +2,6 @@
 
 name: GitHub Release
 
-env:
-  go_version: "{{ .TargetedGoVersion }}"
-
 on:
   workflow_dispatch:
     inputs:
@@ -20,7 +17,7 @@ jobs:
     secrets:
       inherit
     with:
-      go_version: ${{ "{{" }} env.go_version }}
+      go_version: "{{ .TargetedGoVersion }}"
       release_type: ${{ "{{" }} inputs.release_type }}
       save-outputs-as-artefact: {{ .Specification.PackageName }}-package
       {{ if .Specification.ReleaseToArtifactory -}}
