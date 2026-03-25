@@ -454,6 +454,40 @@ func TestCliRootLevelCallCloud(t *testing.T) {
 		assert.Empty(t, cmds.Functions[1].Configuration)
 	})
 
+	t.Run("mixed function-level callCloud with explicit root auth is rejected", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{
+				{
+					Name:        "credentials",
+					Description: "test",
+					Configuration: []FunctionConfigFields{
+						{
+							Description:     "API key",
+							IsRoot:          true,
+							LangType:        "string",
+							MapstructureTag: "api_key",
+							Name:            "APIKey",
+							Required:        true,
+						},
+						{
+							Description:     "Host",
+							IsRoot:          true,
+							LangType:        "host",
+							MapstructureTag: "host",
+							Name:            "Host",
+							Required:        true,
+						},
+					},
+				},
+				{Name: "discover", Description: "test", CallCloud: true, Configuration: []FunctionConfigFields{}},
+				{Name: "local", Description: "test", Configuration: []FunctionConfigFields{}},
+			},
+		}
+
+		err := processCallCloud(cmds)
+		errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	})
+
 	t.Run("callCloud is promoted to root level when all functions have callCloud set to true", func(t *testing.T) {
 		cmds := &CommandLineCommands{
 			Functions: []CliFunction{

@@ -90,32 +90,24 @@ func processCallCloud(cmds *CommandLineCommands) (err error) {
 		return
 	}
 
-	isCallCloudTrue := isCallCloudTrue(cmds.Functions)
-	if isCallCloudTrue {
+	shouldPromoteCallCloudToRoot := isCallCloudTrue(cmds.Functions)
+	if shouldPromoteCallCloudToRoot {
 		cmds.CallCloud = field.ToOptionalBool(true)
 	}
 
-	if !field.Optional(cmds.CallCloud, false) {
-		for i := range cmds.Functions {
-			fct := cmds.Functions[i]
-			if fct.CallCloud {
-				subErr := updateCliFunctionArgumentsToCallCloud(&fct, false)
-				if subErr != nil {
-					err = subErr
-					return
-				}
-			}
-			cmds.Functions[i] = fct
-		}
+	if hasMixedRootAuth(cmds) {
+		err = commonerrors.New(commonerrors.ErrInvalid, "cannot mix function-level callCloud with explicit root APIKey/Host definitions; use top-level callCloud or make all relevant commands use callCloud")
 		return
 	}
 
+	rootCallCloudEnabled := field.Optional(cmds.CallCloud, false)
 	for i := range cmds.Functions {
 		fct := cmds.Functions[i]
-		if fct.StoreToKeyring {
+		if !shouldInjectCallCloudArgs(fct, rootCallCloudEnabled) {
 			continue
 		}
-		subErr := updateCliFunctionArgumentsToCallCloud(&fct, true)
+
+		subErr := updateCliFunctionArgumentsToCallCloud(&fct, rootCallCloudEnabled)
 		if subErr != nil {
 			err = subErr
 			return
@@ -125,15 +117,55 @@ func processCallCloud(cmds *CommandLineCommands) (err error) {
 	return
 }
 
+// shouldInjectCallCloudArgs reports whether cloud auth arguments should be injected for a command based on the active callCloud mode
+func shouldInjectCallCloudArgs(fct CliFunction, callCloudPromotedToRoot bool) bool {
+	if callCloudPromotedToRoot {
+		return !fct.StoreToKeyring
+	}
+
+	return fct.CallCloud
+}
+
 // isCallCloudTrue checks if all functions either have CallCloud set to true or are storing credentials to keyring.
 func isCallCloudTrue(fcts []CliFunction) bool {
 	if len(fcts) == 0 {
 		return false
 	}
 
-	return !collection.AnyFunc(fcts, func(fct CliFunction) bool {
-		return !fct.CallCloud && !fct.StoreToKeyring
+	return collection.AllFunc(fcts, func(fct CliFunction) bool {
+		return fct.CallCloud || fct.StoreToKeyring
 	})
+}
+
+// hasMixedRootAuth reports whether the CLI manifest mixes function-level callCloud usage with explicit root-scoped cloud auth configuration.
+func hasMixedRootAuth(cmds *CommandLineCommands) bool {
+	if cmds == nil || field.Optional(cmds.CallCloud, false) {
+		return false
+	}
+
+	hasCallCloud := collection.AnyFunc(cmds.Functions, func(fct CliFunction) bool {
+		return fct.CallCloud
+	})
+
+	hasExplicitAuth := collection.AnyFunc(cmds.Functions, func(fct CliFunction) bool {
+		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
+			if !cfg.IsRoot {
+				return false
+			}
+
+			if cfg.Name == "APIKey" && cfg.MapstructureTag == "api_key" {
+				return true
+			}
+
+			if cfg.Name == "Host" && cfg.MapstructureTag == "host" {
+				return true
+			}
+
+			return false
+		})
+	})
+
+	return hasCallCloud && hasExplicitAuth
 }
 
 // ProcessArguments enforces that arguments are specified on commands and short arguments aren't duplicated
