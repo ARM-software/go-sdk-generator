@@ -2,6 +2,26 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.28.0" (2026-03-26)
+=====================
+
+Features
+--------
+
+- :robot: Improve integration with Github and `copilot` (#20260326142407)
+
+
+Bugfixes
+--------
+
+- :bug: Fix documentation link for the CLI usage (#20260326142230)
+- :robot: Improve installation skill and documentation (#20260326142313)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.27.0" (2026-03-26)
 =====================
 
