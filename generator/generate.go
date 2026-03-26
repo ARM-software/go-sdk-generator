@@ -24,6 +24,7 @@ import (
 //go:generate go tool go-jsonschema -p generator ../schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
+	copilotFile                  = "templates/copilot-instructions.md.tmpl"
 	agentFile                    = "templates/agent.md.tmpl"
 	cliSkillFile                 = "templates/cli.skill.md.tmpl"
 	installSkillFile             = "templates/install.skill.md.tmpl"
@@ -331,6 +332,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 	if sdk.Specification.CommandLineCommands != nil {
 		templatesToPopulate.addStateFile(agentFile, fmt.Sprintf("%v/agent.md", cfg.Output), true, true)
+		templatesToPopulate.addStateFile(copilotFile, fmt.Sprintf("%v/.github/copilot-instructions.md", cfg.Output), true, true)
 		templatesToPopulate.addStateFile(cliSkillFile, fmt.Sprintf("%v/.agents/skills/%v/SKILL.md", cfg.Output, strings.ToLower(sdk.Specification.MainModule)), true, true)
 		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)

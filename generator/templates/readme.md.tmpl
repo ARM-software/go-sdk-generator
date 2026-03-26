@@ -11,12 +11,24 @@
 {{ .Specification.Description }}
 
 {{ if .Specification.CommandLineCommands -}}
-> :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli_tools) for ease of use
+> :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tools) for ease of use
 
 You can access the man page for the CLI via:
 ```sh
 man {{ .Specification.CommandLineCommands.Binary }}
 ```
+
+or the help
+```bash
+{{ .Specification.CommandLineCommands.Binary }} -h
+```
+
+## Installation
+
+See `/skills/install.md` for installing `{{ .Specification.CommandLineCommands.Binary }}`.
+
+Preferred method: system package manager (apt/dnf/yum).and package ``{{ .Specification.PackageName }}`
+
 {{ end }}
 ## Documentation
 
