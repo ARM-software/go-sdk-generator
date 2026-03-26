@@ -37,10 +37,10 @@ specification:
             arg_short: "o"
           - name: Generate
             lang_type: bool
-            required: true
             is_root: true
             mapstructure_tag: overwrite
             description: regenerate all files
+            default_value: "false"
             arg_short: "a"
           - name: TargetedGo
             lang_type: version

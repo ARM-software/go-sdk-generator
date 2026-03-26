@@ -1,0 +1,275 @@
+---
+name: install
+description: "Install, upgrade, or reinstall the go-sdk-generator CLI tool using the system package manager (preferred approach)"
+license:  $spec.Licence
+compatibility: opencode
+metadata:
+  binary: go-sdk-generator
+  package_name: go-sdk-generator
+  supported_os: "debian,ubuntu,fedora,rhel,centos"
+  package_managers: "apt,dnf,yum"
+  architectures: "x86_64,arm64"
+  package_source: "registry"
+---
+
+# Skill: Install or upgrade `go-sdk-generator`
+
+## When to use
+
+Use this skill when the user wants to:
+- install `go-sdk-generator`
+- upgrade or update `go-sdk-generator`
+- reinstall `go-sdk-generator`
+- verify that `go-sdk-generator` is correctly available from the configured package registry
+
+---
+
+## Preferred installation method
+
+The **recommended and supported approach** is to install `go-sdk-generator` via the **native system package manager**.
+
+This ensures:
+- correct dependency resolution
+- consistent upgrades
+- alignment with system policies
+- proper architecture handling
+
+---
+
+## Supported platforms (preferred)
+
+Use this skill directly on:
+
+- Debian and Ubuntu → `apt`
+- Fedora → `dnf` (**preferred**), `yum` (fallback)
+- Red Hat Enterprise Linux and CentOS → `yum` or `dnf`
+
+Supported architectures:
+- `x86_64`
+- `arm64` / `aarch64`
+
+If the package is missing for these platforms or architectures, this indicates a **registry or packaging issue**, not a user-side problem.
+
+---
+
+## Other platforms (fallback guidance)
+
+If the system:
+- is **not one of the supported Linux distributions**, or
+- does **not provide `apt`, `dnf`, or `yum`**, or
+- uses a **different architecture**
+
+then:
+
+- the package-manager installation path is **not applicable**
+- a **manual or alternative installation method** may be required (e.g. direct binary, container, or source build)
+
+⚠️ However, these approaches are **not the preferred or guaranteed-supported path**.
+
+If possible, recommend:
+- switching to a supported environment, or
+- ensuring the package is published for the target platform
+
+---
+
+## Detect platform
+
+```bash
+if command -v apt >/dev/null 2>&1; then
+  PM=apt
+elif command -v dnf >/dev/null 2>&1; then
+  PM=dnf
+elif command -v yum >/dev/null 2>&1; then
+  PM=yum
+else
+  echo "Unsupported package manager"
+fi
+```
+
+---
+
+## Install
+
+### Debian / Ubuntu
+
+```bash
+sudo apt update
+sudo apt install -y go-sdk-generator
+```
+
+### Fedora
+
+Preferred:
+```bash
+sudo dnf install -y go-sdk-generator
+```
+
+Fallback:
+```bash
+sudo yum install -y go-sdk-generator
+```
+
+### RHEL / CentOS
+
+```bash
+sudo yum install -y go-sdk-generator
+```
+
+Or:
+```bash
+sudo dnf install -y go-sdk-generator
+```
+
+---
+
+## Upgrade
+
+### Debian / Ubuntu
+
+```bash
+sudo apt update
+sudo apt install --only-upgrade -y go-sdk-generator
+```
+
+### Fedora
+
+```bash
+sudo dnf upgrade -y go-sdk-generator
+```
+
+Fallback:
+```bash
+sudo yum update -y go-sdk-generator
+```
+
+### RHEL / CentOS
+
+```bash
+sudo yum update -y go-sdk-generator
+```
+
+Or:
+```bash
+sudo dnf upgrade -y go-sdk-generator
+```
+
+---
+
+## Reinstall
+
+Use reinstall only when the package appears corrupted, shadowed, or incomplete.
+
+### Debian / Ubuntu
+
+```bash
+sudo apt update
+sudo apt install --reinstall -y go-sdk-generator
+```
+
+### Fedora
+
+```bash
+sudo dnf reinstall -y go-sdk-generator
+```
+
+Fallback:
+```bash
+sudo yum reinstall -y go-sdk-generator
+```
+
+### RHEL / CentOS
+
+```bash
+sudo yum reinstall -y go-sdk-generator
+```
+
+Or:
+```bash
+sudo dnf reinstall -y go-sdk-generator
+```
+
+---
+
+## Verify installation
+
+```bash
+command -v go-sdk-generator
+```
+
+```bash
+go-sdk-generator -v
+```
+
+Fallback:
+```bash
+go-sdk-generator --version
+```
+
+---
+
+## Troubleshooting
+
+### Package not found
+
+If the package manager cannot find `go-sdk-generator`:
+
+- repository is not configured correctly
+- registry publication is incomplete
+- metadata is stale
+
+Actions:
+- refresh metadata (`apt update`, `dnf makecache`, `yum makecache`)
+- verify repository configuration
+- confirm package availability for OS + architecture
+
+If still missing → **report registry misconfiguration**
+
+---
+
+### Architecture not available
+
+Expected:
+- `x86_64`
+- `arm64` / `aarch64`
+
+If missing → **packaging/registry issue**
+
+---
+
+### Unsupported platform
+
+If no supported package manager is found:
+
+- clearly state the platform is unsupported
+- recommend using a supported Linux distribution
+- optionally suggest alternative install methods (without treating them as primary)
+
+---
+
+### Wrong binary still runs
+
+```bash
+command -v go-sdk-generator
+```
+- inspect `PATH` precedence
+- ensure no shadowed binaries
+
+---
+
+### Command exists but version check fails
+
+- try `--version`
+- try `-h`
+- verify CLI matches expected package
+
+---
+
+## Agent guidance
+
+- **Always prefer system package manager installation**
+- Treat non-supported platforms as **exceptions, not equal alternatives**
+- Use install / upgrade / reinstall appropriately
+- Prefer `dnf` over `yum` when available
+- Use `sudo` unless already privileged
+- Always verify binary path and version
+- Clearly report repository or packaging issues when detected

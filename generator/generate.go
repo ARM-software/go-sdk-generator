@@ -15,6 +15,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	"github.com/ARM-software/golang-utils/utils/semver"
 	"golang.org/x/tools/imports"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
@@ -23,6 +24,9 @@ import (
 //go:generate go tool go-jsonschema -p generator ../schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
+	agentFile                    = "templates/agent.md.tmpl"
+	cliSkillFile                 = "templates/cli.skill.md.tmpl"
+	installSkillFile             = "templates/install.skill.md.tmpl"
 	precommitConfigFile          = "templates/preconfig.yaml.tmpl"
 	editorConfigFile             = "templates/editorconfig.tmpl"
 	implementationFile           = "templates/implementation.go.tmpl"
@@ -276,11 +280,22 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	requestedGoVersion, err := semver.Canonical(cfg.TargetedGoVersion)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid version for 'go'")
+		return
+	}
+	defaultGoVersion, err := semver.Canonical(config.DefaultSdkGeneratorManagerConfiguration().TargetedGoVersion)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid default version for 'go'")
+		return
+	}
+
 	var templatesToPopulate templates
-	templatesToPopulate.addStateFile(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(configFile, fmt.Sprintf("%v/%v/config/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(documentationFile, fmt.Sprintf("%v/DOCUMENTATION.md", cfg.Output), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
+	templatesToPopulate.addStateFile(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule), true, true)
+	templatesToPopulate.addStateFile(configFile, fmt.Sprintf("%v/%v/config/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
+	templatesToPopulate.addStateFile(documentationFile, fmt.Sprintf("%v/DOCUMENTATION.md", cfg.Output), true, true)
 	templatesToPopulate.addStateFile(contribFile, fmt.Sprintf("%v/CONTRIBUTING.md", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(developmentFile, fmt.Sprintf("%v/DEVELOPMENT.md", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(codeOfConductFile, fmt.Sprintf("%v/CODE_OF_CONDUCT.md", cfg.Output), cfg.Overwrite, true)
@@ -298,14 +313,14 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
 
-	updateGoVersion := cfg.Overwrite || cfg.TargetedGoVersion != config.DefaultSdkGeneratorManagerConfiguration().TargetedGoVersion
+	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
 	templatesToPopulate.addStateFile(dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule), updateGoVersion, true)
 	templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
-		templatesToPopulate.addStateFile(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
 	}
 
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
@@ -315,11 +330,14 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
-		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(agentFile, fmt.Sprintf("%v/agent.md", cfg.Output), true, true)
+		templatesToPopulate.addStateFile(cliSkillFile, fmt.Sprintf("%v/.agents/skills/%v/SKILL.md", cfg.Output, strings.ToLower(sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
+		templatesToPopulate.addStateFile(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output), true, true)
+		templatesToPopulate.addStateFile(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output), true, true)
+		templatesToPopulate.addStateFile(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
+		templatesToPopulate.addStateFile(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule), true, true)
 		templatesToPopulate.addStateFile(preinstallFile, fmt.Sprintf("%v/scripts/pre.sh", cfg.Output), cfg.Overwrite, true)
 
 		templatesToPopulate.addStateFile(implementationCLIFile, fmt.Sprintf("%v/cli/cmd/%v/implementations.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, false)
@@ -392,6 +410,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SdkGeneratorMana
 		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not convert generated files to path relative to output directory '%v'", cfg.Output)
 		return
 	}
+	generated = filesystem.FilePathsToSlash(filesystem.GetGlobalFileSystem(), generated...)
 	slices.Sort(generated)
 
 	err = populateTemplate(ctx, &GenerationOutput{

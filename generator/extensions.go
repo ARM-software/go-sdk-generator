@@ -3,6 +3,7 @@ package generator
 import (
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -83,11 +84,14 @@ var templateFuncMap = template.FuncMap{
 	"defaultValue":       defaultValue,
 	"toCamel":            toCamelCase,
 	"toSnake":            toSnakeCase,
+	"toKebab":            toKebabCase,
 	"toPascal":           toPascalCase,
+	"quote":              withQuote,
 	"toPackageName":      toPackageName,
 	"ignoreLinting":      ignoreLintingError,
 	"nowYear":            nowYear,
 	"toURIEncoded":       toURIEncoded,
+	"hasCloudCommands":   isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -106,6 +110,10 @@ func toSnakeCase(s string) string {
 	return stringcase.SnakeCase(s)
 }
 
+func toKebabCase(s string) string {
+	return stringcase.KebabCase(s)
+}
+
 func toURIEncoded(s string) string {
 	return url.PathEscape(s)
 }
@@ -120,6 +128,10 @@ func handleAcronyms(pC string) string {
 	pC = strings.ReplaceAll(pC, "IDentifier", "Identifier")
 	pC = strings.ReplaceAll(pC, "IDentification", "Identification")
 	return pC
+}
+
+func withQuote(s string) string {
+	return strconv.Quote(s)
 }
 
 func toPackageName(value string) string {
