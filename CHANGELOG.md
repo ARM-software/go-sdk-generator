@@ -2,6 +2,29 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.27.0" (2026-03-26)
+=====================
+
+Features
+--------
+
+- :bug: Reject mixed callCloud and explicit root auth config (#20260320114452)
+- :sparkles: Generate `SKILL.md` so the generated tool is :robot: compatible (#20260325001405)
+
+
+Bugfixes
+--------
+
+- :dog: Dogfooding (#20260324231703)
+- :camel: Upgrade dependencies (#20260325001239)
+- :bug: Make sure files which need to be regenerated on manifest change are (#20260325001327)
+- :bug: Fix gitattributes content on Windows (#20260325001534)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.26.2" (2026-03-19)
 =====================
 
