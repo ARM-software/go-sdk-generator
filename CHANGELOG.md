@@ -2,6 +2,25 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.29.0" (2026-04-02)
+=====================
+
+Features
+--------
+
+- :sparkles: Added built-in `default_value` shortcuts to ease the definition of some common defaults. (#202604011231)
+
+
+Improved Documentation
+----------------------
+
+- :book: Documented supported `lang_type` values and built-in `default_value` shortcuts in the [README formats section](README.md#formats). (#202604011230)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.28.0" (2026-03-26)
 =====================
 
