@@ -78,6 +78,22 @@ func TestDefaultsWithMultilines(t *testing.T) {
 	assert.Equal(t, `"{"test":1}"`, defaultValue("json", "{\"test\":1}\n"))
 }
 
+func TestDefaultValueForStrings(t *testing.T) {
+	assert.Equal(t, `func() string{return ""}`, defaultValueForStrings(`func() string{return ""}`))
+	assert.Equal(t, "filesystem.TempDirectory()", defaultValueForStrings(" tempdir "))
+	assert.Equal(t, "xdg.BinHome", defaultValueForStrings("bindir"))
+	assert.Equal(t, "xdg.CacheHome", defaultValueForStrings("cache"))
+	assert.Equal(t, "xdg.ConfigHome", defaultValueForStrings("configuration"))
+	assert.Equal(t, "rand.Text()", defaultValueForStrings("random"))
+	assert.Equal(t, "time.Now().UTC().Format(time.RFC3339)", defaultValueForStrings("now"))
+	assert.Equal(t, `"literal"`, defaultValueForStrings("literal"))
+	assert.Contains(t, defaultValueForStrings("hostname"), "os.Hostname()")
+	assert.Contains(t, defaultValueForStrings("uuid"), "idgen.GenerateUUID4()")
+	assert.Contains(t, defaultValueForStrings("here"), "filesystem.CurrentDirectory()")
+	assert.Contains(t, defaultValueForStrings("home"), "os.UserHomeDir()")
+	assert.Contains(t, defaultValueForStrings("      Maddy      's home"), `platform.GetHomeDirectory("Maddy")`)
+}
+
 func Test_toCase(t *testing.T) {
 	assert.Equal(t, "Port", toPascalCase("Port"))
 	assert.Equal(t, "Port", toPascalCase("port"))

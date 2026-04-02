@@ -270,6 +270,12 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	err = ProcessExtraImports(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for extra imports")
+		return
+	}
+
 	err = ProcessBindings(ctx, &sdk)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for bindings")

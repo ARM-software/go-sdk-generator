@@ -78,11 +78,7 @@ x-machine-hostname: &x-machine-hostname
   name: MachineHostName
   lang_type: string
   required: true
-  default_value: "
-    func() string { \n
-    hostname, _ := os.Hostname() \n
-    return hostname \n
-    }()"
+  default_value: hostname
   mapstructure_tag: host_name
   description: the host name of the machine on which the agent runs
 
@@ -189,7 +185,7 @@ specification:
           - name: AgentAPIToken
             lang_type: string
             mapstructure_tag: agent_api_token
-            default_value: "func() string { return rand.Text() }()"
+            default_value: random
             description: An API token to enforce authorisation when communicating with the agent via the API server
           - <<: *x-fpga-manifest
           - <<: *x-sandpit
@@ -236,11 +232,7 @@ specification:
     - name: MachineHostName
       lang_type: string
       required: true
-      default_value: "
-        func() string { \n
-        hostname, _ := os.Hostname() \n
-        return hostname \n
-        }()"
+      default_value: hostname
       mapstructure_tag: host_name
       description: the host name of the machine on which the agent runs
     - name: NoProvisioning

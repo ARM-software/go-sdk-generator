@@ -14,6 +14,66 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestProcessExtraImports(t *testing.T) {
+	t.Run("happy", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				ExtraImports: ExtraImports{
+					{
+						ImportRef: field.ToOptionalString("custom"),
+						ImportUrl: field.ToOptionalString("example.com/acme/custom"),
+					},
+					{
+						ImportRef: field.ToOptionalString("xdg"),
+						ImportUrl: field.ToOptionalString("example.com/acme/xdg"),
+					},
+					{
+						ImportUrl: field.ToOptionalString("example.com/acme/test"),
+					},
+					{
+						ImportRef: field.ToOptionalString("ignored"),
+					},
+				},
+			},
+		}
+
+		require.NoError(t, ProcessExtraImports(context.Background(), sdk))
+
+		assert.ElementsMatch(t, sdk.Specification.ExtraImports, []ExtraImport{
+			{
+				ImportRef: field.ToOptionalString("custom"),
+				ImportUrl: field.ToOptionalString("example.com/acme/custom"),
+			},
+			{
+				ImportRef: field.ToOptionalString("xdg"),
+				ImportUrl: field.ToOptionalString("example.com/acme/xdg"),
+			},
+			{
+				ImportRef: field.ToOptionalString("filesystem"),
+				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/filesystem"),
+			},
+			{
+				ImportRef: field.ToOptionalString("platform"),
+				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/platform"),
+			},
+			{
+				ImportRef: field.ToOptionalString("test"),
+				ImportUrl: field.ToOptionalString("example.com/acme/test"),
+			},
+		})
+	})
+
+	t.Run("context cancelled", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		errortest.AssertError(t, ProcessExtraImports(ctx, nil), commonerrors.ErrCancelled)
+	})
+
+	t.Run("no sdk", func(t *testing.T) {
+		errortest.AssertError(t, ProcessExtraImports(context.Background(), nil), commonerrors.ErrUndefined)
+	})
+}
+
 func TestProcessBindings(t *testing.T) {
 	t.Run("context cancelled", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"path"
 	"slices"
 	"strings"
 
@@ -14,6 +15,42 @@ import (
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	mapset "github.com/deckarep/golang-set/v2"
 )
+
+func usualExtraImports() map[string]string {
+	return map[string]string{
+		"xdg":        "github.com/adrg/xdg",
+		"filesystem": "github.com/ARM-software/golang-utils/utils/filesystem",
+		"platform":   "github.com/ARM-software/golang-utils/utils/platform",
+	}
+}
+
+func ProcessExtraImports(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+	extra := usualExtraImports()
+	collection.ForEachRef(sdk.Specification.ExtraImports, func(extraImport *ExtraImport) {
+		if reflection.IsEmpty(extraImport.ImportUrl) {
+			return
+		}
+		importPath := field.Optional(extraImport.ImportUrl, "")
+		extra[field.OptionalString(extraImport.ImportRef, path.Base(importPath))] = importPath
+	})
+	extraImports := make(ExtraImports, 0, len(extra))
+	for k, v := range extra {
+		extraImports = append(extraImports, ExtraImport{
+			ImportRef: field.ToOptionalStringOrNilIfEmpty(k),
+			ImportUrl: field.ToOptionalStringOrNilIfEmpty(v),
+		})
+	}
+	sdk.Specification.ExtraImports = extraImports
+	return
+}
 
 func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 	err = parallelisation.DetermineContextError(ctx)

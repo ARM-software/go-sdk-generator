@@ -3,12 +3,14 @@ package generator
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
 	"unicode"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
 	"github.com/ARM-software/golang-utils/utils/reflection"
@@ -207,6 +209,9 @@ func defaultValue(s string, dValue any) string {
 		}
 		return fmt.Sprintf(`"%v"`, dValueStr)
 	case s == "datetime":
+		if strings.Contains(dValueStr, "now") {
+			return "time.Now().UTC()"
+		}
 		return fmt.Sprintf(
 			`func() time.Time {
 t, _ := time.Parse(time.RFC3339, "%v")
@@ -222,10 +227,7 @@ duration, _ := time.ParseDuration("%v")
 return duration
 }()`, dValueStr)
 	case st == "string":
-		if isFunc(dValueStr) {
-			return dValueStr
-		}
-		return fmt.Sprintf(`"%v"`, dValueStr)
+		return defaultValueForStrings(dValueStr)
 	case s == "hex":
 		return fmt.Sprintf(
 			`func() []byte {
@@ -242,6 +244,63 @@ return values
 		return fmt.Sprintf(`[]byte("%v")`, dValueStr)
 	default:
 		return dValueStr
+	}
+}
+
+func defaultValueForStrings(dValueStr string) string {
+	usernameHome := regexp.MustCompile(`^\s*(.+?)\s*'\s*s\s+home\s*$`)
+	switch {
+	case isFunc(dValueStr):
+		return dValueStr
+	case strings.EqualFold(dValueStr, "hostname"):
+		return `
+		func() string {
+			hostname, _ := os.Hostname()
+			return hostname
+		}()`
+	case strings.EqualFold(dValueStr, "uuid"):
+		return `
+		func() string {
+			uuid, _ := idgen.GenerateUUID4()
+			return uuid
+		}()`
+	case collection.In([]string{"temp", "tempdir", "temporary"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+		return "filesystem.TempDirectory()"
+	case collection.In([]string{"bin", "bindir"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+		return "xdg.BinHome"
+	case collection.In([]string{"cache", "cachedir"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+		return "xdg.CacheHome"
+	case collection.In([]string{"config", "configdir", "conf", "configuration"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+		return "xdg.ConfigHome"
+	case strings.EqualFold(dValueStr, "here"):
+		return `
+		func() string {
+			pwd, _ := filesystem.CurrentDirectory()
+			return pwd
+		}()`
+	case strings.EqualFold(dValueStr, "home"):
+		return `
+		func() string {
+			home, _ := os.UserHomeDir()
+			return home
+		}()`
+	case usernameHome.MatchString(dValueStr):
+		m := usernameHome.FindStringSubmatch(dValueStr)
+		if len(m) != 2 {
+			return dValueStr
+		}
+		return fmt.Sprintf(`
+		func() string {
+			home, _ := platform.GetHomeDirectory("%v")
+			return home
+		}()`, m[1])
+	case strings.EqualFold(dValueStr, "random"):
+		return "rand.Text()"
+	case strings.EqualFold(dValueStr, "now"):
+		return "time.Now().UTC().Format(time.RFC3339)"
+
+	default:
+		return fmt.Sprintf(`"%v"`, dValueStr)
 	}
 }
 

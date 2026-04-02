@@ -35,6 +35,7 @@ specification:
             is_root: true
             required: true
             arg_short: "o"
+            default_value: here
           - name: Generate
             lang_type: bool
             is_root: true
