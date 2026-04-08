@@ -4,7 +4,7 @@
 
 # GO SDK/CLI Generator
 
-[![Go Badge](https://img.shields.io/badge/go-v1.26.1-blue)](https://golang.org/)
+[![Go Badge](https://img.shields.io/badge/go-v1.26.2-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 
 
