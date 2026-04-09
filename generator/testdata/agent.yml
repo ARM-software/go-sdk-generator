@@ -129,6 +129,7 @@ specification:
     binary: fpga-service-agent
     root_environment_var: FPGA_SERVICE_AGENT
     description: CLI to control the FPGA service agent
+    no_action: true
     functions:
       - name: Serve
         description: Start the FPGA service agent so it serves AFaaS job requests

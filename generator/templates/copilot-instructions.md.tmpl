@@ -6,7 +6,9 @@
 ## Available CLI skills
 
 - Install `{{ $cli.Binary }}`: see `/skills/install.md`
+{{- if not $cli.NoAction }}
 - Integrate the GitHub Action for `{{ $cli.Binary }}`: see `/skills/github-action.md`
+{{- end }}
 
 
 

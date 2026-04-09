@@ -11,6 +11,9 @@ Documentation about {{ .Specification.Name }} SDK
 
 {{ if .Specification.CommandLineCommands -}}
 > :gear: This project also comes with [CLI tools and commands](#cli_tools) for ease of use
+{{ if not .Specification.CommandLineCommands.NoAction -}}
+> :construction_worker: The project also provides a [GitHub Action](#github-action) which can ease integration into workflows
+{{ end -}}
 {{ end -}}
 
 ## Types defined in this package
@@ -57,6 +60,43 @@ Return values:
 # {{ .Specification.Name }} CLI Usage
 
 {{ .Specification.CommandLineCommands.Description }}
+
+{{ if not .Specification.CommandLineCommands.NoAction -}}
+## GitHub Action
+
+GitHub Actions are also published so that `{{ .Specification.CommandLineCommands.Binary }}` can be used easily in CI workflows.
+
+Use the published action from official releases:
+
+```yaml
+- name: Run {{ .Specification.CommandLineCommands.Binary }} from release
+  uses: Arm-Debug/{{ .Specification.PackageName }}/{{ normaliseActionName .Specification.PackageName }}@v0
+  with:
+    args: --version
+```
+
+You can also install the released binary without running it immediately:
+
+```yaml
+- name: Install {{ .Specification.CommandLineCommands.Binary }}
+  uses: Arm-Debug/{{ .Specification.PackageName }}/{{ normaliseActionName .Specification.PackageName }}@v0
+  with:
+    install-only: true
+    workdir: .tools
+```
+
+Inputs:
+- `repo`: repository to download releases from; defaults to the repository running the action
+- `args`: arguments to pass to the CLI
+- `workdir`: working directory where the CLI is run, and where it is installed if a native package is not used
+- `install-only`: installs the package without running the CLI afterwards
+
+The action resolves official releases from the action version:
+- `@v0.29.0` installs exactly `v0.29.0`
+- `@v0.29` installs the latest `v0.29.x` release
+- `@v0` installs the latest `v0.x.y` release
+- `@latest` installs the latest released version
+{{ end }}
 
 ## Functions
 {{ range .Specification.CommandLineCommands.Functions }}

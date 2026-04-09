@@ -223,7 +223,11 @@ type CommandLineCommands struct {
 	// Name of the executable
 	Binary *string `json:"binary,omitempty" yaml:"binary,omitempty" mapstructure:"binary,omitempty"`
 
-	// CallCloud corresponds to the JSON schema field "callCloud".
+	// Whether all functions need to call the Arm Cloud hosted online services.
+	// When enabled, default API key and host arguments are injected only if they are
+	// not explicitly defined. They will also be defined as root arguments, required
+	// by all functions.
+	//
 	CallCloud *bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
 
 	// The description of the CLI binary
@@ -235,6 +239,9 @@ type CommandLineCommands struct {
 	// The exit code to return when an interrupt signal (SIGINT or SIGTERM) is
 	// received
 	InterruptExitCode *int `json:"interrupt_exit_code,omitempty" yaml:"interrupt_exit_code,omitempty" mapstructure:"interrupt_exit_code,omitempty"`
+
+	// Whether to skip generating the GitHub Action wrapper for the CLI
+	NoAction bool `json:"no_action,omitempty" yaml:"no_action,omitempty" mapstructure:"no_action,omitempty"`
 
 	// Environment variable prefix
 	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
@@ -253,6 +260,9 @@ func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["no_action"]; !ok || v == nil {
+		plain.NoAction = false
 	}
 	*j = CommandLineCommands(plain)
 	return nil

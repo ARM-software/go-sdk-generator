@@ -10,6 +10,7 @@
 SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
 
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tools) for ease of use
+> :construction_worker: The project also provides a [GitHub Action](./DOCUMENTATION.md#github-action) which can ease integration into workflows
 
 You can access the man page for the CLI via:
 

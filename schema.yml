@@ -160,6 +160,10 @@ $defs:
       description:
         type: string
         description: The description of the CLI binary
+      no_action:
+        type: boolean
+        default: false
+        description: Whether to skip generating the GitHub Action wrapper for the CLI
       callCloud:
         type: boolean
         description: |

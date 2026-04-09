@@ -12,6 +12,9 @@
 
 {{ if .Specification.CommandLineCommands -}}
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tools) for ease of use
+{{ if not .Specification.CommandLineCommands.NoAction }}
+> :construction_worker: The project also provides a [GitHub Action](./DOCUMENTATION.md#github-action) which can ease integration into workflows
+{{ end }}
 
 You can access the man page for the CLI via:
 ```sh

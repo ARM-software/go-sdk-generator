@@ -10,6 +10,7 @@
 Documentation about SDK Generator SDK
 
 > :gear: This project also comes with [CLI tools and commands](#cli_tools) for ease of use
+> :construction_worker: The project also provides a [GitHub Action](#github-action) which can ease integration into workflows
 ## Types defined in this package
 
 ### SdkGeneratorManagerConfiguration
@@ -49,6 +50,42 @@ Return values:
 # SDK Generator CLI Usage
 
 CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+
+## GitHub Action
+
+GitHub Actions are also published so that `go-sdk-generator` can be used easily in CI workflows.
+
+Use the published action from official releases:
+
+```yaml
+- name: Run go-sdk-generator from release
+  uses: Arm-Debug/go-sdk-generator/go-sdk-generator-action@v0
+  with:
+    args: --version
+```
+
+You can also install the released binary without running it immediately:
+
+```yaml
+- name: Install go-sdk-generator
+  uses: Arm-Debug/go-sdk-generator/go-sdk-generator-action@v0
+  with:
+    install-only: true
+    workdir: .tools
+```
+
+Inputs:
+- `repo`: repository to download releases from; defaults to the repository running the action
+- `args`: arguments to pass to the CLI
+- `workdir`: working directory where the CLI is run, and where it is installed if a native package is not used
+- `install-only`: installs the package without running the CLI afterwards
+
+The action resolves official releases from the action version:
+- `@v0.29.0` installs exactly `v0.29.0`
+- `@v0.29` installs the latest `v0.29.x` release
+- `@v0` installs the latest `v0.x.y` release
+- `@latest` installs the latest released version
+
 
 ## Functions
 
