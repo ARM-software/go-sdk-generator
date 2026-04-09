@@ -81,19 +81,20 @@ var templateFuncMap = template.FuncMap{
 	"isVariadicArg": func(s string) bool {
 		return strings.HasPrefix(strings.TrimSpace(s), "...")
 	},
-	"convertLangType":    convertLangType,
-	"validationLangType": argValidationRule,
-	"defaultValue":       defaultValue,
-	"toCamel":            toCamelCase,
-	"toSnake":            toSnakeCase,
-	"toKebab":            toKebabCase,
-	"toPascal":           toPascalCase,
-	"quote":              withQuote,
-	"toPackageName":      toPackageName,
-	"ignoreLinting":      ignoreLintingError,
-	"nowYear":            nowYear,
-	"toURIEncoded":       toURIEncoded,
-	"hasCloudCommands":   isCallCloudTrue,
+	"convertLangType":     convertLangType,
+	"validationLangType":  argValidationRule,
+	"defaultValue":        defaultValue,
+	"toCamel":             toCamelCase,
+	"toSnake":             toSnakeCase,
+	"toKebab":             toKebabCase,
+	"toPascal":            toPascalCase,
+	"quote":               withQuote,
+	"toPackageName":       toPackageName,
+	"ignoreLinting":       ignoreLintingError,
+	"nowYear":             nowYear,
+	"toURIEncoded":        toURIEncoded,
+	"normaliseActionName": normaliseActionName,
+	"hasCloudCommands":    isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -119,6 +120,30 @@ func toKebabCase(s string) string {
 func toURIEncoded(s string) string {
 	return url.PathEscape(s)
 }
+
+// normaliseActionName converts a package or project name into a stable GitHub
+// Action directory name by lower-casing it, replacing non-alphanumeric
+// separators with hyphens, and ensuring there is exactly one trailing
+// `-action` suffix.
+//
+// The generated name is intended for the action directory and `uses:` path,
+// not the free-form `name` field in `action.yml`. See GitHub's metadata syntax
+// guidance for actions:
+// https://docs.github.com/actions/creating-actions/metadata-syntax-for-github-actions
+func normaliseActionName(s string) string {
+	parts := strings.FieldsFunc(strings.ToLower(strings.TrimSpace(s)), func(r rune) bool {
+		return collection.And(!unicode.IsLetter(r), !unicode.IsDigit(r))
+	})
+	if len(parts) == 0 {
+		return "action"
+	}
+	name := strings.Join(parts, "-")
+	if strings.HasSuffix(name, "-action") {
+		return name
+	}
+	return fmt.Sprintf("%s-action", name)
+}
+
 func nowYear() string {
 	return fmt.Sprint(time.Now().Year())
 }

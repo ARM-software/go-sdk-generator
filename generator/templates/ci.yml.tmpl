@@ -54,4 +54,23 @@ jobs:
       - name: Build CLI
         working-directory: ./cli
         run: go build ./...
+
+  dogfood-action:
+    name: Dogfood Action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run local action
+        uses: ./{{ normaliseActionName .Specification.PackageName }}
+        with:
+          args: --version
+
+      - name: Run unpublished action and binary
+        uses: ./{{ normaliseActionName .Specification.PackageName }}
+        with:
+          repo: ${{ "{{" }} github.repository }}
+          action-ref: ${{ "{{" }} github.sha }}
+          args: --version
 {{- end }}

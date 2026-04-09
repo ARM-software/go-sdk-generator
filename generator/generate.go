@@ -27,7 +27,10 @@ const (
 	copilotFile                  = "templates/copilot-instructions.md.tmpl"
 	agentFile                    = "templates/agent.md.tmpl"
 	cliSkillFile                 = "templates/cli.skill.md.tmpl"
+	githubActionSkillFile        = "templates/github-action.skill.md.tmpl"
 	installSkillFile             = "templates/install.skill.md.tmpl"
+	actionDefinitionFile         = "templates/action.yml.tmpl"
+	actionInstallScriptFile      = "templates/install-and-run.sh.tmpl"
 	precommitConfigFile          = "templates/preconfig.yaml.tmpl"
 	editorConfigFile             = "templates/editorconfig.tmpl"
 	implementationFile           = "templates/implementation.go.tmpl"
@@ -325,6 +328,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
+	actionName := normaliseActionName(sdk.Specification.PackageName)
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
 		templatesToPopulate.addStateFile(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
@@ -340,7 +344,10 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(agentFile, fmt.Sprintf("%v/agent.md", cfg.Output), true, true)
 		templatesToPopulate.addStateFile(copilotFile, fmt.Sprintf("%v/.github/copilot-instructions.md", cfg.Output), true, true)
 		templatesToPopulate.addStateFile(cliSkillFile, fmt.Sprintf("%v/.agents/skills/%v/SKILL.md", cfg.Output, strings.ToLower(sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(githubActionSkillFile, fmt.Sprintf("%v/.agents/skills/github-action/SKILL.md", cfg.Output), true, true)
 		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(actionDefinitionFile, fmt.Sprintf("%v/%v/action.yml", cfg.Output, actionName), true, true)
+		templatesToPopulate.addStateFile(actionInstallScriptFile, fmt.Sprintf("%v/%v/install-and-run.sh", cfg.Output, actionName), true, true)
 		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
 		templatesToPopulate.addStateFile(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output), true, true)
 		templatesToPopulate.addStateFile(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output), true, true)

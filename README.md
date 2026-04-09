@@ -7,17 +7,18 @@
 [![Go Badge](https://img.shields.io/badge/go-v1.26.2-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 
-
 SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
 
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tools) for ease of use
 
 You can access the man page for the CLI via:
+
 ```sh
 man go-sdk-generator
 ```
 
 or the help
+
 ```bash
 go-sdk-generator -h
 ```
@@ -27,7 +28,6 @@ go-sdk-generator -h
 See `/skills/install.md` for installing `go-sdk-generator`.
 
 Preferred method: system package manager (apt/dnf/yum).and package ``go-sdk-generator`
-
 
 ## Documentation
 
@@ -39,61 +39,61 @@ To learn more about the SDK and how to use it, please have a look at [our docume
 
 As well as native Go types, the generator supports a set of convenience aliases and formats. These can be used in `lang_type` fields and are converted into the corresponding Go types in generated code.
 
-| Type | Go type generated | Notes |
-| --- | --- | --- |
-| `string` | `string` | Plain string values |
-| `bool` | `bool` | Boolean values |
-| `int`, `int8`, `int16`, `int32`, `int64` | same as input | Signed integers |
-| `uint`, `uint8`, `uint16`, `uint32`, `uint64` | same as input | Unsigned integers |
-| `float32`, `float64` | same as input | Floating point values |
-| `[]string` | `[]string` | String list values |
-| `[]byte` | `[]byte` | Byte slice values |
-| `any` | `any` | Arbitrary values |
-| `time.Duration`, `duration` | `time.Duration` |  Duration values such as `5m` or `5*time.Minute` |
-| `decimal` | `float64` | Convenience alias for decimal numbers |
-| `datetime` | `string` | RFC3339-style date/time input with special default handling |
-| `uuid` | `string` | UUID-formatted string |
-| `json` | `string` | JSON payload stored as a string |
-| `url`, `uri`, `host` | `string` | URL-like string values |
-| `email` | `string` | Email address string |
-| `ip` | `string` | IP address string |
-| `version`, `semver` | `string` | Semantic version strings |
-| `port` | `uint32` | Network port number |
-| `hex` | `[]byte` | Hex-encoded bytes decoded at runtime |
-| `base64`, `byte`, `binary`, `regex` | `string` | Validated string-based formats |
+| Type                                          | Go type generated | Notes                                                       |
+| --------------------------------------------- | ----------------- | ----------------------------------------------------------- |
+| `string`                                      | `string`          | Plain string values                                         |
+| `bool`                                        | `bool`            | Boolean values                                              |
+| `int`, `int8`, `int16`, `int32`, `int64`      | same as input     | Signed integers                                             |
+| `uint`, `uint8`, `uint16`, `uint32`, `uint64` | same as input     | Unsigned integers                                           |
+| `float32`, `float64`                          | same as input     | Floating point values                                       |
+| `[]string`                                    | `[]string`        | String list values                                          |
+| `[]byte`                                      | `[]byte`          | Byte slice values                                           |
+| `any`                                         | `any`             | Arbitrary values                                            |
+| `time.Duration`, `duration`                   | `time.Duration`   | Duration values such as `5m` or `5*time.Minute`             |
+| `decimal`                                     | `float64`         | Convenience alias for decimal numbers                       |
+| `datetime`                                    | `string`          | RFC3339-style date/time input with special default handling |
+| `uuid`                                        | `string`          | UUID-formatted string                                       |
+| `json`                                        | `string`          | JSON payload stored as a string                             |
+| `url`, `uri`, `host`                          | `string`          | URL-like string values                                      |
+| `email`                                       | `string`          | Email address string                                        |
+| `ip`                                          | `string`          | IP address string                                           |
+| `version`, `semver`                           | `string`          | Semantic version strings                                    |
+| `port`                                        | `uint32`          | Network port number                                         |
+| `hex`                                         | `[]byte`          | Hex-encoded bytes decoded at runtime                        |
+| `base64`, `byte`, `binary`, `regex`           | `string`          | Validated string-based formats                              |
 
 Custom project-specific types can also be declared with `additional_types` in the input specification.
 
 The generator also recognises a set of built-in shortcuts for `default_value`. These are mainly intended for string-like defaults, plus a few format-specific cases handled by `defaultValue()`.
 
-| Type | `default_value` | Meaning in generated code |
-| --- | --- | --- |
-| `string` and string-like aliases such as `uuid`, `host`, `url`, `uri`, `email`, `ip`, `version`, `semver`, `base64`, `byte`, `binary`, `regex` | any other value | Emitted as a quoted string literal |
-| `string` and string-like aliases | `hostname` | Use `os.Hostname()` |
-| `string` and string-like aliases | `uuid` | Generate a UUID with `idgen.GenerateUUID4()` |
-| `string` and string-like aliases | `temp`, `tempdir`, `temporary` | Use `filesystem.TempDirectory()` |
-| `string` and string-like aliases | `bin`, `bindir` | Use `xdg.BinHome` |
-| `string` and string-like aliases | `cache`, `cachedir` | Use `xdg.CacheHome` |
-| `string` and string-like aliases | `config`, `configdir`, `conf`, `configuration` | Use `xdg.ConfigHome` |
-| `string` and string-like aliases | `here` | Use the current working directory from `filesystem.CurrentDirectory()` |
-| `string` and string-like aliases | `home` | Use `os.UserHomeDir()` |
-| `string` and string-like aliases | `<username>'s home` | Home directory of a particular user determined from the pattern. Use `platform.GetHomeDirectory("<username>")`, for example `maddie's home` |
-| `string` and string-like aliases | `random` | Use `rand.Text()` |
-| `string` and string-like aliases | `now` | Use `time.Now().UTC().Format(time.RFC3339)` |
-| `string` and string-like aliases | `func()...` | Emitted as-is so custom function defaults can be injected |
-| `datetime` | `now` | Use `time.Now().UTC()` |
-| `datetime` | RFC3339 timestamp | Parsed with `time.Parse(time.RFC3339, ...)` |
-| `duration` | `5m`, `1h30m`, etc. | Parsed with `time.ParseDuration(...)` |
-| `duration` | expressions containing `time.` | Emitted as-is, for example `5 * time.Minute` |
-| `hex` | hex text such as `aaffbb77` | Decoded with `hex.DecodeString(...)` |
-| `[]byte` | any string | Emitted as `[]byte("...")` |
-| `json` | JSON object text such as `{"key":1}` | Emitted as a quoted JSON string |
-| numeric and boolean types | literal value such as `42`, `3.14`, `false` | Emitted as the corresponding Go literal |
-
+| Type                                                                                                                                           | `default_value`                                | Meaning in generated code                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` and string-like aliases such as `uuid`, `host`, `url`, `uri`, `email`, `ip`, `version`, `semver`, `base64`, `byte`, `binary`, `regex` | any other value                                | Emitted as a quoted string literal                                                                                                          |
+| `string` and string-like aliases                                                                                                               | `hostname`                                     | Use `os.Hostname()`                                                                                                                         |
+| `string` and string-like aliases                                                                                                               | `uuid`                                         | Generate a UUID with `idgen.GenerateUUID4()`                                                                                                |
+| `string` and string-like aliases                                                                                                               | `temp`, `tempdir`, `temporary`                 | Use `filesystem.TempDirectory()`                                                                                                            |
+| `string` and string-like aliases                                                                                                               | `bin`, `bindir`                                | Use `xdg.BinHome`                                                                                                                           |
+| `string` and string-like aliases                                                                                                               | `cache`, `cachedir`                            | Use `xdg.CacheHome`                                                                                                                         |
+| `string` and string-like aliases                                                                                                               | `config`, `configdir`, `conf`, `configuration` | Use `xdg.ConfigHome`                                                                                                                        |
+| `string` and string-like aliases                                                                                                               | `here`                                         | Use the current working directory from `filesystem.CurrentDirectory()`                                                                      |
+| `string` and string-like aliases                                                                                                               | `home`                                         | Use `os.UserHomeDir()`                                                                                                                      |
+| `string` and string-like aliases                                                                                                               | `<username>'s home`                            | Home directory of a particular user determined from the pattern. Use `platform.GetHomeDirectory("<username>")`, for example `maddie's home` |
+| `string` and string-like aliases                                                                                                               | `random`                                       | Use `rand.Text()`                                                                                                                           |
+| `string` and string-like aliases                                                                                                               | `now`                                          | Use `time.Now().UTC().Format(time.RFC3339)`                                                                                                 |
+| `string` and string-like aliases                                                                                                               | `func()...`                                    | Emitted as-is so custom function defaults can be injected                                                                                   |
+| `datetime`                                                                                                                                     | `now`                                          | Use `time.Now().UTC()`                                                                                                                      |
+| `datetime`                                                                                                                                     | RFC3339 timestamp                              | Parsed with `time.Parse(time.RFC3339, ...)`                                                                                                 |
+| `duration`                                                                                                                                     | `5m`, `1h30m`, etc.                            | Parsed with `time.ParseDuration(...)`                                                                                                       |
+| `duration`                                                                                                                                     | expressions containing `time.`                 | Emitted as-is, for example `5 * time.Minute`                                                                                                |
+| `hex`                                                                                                                                          | hex text such as `aaffbb77`                    | Decoded with `hex.DecodeString(...)`                                                                                                        |
+| `[]byte`                                                                                                                                       | any string                                     | Emitted as `[]byte("...")`                                                                                                                  |
+| `json`                                                                                                                                         | JSON object text such as `{"key":1}`           | Emitted as a quoted JSON string                                                                                                             |
+| numeric and boolean types                                                                                                                      | literal value such as `42`, `3.14`, `false`    | Emitted as the corresponding Go literal                                                                                                     |
 
 ## Using this SDK
 
 To include and use this SDK in your go project, add the following line to your `go.mod`:
+
 ```go
 require (
     github.com/Arm-Debug/go-sdk-generator/generator   latest
@@ -112,6 +112,7 @@ For release notes and a history of changes of all **production** releases, pleas
 ## Project Structure
 
 The follow described the major aspects of the project structure:
+
 ```
 
     cli/ - Definition of the CLI to use the tool directly from a terminal.
@@ -132,4 +133,3 @@ The follow described the major aspects of the project structure:
   [Code of Conduct](CODE_OF_CONDUCT.md) for more information.
 - For ways to contribute to the project, please see the [Contributions Guidelines](CONTRIBUTING.md)
 - For a technical introduction into developing this package, please see the [Development Guide](DEVELOPMENT.md)
-

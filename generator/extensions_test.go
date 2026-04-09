@@ -43,6 +43,14 @@ func TestToURIEncoded(t *testing.T) {
 	assert.Equal(t, "Apache%202.0", toURIEncoded("Apache 2.0"))
 }
 
+func TestNormaliseActionName(t *testing.T) {
+	assert.Equal(t, "go-sdk-generator-action", normaliseActionName("Go SDK Generator"))
+	assert.Equal(t, "verify-cmsis-example-sdk-action", normaliseActionName("verify_cmsis example.sdk"))
+	assert.Equal(t, "go-sdk-generator-action", normaliseActionName("go-sdk-generator-action"))
+	assert.Equal(t, "go-sdk-generator-action", normaliseActionName("Go SDK Generator Action"))
+	assert.Equal(t, "action", normaliseActionName("   ---   "))
+}
+
 func TestDefaults(t *testing.T) {
 	assert.Equal(t, "56", defaultValue("port", "56"))
 	assert.Equal(t, "56", defaultValue("port", 56))

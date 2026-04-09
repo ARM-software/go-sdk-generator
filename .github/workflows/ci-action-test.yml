@@ -1,0 +1,75 @@
+
+name: Action integration tests
+
+# Cancel in-progress jobs or runs for the current workflow
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ inputs.branch || github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches: 
+      - main
+
+env:
+  go_version: "1.26.2"
+
+jobs:
+  test-action-github-runner:
+    name: Action integration test on GH runners
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run local action
+        uses: ./go-sdk-generator-action
+        with:
+          args: --version
+
+      - name: Run unpublished action and binary
+        uses: ./go-sdk-generator-action
+        with:
+          repo: ${{ github.repository }}
+          action-ref: ${{ github.sha }}
+          args: --version
+  test-action-self-hosted-runner-arm:
+    name: Action integration test on Arm self hosted runners
+    runs-on: self-hosted-ubuntu-latest-arm64-ephemeral
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run local action
+        uses: ./go-sdk-generator-action
+        with:
+          args: --version
+
+      - name: Run unpublished action and binary
+        uses: ./go-sdk-generator-action
+        with:
+          repo: ${{ github.repository }}
+          action-ref: ${{ github.sha }}
+          args: --version
+  test-action-self-hosted-runner-amd64:
+    name: Action integration test on x64 self hosted runners
+    runs-on: self-hosted-ubuntu-latest-x64-ephemeral
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run local action
+        uses: ./go-sdk-generator-action
+        with:
+          args: --version
+
+      - name: Run unpublished action and binary
+        uses: ./go-sdk-generator-action
+        with:
+          repo: ${{ github.repository }}
+          action-ref: ${{ github.sha }}
+          args: --version
