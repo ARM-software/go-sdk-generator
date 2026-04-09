@@ -2,6 +2,27 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.30.0" (2026-04-09)
+=====================
+
+Features
+--------
+
+- :sparkles: The generator now also creates a GitHub Action that wraps the CLI, making it straightforward to integrate and use in workflows. (#20260409110310)
+- :sparkles: Add option not to generate an action if the CLI does not seem to be used in this context (#20260409163139)
+- :sparkles: Add some documentation about the generated actions (#20260409163351)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.26.2 (#20260408043246)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.29.0" (2026-04-02)
 =====================
 
