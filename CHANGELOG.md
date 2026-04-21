@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.30.1" (2026-04-21)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Fix archive installs for packages which have a binary name that differs from the package name (#20260421123350)
+- :bug: Add missing 'Set up Go' step in dogfood-action job (#20260421123628)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.30.0" (2026-04-09)
 =====================
 
