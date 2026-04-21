@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.30.2" (2026-04-21)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Add missing 'Configure Git with secret' step in dogfood-action job (#20260421145831)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.30.1" (2026-04-21)
 =====================
 
