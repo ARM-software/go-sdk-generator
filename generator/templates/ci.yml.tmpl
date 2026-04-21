@@ -68,6 +68,12 @@ jobs:
         with:
           go-version: ${{ "{{" }} env.go_version }}
 
+      - name: Configure Git with secret
+        run: |
+          git config --global url."https://${{ "{{" }} secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
+        env:
+          GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
+
       - name: Run local action
         uses: ./{{ normaliseActionName .Specification.PackageName }}
         with:
