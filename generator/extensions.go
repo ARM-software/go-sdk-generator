@@ -81,20 +81,21 @@ var templateFuncMap = template.FuncMap{
 	"isVariadicArg": func(s string) bool {
 		return strings.HasPrefix(strings.TrimSpace(s), "...")
 	},
-	"convertLangType":     convertLangType,
-	"validationLangType":  argValidationRule,
-	"defaultValue":        defaultValue,
-	"toCamel":             toCamelCase,
-	"toSnake":             toSnakeCase,
-	"toKebab":             toKebabCase,
-	"toPascal":            toPascalCase,
-	"quote":               withQuote,
-	"toPackageName":       toPackageName,
-	"ignoreLinting":       ignoreLintingError,
-	"nowYear":             nowYear,
-	"toURIEncoded":        toURIEncoded,
-	"normaliseActionName": normaliseActionName,
-	"hasCloudCommands":    isCallCloudTrue,
+	"convertLangType":              convertLangType,
+	"validationLangType":           argValidationRule,
+	"defaultValue":                 defaultValue,
+	"toCamel":                      toCamelCase,
+	"toSnake":                      toSnakeCase,
+	"toKebab":                      toKebabCase,
+	"toPascal":                     toPascalCase,
+	"quote":                        withQuote,
+	"toPackageName":                toPackageName,
+	"ignoreLinting":                ignoreLintingError,
+	"nowYear":                      nowYear,
+	"toURIEncoded":                 toURIEncoded,
+	"normaliseActionDirectoryName": normaliseActionDirectoryName,
+	"normaliseActionName":          normaliseActionName,
+	"hasCloudCommands":             isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -121,6 +122,20 @@ func toURIEncoded(s string) string {
 	return url.PathEscape(s)
 }
 
+// normaliseActionDirectoryName converts a package or project name into a stable
+// GitHub Action directory name by lower-casing it and replacing
+// non-alphanumeric separators with hyphens.
+func normaliseActionDirectoryName(s string) string {
+	parts := strings.FieldsFunc(strings.ToLower(strings.TrimSpace(s)), func(r rune) bool {
+		return collection.And(!unicode.IsLetter(r), !unicode.IsDigit(r))
+	})
+	if len(parts) == 0 {
+		return "action"
+	}
+
+	return strings.Join(parts, "-")
+}
+
 // normaliseActionName converts a package or project name into a stable GitHub
 // Action directory name by lower-casing it, replacing non-alphanumeric
 // separators with hyphens, and ensuring there is exactly one trailing
@@ -131,13 +146,12 @@ func toURIEncoded(s string) string {
 // guidance for actions:
 // https://docs.github.com/actions/creating-actions/metadata-syntax-for-github-actions
 func normaliseActionName(s string) string {
-	parts := strings.FieldsFunc(strings.ToLower(strings.TrimSpace(s)), func(r rune) bool {
-		return collection.And(!unicode.IsLetter(r), !unicode.IsDigit(r))
-	})
-	if len(parts) == 0 {
-		return "action"
+	name := normaliseActionDirectoryName(s)
+
+	if name == "action" {
+		return name
 	}
-	name := strings.Join(parts, "-")
+
 	if strings.HasSuffix(name, "-action") {
 		return name
 	}

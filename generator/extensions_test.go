@@ -51,6 +51,13 @@ func TestNormaliseActionName(t *testing.T) {
 	assert.Equal(t, "action", normaliseActionName("   ---   "))
 }
 
+func TestNormaliseActionDirectoryName(t *testing.T) {
+	assert.Equal(t, "go-sdk-generator", normaliseActionDirectoryName("Go SDK Generator"))
+	assert.Equal(t, "verify-cmsis-example-sdk", normaliseActionDirectoryName("verify_cmsis example.sdk"))
+	assert.Equal(t, "go-sdk-generator-action", normaliseActionDirectoryName("go-sdk-generator-action"))
+	assert.Equal(t, "action", normaliseActionDirectoryName("   ---   "))
+}
+
 func TestDefaults(t *testing.T) {
 	assert.Equal(t, "56", defaultValue("port", "56"))
 	assert.Equal(t, "56", defaultValue("port", 56))

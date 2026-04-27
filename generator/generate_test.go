@@ -293,4 +293,19 @@ func TestGenerate(t *testing.T) {
 		assert.NotContains(t, string(configContent), "\n,", "Generated config should not have commas on new lines")
 		assert.NotContains(t, string(typesContent), "\n,", "Generated types should not have commas on new lines")
 	})
+
+	t.Run("No actions skips action outputs", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg.Input = filepath.Join("testdata", "agent.yml")
+		cfg.Output = tmpDir
+		cfg.ToolVersion = field.ToOptionalString("0.29.0")
+
+		err := Generate(ctx, cfg)
+		require.NoError(t, err)
+
+		assert.NoDirExists(t, filepath.Join(tmpDir, "actions"))
+		assert.NoFileExists(t, filepath.Join(tmpDir, ".agents", "skills", "github-action", "SKILL.md"))
+	})
 }

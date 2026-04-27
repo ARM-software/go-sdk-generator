@@ -74,6 +74,9 @@ type CliFunction struct {
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
+	// Whether to skip generating the GitHub Action wrapper for this command
+	NoAction bool `json:"no_action,omitempty" yaml:"no_action,omitempty" mapstructure:"no_action,omitempty"`
+
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
 	Operands bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 
@@ -113,6 +116,9 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["loadFromKeyring"]; !ok || v == nil {
 		plain.LoadFromKeyring = false
+	}
+	if v, ok := raw["no_action"]; !ok || v == nil {
+		plain.NoAction = false
 	}
 	if v, ok := raw["operands"]; !ok || v == nil {
 		plain.Operands = false
@@ -240,8 +246,8 @@ type CommandLineCommands struct {
 	// received
 	InterruptExitCode *int `json:"interrupt_exit_code,omitempty" yaml:"interrupt_exit_code,omitempty" mapstructure:"interrupt_exit_code,omitempty"`
 
-	// Whether to skip generating the GitHub Action wrapper for the CLI
-	NoAction bool `json:"no_action,omitempty" yaml:"no_action,omitempty" mapstructure:"no_action,omitempty"`
+	// Whether to skip generating GitHub Actions for the CLI
+	NoActions bool `json:"no_actions,omitempty" yaml:"no_actions,omitempty" mapstructure:"no_actions,omitempty"`
 
 	// Environment variable prefix
 	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
@@ -261,8 +267,8 @@ func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
-	if v, ok := raw["no_action"]; !ok || v == nil {
-		plain.NoAction = false
+	if v, ok := raw["no_actions"]; !ok || v == nil {
+		plain.NoActions = false
 	}
 	*j = CommandLineCommands(plain)
 	return nil

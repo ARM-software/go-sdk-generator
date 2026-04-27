@@ -42,7 +42,6 @@ specification:
       - name: Verify
         description: Verify that a project is valid csolution or uvprojx project
         callCloud: true
-        hidden: true
         silenceUsage: true
         configuration:
           - name: Project

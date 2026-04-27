@@ -30,7 +30,7 @@ const (
 	githubActionSkillFile        = "templates/github-action.skill.md.tmpl"
 	installSkillFile             = "templates/install.skill.md.tmpl"
 	actionDefinitionFile         = "templates/action.yml.tmpl"
-	actionInstallScriptFile      = "templates/install-and-run.sh.tmpl"
+	actionSharedScriptFile       = "templates/install-and-run.sh.tmpl"
 	precommitConfigFile          = "templates/preconfig.yaml.tmpl"
 	editorConfigFile             = "templates/editorconfig.tmpl"
 	implementationFile           = "templates/implementation.go.tmpl"
@@ -139,6 +139,8 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 type DataModel struct {
 	SchemaFileName string
 	SDK
+	GeneratedActions      []GeneratedAction
+	GeneratedAction       *GeneratedAction
 	TargetedGoVersion     string
 	ToolVersion           string
 	FlagRegistrations     []FlagRegistration
@@ -328,8 +330,16 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
 	templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
-	actionName := normaliseActionName(sdk.Specification.PackageName)
-	generateAction := sdk.Specification.CommandLineCommands != nil && !sdk.Specification.CommandLineCommands.NoAction
+
+	var generatedActions []GeneratedAction
+	if sdk.Specification.CommandLineCommands != nil && !sdk.Specification.CommandLineCommands.NoActions {
+		generatedActions, err = BuildGeneratedActions(&sdk)
+		if err != nil {
+			return
+		}
+	}
+
+	generateAction := len(generatedActions) > 0
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
 		templatesToPopulate.addStateFile(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
@@ -348,8 +358,6 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
 		if generateAction {
 			templatesToPopulate.addStateFile(githubActionSkillFile, fmt.Sprintf("%v/.agents/skills/github-action/SKILL.md", cfg.Output), true, true)
-			templatesToPopulate.addStateFile(actionDefinitionFile, fmt.Sprintf("%v/%v/action.yml", cfg.Output, actionName), true, true)
-			templatesToPopulate.addStateFile(actionInstallScriptFile, fmt.Sprintf("%v/%v/install-and-run.sh", cfg.Output, actionName), true, true)
 		}
 		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
 		templatesToPopulate.addStateFile(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output), true, true)
@@ -390,9 +398,10 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
-	generated, err := templatesToPopulate.Populate(ctx, &DataModel{
+	data := &DataModel{
 		SchemaFileName:        filesystem.FilepathStem(cfg.Input),
 		SDK:                   sdk,
+		GeneratedActions:      generatedActions,
 		TargetedGoVersion:     cfg.TargetedGoVersion,
 		ToolVersion:           field.OptionalString(cfg.ToolVersion, ""),
 		CliEnvVarBindings:     cliEnvVarBindings,
@@ -401,10 +410,41 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		RootArgConsts:         rootArgConsts,
 		RootFlagRegistrations: rootFlagRegs,
 		RootEnvVarBindings:    rootEnvVarBindings,
-	})
+	}
+
+	generated, err := templatesToPopulate.Populate(ctx, data)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate templates")
 		return
+	}
+
+	for _, action := range generatedActions {
+		actionData := *data // copy
+		actionData.GeneratedAction = &action
+
+		actionDir := fmt.Sprintf("%v/actions/%v", cfg.Output, action.DirectoryName)
+		actionOutputs := []templateToPopulate{
+			NewTemplateToPopulate(actionDefinitionFile, fmt.Sprintf("%v/action.yml", actionDir)),
+		}
+
+		for _, actionOutput := range actionOutputs {
+			if err = actionOutput.Populate(ctx, &actionData); err != nil {
+				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not populate action %q", action.DirectoryName)
+				return
+			}
+
+			generated = append(generated, actionOutput.output)
+		}
+	}
+
+	if generateAction {
+		sharedActionOutput := NewTemplateToPopulate(actionSharedScriptFile, fmt.Sprintf("%v/actions/_shared/install-and-run.sh", cfg.Output))
+		if err = sharedActionOutput.Populate(ctx, data); err != nil {
+			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate shared action runtime")
+			return
+		}
+
+		generated = append(generated, sharedActionOutput.output)
 	}
 
 	err = generateGitAttributesFile(ctx, cfg, generated)

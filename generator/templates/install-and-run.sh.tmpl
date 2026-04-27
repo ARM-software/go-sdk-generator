@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-repo="${INPUT_REPO:-}"
+repo="${INPUT_ACTION_REPO:-}"
 if [[ -z "$repo" ]]; then
   repo="${DEFAULT_REPO:-}"
 fi
@@ -14,11 +14,12 @@ fi
 
 package_name="{{ .Specification.PackageName }}"
 binary_name="{{ .Specification.CommandLineCommands.Binary }}"
+subcommand="${INPUT_SUBCOMMAND:-}"
 
-args="${INPUT_ARGS:-}"
 install_only="${INPUT_INSTALL_ONLY:-false}"
 workdir_input="${INPUT_WORKDIR:-.}"
 action_ref="${ACTION_REF:-}"
+action_inputs_spec="${INPUT_ACTION_INPUTS_SPEC:-}"
 
 fail() {
   printf '%s\n' "$*" >&2
@@ -39,6 +40,61 @@ is_true() {
     true|1|yes|y|on) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+append_input_flag() {
+  local flag_name="$1"
+  local value="$2"
+  local is_boolean_input="$3"
+
+  if [[ -z "$value" ]]; then
+    return
+  fi
+
+  if is_true "$is_boolean_input"; then
+    command_args+=("--${flag_name}=${value}")
+    return
+  fi
+
+  command_args+=("--${flag_name}" "$value")
+}
+
+build_command_args() {
+  local env_name=""
+  local flag_name=""
+  local is_boolean=""
+  local is_operand=""
+  local value=""
+
+  command_args=("$subcommand")
+
+  if [[ -z "$action_inputs_spec" ]]; then
+    return
+  fi
+
+  while IFS='|' read -r env_name flag_name is_boolean is_operand; do
+    if [[ -z "$env_name" ]]; then
+      continue
+    fi
+
+    value="${!env_name:-}"
+    if [[ "$is_operand" == "true" ]]; then
+      if [[ -z "$value" ]]; then
+        continue
+      fi
+
+      while IFS= read -r operand; do
+        if [[ -z "$operand" ]]; then
+          continue
+        fi
+
+        command_args+=("$operand")
+      done <<< "$value"
+      continue
+    fi
+
+    append_input_flag "$flag_name" "$value" "$is_boolean"
+  done <<< "$action_inputs_spec"
 }
 
 normalise_path() {
@@ -324,19 +380,21 @@ verify_installation() {
 }
 
 run_cli() {
-  # install-only stops after installation and deliberately ignores args.
+  # install-only stops after installation and deliberately ignores subcommand inputs.
   if is_true "$install_only"; then
     return
   fi
 
+  if [[ -z "$subcommand" ]]; then
+    fail "subcommand is required when install-only is false."
+  fi
+
+  build_command_args
+
   # Run from the requested working directory so relative paths in args resolve
   # consistently with a normal workflow step.
   pushd "$workdir" >/dev/null
-  if [[ -n "$args" ]]; then
-    bash -lc "\"$binary_path\" $args"
-  else
-    "$binary_path"
-  fi
+  "$binary_path" "${command_args[@]}"
   popd >/dev/null
 }
 

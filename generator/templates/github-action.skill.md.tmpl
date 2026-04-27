@@ -1,12 +1,13 @@
 {{- $spec := .Specification -}}
 {{- $cli := $spec.CommandLineCommands -}}
+{{- $primary := index .GeneratedActions 0 -}}
 ---
 name: github-action
-description: "Use and integrate the `{{ normaliseActionName $spec.PackageName }}` GitHub Action for installing or running released versions of `{{ $cli.Binary }}` in workflows"
+description: "Use and integrate the generated `actions/<subcommand>` GitHub Actions for installing or running released versions of `{{ $cli.Binary }}` in workflows"
 license: {{ $spec.Licence }}
 compatibility: opencode
 metadata:
-  action_path: {{ normaliseActionName $spec.PackageName }}
+  action_path: actions/{{ $primary.DirectoryName }}
   action_type: composite
   package: {{ $spec.PackageName }}
   binary: {{ $cli.Binary }}
@@ -26,68 +27,56 @@ metadata:
 Use this skill when the user wants to:
 - add `{{ $cli.Binary }}` to a GitHub Actions workflow
 - install a released version of the tool in CI
-- dogfood the published GitHub Action from this repository
+- dogfood one of the generated subcommand actions from this repository
 - run `{{ $cli.Binary }}` commands without building the CLI from source
 
 ---
 
-## Action location
+## Available actions
 
-Local path in this repository:
+Generated actions in this repository:
 
-```text
-./{{ normaliseActionName $spec.PackageName }}
-```
+{{- range .GeneratedActions }}
+- `actions/{{ .DirectoryName }}` runs `{{ $cli.Binary }} {{ .Subcommand }}`
+{{- end }}
 
-Use the published form when referencing it from another repository:
-
-```yaml
-uses: Arm-Debug/{{ $spec.PackageName }}/{{ normaliseActionName $spec.PackageName }}@v0
-```
-
-Use the local path when testing changes to the action inside this repository:
+Example published action:
 
 ```yaml
-uses: ./{{ normaliseActionName $spec.PackageName }}
+uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+```
+
+Example local path:
+
+```yaml
+uses: ./actions/{{ $primary.DirectoryName }}
 ```
 
 ---
 
-## What the action does
+## What the actions do
 
-The action:
+Each generated action:
 - resolves the release version from the action ref
 - downloads the matching GitHub Release assets using `gh`
 - installs the tool natively on Linux when a supported package manager is available
 - otherwise extracts the released archive into the requested working directory
 - verifies the installation with `--version`
-- optionally runs the CLI with the supplied arguments
+- optionally runs a fixed `{{ $cli.Binary }}` subcommand using structured action inputs
 
 ---
 
-## Inputs
+## Shared inputs
 
-### `repo`
+Every generated action exposes:
+- `action-repo`
+- `action-ref`
+- `workdir`
+- `install-only`
 
-Repository to download releases from.
+Each action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
 
-Default behaviour:
-- uses the explicit `repo` input if provided
-- otherwise uses the repository running the action
-
-### `args`
-
-Arguments to pass to the CLI.
-
-### `workdir`
-
-Working directory where the CLI is run, and where it is installed if a native package is not used.
-
-### `install-only`
-
-Just install the package. If a native Linux package is available for the machine in use, it is installed into `PATH`; otherwise, the binary is extracted into `workdir`.
-
-If this is `true`, `args` are ignored.
+Commands that support positional operands also expose an `operands` input, with one operand per line.
 
 ---
 
@@ -133,35 +122,32 @@ The action installs from the released archive.
 
 ## Recommended patterns
 
-### Run a command directly
-
-```yaml
-- name: Run {{ $cli.Binary }} from release
-  uses: Arm-Debug/{{ $spec.PackageName }}/{{ normaliseActionName $spec.PackageName }}@v0
-  with:
-    args: --version
-```
-
-### Install only, then run later
+### Install only
 
 ```yaml
 - name: Install {{ $cli.Binary }}
-  uses: Arm-Debug/{{ $spec.PackageName }}/{{ normaliseActionName $spec.PackageName }}@v0
+  uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
   with:
     install-only: true
     workdir: .tools
+```
 
-- name: Use {{ $cli.Binary }} afterwards
-  run: {{ $cli.Binary }} --version
+### Run a generated subcommand action
+
+```yaml
+- name: Run {{ $cli.Binary }} {{ $primary.Subcommand }}
+  uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  with:
+    # provide the required inputs for this subcommand here
 ```
 
 ### Dogfood the local action in this repository
 
 ```yaml
 - name: Dogfood Action
-  uses: ./{{ normaliseActionName $spec.PackageName }}
+  uses: ./actions/{{ $primary.DirectoryName }}
   with:
-    args: --version
+    install-only: true
 ```
 
 ---
@@ -172,17 +158,17 @@ The action installs from the released archive.
 - Prefer `@v<major>` when consumers want automatic patch and minor updates within a major series
 - Prefer exact tags when builds must be strictly reproducible
 - Use `install-only: true` when later steps need to call the binary directly
-- Keep `workdir` explicit when command arguments depend on relative paths
+- Keep `workdir` explicit when command inputs depend on relative paths
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
 
 ---
 
 ## Verification
 
-The action already verifies installation by running:
+Each generated action already verifies installation by running:
 
 ```bash
 {{ $cli.Binary }} --version
 ```
 
-If you add the action to a workflow for smoke testing, an extra `args: --version` call is a good minimal end-to-end check.
+For smoke testing, `install-only: true` is the simplest end-to-end check. For deeper coverage, call the subcommand action with real command inputs.

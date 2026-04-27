@@ -13,7 +13,7 @@ on:
     tags-ignore:
       - '**'
   pull_request:
-    branches: 
+    branches:
       - main
 
 env:
@@ -55,7 +55,8 @@ jobs:
         working-directory: ./cli
         run: go build ./...
 
-{{- if not .Specification.CommandLineCommands.NoAction }}
+{{- if .GeneratedActions }}
+  {{- $primary := index .GeneratedActions 0 }}
   dogfood-action:
     name: Dogfood Action
     runs-on: ubuntu-latest
@@ -75,15 +76,15 @@ jobs:
           GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
 
       - name: Run local action
-        uses: ./{{ normaliseActionName .Specification.PackageName }}
+        uses: ./actions/{{ $primary.DirectoryName }}
         with:
-          args: --version
+          install-only: true
 
       - name: Run unpublished action and binary
-        uses: ./{{ normaliseActionName .Specification.PackageName }}
+        uses: ./actions/{{ $primary.DirectoryName }}
         with:
-          repo: ${{ "{{" }} github.repository }}
+          action-repo: ${{ "{{" }} github.repository }}
           action-ref: ${{ "{{" }} github.sha }}
-          args: --version
+          install-only: true
 {{- end }}
 {{- end }}

@@ -160,10 +160,10 @@ $defs:
       description:
         type: string
         description: The description of the CLI binary
-      no_action:
+      no_actions:
         type: boolean
         default: false
-        description: Whether to skip generating the GitHub Action wrapper for the CLI
+        description: Whether to skip generating GitHub Actions for the CLI
       callCloud:
         type: boolean
         description: |
@@ -249,6 +249,10 @@ $defs:
         type: boolean
         description: |
           Whether this function is hidden and should NOT show up in the list of available commands.
+        default: false
+      no_action:
+        type: boolean
+        description: Whether to skip generating the GitHub Action wrapper for this command
         default: false
       loadFromKeyring:
         description: Whether to load some configuration input from system's keyring service

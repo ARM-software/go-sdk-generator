@@ -11,7 +11,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 {{ if .Specification.CommandLineCommands -}}
 > :gear: This project also comes with [CLI tools and commands](#cli_tools) for ease of use
-{{ if not .Specification.CommandLineCommands.NoAction -}}
+{{ if not .Specification.CommandLineCommands.NoActions -}}
 > :construction_worker: The project also provides a [GitHub Action](#github-action) which can ease integration into workflows
 {{ end -}}
 {{ end -}}
@@ -61,35 +61,52 @@ Return values:
 
 {{ .Specification.CommandLineCommands.Description }}
 
-{{ if not .Specification.CommandLineCommands.NoAction -}}
+{{ if .GeneratedActions -}}
 ## GitHub Action
 
-GitHub Actions are also published so that `{{ .Specification.CommandLineCommands.Binary }}` can be used easily in CI workflows.
+GitHub Actions are also published so that `{{ .Specification.CommandLineCommands.Binary }}` subcommands can be used easily in CI workflows.
+
+Available generated actions:
+{{- range .GeneratedActions }}
+- `actions/{{ .DirectoryName }}` runs `{{ $.Specification.CommandLineCommands.Binary }} {{ .Subcommand }}`
+{{- end }}
+
+{{ $primary := index .GeneratedActions 0 -}}
 
 Use the published action from official releases:
 
 ```yaml
-- name: Run {{ .Specification.CommandLineCommands.Binary }} from release
-  uses: Arm-Debug/{{ .Specification.PackageName }}/{{ normaliseActionName .Specification.PackageName }}@v0
+- name: Install {{ .Specification.CommandLineCommands.Binary }} from release
+  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
   with:
-    args: --version
+    install-only: true
+```
+
+To run a subcommand directly, use the matching action and provide that command's inputs:
+
+```yaml
+- name: Run {{ .Specification.CommandLineCommands.Binary }} {{ $primary.Subcommand }}
+  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  with:
+    # provide the inputs required by the `{{ $primary.Subcommand }}` command here
 ```
 
 You can also install the released binary without running it immediately:
 
 ```yaml
 - name: Install {{ .Specification.CommandLineCommands.Binary }}
-  uses: Arm-Debug/{{ .Specification.PackageName }}/{{ normaliseActionName .Specification.PackageName }}@v0
+  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
   with:
     install-only: true
     workdir: .tools
 ```
 
 Inputs:
-- `repo`: repository to download releases from; defaults to the repository running the action
-- `args`: arguments to pass to the CLI
+- `action-repo`: repository to download releases from; defaults to the repository running the action
 - `workdir`: working directory where the CLI is run, and where it is installed if a native package is not used
 - `install-only`: installs the package without running the CLI afterwards
+- each generated action also exposes one input per non-hidden CLI flag for that subcommand, including repeated root inputs shared across commands
+- commands with positional operands also expose an `operands` input, one operand per line
 
 The action resolves official releases from the action version:
 - `@v0.29.0` installs exactly `v0.29.0`
