@@ -2,6 +2,25 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.31.0" (2026-04-27)
+=====================
+
+Features
+--------
+
+- :sparkles: Automatically create an action per sub-command (#20260416112141)
+
+
+Bugfixes
+--------
+
+- :gear: Ensure that unreleased tool fetching fetches from the correct repository (#20260427144453)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.30.2" (2026-04-21)
 =====================
 
