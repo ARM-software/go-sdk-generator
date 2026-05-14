@@ -10,10 +10,12 @@
 Documentation about {{ .Specification.Name }} SDK
 
 {{ if .Specification.CommandLineCommands -}}
-> :gear: This project also comes with [CLI tools and commands](#cli_tools) for ease of use
+> :gear: This project also comes with [CLI tools and commands](#cli-tool) for ease of use
+
 {{ if not .Specification.CommandLineCommands.NoActions -}}
 > :construction_worker: The project also provides a [GitHub Action](#github-action) which can ease integration into workflows
 {{ end -}}
+
 {{ end -}}
 
 ## Types defined in this package
@@ -77,7 +79,7 @@ Use the published action from official releases:
 
 ```yaml
 - name: Install {{ .Specification.CommandLineCommands.Binary }} from release
-  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
   with:
     install-only: true
 ```
@@ -86,7 +88,7 @@ To run a subcommand directly, use the matching action and provide that command's
 
 ```yaml
 - name: Run {{ .Specification.CommandLineCommands.Binary }} {{ $primary.Subcommand }}
-  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
   with:
     # provide the inputs required by the `{{ $primary.Subcommand }}` command here
 ```
@@ -95,7 +97,7 @@ You can also install the released binary without running it immediately:
 
 ```yaml
 - name: Install {{ .Specification.CommandLineCommands.Binary }}
-  uses: Arm-Debug/{{ .Specification.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
   with:
     install-only: true
     workdir: .tools

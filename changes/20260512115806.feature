@@ -1,0 +1,1 @@
+:sparkles: Add a skill (`change-manifest-schema`) for handling changes to the manifest schema.

@@ -11,7 +11,7 @@ SPDX-License-Identifier: {{ .Specification.Licence }}
 
 ### Generating the SDK
 
-The interface that this project provides, including what CLI commands are available and what configuration is required is defined in [`{{ .SchemaFileName }}.yml`](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/blob/main/{{ .SchemaFileName }}.yml). From this file the Go SDK code is generated using the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator). Follow these steps to make changes to the interface.
+The interface that this project provides, including what CLI commands are available and what configuration is required is defined in {{ if isHostedOnGitHub .Specification }}[`{{ .SchemaFileName }}.yml`]({{ linkToManifest .Specification .SchemaFileName }}){{ else }}`{{ .SchemaFileName }}.yml`{{ end }}. From this file the Go SDK code is generated using the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator). Follow these steps to make changes to the interface.
 
 #### Prerequisites
 

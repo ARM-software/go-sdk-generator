@@ -7,9 +7,9 @@ package {{ $packageName }}
 import (
 	"github.com/ARM-software/golang-utils/utils" 
 
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/config"
+	"{{ sdkModuleRoot .Specification }}/config"
 {{ if .Specification.AdditionalTypes -}}
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"
+	"{{ sdkModuleRoot .Specification }}/types"
 {{ end -}}
 
 	{{ range .Specification.ExtraImports -}}

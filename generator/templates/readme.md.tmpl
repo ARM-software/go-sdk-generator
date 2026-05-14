@@ -11,7 +11,8 @@
 {{ .Specification.Description }}
 
 {{ if .Specification.CommandLineCommands -}}
-> :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tools) for ease of use
+> :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tool) for ease of use
+
 {{ if not .Specification.CommandLineCommands.NoActions }}
 > :construction_worker: The project also provides a [GitHub Action](./DOCUMENTATION.md#github-action) which can ease integration into workflows
 {{ end }}
@@ -30,7 +31,7 @@ or the help
 
 See `/skills/install.md` for installing `{{ .Specification.CommandLineCommands.Binary }}`.
 
-Preferred method: system package manager (apt/dnf/yum).and package ``{{ .Specification.PackageName }}`
+Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `{{ .Specification.PackageName }}`
 
 {{ end }}
 ## Documentation
@@ -42,7 +43,7 @@ To learn more about the SDK and how to use it, please have a look at [our docume
 To include and use this SDK in your go project, add the following line to your `go.mod`:
 ```go
 require (
-    github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}   latest
+    {{ sdkModuleRoot .Specification }}   latest
     ...
 )
 ```
@@ -71,7 +72,11 @@ The follow described the major aspects of the project structure:
 ## Getting Help
 
 - For a list of known issues and possible workarounds, please see [Known Issues](KNOWN_ISSUES.md).
-- To raise a defect or enhancement please use [GitHub Issues](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/issues) or [GitHub discussions](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/discussions).
+{{- if isHostedOnGitHub .Specification }}
+- To raise a defect or enhancement please use [GitHub Issues]({{ githubIssuesURL .Specification }}) or [GitHub discussions]({{ githubDiscussionsURL .Specification }}).
+{{- else }}
+- To raise a defect or enhancement, please visit the [project repository]({{ repositoryURL .Specification }}).
+{{- end }}
 
 ## Contributing
 

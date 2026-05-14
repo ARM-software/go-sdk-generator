@@ -281,6 +281,12 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	err = ProcessRepositoryAndModuleMetadata(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for determining repository and module metadata")
+		return
+	}
+
 	err = ProcessBindings(ctx, &sdk)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for bindings")
@@ -303,6 +309,8 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	onGithub := isHostedOnGitHub(&sdk.Specification)
+
 	var templatesToPopulate templates
 	templatesToPopulate.addStateFile(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
 	templatesToPopulate.addStateFile(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule), true, true)
@@ -316,20 +324,21 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(editorConfigFile, fmt.Sprintf("%v/.editorconfig", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(precommitConfigFile, fmt.Sprintf("%v/.pre-commit-config.yaml", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(gitignoreFile, fmt.Sprintf("%v/.gitignore", cfg.Output), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(qltyTemplateFile, fmt.Sprintf("%v/.qlty/qlty.toml", cfg.Output), cfg.Overwrite, true) // See https://docs.qlty.sh/qlty-toml
-
-	templatesToPopulate.addStateFile(codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
-
 	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
 	templatesToPopulate.addStateFile(dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule), updateGoVersion, true)
-	templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
-	templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
-	templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
+
+	if onGithub {
+		templatesToPopulate.addStateFile(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
+		templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
+		templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
+	}
 
 	var generatedActions []GeneratedAction
 	if sdk.Specification.CommandLineCommands != nil && !sdk.Specification.CommandLineCommands.NoActions {
@@ -353,7 +362,9 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 	if sdk.Specification.CommandLineCommands != nil {
 		templatesToPopulate.addStateFile(agentFile, fmt.Sprintf("%v/agent.md", cfg.Output), true, true)
-		templatesToPopulate.addStateFile(copilotFile, fmt.Sprintf("%v/.github/copilot-instructions.md", cfg.Output), true, true)
+		if onGithub {
+			templatesToPopulate.addStateFile(copilotFile, fmt.Sprintf("%v/.github/copilot-instructions.md", cfg.Output), true, true)
+		}
 		templatesToPopulate.addStateFile(cliSkillFile, fmt.Sprintf("%v/.agents/skills/%v/SKILL.md", cfg.Output, strings.ToLower(sdk.Specification.MainModule)), true, true)
 		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
 		if generateAction {

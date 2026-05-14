@@ -45,11 +45,13 @@ jobs:
         with:
           go-version: ${{ "{{" }} env.go_version }}
 
-      - name: Configure Git with secret
+{{- if not .Specification.Public }}
+      - name: Configure access to private dependencies
         run: |
-          git config --global url."https://${{ "{{" }} secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
+          {{ githubAuthenticationForGoPrivateDependencies .Specification }}
         env:
           GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
+{{- end }}
 
       - name: Build CLI
         working-directory: ./cli
@@ -69,11 +71,13 @@ jobs:
         with:
           go-version: ${{ "{{" }} env.go_version }}
 
-      - name: Configure Git with secret
+{{- if not .Specification.Public }}
+      - name: Configure access to private dependencies
         run: |
-          git config --global url."https://${{ "{{" }} secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
+          {{ githubAuthenticationForGoPrivateDependencies .Specification }}
         env:
           GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
+{{- end }}
 
       - name: Run local action
         uses: ./actions/{{ $primary.DirectoryName }}

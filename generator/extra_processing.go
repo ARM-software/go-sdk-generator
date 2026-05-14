@@ -14,6 +14,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	mapset "github.com/deckarep/golang-set/v2"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 func usualExtraImports() map[string]string {
@@ -50,6 +52,48 @@ func ProcessExtraImports(ctx context.Context, sdk *SDK) (err error) {
 	}
 	sdk.Specification.ExtraImports = extraImports
 	return
+}
+
+func ProcessRepositoryAndModuleMetadata(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+
+	sdk.Specification.Interface.Namespace = normaliseNamespace(sdk.Specification.Interface.Namespace)
+
+	repoURL := repositoryURL(&sdk.Specification)
+	err = validateURL(repoURL)
+	if err != nil {
+		return
+	}
+
+	sdk.Specification.RepositoryUrl = field.ToOptionalString(repoURL)
+	disableActionGenerationWhenNotHostedOnGitHub(&sdk.Specification)
+	return
+}
+
+func validateURL(value string) error {
+	err := validation.Validate(value, validation.Required, is.URL)
+	if err != nil {
+		return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "expected a URL, got %q", value)
+	}
+	return nil
+}
+
+func disableActionGenerationWhenNotHostedOnGitHub(spec *SDKSpecification) {
+	if spec == nil || spec.CommandLineCommands == nil || isHostedOnGitHub(spec) {
+		return
+	}
+
+	spec.CommandLineCommands.NoActions = true
+	for i := range spec.CommandLineCommands.Functions {
+		spec.CommandLineCommands.Functions[i].NoAction = true
+	}
 }
 
 func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {

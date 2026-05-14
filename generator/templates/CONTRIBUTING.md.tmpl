@@ -14,11 +14,15 @@ fostering a welcoming community. Please see our Code of Conduct:
 
 There are several ways to contribute:
 
-- Raise an issue found via [GitHub Issues](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/issues).
-- Open a [pull request](https://github.com/Arm-Debug/{{ .Specification.PackageName }}/pulls) to:
+{{ if isHostedOnGitHub .Specification -}}
+- Raise an issue found via [GitHub Issues]({{ githubIssuesURL .Specification }}).
+- Open a [pull request]({{ githubPullsURL .Specification }}) to:
   - Provide a fix.
   - Add an enhancement feature.
   - Correct, update or add documentation.
+{{ else -}}
+- Visit the [project repository]({{ repositoryURL .Specification }}) to discuss changes and contribute.
+{{ end }}
 
 
 ## How to Contribute Documentation or Code

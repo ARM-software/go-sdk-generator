@@ -3,7 +3,9 @@ specification:
   main_module: verify
   name: ExampleVerify
   description: Verify a project is compatible with [CMSIS](https://www.keil.arm.com/cmsis)
+  repository_url: https://github.com/Arm-Examples/verify-cmsis-example-sdk
   interface:
+    namespace: github.com/Arm-Debug
     methods:
       - name: Verify
         description: Verify that a project is valid csolution or uvprojx project

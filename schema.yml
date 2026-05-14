@@ -73,13 +73,26 @@ properties:
         description: The package name for the main SDK module
       main_module:
         type: string
-        description: The module within the package e.g. sdk within Arm-Debug/test/sdk for a go project
+        description: The module within the package
       name:
         type: string
         description: The name of the SDK to expose (used for the interface and its implementations)
       description:
         type: string
         description: The description of the SDK
+      repository_url:
+        type: string
+        description: |
+          The URL where the project's repository is hosted.
+          Defaults to https://github.com/Arm-Debug/{package_name} when omitted.
+          GitHub-specific links are generated only when this is a GitHub repository URL.
+          Other forges are not currently supported for GitHub-specific outputs.
+      public:
+        type: boolean
+        default: false
+        description: |
+          Whether the project is public.
+          Public projects are expected not to rely on private dependencies or need access to private resources.
       licence:
         type: string
         description: The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
@@ -133,6 +146,13 @@ $defs:
     required:
       - methods
     properties:
+      namespace:
+        type: string
+        default: github.com/Arm-Debug/
+        description: |
+          The import namespace prefix for the generated SDK or library.
+          This value may be normalised by the generator to comply with language expectations.
+          It may differ from repository_url when the hosted project location and the SDK import namespace are intentionally separate.
       notCloseable:
         type: boolean
         default: false

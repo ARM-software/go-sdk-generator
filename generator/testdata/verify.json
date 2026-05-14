@@ -5,6 +5,7 @@
     "name": "ExampleVerify",
     "description": "Verify a project is compatible with [CMSIS](https://www.keil.arm.com/cmsis)",
     "interface": {
+      "namespace": "github.com/Arm-Debug",
       "methods": [
         {
           "name": "Verify",
@@ -53,6 +54,7 @@
         }
       ]
     },
+    "repository_url": "https://github.com/Arm-Examples/verify-cmsis-example-sdk",
     "command_line_commands": {
       "binary": "verify-cmsis-example-sdk",
       "root_environment_var": "VERIFY_EXAMPLE",

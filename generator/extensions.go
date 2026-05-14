@@ -13,6 +13,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
+	"github.com/ARM-software/golang-utils/utils/maps"
+	"github.com/ARM-software/golang-utils/utils/ptr"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/sttk/stringcase"
 	"golang.org/x/text/cases"
@@ -27,6 +29,11 @@ var (
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
 
 	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas", "Https", "Http", "Ttl"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
+)
+
+const (
+	urlPathSeparator       = "/"
+	defaultNamespacePrefix = defaultGitHubOrganisation
 )
 
 func argFlagType(s string) string {
@@ -53,7 +60,7 @@ func argFlagType(s string) string {
 	}
 }
 
-var templateFuncMap = template.FuncMap{
+var templateFuncMap = maps.Merge(template.FuncMap{
 	"title": func(s string) string {
 		if len(s) == 1 {
 			return strings.ToUpper(s)
@@ -93,13 +100,92 @@ var templateFuncMap = template.FuncMap{
 	"ignoreLinting":                ignoreLintingError,
 	"nowYear":                      nowYear,
 	"toURIEncoded":                 toURIEncoded,
+	"linkToManifest":               linkToManifest,
 	"normaliseActionDirectoryName": normaliseActionDirectoryName,
 	"normaliseActionName":          normaliseActionName,
 	"hasCloudCommands":             isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
-	"dereferenceString": func(s *string) string { return field.Optional(s, "") },
+	"dereferenceString": ptr.Deref[string],
+	"sdkModuleRoot":     sdkModuleRoot,
+	"cliModuleRoot":     cliModuleRoot,
+	"importPrefix":      importPrefix,
+	"repositoryURL":     repositoryURL,
+}, gitHubFuncMap)
+
+func stripHTTPScheme(value string) string {
+	value = strings.TrimSpace(value)
+	value = strings.TrimPrefix(value, "https://")
+	value = strings.TrimPrefix(value, "http://")
+	return value
+}
+
+// normaliseNamespace coerces user input into a stable Go import-path prefix.
+//
+// Go expects fully qualified import paths to look like host/path values rather
+// than repository URLs. See:
+// https://pkg.go.dev/cmd/go@master#hdr-Fully_qualified_import_paths
+//
+// The schema intentionally keeps this field higher level, but the generator has
+// to produce deterministic Go module and import paths. For that reason this
+// function accepts a few common authoring variations and rewrites them into the
+// import-path form used by the templates. In particular, it removes any HTTP(S)
+// scheme, normalises path separators, trims surrounding whitespace, and ensures
+// the result is treated as a namespace prefix with exactly one trailing slash.
+func normaliseNamespace(value string) string {
+	value = stripHTTPScheme(value)
+	value = strings.ReplaceAll(value, "\\", urlPathSeparator)
+	value = strings.TrimSpace(value)
+	value = strings.Trim(value, urlPathSeparator)
+	if reflection.IsEmpty(value) {
+		return normaliseNamespace(defaultNamespacePrefix)
+	}
+	return fmt.Sprintf("%s%s", value, urlPathSeparator)
+}
+
+func interfaceNamespace(spec *SDKSpecification) string {
+	return normaliseNamespace(spec.Interface.Namespace)
+}
+
+func moduleRoot(spec *SDKSpecification) string {
+	return fmt.Sprintf("%s%s", interfaceNamespace(spec), spec.PackageName)
+}
+
+func sdkModuleRoot(spec *SDKSpecification) string {
+	return fmt.Sprintf("%s/%s", moduleRoot(spec), spec.MainModule)
+}
+
+func cliModuleRoot(spec *SDKSpecification) string {
+	return fmt.Sprintf("%s/cli", moduleRoot(spec))
+}
+
+func importPrefix(spec *SDKSpecification) string {
+	return strings.TrimSuffix(interfaceNamespace(spec), urlPathSeparator)
+}
+
+func defaultRepositoryURL(packageName string) string {
+	return fmt.Sprintf("https://%s/%s", defaultGitHubOrganisation, packageName)
+}
+
+func repositoryURL(spec *SDKSpecification) string {
+	if spec == nil {
+		return ""
+	}
+	value := strings.TrimSpace(field.OptionalString(spec.RepositoryUrl, ""))
+	if reflection.IsEmpty(value) {
+		return defaultRepositoryURL(spec.PackageName)
+	}
+	return value
+}
+
+func linkToManifest(spec *SDKSpecification, schemaFileName string) string {
+	fileName := fmt.Sprintf("%s.yml", schemaFileName)
+	if isHostedOnGitHub(spec) {
+		return linkToFileOnGitHub(spec, fileName)
+	}
+
+	return ""
 }
 
 func toPascalCase(s string) string {

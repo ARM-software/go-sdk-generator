@@ -4,6 +4,7 @@
     "main_module": "workspace",
     "name": "Workspace",
     "description": "Create and manipulate workspaces",
+    "public": true,
     "additional_types": [
       {
         "name": "Project",
@@ -119,6 +120,7 @@
       }
     ],
     "interface": {
+      "namespace": "github.com/Arm",
       "methods": [
         {
           "name": "SetWorkspaceName",

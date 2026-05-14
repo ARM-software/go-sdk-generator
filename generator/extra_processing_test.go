@@ -69,8 +69,83 @@ func TestProcessExtraImports(t *testing.T) {
 		errortest.AssertError(t, ProcessExtraImports(ctx, nil), commonerrors.ErrCancelled)
 	})
 
-	t.Run("no sdk", func(t *testing.T) {
+	t.Run("no spec", func(t *testing.T) {
 		errortest.AssertError(t, ProcessExtraImports(context.Background(), nil), commonerrors.ErrUndefined)
+	})
+}
+
+func TestProcessRepositoryAndModuleMetadata(t *testing.T) {
+	t.Run("happy", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName: "verify-cmsis-example-sdk",
+				Interface: Interface{
+					Namespace: "https://github.com/Arm-Debug",
+				},
+				RepositoryUrl: field.ToOptionalString("https://github.com/Arm-Examples/verify-cmsis-example-sdk"),
+			},
+		}
+
+		require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
+		assert.Equal(t, "github.com/Arm-Debug/", sdk.Specification.Interface.Namespace)
+		assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk", field.OptionalString(sdk.Specification.RepositoryUrl, ""))
+	})
+
+	t.Run("defaults repository url", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName: "verify-cmsis-example-sdk",
+				Interface:   Interface{},
+			},
+		}
+
+		require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
+		assert.Equal(t, "github.com/Arm-Debug/", sdk.Specification.Interface.Namespace)
+		assert.Equal(t, "https://github.com/Arm-Debug/verify-cmsis-example-sdk", field.OptionalString(sdk.Specification.RepositoryUrl, ""))
+	})
+
+	t.Run("invalid repository url", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName:   "verify-cmsis-example-sdk",
+				Interface:     Interface{},
+				RepositoryUrl: field.ToOptionalString("not a url"),
+			},
+		}
+
+		errortest.AssertError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk), commonerrors.ErrInvalid)
+	})
+
+	t.Run("disables actions when repository is not hosted on github", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName:   "verify-cmsis-example-sdk",
+				Interface:     Interface{},
+				RepositoryUrl: field.ToOptionalString("https://gitlab.example.com/arm/verify-cmsis-example-sdk"),
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{
+						{Name: "Generate"},
+						{Name: "Validate"},
+					},
+				},
+			},
+		}
+
+		require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
+		assert.True(t, sdk.Specification.CommandLineCommands.NoActions)
+		for i := range sdk.Specification.CommandLineCommands.Functions {
+			assert.True(t, sdk.Specification.CommandLineCommands.Functions[i].NoAction)
+		}
+	})
+
+	t.Run("context cancelled", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		errortest.AssertError(t, ProcessRepositoryAndModuleMetadata(ctx, nil), commonerrors.ErrCancelled)
+	})
+
+	t.Run("no spec", func(t *testing.T) {
+		errortest.AssertError(t, ProcessRepositoryAndModuleMetadata(context.Background(), nil), commonerrors.ErrUndefined)
 	})
 }
 
@@ -120,7 +195,7 @@ func TestProcessArguments(t *testing.T) {
 		errortest.AssertError(t, ProcessArguments(ctx, nil), commonerrors.ErrCancelled)
 	})
 
-	t.Run("no sdk", func(t *testing.T) {
+	t.Run("no spec", func(t *testing.T) {
 		errortest.AssertError(t, ProcessArguments(context.Background(), nil), commonerrors.ErrUndefined)
 	})
 

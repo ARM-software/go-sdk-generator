@@ -12,7 +12,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	{{ if .Specification.AdditionalTypes -}}
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/{{ .Specification.MainModule }}/types"	
+	"{{ sdkModuleRoot .Specification }}/types"	
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"

@@ -28,10 +28,10 @@ formatters:
       sections:
         - Standard
         - Default
-        - Prefix(github.com/Arm-Debug)
+        - Prefix({{ importPrefix .Specification }})
     goimports:
       local-prefixes:
-        - github.com/Arm-Debug
+        - {{ importPrefix .Specification }}
   exclusions:
     generated: lax
     paths:

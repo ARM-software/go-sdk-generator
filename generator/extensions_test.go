@@ -1,8 +1,10 @@
 package generator
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -186,4 +188,32 @@ func Test_packageName(t *testing.T) {
 			assert.Equal(t, test.expected, toPackageName(test.input))
 		})
 	}
+}
+
+func TestNormaliseNamespace(t *testing.T) {
+	org := faker.Name()
+	assert.Equal(t, fmt.Sprintf("github.com/%v/", org), normaliseNamespace(fmt.Sprintf("github.com/%v", org)))
+	assert.Equal(t, fmt.Sprintf("github.com/%v/", org), normaliseNamespace(fmt.Sprintf("https://github.com/%v/", org)))
+	assert.Equal(t, fmt.Sprintf("github.com/%v/", org), normaliseNamespace(fmt.Sprintf(" github.com/%v ", org)))
+	assert.Equal(t, fmt.Sprintf("github.com/%v/", org), normaliseNamespace(fmt.Sprintf("http://github.com/%v", org)))
+	assert.Equal(t, fmt.Sprintf("github.com/%v/", org), normaliseNamespace(fmt.Sprintf("github.com\\%v\\", org)))
+}
+
+func TestRepositoryURLDefaultsAndNonGitHub(t *testing.T) {
+	spec := SDKSpecification{
+		PackageName: "verify-cmsis-example-sdk",
+		Interface: Interface{
+			Namespace: "github.com/Arm-Debug/",
+		},
+	}
+	assert.Equal(t, "https://github.com/Arm-Debug/verify-cmsis-example-sdk", repositoryURL(&spec))
+	assert.True(t, isHostedOnGitHub(&spec))
+
+	spec.RepositoryUrl = field.ToOptionalString("https://gitlab.example.com/arm/verify-cmsis-example-sdk")
+	assert.False(t, isHostedOnGitHub(&spec))
+	assert.Empty(t, repositoryLocationOnGitHub(&spec))
+	assert.Empty(t, projectOwnGitHubActionsLocation(&spec))
+	assert.Equal(t, `echo "nothing to do"`, githubAuthenticationForGoPrivateDependencies(&spec))
+	assert.Empty(t, githubIssuesURL(&spec))
+	assert.Empty(t, linkToFileOnGitHub(&spec, "schema.yml"))
 }

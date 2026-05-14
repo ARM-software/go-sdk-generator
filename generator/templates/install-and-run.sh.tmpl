@@ -9,7 +9,7 @@ if [[ -z "$repo" ]]; then
   repo="${DEFAULT_REPO:-}"
 fi
 if [[ -z "$repo" ]]; then
-  repo="Arm-Debug/{{ .Specification.PackageName }}"
+  repo="{{ repositoryLocationOnGitHub .Specification }}"
 fi
 
 package_name="{{ .Specification.PackageName }}"

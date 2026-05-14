@@ -23,8 +23,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/config"
-	"github.com/Arm-Debug/{{ .Specification.PackageName }}/cli/cmd/{{ $moduleDir }}"
+	"{{ cliModuleRoot .Specification }}/cmd/config"
+	"{{ cliModuleRoot .Specification }}/cmd/{{ $moduleDir }}"
 )
 
 const (

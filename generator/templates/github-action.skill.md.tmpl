@@ -43,7 +43,7 @@ Generated actions in this repository:
 Example published action:
 
 ```yaml
-uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
 ```
 
 Example local path:
@@ -126,7 +126,7 @@ The action installs from the released archive.
 
 ```yaml
 - name: Install {{ $cli.Binary }}
-  uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
   with:
     install-only: true
     workdir: .tools
@@ -136,7 +136,7 @@ The action installs from the released archive.
 
 ```yaml
 - name: Run {{ $cli.Binary }} {{ $primary.Subcommand }}
-  uses: Arm-Debug/{{ $spec.PackageName }}/actions/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
   with:
     # provide the required inputs for this subcommand here
 ```

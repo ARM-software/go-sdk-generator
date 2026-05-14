@@ -577,6 +577,14 @@ type Interface struct {
 	// Methods corresponds to the JSON schema field "methods".
 	Methods []InterfaceMethod `json:"methods" yaml:"methods" mapstructure:"methods"`
 
+	// The import namespace prefix for the generated SDK or library.
+	// This value may be normalised by the generator to comply with language
+	// expectations.
+	// It may differ from repository_url when the hosted project location and the SDK
+	// import namespace are intentionally separate.
+	//
+	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
 	// Whether the manager should be Closeable (i.e. has a Close() method to call
 	// whilst closing) or not.
 	NotCloseable bool `json:"notCloseable,omitempty" yaml:"notCloseable,omitempty" mapstructure:"notCloseable,omitempty"`
@@ -632,6 +640,9 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
+	if v, ok := raw["namespace"]; !ok || v == nil {
+		plain.Namespace = "github.com/Arm-Debug/"
+	}
 	if v, ok := raw["notCloseable"]; !ok || v == nil {
 		plain.NotCloseable = false
 	}
@@ -684,8 +695,7 @@ type SDKSpecification struct {
 	// The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
 	Licence string `json:"licence,omitempty" yaml:"licence,omitempty" mapstructure:"licence,omitempty"`
 
-	// The module within the package e.g. sdk within Arm-Debug/test/sdk for a go
-	// project
+	// The module within the package
 	MainModule string `json:"main_module" yaml:"main_module" mapstructure:"main_module"`
 
 	// The name of the SDK to expose (used for the interface and its implementations)
@@ -694,9 +704,22 @@ type SDKSpecification struct {
 	// The package name for the main SDK module
 	PackageName string `json:"package_name" yaml:"package_name" mapstructure:"package_name"`
 
+	// Whether the project is public.
+	// Public projects are expected not to rely on private dependencies or need access
+	// to private resources.
+	//
+	Public bool `json:"public,omitempty" yaml:"public,omitempty" mapstructure:"public,omitempty"`
+
 	// ReleaseToArtifactory corresponds to the JSON schema field
 	// "release_to_artifactory".
 	ReleaseToArtifactory *ReleaseToArtifactory `json:"release_to_artifactory,omitempty" yaml:"release_to_artifactory,omitempty" mapstructure:"release_to_artifactory,omitempty"`
+
+	// The URL where the project's repository is hosted.
+	// Defaults to https://github.com/Arm-Debug/{package_name} when omitted.
+	// GitHub-specific links are generated only when this is a GitHub repository URL.
+	// Other forges are not currently supported for GitHub-specific outputs.
+	//
+	RepositoryUrl *string `json:"repository_url,omitempty" yaml:"repository_url,omitempty" mapstructure:"repository_url,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -724,6 +747,9 @@ func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["licence"]; !ok || v == nil {
 		plain.Licence = "Proprietary"
+	}
+	if v, ok := raw["public"]; !ok || v == nil {
+		plain.Public = false
 	}
 	*j = SDKSpecification(plain)
 	return nil

@@ -58,7 +58,7 @@ runs:
       shell: bash
       env:
         INPUT_ACTION_REPO: ${{ "{{" }} inputs.action-repo }}
-        DEFAULT_ACTION_REPOSITORY: Arm-Debug/{{ .Specification.PackageName }}
+        DEFAULT_ACTION_REPOSITORY: {{ repositoryLocationOnGitHub .Specification }}
         ACTION_REF: ${{ "{{" }} inputs.action-ref || github.action_ref }}
       run: |
         resolved_repo="${INPUT_ACTION_REPO:-}"
