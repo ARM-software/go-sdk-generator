@@ -1,1 +1,0 @@
-:sparkles: Add a `grill-me` skill, inspired by Matt Pocock's equivalent skill, to challenge plans against generator documentation and decisions. It should help with supporting AI-assisted generator change.

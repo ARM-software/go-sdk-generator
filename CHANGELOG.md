@@ -2,6 +2,39 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.32.0" (2026-05-14)
+=====================
+
+Features
+--------
+
+- :sparkles: Add ADR documentation for generator architecture decisions (#20260511150637)
+- :sparkles: Add a `grill-me` skill, inspired by Matt Pocock's equivalent skill, to challenge plans against generator documentation and decisions. It should help with supporting AI-assisted generator change. (#20260511160059)
+- :book: Update the contribution guide with clearer news file and pull request guidance (#20260511164237)
+- :sparkles: Add a skill (`change-manifest-schema`) for handling changes to the manifest schema. (#20260512115806)
+- :sparkles: Support generating GitHub-hosted tools outside the `Arm-Debug` organisation (#20260513134817)
+- :sparkles: Support generating tools that are not hosted on GitHub (#20260513134837)
+- :sparkles: Support custom SDK namespace (#20260513134925)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: golang-1.26.3 (#20260508043915)
+- Dependency upgrade: alpine-3.23.4 (#20260511105834)
+- :bug: Fix some small rendering issues in markdown files (#20260513153357)
+
+
+Improved Documentation
+----------------------
+
+- :book: Document the rationale behind the separation of SDK namespace and repository URL (#20260512132538)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.31.0" (2026-04-27)
 =====================
 
