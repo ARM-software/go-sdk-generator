@@ -31,7 +31,7 @@ log() {
 }
 
 warn_no_release() {
-  log "${package_name} has not been officially released yet. Skipping installation."
+  log "Could not resolve a released ${package_name} binary from '${repo}'. Ensure a published release exists and if using a github-token, that it has the correct permissions to access it. Skipping installation."
 }
 
 is_true() {

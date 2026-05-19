@@ -12,6 +12,10 @@ inputs:
     description: Override the GitHub Action ref used to resolve the release or source revision.
     required: false
     default: ""
+  github-token:
+    description: "The GitHub token to use to fetch the release versions of the tools. (Note: github.token does not have the required permissions to fetch releases from the action repository)"
+    required: false # only needed for fetching releases
+    default: ""
   workdir:
     description: Working directory where the CLI is run, and where it is installed if a native package is not used.
     required: false
@@ -110,7 +114,11 @@ runs:
       shell: bash
       env:
         ACTION_REF: ${{ "{{" }} steps.action-source.outputs.ref }}
+{{- if .Specification.Public }}
+        GH_TOKEN: ${{ "{{" }} inputs.github-token }}
+{{- else }}
         GH_TOKEN: ${{ "{{" }} github.token }}
+{{- end }}
         INPUT_ACTION_REPO: ${{ "{{" }} inputs.action-repo }}
         DEFAULT_REPO: ${{ "{{" }} steps.action-source.outputs.repository }}
         INPUT_INSTALL_ONLY: ${{ "{{" }} inputs.install-only }}
