@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.32.1" (2026-05-19)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Require a github token with the correct scopes for fetching released artefacts (#20260519094237)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.32.0" (2026-05-14)
 =====================
 
