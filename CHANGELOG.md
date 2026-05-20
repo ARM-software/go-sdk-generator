@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.32.2" (2026-05-20)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Ensure that the binary name is derived from the binary name in the schema, not the package name (#20260519135312)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.32.1" (2026-05-19)
 =====================
 

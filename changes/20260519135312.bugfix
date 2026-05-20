@@ -1,1 +1,0 @@
-:bug: Ensure that the binary name is derived from the binary name in the schema, not the package name
