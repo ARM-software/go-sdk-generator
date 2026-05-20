@@ -330,15 +330,15 @@ install_native_linux() {
 
   # Choose the package format that matches the current machine tooling.
   if command -v dpkg >/dev/null 2>&1; then
-    asset="${binary_name}_${version}_linux_${arch}.deb"
+    asset="${package_name}_${version}_linux_${arch}.deb"
     download_asset "$tag" "$asset"
     run_with_privilege dpkg -i "$download_dir/$asset"
   elif command -v rpm >/dev/null 2>&1; then
-    asset="${binary_name}_${version}_linux_${arch}.rpm"
+    asset="${package_name}_${version}_linux_${arch}.rpm"
     download_asset "$tag" "$asset"
     run_with_privilege rpm -i "$download_dir/$asset"
   elif command -v apk >/dev/null 2>&1; then
-    asset="${binary_name}_${version}_linux_${arch}.apk"
+    asset="${package_name}_${version}_linux_${arch}.apk"
     download_asset "$tag" "$asset"
     run_with_privilege apk add --allow-untrusted "$download_dir/$asset"
   else
@@ -350,7 +350,7 @@ install_native_linux() {
 }
 
 install_archive() {
-  local asset="${binary_name}_${archive_os}_${archive_arch}.tar.gz"
+  local asset="${package_name}_${archive_os}_${archive_arch}.tar.gz"
 
   # Archive installs are the portable fallback for macOS, Windows, and Linux
   # when we are not doing a package-manager installation.
