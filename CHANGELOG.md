@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.32.3" (2026-05-20)
+=====================
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.23.4 (#20260519165215)
+- :sparkles: Ensure that package name is used when downloading assets for the GitHub actions (#20260520160031)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.32.2" (2026-05-20)
 =====================
 
