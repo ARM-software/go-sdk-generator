@@ -2,7 +2,7 @@
 {{- $cli := $spec.CommandLineCommands -}}
 
 ---
-name: install
+name: install-{{ $cli.Binary }}
 description: "Install, upgrade, or reinstall the {{ $cli.Binary }} CLI tool using the system package manager (preferred approach)"
 license:  $spec.Licence
 compatibility: opencode

@@ -4,7 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"path/filepath"
+	"path"
 	"slices"
 	"strings"
 	"text/template"
@@ -21,7 +21,7 @@ import (
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
-//go:generate go tool go-jsonschema -p generator ../schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
+//go:generate go tool go-jsonschema -p generator ../generator/schema/schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK
 
 const (
 	copilotFile                  = "templates/copilot-instructions.md.tmpl"
@@ -161,10 +161,13 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	if err != nil {
 		return
 	}
+
 	if data == nil {
 		err = commonerrors.UndefinedVariable("data model")
 		return
 	}
+
+	localFs := filesystem.GetGlobalFileSystem()
 
 	tmpl, err := template.
 		New("sdk").
@@ -182,7 +185,7 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 		}
 	}
 
-	outDir := filepath.Dir(output)
+	outDir := filesystem.FilePathDir(localFs, output)
 	if !filesystem.Exists(outDir) {
 		err = filesystem.MkDir(outDir)
 		if err != nil {
@@ -200,13 +203,13 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 		}
 	}()
 
-	err = tmpl.ExecuteTemplate(outFile, filepath.Base(templateFile), data)
+	err = tmpl.ExecuteTemplate(outFile, path.Base(templateFile), data)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not execute template")
 		return
 	}
 
-	if filepath.Ext(output) == ".go" {
+	if filesystem.FilePathExt(localFs, output) == ".go" {
 		cleaned, subErr := formatImports(ctx, output)
 		if subErr != nil {
 			err = subErr
@@ -227,11 +230,15 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
 	}
+
 	if reflection.IsEmpty(cfg.Input) {
 		err = commonerrors.UndefinedVariable("SDK specification file")
 		return
 	}
-	ext := filepath.Ext(cfg.Input)
+
+	localFs := filesystem.GetGlobalFileSystem()
+
+	ext := filesystem.FilePathExt(localFs, cfg.Input)
 	ext = strings.ToLower(ext)
 	_, found := collection.FindInSlice(false, []string{".yml", ".yaml", ".json"}, ext)
 	if !found {
@@ -249,7 +256,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		} else if strings.EqualFold(ext, ".yaml") {
 			ext = ".yml"
 		}
-		alternativeInput := filepath.Join(filepath.Dir(cfg.Input), fmt.Sprintf("%v%v", filesystem.FilepathStem(cfg.Input), ext))
+		alternativeInput := filesystem.FilePathJoin(localFs, filesystem.FilePathDir(localFs, cfg.Input), fmt.Sprintf("%v%v", filesystem.FilepathStem(cfg.Input), ext))
 		if filesystem.Exists(alternativeInput) {
 			cfg.Input = alternativeInput
 		} else {
@@ -312,32 +319,33 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	onGithub := isHostedOnGitHub(&sdk.Specification)
 
 	var templatesToPopulate templates
-	templatesToPopulate.addStateFile(implementationFile, fmt.Sprintf("%v/%v/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
-	templatesToPopulate.addStateFile(interfaceFile, fmt.Sprintf("%v/%v/interfaces.go", cfg.Output, sdk.Specification.MainModule), true, true)
-	templatesToPopulate.addStateFile(configFile, fmt.Sprintf("%v/%v/config/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
-	templatesToPopulate.addStateFile(documentationFile, fmt.Sprintf("%v/DOCUMENTATION.md", cfg.Output), true, true)
-	templatesToPopulate.addStateFile(contribFile, fmt.Sprintf("%v/CONTRIBUTING.md", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(developmentFile, fmt.Sprintf("%v/DEVELOPMENT.md", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(codeOfConductFile, fmt.Sprintf("%v/CODE_OF_CONDUCT.md", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(knownIssuesFile, fmt.Sprintf("%v/KNOWN_ISSUES.md", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciFile, fmt.Sprintf("%v/.golangci.yaml", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(editorConfigFile, fmt.Sprintf("%v/.editorconfig", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(precommitConfigFile, fmt.Sprintf("%v/.pre-commit-config.yaml", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciPrecommitFile, fmt.Sprintf("%v/.golangci.pre-commit.yaml", cfg.Output), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(gitignoreFile, fmt.Sprintf("%v/.gitignore", cfg.Output), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(qltyTemplateFile, fmt.Sprintf("%v/.qlty/qlty.toml", cfg.Output), cfg.Overwrite, true) // See https://docs.qlty.sh/qlty-toml
-	templatesToPopulate.addStateFile(readmeFile, fmt.Sprintf("%v/README.md", cfg.Output), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(goModSdkFile, fmt.Sprintf("%v/%v/go.mod", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(implementationFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+	templatesToPopulate.addStateFile(interfaceFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "interfaces.go"), true, true)
+	templatesToPopulate.addStateFile(configFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+	templatesToPopulate.addStateFile(documentationFile, filesystem.FilePathJoin(localFs, cfg.Output, "DOCUMENTATION.md"), true, true)
+	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), cfg.Overwrite, false)
+	templatesToPopulate.addStateFile(qltyTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml"), cfg.Overwrite, true) // See https://docs.qlty.sh/qlty-toml
+	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
+	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
+
 	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
-	templatesToPopulate.addStateFile(dockerFile, fmt.Sprintf("%v/Dockerfile.%v", cfg.Output, sdk.Specification.MainModule), updateGoVersion, true)
+	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
 
 	if onGithub {
-		templatesToPopulate.addStateFile(dependabotFile, fmt.Sprintf("%v/.github/dependabot.yml", cfg.Output), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(prTemplateFile, fmt.Sprintf("%v/.github/PULL_REQUEST_TEMPLATE.md", cfg.Output), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(codeOwnersFile, fmt.Sprintf("%v/.github/CODEOWNERS", cfg.Output), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(ciWorkflowFile, fmt.Sprintf("%v/.github/workflows/ci.yml", cfg.Output), updateGoVersion, true)
-		templatesToPopulate.addStateFile(dependabotWorkflowFile, fmt.Sprintf("%v/.github/workflows/dependabot.yml", cfg.Output), updateGoVersion, true)
-		templatesToPopulate.addStateFile(releaseWorkflowFile, fmt.Sprintf("%v/.github/workflows/release.yml", cfg.Output), updateGoVersion, true)
+		templatesToPopulate.addStateFile(dependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(ciWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(dependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(releaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), updateGoVersion, true)
 	}
 
 	var generatedActions []GeneratedAction
@@ -351,44 +359,45 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	generateAction := len(generatedActions) > 0
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
-		templatesToPopulate.addStateFile(typesFile, fmt.Sprintf("%v/%v/types/%v.go", cfg.Output, sdk.Specification.MainModule, sdk.Specification.MainModule), true, true)
+		templatesToPopulate.addStateFile(typesFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "types", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 	}
 
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
-		templatesToPopulate.addStateFile(goreleaserFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	} else {
-		templatesToPopulate.addStateFile(goreleaserLibraryFile, fmt.Sprintf("%v/.goreleaser.yml", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
-		templatesToPopulate.addStateFile(agentFile, fmt.Sprintf("%v/agent.md", cfg.Output), true, true)
+		templatesToPopulate.addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
 		if onGithub {
-			templatesToPopulate.addStateFile(copilotFile, fmt.Sprintf("%v/.github/copilot-instructions.md", cfg.Output), true, true)
+			templatesToPopulate.addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
 		}
-		templatesToPopulate.addStateFile(cliSkillFile, fmt.Sprintf("%v/.agents/skills/%v/SKILL.md", cfg.Output, strings.ToLower(sdk.Specification.MainModule)), true, true)
-		templatesToPopulate.addStateFile(installSkillFile, fmt.Sprintf("%v/.agents/skills/install/SKILL.md", cfg.Output), cfg.Overwrite, true)
+		binary := field.OptionalString(sdk.Specification.CommandLineCommands.Binary, "")
+		templatesToPopulate.addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
+		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), cfg.Overwrite, true)
 		if generateAction {
-			templatesToPopulate.addStateFile(githubActionSkillFile, fmt.Sprintf("%v/.agents/skills/github-action/SKILL.md", cfg.Output), true, true)
+			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
 		}
-		templatesToPopulate.addStateFile(cliFile, fmt.Sprintf("%v/cli/cmd/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
-		templatesToPopulate.addStateFile(rootCliFile, fmt.Sprintf("%v/cli/cmd/root.go", cfg.Output), true, true)
-		templatesToPopulate.addStateFile(mainCliFile, fmt.Sprintf("%v/cli/main.go", cfg.Output), true, true)
-		templatesToPopulate.addStateFile(configCLIFile, fmt.Sprintf("%v/cli/cmd/config/%v.go", cfg.Output, sdk.Specification.MainModule), true, true)
-		templatesToPopulate.addStateFile(implementationWrapperCLIFile, fmt.Sprintf("%v/cli/cmd/%v/wrappers.go", cfg.Output, sdk.Specification.MainModule), true, true)
-		templatesToPopulate.addStateFile(preinstallFile, fmt.Sprintf("%v/scripts/pre.sh", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "root.go"), true, true)
+		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "main.go"), true, true)
+		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
+		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
 
-		templatesToPopulate.addStateFile(implementationCLIFile, fmt.Sprintf("%v/cli/cmd/%v/implementations.go", cfg.Output, sdk.Specification.MainModule), cfg.Overwrite, false)
-		templatesToPopulate.addStateFile(goModCliFile, fmt.Sprintf("%v/cli/go.mod", cfg.Output), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
+		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "go.mod"), cfg.Overwrite, true)
 	}
 
 	var modulePropertiesFilePath string
 	if sdk.Specification.CommandLineCommands == nil {
-		modulePropertiesFilePath = fmt.Sprintf("%v/module.properties", cfg.Output)
+		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, "module.properties")
 	} else {
-		modulePropertiesFilePath = fmt.Sprintf("%v/cli/cmd/module.properties", cfg.Output)
+		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "module.properties")
 	}
 	templatesToPopulate.addStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(pyprojectFile, fmt.Sprintf("%v/pyproject.toml", cfg.Output), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)
 
 	flagRegs, cliEnvVarBindings, err := PreComputeFlagsAndBindings(sdk.Specification.CommandLineCommands)
 	if err != nil {
@@ -429,13 +438,20 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	if sdk.Specification.PackageName == "go-sdk-generator" {
+		generated, err = copyGoSDKGeneratorSkillsForEmbedding(cfg.Output, generated)
+		if err != nil {
+			return
+		}
+	}
+
 	for _, action := range generatedActions {
 		actionData := *data // copy
 		actionData.GeneratedAction = &action
 
-		actionDir := fmt.Sprintf("%v/actions/%v", cfg.Output, action.DirectoryName)
+		actionDir := filesystem.FilePathJoin(localFs, cfg.Output, "actions", action.DirectoryName)
 		actionOutputs := []templateToPopulate{
-			NewTemplateToPopulate(actionDefinitionFile, fmt.Sprintf("%v/action.yml", actionDir)),
+			NewTemplateToPopulate(actionDefinitionFile, filesystem.FilePathJoin(localFs, actionDir, "action.yml")),
 		}
 
 		for _, actionOutput := range actionOutputs {
@@ -449,7 +465,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	if generateAction {
-		sharedActionOutput := NewTemplateToPopulate(actionSharedScriptFile, fmt.Sprintf("%v/actions/_shared/install-and-run.sh", cfg.Output))
+		sharedActionOutput := NewTemplateToPopulate(actionSharedScriptFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "_shared", "install-and-run.sh"))
 		if err = sharedActionOutput.Populate(ctx, data); err != nil {
 			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate shared action runtime")
 			return
@@ -457,9 +473,63 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 		generated = append(generated, sharedActionOutput.output)
 	}
-
 	err = generateGitAttributesFile(ctx, cfg, generated)
 	return
+}
+
+func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) (updatedGenerated []string, err error) {
+	updatedGenerated = generated
+	localFs := filesystem.GetGlobalFileSystem()
+
+	skillsRoot := filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills")
+	if !filesystem.Exists(skillsRoot) {
+		return
+	}
+
+	for _, skillPath := range embeddedAgentSkillPaths {
+		sourcePath := filesystem.FilePathJoin(localFs, append([]string{skillsRoot}, strings.Split(skillPath, "/")...)...)
+		if !filesystem.Exists(sourcePath) {
+			continue
+		}
+
+		skill, subErr := filesystem.ReadFile(sourcePath)
+		if subErr != nil {
+			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read generated skill %q", sourcePath)
+			return
+		}
+
+		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
+		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
+		if !filesystem.Exists(embeddedDir) {
+			err = filesystem.MkDir(embeddedDir)
+			if err != nil {
+				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not create %q", embeddedDir)
+				return
+			}
+		}
+
+		err = filesystem.WriteFile(embeddedPath, skill, 0644)
+		if err != nil {
+			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not write embedded skill %q", embeddedPath)
+			return
+		}
+
+		updatedGenerated = append(updatedGenerated, embeddedPath)
+	}
+
+	return
+}
+
+func runSkillName(binary string) string {
+	return fmt.Sprintf("run-%s", binary)
+}
+
+func installSkillName(binary string) string {
+	return fmt.Sprintf("install-%s", binary)
+}
+
+func githubActionSkillName(binary string) string {
+	return fmt.Sprintf("using-%s-in-a-github-action", binary)
 }
 
 func (t *templates) addStateFile(templateFile, dest string, overwrite bool, markAsGenerated bool) {
@@ -485,7 +555,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SdkGeneratorMana
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
 		GeneratedFiles: generated,
-	}, gitAttributesFile, fmt.Sprintf("%v/.gitattributes", cfg.Output))
+	}, gitAttributesFile, filesystem.FilePathJoin(filesystem.GetGlobalFileSystem(), cfg.Output, ".gitattributes"))
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .gitattributes file")
 		return

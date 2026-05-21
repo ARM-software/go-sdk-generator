@@ -21,6 +21,7 @@ import (
 )
 
 const (
+	agentInitArg          = "init"
 	generateTargetedGoArg = "go-version"
 )
 
@@ -88,10 +89,94 @@ var generateCmd = &cobra.Command{
 	},
 }
 
+var schemaCmd = &cobra.Command{
+	Use:   "schema",
+	Short: "Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling",
+	Long:  "Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling",
+	RunE: func(cmd *cobra.Command, _ []string) (err error) {
+		ctx := context.Background()
+		logger, err := logs.NewStdLogger("Schema")
+		if err != nil {
+			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
+			return
+		}
+
+		var schemaCfg config.SchemaConfiguration
+		cfgLoadOptions := []configUtils.LoadingOption{
+			configUtils.WithEnvVarPrefix(config.App),
+			configUtils.WithDefaultConfiguration(config.DefaultSchemaConfiguration()),
+			configUtils.WithViperSession(viperSession),
+		}
+		err = configUtils.LoadUsing(&schemaCfg, cfgLoadOptions...)
+		if err != nil {
+			return
+		}
+
+		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
+		defer cancel(nil)
+
+		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
+		if err == nil {
+			schemaCfg.ToolVersion = field.ToOptionalString(cliVersion)
+		}
+		err = generator.WrapSchema(cancellableCtx, logger, &schemaCfg, generator.SchemaImplFunc)
+		if err != nil {
+			cancel(nil)
+			return
+		}
+
+		return
+	},
+}
+
+var agentCmd = &cobra.Command{
+	Use:   "agent",
+	Short: "Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills",
+	Long:  "Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills",
+	RunE: func(cmd *cobra.Command, _ []string) (err error) {
+		ctx := context.Background()
+		logger, err := logs.NewStdLogger("Agent")
+		if err != nil {
+			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
+			return
+		}
+
+		var agentCfg config.AgentConfiguration
+		cfgLoadOptions := []configUtils.LoadingOption{
+			configUtils.WithEnvVarPrefix(config.App),
+			configUtils.WithDefaultConfiguration(config.DefaultAgentConfiguration()),
+			configUtils.WithViperSession(viperSession),
+		}
+		err = configUtils.LoadUsing(&agentCfg, cfgLoadOptions...)
+		if err != nil {
+			return
+		}
+
+		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
+		defer cancel(nil)
+
+		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
+		if err == nil {
+			agentCfg.ToolVersion = field.ToOptionalString(cliVersion)
+		}
+		err = generator.WrapAgent(cancellableCtx, logger, &agentCfg, generator.AgentImplFunc)
+		if err != nil {
+			cancel(nil)
+			return
+		}
+
+		return
+	},
+}
+
 func init() {
 	generateCmd.Flags().StringP(generateTargetedGoArg, "g", "", "targeted go version for the tool")
+	agentCmd.Flags().Bool(agentInitArg, false, "install the embedded skills into the current repository")
 
 	_ = configUtils.BindFlagToEnv(viperSession, config.App, "go_version", generateCmd.Flags().Lookup(generateTargetedGoArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "init", agentCmd.Flags().Lookup(agentInitArg))
 
 	rootCmd.AddCommand(generateCmd)
+	rootCmd.AddCommand(schemaCmd)
+	rootCmd.AddCommand(agentCmd)
 }

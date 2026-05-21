@@ -2,7 +2,7 @@ specification:
   package_name: go-sdk-generator
   main_module: generator
   name: SDK Generator
-  description: SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+  description: SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
   interface:
     notCloseable: true
     methods:
@@ -16,7 +16,7 @@ specification:
   command_line_commands:
     binary: go-sdk-generator
     root_environment_var: SDK_GENERATOR
-    description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+    description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
     functions:
       - name: Generate
         description: Generate tool
@@ -48,6 +48,16 @@ specification:
             arg_short: "g"
             description: targeted go version for the tool
             mapstructure_tag: go_version
+      - name: Schema
+        description: Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+        configuration: []
+      - name: Agent
+        description: Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
+        configuration:
+          - name: Init
+            lang_type: bool
+            mapstructure_tag: init
+            description: install the embedded skills into the current repository
   global_configuration:
     - name: input
       lang_type: string

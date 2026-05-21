@@ -4,7 +4,7 @@ import (
 	"context"
 	fSys "io/fs"
 	"os"
-	"path/filepath"
+	"path"
 	"slices"
 	"strings"
 	"testing"
@@ -21,9 +21,11 @@ import (
 )
 
 func TestFormatImports(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+
 	t.Run("Valid import add", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.go")
+		tmpFile := filesystem.FilePathJoin(localFs, tmpDir, "test.go")
 		tmpFileContent := "package main\n\nfunc main() {\nfmt.Println(\"Hello World\")\n}\n"
 
 		err := filesystem.WriteFile(tmpFile, []byte(tmpFileContent), 0655)
@@ -36,7 +38,7 @@ func TestFormatImports(t *testing.T) {
 
 	t.Run("Invalid file", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.go")
+		tmpFile := filesystem.FilePathJoin(localFs, tmpDir, "test.go")
 		tmpFileContent := "main {\nfmt.Println(\"Hello World\")\n}\n"
 
 		err := filesystem.WriteFile(tmpFile, []byte(tmpFileContent), 0655)
@@ -49,7 +51,7 @@ func TestFormatImports(t *testing.T) {
 
 	t.Run("No file", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.go")
+		tmpFile := filesystem.FilePathJoin(localFs, tmpDir, "test.go")
 
 		cleaned, err := formatImports(context.Background(), tmpFile)
 		errortest.AssertError(t, err, commonerrors.ErrNotFound)
@@ -58,7 +60,7 @@ func TestFormatImports(t *testing.T) {
 
 	t.Run("Context cancel", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.go")
+		tmpFile := filesystem.FilePathJoin(localFs, tmpDir, "test.go")
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
@@ -89,10 +91,12 @@ func TestFuncMap(t *testing.T) {
 }
 
 func TestPopulateTemplate(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+
 	t.Run("Valid import add", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		out := filepath.Join(tmpDir, "out1", "out2", "out.go")
-		require.NoDirExists(t, filepath.Dir(out))
+		out := filesystem.FilePathJoin(localFs, tmpDir, "out1", "out2", "out.go")
+		require.NoDirExists(t, filesystem.FilePathDir(localFs, out))
 		testFs, err := filesystem.NewEmbedFileSystem(&fs)
 		require.NoError(t, err)
 
@@ -107,8 +111,8 @@ func TestPopulateTemplate(t *testing.T) {
 
 	t.Run("Valid import add (not .go so no import tidy)", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		out := filepath.Join(tmpDir, "out1", "out2")
-		require.NoDirExists(t, filepath.Dir(out))
+		out := filesystem.FilePathJoin(localFs, tmpDir, "out1", "out2")
+		require.NoDirExists(t, filesystem.FilePathDir(localFs, out))
 		testFs, err := filesystem.NewEmbedFileSystem(&fs)
 		require.NoError(t, err)
 		ctx := context.Background()
@@ -122,21 +126,21 @@ func TestPopulateTemplate(t *testing.T) {
 
 	t.Run("Missing template", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		out := filepath.Join(tmpDir, "out")
+		out := filesystem.FilePathJoin(localFs, tmpDir, "out")
 
 		ctx := context.Background()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test-not-exist.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test-not-exist.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 		assert.NoFileExists(t, out)
 	})
 
 	t.Run("Cancel Context", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		out := filepath.Join(tmpDir, "out")
+		out := filesystem.FilePathJoin(localFs, tmpDir, "out")
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		err := populateTemplate(ctx, &DataModel{}, filepath.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test.go.tmpl"), out)
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 		assert.NoFileExists(t, out)
 	})
@@ -145,17 +149,17 @@ func TestPopulateTemplate(t *testing.T) {
 func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string, localFs filesystem.FS, ignoreFiles ...string) {
 	err := localFs.WalkWithContext(context.Background(), expectedDir, func(path string, info fSys.FileInfo, err error) error {
 		if slices.ContainsFunc(ignoreFiles, func(ignore string) bool {
-			return strings.HasSuffix(path, filepath.Clean(ignore))
+			return strings.HasSuffix(path, filesystem.FilePathClean(localFs, ignore))
 		}) {
 			return nil
 		}
 
 		assert.NoError(t, err)
 
-		relativePath, err := filepath.Rel(expectedDir, path)
+		relativePath, err := filesystem.FilePathRel(localFs, expectedDir, path)
 		assert.NoError(t, err)
 
-		expectedFilePath := filepath.Join(actualDir, relativePath)
+		expectedFilePath := filesystem.FilePathJoin(localFs, actualDir, relativePath)
 
 		if info.IsDir() {
 			folderExists, err := filesystem.IsDir(expectedFilePath)
@@ -176,6 +180,8 @@ func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string,
 }
 
 func TestGenerate(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+
 	tests := []struct {
 		title         string
 		recipe        string
@@ -223,7 +229,7 @@ func TestGenerate(t *testing.T) {
 			tmpDir := t.TempDir()
 			ctx := context.Background()
 			cfg := config.DefaultSdkGeneratorManagerConfiguration()
-			cfg.Input = filepath.Join("testdata", test.recipe)
+			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", test.recipe)
 			cfg.Output = tmpDir
 			cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
@@ -234,7 +240,7 @@ func TestGenerate(t *testing.T) {
 				assert.NoError(t, err)
 
 				tmpDir2 := t.TempDir()
-				zipped := filepath.Join("testdata", test.regressionSrc)
+				zipped := filesystem.FilePathJoin(localFs, "testdata", test.regressionSrc)
 				_, err = filesystem.Unzip(zipped, tmpDir2)
 				require.NoError(t, err)
 
@@ -253,7 +259,7 @@ func TestGenerate(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 		cfg := &config.SdkGeneratorManagerConfiguration{
-			Input:  filepath.Join("testdata", "verify.json"),
+			Input:  filesystem.FilePathJoin(localFs, "testdata", "verify.json"),
 			Output: "aaaa",
 		}
 		err := Generate(ctx, cfg)
@@ -263,7 +269,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("Invalid specification", func(t *testing.T) {
 		ctx := context.Background()
 		cfg := &config.SdkGeneratorManagerConfiguration{
-			Input:  filepath.Join("testdata", "i-dont-exist.json"),
+			Input:  filesystem.FilePathJoin(localFs, "testdata", "i-dont-exist.json"),
 			Output: "bbb",
 		}
 
@@ -275,14 +281,14 @@ func TestGenerate(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
 		cfg := config.DefaultSdkGeneratorManagerConfiguration()
-		cfg.Input = filepath.Join("testdata", "multiline-defaults.yml")
+		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "multiline-defaults.yml")
 		cfg.Output = tmpDir
 
 		err := Generate(ctx, cfg)
 		assert.NoError(t, err, "Code generation should succeed with multiline YAML defaults")
 
-		configFile := filepath.Join(tmpDir, "multilinetest", "config", "multilinetest.go")
-		typesFile := filepath.Join(tmpDir, "multilinetest", "types", "multilinetest.go")
+		configFile := filesystem.FilePathJoin(localFs, tmpDir, "multilinetest", "config", "multilinetest.go")
+		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "multilinetest", "types", "multilinetest.go")
 
 		configContent, err := os.ReadFile(configFile)
 		require.NoError(t, err, "Generated config file should exist")
@@ -298,14 +304,14 @@ func TestGenerate(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
 		cfg := config.DefaultSdkGeneratorManagerConfiguration()
-		cfg.Input = filepath.Join("testdata", "agent.yml")
+		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "agent.yml")
 		cfg.Output = tmpDir
 		cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
 		err := Generate(ctx, cfg)
 		require.NoError(t, err)
 
-		assert.NoDirExists(t, filepath.Join(tmpDir, "actions"))
-		assert.NoFileExists(t, filepath.Join(tmpDir, ".agents", "skills", "github-action", "SKILL.md"))
+		assert.NoDirExists(t, filesystem.FilePathJoin(localFs, tmpDir, "actions"))
+		assert.NoFileExists(t, filesystem.FilePathJoin(localFs, tmpDir, ".agents", "skills", "using-fpga-service-agent-in-a-github-action", "SKILL.md"))
 	})
 }

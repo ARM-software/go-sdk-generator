@@ -22,3 +22,29 @@ func WrapGenerate(ctx context.Context, logger logs.Loggers, cfg *config.Generate
 
 	return f(ctx, logger, cfg)
 }
+
+// SchemaImplFunc binds the implementation function (i.e. Schema()) when ready to the CLI definition
+var SchemaImplFunc func(context.Context, logs.Loggers, *config.SchemaConfiguration) error = nil
+
+// WrapSchema wraps around Schema
+func WrapSchema(ctx context.Context, logger logs.Loggers, cfg *config.SchemaConfiguration, f func(context.Context, logs.Loggers, *config.SchemaConfiguration) error) (err error) {
+	if f == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to Schema", f)
+		return
+	}
+
+	return f(ctx, logger, cfg)
+}
+
+// AgentImplFunc binds the implementation function (i.e. Agent()) when ready to the CLI definition
+var AgentImplFunc func(context.Context, logs.Loggers, *config.AgentConfiguration) error = nil
+
+// WrapAgent wraps around Agent
+func WrapAgent(ctx context.Context, logger logs.Loggers, cfg *config.AgentConfiguration, f func(context.Context, logs.Loggers, *config.AgentConfiguration) error) (err error) {
+	if f == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to Agent", f)
+		return
+	}
+
+	return f(ctx, logger, cfg)
+}

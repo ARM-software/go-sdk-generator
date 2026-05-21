@@ -31,8 +31,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "go-sdk-generator",
-	Short: "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)",
-	Long:  "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)",
+	Short: "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)",
+	Long:  "CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)",
 }
 
 func Execute() {

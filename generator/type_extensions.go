@@ -1,8 +1,6 @@
 package generator
 
 import (
-	"path/filepath"
-
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"sigs.k8s.io/yaml"
@@ -18,6 +16,8 @@ func (j *SDK) UnmarshalYAML(b []byte) error {
 }
 
 func Validate(path string) (validationErr, err error) {
+	localFs := filesystem.GetGlobalFileSystem()
+
 	data, err := filesystem.ReadFile(path)
 	if err != nil {
 		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not read file '%v'", path)
@@ -25,7 +25,7 @@ func Validate(path string) (validationErr, err error) {
 	}
 
 	var schema SDK
-	if ext := filepath.Ext(path); ext == ".yml" || ext == ".yaml" {
+	if ext := filesystem.FilePathExt(localFs, path); ext == ".yml" || ext == ".yaml" {
 		err = schema.UnmarshalYAML(data)
 	} else {
 		err = schema.UnmarshalJSON(data)

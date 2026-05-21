@@ -54,3 +54,47 @@ func DefaultGenerateConfiguration() *GenerateConfiguration {
 		Generate: false,
 	}
 }
+
+// SchemaConfiguration defines the configuration for Schema command
+type SchemaConfiguration struct {
+
+	// ToolVersion contains the version of the CLI tool
+	ToolVersion *string
+}
+
+func (cfg *SchemaConfiguration) Validate() error {
+	err := configUtils.ValidateEmbedded(cfg)
+	if err != nil {
+		return err
+	}
+
+	return validation.ValidateStruct(cfg)
+}
+
+func DefaultSchemaConfiguration() *SchemaConfiguration {
+	return &SchemaConfiguration{}
+}
+
+// AgentConfiguration defines the configuration for Agent command
+type AgentConfiguration struct {
+	// Init is install the embedded skills into the current repository
+	Init bool `mapstructure:"init"`
+
+	// ToolVersion contains the version of the CLI tool
+	ToolVersion *string
+}
+
+func (cfg *AgentConfiguration) Validate() error {
+	err := configUtils.ValidateEmbedded(cfg)
+	if err != nil {
+		return err
+	}
+
+	return validation.ValidateStruct(cfg,
+		validation.Field(&cfg.Init),
+	)
+}
+
+func DefaultAgentConfiguration() *AgentConfiguration {
+	return &AgentConfiguration{}
+}

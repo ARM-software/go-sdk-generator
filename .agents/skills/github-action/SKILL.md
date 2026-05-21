@@ -33,6 +33,8 @@ Use this skill when the user wants to:
 
 Generated actions in this repository:
 - `actions/generate` runs `go-sdk-generator generate`
+- `actions/schema` runs `go-sdk-generator schema`
+- `actions/agent` runs `go-sdk-generator agent`
 
 Example published action:
 

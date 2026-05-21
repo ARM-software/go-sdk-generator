@@ -1,6 +1,6 @@
 ---
 name: generator
-description: "SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)"
+description: "SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)"
 license: Proprietary
 compatibility: opencode
 metadata:
@@ -27,6 +27,8 @@ Binary: `go-sdk-generator`
 
 ### Commands
 - `generate`: Generate tool
+- `schema`: Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+- `agent`: Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
 
 ---
 
@@ -70,6 +72,26 @@ Defaults:
 			return pwd
 		}()
 - `overwrite` → false
+
+### `go-sdk-generator schema`
+
+Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+
+No command-specific options.
+
+
+
+### `go-sdk-generator agent`
+
+Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
+
+Required:
+- none
+
+Optional:
+- `init`: install the embedded skills into the current repository
+
+
 
 ---
 ## Default behaviour

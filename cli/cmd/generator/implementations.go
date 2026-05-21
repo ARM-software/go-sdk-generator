@@ -5,9 +5,11 @@ package generator
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/parallelisation"
 
 	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
 	"github.com/Arm-Debug/go-sdk-generator/generator"
@@ -36,11 +38,59 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.GenerateConf
 	if err != nil {
 		logger.LogError(fmt.Sprintf("Failed to generate SDK with error: %v\n", err.Error()))
 	}
+
+	return
+}
+
+/*
+Schema function: Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+*/
+func Schema(ctx context.Context, _ logs.Loggers, cfg *config.SchemaConfiguration) (err error) {
+	if err = parallelisation.DetermineContextError(ctx); err != nil {
+		return
+	}
+
+	if cfg == nil {
+		err = commonerrors.UndefinedVariable("configuration")
+		return
+	}
+
+	err = generator.WriteEmbeddedSchemaJSON(os.Stdout)
+	return
+}
+
+/*
+Agent function: Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
+*/
+func Agent(ctx context.Context, logger logs.Loggers, cfg *config.AgentConfiguration) (err error) {
+	if err = parallelisation.DetermineContextError(ctx); err != nil {
+		return
+	}
+
+	if cfg == nil {
+		err = commonerrors.UndefinedVariable("configuration")
+		return
+	}
+
+	if !cfg.Init {
+		err = commonerrors.Newf(commonerrors.ErrInvalid, "must set %q to initialise the embedded skills", "init")
+		return
+	}
+
+	err = generator.InitialiseAgentSkillsInCurrentDirectory(ctx)
+	if err != nil {
+		return
+	}
+
+	if logger != nil {
+		logger.Log("initialised embedded skills into .agents/skills")
+	}
+
 	return
 }
 
 func init() {
-	// Note: The following makes the link between the CLI command definitions and their actual implementations.
-	// The binding is performed at runtime when package generator is imported.
 	GenerateImplFunc = Generate
+	SchemaImplFunc = Schema
+	AgentImplFunc = Agent
 }

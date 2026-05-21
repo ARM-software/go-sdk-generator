@@ -2,7 +2,7 @@
 {{- $cli := $spec.CommandLineCommands -}}
 {{- $primary := index .GeneratedActions 0 -}}
 ---
-name: github-action
+name: using-{{ $cli.Binary }}-in-a-github-action
 description: "Use and integrate the generated `actions/<subcommand>` GitHub Actions for installing or running released versions of `{{ $cli.Binary }}` in workflows"
 license: {{ $spec.Licence }}
 compatibility: opencode

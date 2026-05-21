@@ -1,7 +1,7 @@
 {{- $spec := .Specification -}}
 {{- $cli := $spec.CommandLineCommands -}}
 ---
-name: {{ $spec.MainModule | lower }}
+name: run-{{ $cli.Binary }}
 description: {{ $spec.Description | quote }}
 license: {{ $spec.Licence }}
 compatibility: opencode

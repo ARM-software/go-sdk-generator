@@ -15,11 +15,11 @@ Use this tool when:
 {{- end }}
 {{- end }}
 
-Before acting, read the relevant skill in `.agent/`:
-- `{{ $spec.MainModule | lower }}/SKILL.md` for command usage, config, and authentication
+Before acting, read the relevant skill in `.agents/skills/`:
+- `run-{{ $cli.Binary }}/SKILL.md` for command usage, config, and authentication
 {{- if not $cli.NoActions }}
-- `github-action/SKILL.md` for CI integration and workflow usage
+- `using-{{ $cli.Binary }}-in-a-github-action/SKILL.md` for CI integration and workflow usage
 {{- end }}
-- `install/SKILL.md` for installation or upgrade
+- `install-{{ $cli.Binary }}/SKILL.md` for installation or upgrade
 
 Do not duplicate skill content here.

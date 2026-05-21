@@ -50,7 +50,7 @@ Return values:
 # CLI Tool
 # SDK Generator CLI Usage
 
-CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
 
 ## GitHub Action
 
@@ -58,6 +58,8 @@ GitHub Actions are also published so that `go-sdk-generator` subcommands can be 
 
 Available generated actions:
 - `actions/generate` runs `go-sdk-generator generate`
+- `actions/schema` runs `go-sdk-generator schema`
+- `actions/agent` runs `go-sdk-generator agent`
 
 Use the published action from official releases:
 
@@ -139,5 +141,67 @@ The `DefaultGenerateConfiguration()` function can be used to provide default val
 
 ```go
 func DefaultGenerateConfiguration() *GenerateConfiguration
+```
+
+### Schema
+
+Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+
+```go
+func(ctx context.Context, logger logs.Loggers, cfg config.SchemaConfiguration)
+```
+
+#### `config.SchemaConfiguration`
+
+```go
+type SchemaConfiguration struct {
+	
+}
+```
+
+Functions to utilise this configuration are also provided:
+
+The `Validate()` function can be used to validate that all fields have been provided:
+
+```go
+func (cfg *SchemaConfiguration) Validate() error
+```
+
+The `DefaultSchemaConfiguration()` function can be used to provide default values to the configuration:
+
+```go
+func DefaultSchemaConfiguration() *SchemaConfiguration
+```
+
+### Agent
+
+Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
+
+```go
+func(ctx context.Context, logger logs.Loggers, cfg config.AgentConfiguration)
+```
+
+#### `config.AgentConfiguration`
+
+```go
+type AgentConfiguration struct {
+	// install the embedded skills into the current repository
+		Init bool `mapstructure:"init"`
+	
+}
+```
+
+Functions to utilise this configuration are also provided:
+
+The `Validate()` function can be used to validate that all fields have been provided:
+
+```go
+func (cfg *AgentConfiguration) Validate() error
+```
+
+The `DefaultAgentConfiguration()` function can be used to provide default values to the configuration:
+
+```go
+func DefaultAgentConfiguration() *AgentConfiguration
 ```
 
