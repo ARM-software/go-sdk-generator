@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.33.0" (2026-05-26)
+=====================
+
+Features
+--------
+
+- :sparkles: Add generated support for a follow-up public release upload job in release workflows (#202605211125)
+- :sparkles: Add sub-commands for use when working with agents (#20260417115900)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.32.3" (2026-05-20)
 =====================
 
