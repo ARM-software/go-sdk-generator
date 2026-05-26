@@ -116,6 +116,8 @@ properties:
         $ref: "#/$defs/ci_extra_packages"
       release_to_artifactory:
         $ref: "#/$defs/release_to_artifactory"
+      release_to_public_artifactory:
+        $ref: "#/$defs/release_to_public_artifactory"
 $defs:
   types:
     type: array
@@ -232,6 +234,22 @@ $defs:
     type: boolean
     default: false
     description: Whether to release the package to artifactory. Will require a .goreleaser file or equivalent file to be set up
+  release_to_public_artifactory:
+    type: object
+    description: |
+      Configuration for uploading a release artefact produced by a private repository
+      release workflow to a public Artifactory registry.
+    required:
+      - artifactory_host
+      - registry
+    properties:
+      artifactory_host:
+        type: string
+        description: The public Artifactory host used for the follow-up release upload job.
+      registry:
+        type: string
+        description: The registry within Artifactory used for the public release upload job.
+    additionalProperties: false
   cli_function:
     description: An CLI function
     type: object

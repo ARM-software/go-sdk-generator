@@ -171,6 +171,9 @@ specification:
       description: Timeout to use for waiting for a project to be verified. Important when starting many jobs simultaneously as the service can only handle a limited number at once and jobs may remain in the queue for a while
 
   release_to_artifactory: true
+  release_to_public_artifactory:
+    artifactory_host: https://arm.jfrog.io
+    registry: tools-tools-local-deb
 
   extra_imports:
     - import_url: github.com/Arm-Debug/cmsis-project-types/project/types

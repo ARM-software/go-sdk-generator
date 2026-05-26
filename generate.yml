@@ -82,3 +82,6 @@ specification:
       required: true
 
   release_to_artifactory: true
+  release_to_public_artifactory:
+    artifactory_host: https://arm.jfrog.io
+    registry: tools-tools-local-deb

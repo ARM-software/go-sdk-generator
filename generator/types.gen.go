@@ -654,6 +654,37 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 // or equivalent file to be set up
 type ReleaseToArtifactory bool
 
+// Configuration for uploading a release artefact produced by a private repository
+// release workflow to a public Artifactory registry.
+type ReleaseToPublicArtifactory struct {
+	// The public Artifactory host used for the follow-up release upload job.
+	ArtifactoryHost string `json:"artifactory_host" yaml:"artifactory_host" mapstructure:"artifactory_host"`
+
+	// The registry within Artifactory used for the public release upload job.
+	Registry string `json:"registry" yaml:"registry" mapstructure:"registry"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ReleaseToPublicArtifactory) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["artifactory_host"]; raw != nil && !ok {
+		return fmt.Errorf("field artifactory_host in ReleaseToPublicArtifactory: required")
+	}
+	if _, ok := raw["registry"]; raw != nil && !ok {
+		return fmt.Errorf("field registry in ReleaseToPublicArtifactory: required")
+	}
+	type Plain ReleaseToPublicArtifactory
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = ReleaseToPublicArtifactory(plain)
+	return nil
+}
+
 // SDK definition
 type SDK struct {
 	// The SDK root specification
@@ -713,6 +744,10 @@ type SDKSpecification struct {
 	// ReleaseToArtifactory corresponds to the JSON schema field
 	// "release_to_artifactory".
 	ReleaseToArtifactory *ReleaseToArtifactory `json:"release_to_artifactory,omitempty" yaml:"release_to_artifactory,omitempty" mapstructure:"release_to_artifactory,omitempty"`
+
+	// ReleaseToPublicArtifactory corresponds to the JSON schema field
+	// "release_to_public_artifactory".
+	ReleaseToPublicArtifactory *ReleaseToPublicArtifactory `json:"release_to_public_artifactory,omitempty" yaml:"release_to_public_artifactory,omitempty" mapstructure:"release_to_public_artifactory,omitempty"`
 
 	// The URL where the project's repository is hosted.
 	// Defaults to https://github.com/Arm-Debug/{package_name} when omitted.

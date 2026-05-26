@@ -23,3 +23,18 @@ jobs:
       {{ if .Specification.ReleaseToArtifactory -}}
       release_to_artifactory: true
       {{ end }}
+{{ if and (not .Specification.Public) .Specification.ReleaseToPublicArtifactory }}
+  release-public:
+    name: Release to a public Artifactory instance
+    uses: Arm-Debug/OTG-Services-Workflows/.github/workflows/release_to_artefactory_from_artefact.yml@latest
+    needs:
+      - release
+    with:
+      artifactory-host: {{ .Specification.ReleaseToPublicArtifactory.ArtifactoryHost }}
+      registry: {{ .Specification.ReleaseToPublicArtifactory.Registry }}
+      artefact: {{ .Specification.PackageName }}-package
+    secrets:
+      ARTIFACTORY_USER: ${{ "{{" }} secrets.ARTIFACTORY_TOOLS_USER }}
+      ARTIFACTORY_PASSWORD: ${{ "{{" }} secrets.ARTIFACTORY_TOOLS_TOKEN }}
+      GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
+{{ end }}

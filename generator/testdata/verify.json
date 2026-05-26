@@ -243,6 +243,10 @@
       }
     ],
     "release_to_artifactory": true,
+    "release_to_public_artifactory": {
+      "artifactory_host": "https://arm.jfrog.io",
+      "registry": "tools-tools-local-deb"
+    },
     "extra_imports": [
       {
         "import_url": "github.com/Arm-Debug/cmsis-project-types/project/types",
