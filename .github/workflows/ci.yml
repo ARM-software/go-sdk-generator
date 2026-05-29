@@ -29,6 +29,7 @@ jobs:
       branch: ${{ github.head_ref || github.ref }}
       dockerfile: Dockerfile.generator
       go_module: generator
+      run-go-generate: true
   cli:
     name: Build CLI to ensure it compiles
     runs-on: ubuntu-latest

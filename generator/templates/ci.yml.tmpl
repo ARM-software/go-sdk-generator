@@ -29,6 +29,7 @@ jobs:
       branch: ${{ "{{" }} github.head_ref || github.ref }}
       dockerfile: Dockerfile.{{ .Specification.MainModule }}
       go_module: {{ .Specification.MainModule }}
+      run-go-generate: true
 {{- if .Specification.CiExtraPackages }}
       extra-packages: {{ range $i, $package := .Specification.CiExtraPackages }}{{ if $i }}, {{ end }}{{ $package }}{{ end }}
 {{- end }}
