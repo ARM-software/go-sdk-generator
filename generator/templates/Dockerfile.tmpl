@@ -24,13 +24,15 @@ RUN --mount=type=secret,id=build-secrets . /run/secrets/build-secrets &&\
 RUN CGO_ENABLED=0 go build -o /output/{{ .Specification.MainModule }}
 
 FROM alpine:3.22.1
+
+RUN addgroup -S app && adduser -S -G app app
+
 # Install go binary
-COPY --from=build /output/{{ .Specification.MainModule }} /usr/local/bin/{{ .Specification.MainModule }}
+COPY --from=build --chown=app:app /output/{{ .Specification.MainModule }} /usr/local/bin/{{ .Specification.MainModule }}
+
+USER app
 
 ENTRYPOINT ["{{ .Specification.MainModule }}"]
 {{ else -}}
 RUN CGO_ENABLED=0 go build ./...
 {{ end -}}
-
-
-

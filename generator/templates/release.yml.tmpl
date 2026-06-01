@@ -20,9 +20,9 @@ jobs:
       go_version: "{{ .TargetedGoVersion }}"
       release_type: ${{ "{{" }} inputs.release_type }}
       save-outputs-as-artefact: {{ .Specification.PackageName }}-package
-      {{ if .Specification.ReleaseToArtifactory -}}
+{{ if .Specification.ReleaseToArtifactory }}
       release_to_artifactory: true
-      {{ end }}
+{{ end -}}
 {{ if and (not .Specification.Public) .Specification.ReleaseToPublicArtifactory }}
   release-public:
     name: Release to a public Artifactory instance
@@ -37,4 +37,4 @@ jobs:
       ARTIFACTORY_USER: ${{ "{{" }} secrets.ARTIFACTORY_TOOLS_USER }}
       ARTIFACTORY_PASSWORD: ${{ "{{" }} secrets.ARTIFACTORY_TOOLS_TOKEN }}
       GIT_SECRET: ${{ "{{" }} secrets.GIT_SECRET }}
-{{ end }}
+{{ end -}}

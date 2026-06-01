@@ -1,0 +1,1 @@
+:lock: Update generated Dockerfiles to run CLI container images as a non-root app user.
