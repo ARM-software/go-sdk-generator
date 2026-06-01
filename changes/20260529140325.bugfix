@@ -1,1 +1,0 @@
-:bug: Update ci.yml.tmpl to always run go generate in library CI

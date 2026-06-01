@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.33.1" (2026-06-01)
+=====================
+
+Bugfixes
+--------
+
+- :lock: Update generated Dockerfiles to run CLI container images as a non-root app user. (#20260528175202)
+- :bug: Update ci.yml.tmpl to always run go generate in library CI (#20260529140325)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.33.0" (2026-05-26)
 =====================
 
