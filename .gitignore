@@ -31,3 +31,9 @@ dist
 .manpages
 go-sdk-generator
 
+.qlty/logs
+.qlty/out
+.qlty/plugin_cachedir
+.qlty/results
+.qlty/sources
+.DS_Store

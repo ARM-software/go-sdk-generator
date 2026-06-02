@@ -68,6 +68,8 @@ const (
 	preinstallFile               = "templates/pre.sh.tmpl"
 	gitignoreFile                = "templates/gitignore.tmpl"
 	gitAttributesFile            = "templates/gitattributes.tmpl"
+	checkovFile                  = "templates/checkov.yaml.tmpl"
+	yamlLintFile                 = "templates/yamllint.tmpl"
 )
 
 //go:embed templates
@@ -335,6 +337,8 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(qltyTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml"), cfg.Overwrite, true) // See https://docs.qlty.sh/qlty-toml
 	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
+	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
 
 	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)

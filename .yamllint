@@ -1,0 +1,10 @@
+extends: default
+
+ignore: |
+  actions/**/*.yml
+  actions/**/*.yaml
+
+rules:
+  document-start: disable
+  truthy:
+    check-keys: false

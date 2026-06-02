@@ -3,10 +3,10 @@
 FROM golang:{{ .TargetedGoVersion }} as build
 
 WORKDIR /build
-ADD {{ .Specification.MainModule }} {{ .Specification.MainModule }}
+COPY {{ .Specification.MainModule }} {{ .Specification.MainModule }}
 
 {{ if .Specification.CommandLineCommands -}}
-ADD cli cli
+COPY cli cli
 WORKDIR /build/cli
 {{ else -}}
 WORKDIR /build/{{ .Specification.MainModule }}
@@ -31,7 +31,6 @@ RUN addgroup -S app && adduser -S -G app app
 COPY --from=build --chown=app:app /output/{{ .Specification.MainModule }} /usr/local/bin/{{ .Specification.MainModule }}
 
 USER app
-
 ENTRYPOINT ["{{ .Specification.MainModule }}"]
 {{ else -}}
 RUN CGO_ENABLED=0 go build ./...

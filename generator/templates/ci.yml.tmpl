@@ -4,14 +4,14 @@ name: CI
 
 # Cancel in-progress jobs or runs for the current workflow
 concurrency:
-  group: ${{ "{{" }} github.repository }}-${{ "{{" }} github.workflow }}-${{ "{{" }} inputs.branch || github.head_ref || github.ref }}
+  group: ${{ "{{" }} github.repository }}-${{ "{{" }} github.workflow }}-${{ "{{" }} github.head_ref || github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     tags-ignore:
-      - '**'
+      - "**"
   pull_request:
     branches:
       - main
@@ -23,8 +23,7 @@ jobs:
   library:
     name: Run library CI
     uses: Arm-Debug/OTG-Services-Workflows/.github/workflows/library.yml@latest
-    secrets:
-      inherit
+    secrets: inherit
     with:
       branch: ${{ "{{" }} github.head_ref || github.ref }}
       dockerfile: Dockerfile.{{ .Specification.MainModule }}
