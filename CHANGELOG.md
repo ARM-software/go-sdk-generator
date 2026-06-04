@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.34.1" (2026-06-04)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Ensure that install fails if it cannot find a release that has been requested (#20260604131824)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.34.0" (2026-06-04)
 =====================
 
