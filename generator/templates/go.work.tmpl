@@ -1,0 +1,6 @@
+go {{ .TargetedGoVersion }}
+
+use (
+	./cli
+	./{{ .Specification.MainModule }}
+)

@@ -45,6 +45,7 @@ const (
 	rootCliFile                  = "templates/root.go.tmpl"
 	mainCliFile                  = "templates/main.go.tmpl"
 	typesFile                    = "templates/types.go.tmpl"
+	goWorkFile                   = "templates/go.work.tmpl"
 	goModSdkFile                 = "templates/go.mod.sdk.tmpl"
 	goModCliFile                 = "templates/go.mod.cli.tmpl"
 	codeOfConductFile            = "templates/CODE_OF_CONDUCT.md.tmpl"
@@ -391,6 +392,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
 
 		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
+		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "go.mod"), cfg.Overwrite, true)
 	}
 
