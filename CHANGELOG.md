@@ -2,6 +2,30 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.34.2" (2026-06-04)
+=====================
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.23.4 (#20260604133914)
+- Dependency upgrade: text-0.37.0 (#20260604133936)
+- Dependency upgrade: v2-2.9.0 (#20260604133947)
+- :dog: Dog fooding (#20260604143048)
+- Dependency upgrade: utils-1.161.1 (#20260604151644, #20260604154601)
+- Dependency upgrade: tools-0.45.0 (#20260604160426)
+
+
+Misc
+----
+
+- #20260604145518
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.34.1" (2026-06-04)
 =====================
 
