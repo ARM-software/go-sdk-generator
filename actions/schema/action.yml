@@ -13,8 +13,8 @@ inputs:
     required: false
     default: ""
   github-token:
-    description: "The GitHub token to use to fetch the release versions of the tools. (Note: github.token does not have the required permissions to fetch releases from the action repository)"
-    required: false # only needed for fetching releases
+    description: "The GitHub token to use to fetch releases or source refs for the tools. (Note: github.token may not have the required permissions to access the action repository)"
+    required: false # only needed for fetching releases or private source refs
     default: ""
   workdir:
     description: Working directory where the CLI is run, and where it is installed if a native package is not used.
@@ -90,16 +90,12 @@ runs:
 
     - name: Check out source to build the unpublished binary
       if: steps.installation-mode.outputs.source-build == 'true'
-      shell: bash
-      env:
-        ACTION_SOURCE_REPOSITORY: ${{ steps.action-source.outputs.repository }}
-        ACTION_SOURCE_FETCH_REF: ${{ steps.action-source.outputs.fetch-ref }}
-      run: |
-        rm -rf .action-source
-        git init .action-source
-        git -C .action-source remote add origin "https://github.com/${ACTION_SOURCE_REPOSITORY}"
-        git -C .action-source fetch --depth 1 origin "${ACTION_SOURCE_FETCH_REF}"
-        git -C .action-source checkout --detach FETCH_HEAD
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ steps.action-source.outputs.repository }}
+        ref: ${{ steps.action-source.outputs.fetch-ref }}
+        path: .action-source
+        token: ${{ inputs.github-token || github.token }}
 
     - name: Set up Go to build the action from source
       if: steps.installation-mode.outputs.source-build == 'true'
@@ -117,7 +113,7 @@ runs:
       shell: bash
       env:
         ACTION_REF: ${{ steps.action-source.outputs.ref }}
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ inputs.github-token || github.token }}
         INPUT_ACTION_REPO: ${{ inputs.action-repo }}
         DEFAULT_REPO: ${{ steps.action-source.outputs.repository }}
         INPUT_INSTALL_ONLY: ${{ inputs.install-only }}

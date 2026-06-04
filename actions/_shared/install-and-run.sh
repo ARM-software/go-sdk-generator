@@ -30,8 +30,8 @@ log() {
   printf '%s\n' "$*" >&2
 }
 
-warn_no_release() {
-  log "Could not resolve a released ${package_name} binary from '${repo}'. Ensure a published release exists and if using a github-token, that it has the correct permissions to access it. Skipping installation."
+fail_no_release() {
+  fail "Could not resolve a released ${package_name} binary from '${repo}'. Ensure a published release exists and if using a github-token, that it has the correct permissions to access it."
 }
 
 is_true() {
@@ -161,8 +161,7 @@ resolve_installation_source() {
     log "No action version was set; resolving the latest ${package_name} release."
     tag="$(latest_release_tag)"
     if [[ -z "$tag" ]]; then
-      warn_no_release
-      return
+      fail_no_release
     fi
     log "Resolved ${package_name} release: ${tag}"
     resolved_ref="$tag"
@@ -173,8 +172,7 @@ resolve_installation_source() {
     log "Action ref '${ref}' requests the latest released ${package_name} binary."
     tag="$(latest_release_tag)"
     if [[ -z "$tag" ]]; then
-      warn_no_release
-      return
+      fail_no_release
     fi
     log "Resolved ${package_name} release: ${tag}"
     resolved_ref="$tag"
@@ -193,8 +191,7 @@ resolve_installation_source() {
     if ! release_exists "$tag"; then
       latest_tag="$(latest_release_tag)"
       if [[ -z "$latest_tag" ]]; then
-        warn_no_release
-        return
+        fail_no_release
       fi
       fail "Could not resolve the requested release '${tag}'."
     fi
@@ -215,8 +212,7 @@ resolve_installation_source() {
     if [[ -z "$tag" || "$tag" == "null" ]]; then
       latest_tag="$(latest_release_tag)"
       if [[ -z "$latest_tag" ]]; then
-        warn_no_release
-        return
+        fail_no_release
       fi
       fail "Could not resolve a release matching action ref '${ref}'."
     fi

@@ -82,6 +82,8 @@ jobs:
       - name: Run local action
         uses: ./actions/{{ $primary.DirectoryName }}
         with:
+          action-repo: ${{ "{{" }} github.repository }}
+          action-ref: ${{ "{{" }} github.sha }}
           install-only: true
 
       - name: Run unpublished action and binary
