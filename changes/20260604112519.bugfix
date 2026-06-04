@@ -1,0 +1,1 @@
+:bug: Ensure that `inputs.github-token` is preferred over `github.token`

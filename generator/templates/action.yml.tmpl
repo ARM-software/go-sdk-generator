@@ -114,11 +114,7 @@ runs:
       shell: bash
       env:
         ACTION_REF: ${{ "{{" }} steps.action-source.outputs.ref }}
-{{- if .Specification.Public }}
-        GH_TOKEN: ${{ "{{" }} inputs.github-token }}
-{{- else }}
-        GH_TOKEN: ${{ "{{" }} github.token }}
-{{- end }}
+        GH_TOKEN: ${{ "{{" }} inputs.github-token || github.token }}
         INPUT_ACTION_REPO: ${{ "{{" }} inputs.action-repo }}
         DEFAULT_REPO: ${{ "{{" }} steps.action-source.outputs.repository }}
         INPUT_INSTALL_ONLY: ${{ "{{" }} inputs.install-only }}
