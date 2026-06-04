@@ -2,6 +2,28 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.34.0" (2026-06-04)
+=====================
+
+Features
+--------
+
+- :sparkles: Improve generated Dockerfiles and workflow templates for security and lint compliance (#202606012206)
+- :recycle: Moving to [go workspace](https://go.dev/doc/tutorial/workspaces) (#20260603192548)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: alpine-3.23.4 (#20260603220741)
+- Dependency upgrade: golang-1.26.4 (#20260603220747)
+- :bug: Ensure that `inputs.github-token` is preferred over `github.token` (#20260604112519)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.33.1" (2026-06-01)
 =====================
 
