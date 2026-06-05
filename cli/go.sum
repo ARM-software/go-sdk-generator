@@ -3,8 +3,8 @@ charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 h1:D9PbaszZYp
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410/go.mod h1:1qZyvvVCenJO2M1ac2mX0yyiIZJoZmDM4DG4s0udJkU=
 github.com/ARM-software/golang-utils/utils v1.161.1 h1:Ik3/hacmkVK+cHkaA5XCTU4SNoYRuH5IPr9UZlQcvtU=
 github.com/ARM-software/golang-utils/utils v1.161.1/go.mod h1:Sd/Qqmgb2VmW2p9vwznQogGqMXBQc4hqez/dIYxrmiY=
-github.com/Arm-Debug/go-sdk-generator/generator v0.34.1 h1:F8tARL9Xy2WXhL39uK7XCmxUgKvo6ZeLORyVr4GVEZ0=
-github.com/Arm-Debug/go-sdk-generator/generator v0.34.1/go.mod h1:PA/RtAEZK7D5SP6ihx27Reue8lRNWffEgUzS4UpJCPI=
+github.com/Arm-Debug/go-sdk-generator/generator v0.34.2 h1:C70QBpqdfJ5FiC7LMs3PwV/hLYqhzpxEoRmgG982slo=
+github.com/Arm-Debug/go-sdk-generator/generator v0.34.2/go.mod h1:D2A9Ur7Cb6n8OF4hXCqBqRPs8ciaHhdyrL+CkLI/vms=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DeRuina/timberjack v1.4.5 h1:F/kms5MPNAXUeWdOILt5ALC6iDHWNRPevaeIVH7tqYU=
 github.com/DeRuina/timberjack v1.4.5/go.mod h1:RLoeQrwrCGIEF8gO5nV5b/gMD0QIy7bzQhBUgpp1EqE=
