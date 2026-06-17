@@ -57,11 +57,15 @@ const (
 	contribFile                  = "templates/CONTRIBUTING.md.tmpl"
 	codeOwnersFile               = "templates/CODEOWNERS.tmpl"
 	dependabotFile               = "templates/dependabot.yml.tmpl"
+	dependabotPublicFile         = "templates/dependabot.public.yml.tmpl"
 	prTemplateFile               = "templates/PULL_REQUEST_TEMPLATE.md.tmpl"
 	qltyTemplateFile             = "templates/qlty.toml.tmpl"
 	ciWorkflowFile               = "templates/ci.yml.tmpl"
+	ciWorkflowPublicFile         = "templates/ci.public.yml.tmpl"
 	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
+	dependabotWorkflowPublicFile = "templates/dependabot.public.workflow.yml.tmpl"
 	releaseWorkflowFile          = "templates/release.yml.tmpl"
+	releaseWorkflowPublicFile    = "templates/release.public.yml.tmpl"
 	goreleaserFile               = "templates/goreleaser.yaml.tmpl"
 	goreleaserLibraryFile        = "templates/goreleaser-library.yaml.tmpl"
 	golangciFile                 = "templates/golangci.yaml.tmpl"
@@ -344,13 +348,26 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
 
+	selectedDependabotFile := dependabotFile
+	selectedCIWorkflowFile := ciWorkflowFile
+	selectedDependabotWorkflowFile := dependabotWorkflowFile
+	selectedReleaseWorkflowFile := releaseWorkflowFile
+	if sdk.Specification.Public {
+		selectedDependabotFile = dependabotPublicFile
+		selectedCIWorkflowFile = ciWorkflowPublicFile
+		selectedDependabotWorkflowFile = dependabotWorkflowPublicFile
+		selectedReleaseWorkflowFile = releaseWorkflowPublicFile
+	}
+
 	if onGithub {
-		templatesToPopulate.addStateFile(dependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(selectedDependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(ciWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), updateGoVersion, true)
-		templatesToPopulate.addStateFile(dependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), updateGoVersion, true)
-		templatesToPopulate.addStateFile(releaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), updateGoVersion, true)
+		if !sdk.Specification.Public {
+			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
+		}
+		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), updateGoVersion, true)
 	}
 
 	var generatedActions []GeneratedAction

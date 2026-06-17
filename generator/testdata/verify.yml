@@ -4,6 +4,7 @@ specification:
   name: ExampleVerify
   description: Verify a project is compatible with [CMSIS](https://www.keil.arm.com/cmsis)
   repository_url: https://github.com/Arm-Examples/verify-cmsis-example-sdk
+  public: true
   interface:
     namespace: github.com/Arm-Debug
     methods:

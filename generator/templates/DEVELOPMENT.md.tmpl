@@ -11,7 +11,7 @@ SPDX-License-Identifier: {{ .Specification.Licence }}
 
 ### Generating the SDK
 
-The interface that this project provides, including what CLI commands are available and what configuration is required is defined in {{ if isHostedOnGitHub .Specification }}[`{{ .SchemaFileName }}.yml`]({{ linkToManifest .Specification .SchemaFileName }}){{ else }}`{{ .SchemaFileName }}.yml`{{ end }}. From this file the Go SDK code is generated using the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator). Follow these steps to make changes to the interface.
+The interface that this project provides, including what CLI commands are available and what configuration is required is defined in {{ if isHostedOnGitHub .Specification }}[`{{ .SchemaFileName }}.yml`]({{ linkToManifest .Specification .SchemaFileName }}){{ else }}`{{ .SchemaFileName }}.yml`{{ end }}. From this file the Go SDK code is generated using {{ if .Specification.Public }}`go-sdk-generator`{{ else }}the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator){{ end }}. Follow these steps to make changes to the interface.
 
 #### Prerequisites
 
@@ -38,7 +38,7 @@ On Red Hat based systems:
 
 ##### Other systems
 
-- Install the SDK Generator from https://github.com/Arm-Debug/go-sdk-generator/releases
+- Install the SDK Generator from its release page.
 
 #### Steps
 
@@ -123,7 +123,7 @@ The CI supports three release flows:
 
 ### Release workflow
 
-1. Navigate to the [GitHub Actions](https://github.com/Arm-Debug/go-sdk-generator/actions/workflows/release.yml) page.
+1. Navigate to the GitHub Actions page for this repository.
 2. Select the **Run Workflow** button and type which kind of release you would like to make (i.e. release, beta or development).
 
 ### Version Numbers
