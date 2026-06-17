@@ -5,7 +5,7 @@ module github.com/Arm-Debug/go-sdk-generator/cli
 go 1.26
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.161.2
+	github.com/ARM-software/golang-utils/utils v1.162.0
 	github.com/Arm-Debug/go-sdk-generator/generator v0.34.2
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0

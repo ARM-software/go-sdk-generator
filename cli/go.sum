@@ -1,8 +1,8 @@
 bitbucket.org/creachadair/stringset v0.0.9/go.mod h1:t+4WcQ4+PXTa8aQdNKe40ZP6iwesoMFWAxPGd3UGjyY=
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 h1:D9PbaszZYpB4nj+d6HTWr1onlmlyuGVNfL9gAi8iB3k=
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410/go.mod h1:1qZyvvVCenJO2M1ac2mX0yyiIZJoZmDM4DG4s0udJkU=
-github.com/ARM-software/golang-utils/utils v1.161.2 h1:O/DGbB63bggMvC0MirEz+3ZXustp28Bz50tq6xX/Nq4=
-github.com/ARM-software/golang-utils/utils v1.161.2/go.mod h1:8qtTPq+EWRywhzxloruyJtzVMlXMTZ/0/oHZuBAsBtE=
+github.com/ARM-software/golang-utils/utils v1.162.0 h1:4Qk5e2ZQLk/NbiBsNUbINRZlk72hUbJs/bkscumo82c=
+github.com/ARM-software/golang-utils/utils v1.162.0/go.mod h1:bro/VoREJ8RwE/JgoD9RWfrEnEtazCaSUZWX5R4/NAk=
 github.com/Arm-Debug/go-sdk-generator/generator v0.34.2 h1:C70QBpqdfJ5FiC7LMs3PwV/hLYqhzpxEoRmgG982slo=
 github.com/Arm-Debug/go-sdk-generator/generator v0.34.2/go.mod h1:D2A9Ur7Cb6n8OF4hXCqBqRPs8ciaHhdyrL+CkLI/vms=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
