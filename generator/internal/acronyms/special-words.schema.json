@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["acronyms"],
+  "additionalProperties": false,
+  "properties": {
+    "acronyms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["token", "replacement", "exceptions"],
+        "additionalProperties": false,
+        "properties": {
+          "token": { "type": "string", "minLength": 1 },
+          "replacement": { "type": "string", "minLength": 1 },
+          "exceptions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

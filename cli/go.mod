@@ -5,7 +5,7 @@ module github.com/Arm-Debug/go-sdk-generator/cli
 go 1.26
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.162.0
+	github.com/ARM-software/golang-utils/utils v1.164.0
 	github.com/Arm-Debug/go-sdk-generator/generator v0.34.2
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -95,7 +95,7 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
-	go.mongodb.org/mongo-driver v1.17.4 // indirect
+	go.mongodb.org/mongo-driver v1.17.7 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect

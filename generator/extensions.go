@@ -16,9 +16,11 @@ import (
 	"github.com/ARM-software/golang-utils/utils/maps"
 	"github.com/ARM-software/golang-utils/utils/ptr"
 	"github.com/ARM-software/golang-utils/utils/reflection"
-	"github.com/sttk/stringcase"
+	"github.com/ARM-software/golang-utils/utils/strings/casing"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/Arm-Debug/go-sdk-generator/generator/internal/acronyms"
 )
 
 var (
@@ -27,8 +29,6 @@ var (
 	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex", "[]string"}
 
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
-
-	specialAcronyms = []string{"Id", "Api", "Db", "Grpc", "Json", "Ddos", "Xml", "Ios", "Yaml", "Yml", "Url", "Fpga", "Afaas", "Https", "Http", "Ttl"} // see https://google.github.io/styleguide/go/decisions.html#initialisms
 )
 
 const (
@@ -194,19 +194,31 @@ func linkToManifest(spec *SDKSpecification, schemaFileName string) string {
 }
 
 func toPascalCase(s string) string {
-	return handleAcronyms(stringcase.PascalCase(s))
+	if replacer, err := acronyms.Replacer(); err == nil && replacer != nil {
+		return casing.ToPascalCase(s, replacer)
+	}
+	return casing.ToPascalCase(s)
 }
 
 func toCamelCase(s string) string {
-	return handleAcronyms(stringcase.CamelCase(s))
+	if replacer, err := acronyms.Replacer(); err == nil && replacer != nil {
+		return casing.ToCamelCase(s, replacer)
+	}
+	return casing.ToCamelCase(s)
 }
 
 func toSnakeCase(s string) string {
-	return stringcase.SnakeCase(s)
+	if replacer, err := acronyms.Replacer(); err == nil && replacer != nil {
+		return casing.ToSnakeCase(s, replacer)
+	}
+	return casing.ToSnakeCase(s)
 }
 
 func toKebabCase(s string) string {
-	return stringcase.KebabCase(s)
+	if replacer, err := acronyms.Replacer(); err == nil && replacer != nil {
+		return casing.ToKebabCase(s, replacer)
+	}
+	return casing.ToKebabCase(s)
 }
 
 func toURIEncoded(s string) string {
@@ -252,16 +264,6 @@ func normaliseActionName(s string) string {
 func nowYear() string {
 	return fmt.Sprint(time.Now().Year())
 }
-func handleAcronyms(pC string) string {
-	for i := range specialAcronyms {
-		pC = strings.ReplaceAll(pC, specialAcronyms[i], strings.ToUpper(specialAcronyms[i]))
-	}
-	// The following is to deal with the ID specific acronym
-	pC = strings.ReplaceAll(pC, "IDentifier", "Identifier")
-	pC = strings.ReplaceAll(pC, "IDentification", "Identification")
-	return pC
-}
-
 func withQuote(s string) string {
 	return strconv.Quote(s)
 }
