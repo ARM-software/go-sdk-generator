@@ -2,6 +2,33 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.35.0" (2026-06-18)
+=====================
+
+Features
+--------
+
+- :recycle: Better handle what is generated when a project is `public` (#20260617151706)
+- :lock: Introduced a `secret` flag to better handle CLI parameters so they can be stored in secret stores such as keyring (#20260617183859)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.34.2 (#20260605042353)
+- Dependency upgrade: alpine-3.24.0 (#20260610042332)
+- Dependency upgrade: utils-1.161.2 (#20260610042347)
+- Dependency upgrade: tools-0.46.0 (#20260612042351)
+- Dependency upgrade: v4-4.8.0 (#20260615043142)
+- Dependency upgrade: alpine-3.24.1 (#20260617042332)
+- Dependency upgrade: utils-1.162.0 (#20260617042405, #20260617042406)
+- :recycle: Improve how acronyms are handled and maintained to avoid situations like having functions called `IDentify` (#20260618133942)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.34.2" (2026-06-04)
 =====================
 
