@@ -35,6 +35,14 @@ Preferred method: system package manager (e.g. apt/dnf/yum) and specify package 
 
 To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)
 
+## Secret Management In Generated CLI Tools
+
+When CLI parameters are marked as secrets in the manifest, the generator can expose a `Credentials` command for storing those values in the system keyring when supported.
+
+If a `Credentials` command is not already defined, the generator creates one automatically from the secret-marked parameters. If a `Credentials` command already exists, secret-marked parameters from other commands are merged into it.
+
+This keeps routine command-line usage separate from secret entry and makes it easier to manage sensitive configuration without repeatedly passing it as flags.
+
 ## Capabilities
 
 ### Formats

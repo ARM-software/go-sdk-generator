@@ -217,3 +217,16 @@ func TestRepositoryURLDefaultsAndNonGitHub(t *testing.T) {
 	assert.Empty(t, githubIssuesURL(&spec))
 	assert.Empty(t, linkToFileOnGitHub(&spec, "schema.yml"))
 }
+
+func TestSecretStringHelpersSupportPointerStrings(t *testing.T) {
+	cfg := FunctionConfigFields{
+		LangType:     "*string",
+		DefaultValue: field.ToOptionalString("hello"),
+		Secret:       true,
+	}
+
+	assert.True(t, isSecretCompatibleLangType(cfg.LangType))
+	assert.Equal(t, "*secretutil.ProtectedString", configFieldType(cfg))
+	assert.Contains(t, configFieldDefaultValue(cfg), "field.ToOptional(")
+	assert.Contains(t, configFieldDefaultValue(cfg), `secretutil.ProtectedString("hello")`)
+}

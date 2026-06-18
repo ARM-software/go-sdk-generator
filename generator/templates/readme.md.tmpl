@@ -33,6 +33,21 @@ See `/skills/install.md` for installing `{{ .Specification.CommandLineCommands.B
 
 Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `{{ .Specification.PackageName }}`
 
+{{ if .Specification.CommandLineCommands -}}
+{{ range .Specification.CommandLineCommands.Functions -}}
+{{ if .StoreToKeyring }}
+
+## Credentials
+
+Use `{{ $.Specification.CommandLineCommands.Binary }} {{ .Name | lower }}` to store secret CLI configuration in the system keyring when supported.
+
+This is intended for values marked as secrets in the manifest, so they can be managed separately from routine command-line options.
+
+{{ break }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+
 {{ end }}
 ## Documentation
 

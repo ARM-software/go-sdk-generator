@@ -27,6 +27,10 @@ type Binding struct {
 
 	// The name of the field
 	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Whether the binding contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -42,6 +46,9 @@ func (j *Binding) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["hidden"]; !ok || v == nil {
 		plain.Hidden = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
 	}
 	*j = Binding(plain)
 	return nil
@@ -183,6 +190,10 @@ type CommandArgument struct {
 
 	// Whether the configuration value is required
 	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Whether the parameter contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -219,6 +230,9 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["required"]; !ok || v == nil {
 		plain.Required = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
 	}
 	*j = CommandArgument(plain)
 	return nil
@@ -327,6 +341,10 @@ type ConfigurationOption struct {
 
 	// Whether the configuration value is required
 	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Whether the parameter contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -366,6 +384,9 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["required"]; !ok || v == nil {
 		plain.Required = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
 	}
 	*j = ConfigurationOption(plain)
 	return nil
@@ -421,6 +442,10 @@ type EntityField struct {
 
 	// Whether the configuration value is required
 	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Whether the parameter contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -460,6 +485,9 @@ func (j *EntityField) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["required"]; !ok || v == nil {
 		plain.Required = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
 	}
 	*j = EntityField(plain)
 	return nil
@@ -528,6 +556,10 @@ type FunctionConfigFields struct {
 
 	// Whether the configuration value is required
 	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Whether the parameter contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -567,6 +599,9 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["required"]; !ok || v == nil {
 		plain.Required = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
 	}
 	*j = FunctionConfigFields(plain)
 	return nil

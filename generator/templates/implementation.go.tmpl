@@ -49,7 +49,7 @@ Return values:
 {{ end }}
 */
 {{ $functionName := .Name | toPascal -}}
-func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) {
+func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) {
 	if imp.Delegate == nil {
 		err = commonerrors.UndefinedVariable("delegate")
 		return

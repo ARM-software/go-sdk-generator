@@ -7,10 +7,16 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/logs"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	{{ if hasReferenceLikeSecretStringParameters .Specification.CommandLineCommands -}}
+	"github.com/ARM-software/golang-utils/utils/field"
+	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
+	{{ if hasSecretStringParameters .Specification.CommandLineCommands -}}
+	"{{ cliModuleRoot .Specification }}/internal/secretutil"
+	{{ end -}}
 	{{ if .Specification.AdditionalTypes -}}
 	"{{ sdkModuleRoot .Specification }}/types"	
 	{{ end -}}
@@ -27,10 +33,10 @@ const (
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $configName:= .Name | toPascal -}}
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
-type {{ $configName }}Configuration struct {
+	type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
 		// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
-		{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+		{{ .Name | toPascal }} {{ configFieldType . }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 		// ToolVersion contains the version of the CLI tool
 		ToolVersion *string
@@ -75,10 +81,10 @@ func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .Bindings }}
 	{{ if .DefaultValue -}}
-	{{ .Name  | toPascal }}: {{ defaultValue .LangType (dereferenceString .DefaultValue) }},
+	{{ .Name  | toPascal }}: {{ configFieldDefaultValue . }},
 	{{ end -}}
 	{{ else }}
-	{{ .Name  | toPascal }}: {{ defaultValue .LangType (dereferenceString .DefaultValue) }},
+	{{ .Name  | toPascal }}: {{ configFieldDefaultValue . }},
 	{{ end -}}
 	{{ end -}}
 	}

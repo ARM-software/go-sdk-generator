@@ -265,6 +265,16 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 			return
 		}
 
+		err = validateSecretParameters(sdk.Specification.CommandLineCommands)
+		if err != nil {
+			return
+		}
+
+		err = processCredentialsCommand(sdk.Specification.CommandLineCommands)
+		if err != nil {
+			return
+		}
+
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
 			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
@@ -328,6 +338,7 @@ func updateCliFunctionArgumentsToCallCloud(fct *CliFunction, isRoot bool) error 
 			Pattern:         field.ToOptionalStringOrNilIfEmpty(`^[!-~\w]+[!-~\w\s]*$`),
 			Reference:       false,
 			Required:        true,
+			Secret:          true,
 		},
 		"Host": {
 			Arg:             nil,
@@ -569,7 +580,7 @@ func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefini
 					out = append(out, ArgDefinition{
 						Name:   argName,
 						Value:  value,
-						NoLint: ignoreLintingError(argName) || ignoreLintingError(value),
+						NoLint: binding.Secret || ignoreLintingError(argName) || ignoreLintingError(value),
 					})
 				}
 			} else {
@@ -594,7 +605,7 @@ func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefini
 				out = append(out, ArgDefinition{
 					Name:   argName,
 					Value:  value,
-					NoLint: ignoreLintingError(argName) || ignoreLintingError(value),
+					NoLint: cfg.Secret || ignoreLintingError(argName) || ignoreLintingError(value),
 				})
 			}
 		}

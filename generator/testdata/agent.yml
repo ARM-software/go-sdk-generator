@@ -31,6 +31,7 @@ x-afaas-token: &x-afaas-token
   mapstructure_tag: afaas_service_token
   required: true
   description: An API token for the agent to authenticate with the FPGA service itself
+  secret: true
 x-afaas-store-host: &x-afaas-store-host
   name: AFAASStoreHost
   lang_type: host
@@ -43,6 +44,7 @@ x-afaas-store-token: &x-afaas-store-token
   required: true
   mapstructure_tag: afaas_store_token
   description: An API token for the agent to authenticate with the payload store
+  secret: true
 x-afaas-store-payload-owners: &x-afaas-store-payload-owners
   name: AFAASStorePayloadOwners
   lang_type: string
@@ -205,9 +207,7 @@ specification:
         configuration:
           - <<: *x-sandpit
           - <<: *x-afaas-host
-          - <<: *x-afaas-token
           - <<: *x-afaas-store-host
-          - <<: *x-afaas-store-token
           - <<: *x-datastore-location
           - <<: *x-afaas-store-public-key
           - <<: *x-machine-hostname

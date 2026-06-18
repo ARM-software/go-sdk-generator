@@ -3,6 +3,7 @@ package generator
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
@@ -12,6 +13,12 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+)
+
+const (
+	testVerifyFunctionName = "Verify"
+	testInitFunctionName   = "Init"
+	testStringType         = stringLangType
 )
 
 func TestProcessExtraImports(t *testing.T) {
@@ -685,5 +692,172 @@ func TestCliRootLevelCallCloud(t *testing.T) {
 		err := processCallCloud(cmds)
 		assert.NoError(t, err)
 		assert.True(t, cmds.Functions[0].LoadFromKeyring)
+	})
+
+	t.Run("creates credentials command from secret fields and secret bindings", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{
+						{
+							Name:        testVerifyFunctionName,
+							Description: "verify",
+							Configuration: []FunctionConfigFields{
+								{
+									Name:            "APIKey",
+									LangType:        testStringType,
+									MapstructureTag: "api_key",
+									Description:     "API key",
+									Arg:             field.ToOptionalString("api-key"),
+									Required:        true,
+									Secret:          true,
+								},
+								{
+									Name:            "ServiceCredentials",
+									LangType:        "types.ServiceCredentials",
+									MapstructureTag: "service_credentials",
+									Description:     "Service credentials",
+									DefaultValue:    field.ToOptionalString("types.ServiceCredentials{}"),
+									Bindings: []Binding{
+										{
+											Name:            field.ToOptionalString("Token"),
+											Arg:             field.ToOptionalString("service-token"),
+											MapstructureTag: field.ToOptionalString("token"),
+											LangType:        field.ToOptionalString(testStringType),
+											Description:     field.ToOptionalString("Service token"),
+											Secret:          true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Interface:   Interface{},
+				MainModule:  "verify",
+				PackageName: "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		credentialsIndex := slices.IndexFunc(sdk.Specification.CommandLineCommands.Functions, func(f CliFunction) bool { return f.Name == credentialsCommandName })
+		require.GreaterOrEqual(t, credentialsIndex, 0)
+		credentials := sdk.Specification.CommandLineCommands.Functions[credentialsIndex]
+		assert.True(t, credentials.StoreToKeyring)
+		assert.True(t, credentials.NoAction)
+		require.Len(t, credentials.Configuration, 2)
+		assert.Equal(t, "APIKey", credentials.Configuration[0].Name)
+		assert.Equal(t, "ServiceCredentials", credentials.Configuration[1].Name)
+		require.Len(t, credentials.Configuration[1].Bindings, 1)
+		assert.Equal(t, "Token", field.OptionalString(credentials.Configuration[1].Bindings[0].Name, ""))
+	})
+
+	t.Run("rejects secret parameters that are not string compatible", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{
+						{
+							Name:        testVerifyFunctionName,
+							Description: "verify",
+							Configuration: []FunctionConfigFields{
+								{
+									Name:            "SecretPort",
+									LangType:        "port",
+									MapstructureTag: "secret_port",
+									Description:     "Secret port",
+									Secret:          true,
+								},
+							},
+						},
+					},
+				},
+				Interface:   Interface{},
+				MainModule:  "verify",
+				PackageName: "pkg",
+			},
+		}
+
+		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
+	})
+
+	t.Run("accepts optional secret strings", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{
+						{
+							Name:        testVerifyFunctionName,
+							Description: "verify",
+							Configuration: []FunctionConfigFields{
+								{
+									Name:            "OptionalSecret",
+									LangType:        testStringType,
+									MapstructureTag: "optional_secret",
+									Description:     "Optional secret",
+									Required:        false,
+									Secret:          true,
+								},
+							},
+						},
+					},
+				},
+				Interface:   Interface{},
+				MainModule:  "verify",
+				PackageName: "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+	})
+
+	t.Run("merges secrets into existing credentials command", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{
+						{
+							Name:        testInitFunctionName,
+							Description: "init",
+							Configuration: []FunctionConfigFields{
+								{
+									Name:            "AgentAPIToken",
+									LangType:        testStringType,
+									MapstructureTag: "agent_api_token",
+									Description:     "Agent API token",
+									Arg:             field.ToOptionalString("agent-api-token"),
+									Secret:          true,
+								},
+							},
+						},
+						{
+							Name:           credentialsCommandName,
+							Description:    "store credentials",
+							StoreToKeyring: true,
+							Configuration: []FunctionConfigFields{
+								{
+									Name:            "AFAASToken",
+									LangType:        testStringType,
+									MapstructureTag: "afaas_service_token",
+									Description:     "AFaaS token",
+									Arg:             field.ToOptionalString("afaas-service-token"),
+									Secret:          true,
+								},
+							},
+						},
+					},
+				},
+				Interface:   Interface{},
+				MainModule:  "agent",
+				PackageName: "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		credentialsIndex := slices.IndexFunc(sdk.Specification.CommandLineCommands.Functions, func(f CliFunction) bool { return f.Name == credentialsCommandName })
+		require.GreaterOrEqual(t, credentialsIndex, 0)
+		credentials := sdk.Specification.CommandLineCommands.Functions[credentialsIndex]
+		assert.True(t, credentials.StoreToKeyring)
+		assert.ElementsMatch(t, []string{"AFAASToken", "AgentAPIToken"}, []string{credentials.Configuration[0].Name, credentials.Configuration[1].Name})
 	})
 }

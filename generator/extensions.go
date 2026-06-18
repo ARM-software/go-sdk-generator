@@ -91,12 +91,15 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"convertLangType":              convertLangType,
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
+	"configFieldType":              configFieldType,
+	"configFieldDefaultValue":      configFieldDefaultValue,
 	"toCamel":                      toCamelCase,
 	"toSnake":                      toSnakeCase,
 	"toKebab":                      toKebabCase,
 	"toPascal":                     toPascalCase,
 	"quote":                        withQuote,
 	"toPackageName":                toPackageName,
+	"referenceType":                referenceType,
 	"ignoreLinting":                ignoreLintingError,
 	"nowYear":                      nowYear,
 	"toURIEncoded":                 toURIEncoded,
@@ -107,11 +110,13 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
-	"dereferenceString": ptr.Deref[string],
-	"sdkModuleRoot":     sdkModuleRoot,
-	"cliModuleRoot":     cliModuleRoot,
-	"importPrefix":      importPrefix,
-	"repositoryURL":     repositoryURL,
+	"dereferenceString":                      ptr.Deref[string],
+	"sdkModuleRoot":                          sdkModuleRoot,
+	"cliModuleRoot":                          cliModuleRoot,
+	"importPrefix":                           importPrefix,
+	"repositoryURL":                          repositoryURL,
+	"hasSecretStringParameters":              hasSecretStringParameters,
+	"hasReferenceLikeSecretStringParameters": hasReferenceLikeSecretStringParameters,
 }, gitHubFuncMap)
 
 func stripHTTPScheme(value string) string {
@@ -259,6 +264,13 @@ func handleAcronyms(pC string) string {
 
 func withQuote(s string) string {
 	return strconv.Quote(s)
+}
+
+func referenceType(reference bool, langType string) string {
+	if reference {
+		return fmt.Sprintf("*%s", langType)
+	}
+	return langType
 }
 
 func toPackageName(value string) string {

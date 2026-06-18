@@ -54,6 +54,10 @@ x-parameter: &x-parameter
       type: boolean
       default: false
       description: Whether to mark the flag as hidden in the command line
+    secret:
+      type: boolean
+      default: false
+      description: Whether the parameter contains secret material and should be included in credentials storage
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -351,6 +355,10 @@ $defs:
         type: boolean
         default: false
         description: Whether to mark the flag as hidden in the command line
+      secret:
+        type: boolean
+        default: false
+        description: Whether the binding contains secret material and should be included in credentials storage
     additionalProperties: false
   extra_import:
     description: An extra import

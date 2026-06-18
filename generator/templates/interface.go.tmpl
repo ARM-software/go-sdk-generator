@@ -45,6 +45,6 @@ Return values:
   * {{ .Name | toCamel  }}: {{ .Description }}
 {{ end }}
 */
-	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel  }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType }}{{ end }})
+	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel  }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }})
 	{{ end -}}
 }

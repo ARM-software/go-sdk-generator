@@ -30,7 +30,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Fields }}
-- **`{{ .Name | toCamel }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toCamel }} : {{ referenceType .Reference .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ end }}
 {{ end }}
 ### {{ .Specification.Name | toPascal }}ManagerConfiguration
@@ -39,7 +39,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .Name | toPascal }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal }} : {{ referenceType .Reference .LangType }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 
@@ -48,16 +48,16 @@ Documentation about {{ .Specification.Name }} SDK
 {{ .Description }}
 
 ```go
-{{ .Name  | toPascal  }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if $arg.Reference }}*{{ end }}{{ $arg.LangType | convertLangType }}{{ end }})
+{{ .Name  | toPascal  }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }})
 ```
 
 Input arguments:
 {{ range .Args }}
-  * `{{ .Name  | toCamel }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`: {{ .Description }}
+  * `{{ .Name  | toCamel }} : {{ referenceType .Reference .LangType }}`: {{ .Description }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * `{{ .Name  | toCamel }} : {{ if .Reference }}*{{ end }}{{ .LangType }}`: {{ .Description }}
+  * `{{ .Name  | toCamel }} : {{ referenceType .Reference .LangType }}`: {{ .Description }}
 {{ end }}
 {{ end -}}
 
@@ -138,7 +138,7 @@ func(ctx context.Context, logger logs.Loggers, cfg config.{{ $functionName }}Con
 type {{ $functionName }}Configuration struct {
 	{{ range .Configuration -}}
 		// {{ .Description }}
-		{{ .Name | toPascal }} {{ if .Reference }}*{{ end }}{{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag }}"`
+		{{ .Name | toPascal }} {{ referenceType .Reference (.LangType | convertLangType) }} `mapstructure:"{{ .MapstructureTag }}"`
 	{{ end }}
 }
 ```

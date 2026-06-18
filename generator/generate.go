@@ -36,6 +36,7 @@ const (
 	implementationFile           = "templates/implementation.go.tmpl"
 	implementationCLIFile        = "templates/implementation.cli.go.tmpl"
 	implementationWrapperCLIFile = "templates/wrapper.cli.go.tmpl"
+	secretUtilCLIFile            = "templates/secretutil.go.tmpl"
 	interfaceFile                = "templates/interface.go.tmpl"
 	configCLIFile                = "templates/config.cli.go.tmpl"
 	configFile                   = "templates/config.go.tmpl"
@@ -407,6 +408,9 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
 		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
+		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {
+			templatesToPopulate.addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "internal", "secretutil", "secret.go"), true, true)
+		}
 
 		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
 		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)

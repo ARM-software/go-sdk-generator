@@ -21,7 +21,7 @@ import (
 type {{ $structName  }} struct {
 {{ range .Fields -}}
 	// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
-	{{ .Name | toPascal }} {{ if .Reference }}*{{ end }}{{ .LangType | convertLangType }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ .Name | toPascal }} {{ referenceType .Reference (.LangType | convertLangType) }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}	
 }
 
