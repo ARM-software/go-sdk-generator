@@ -7,7 +7,11 @@
 [![Go Badge](https://img.shields.io/badge/go-v1.26.4-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 
-SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/schema.yml)
+`go-sdk-generator` is a contract-first generator for Go SDKs, CLI tools, and automation entrypoints.
+
+It follows the same broad idea as [OpenAPI](https://www.openapis.org/): define the contract once, validate it against a schema, and generate the boilerplate consistently. The difference is scope. OpenAPI is primarily concerned with describing transport-level API contracts. `go-sdk-generator` is concerned with describing user-facing operations and then generating the Go package, CLI, and supporting project structure around those operations.
+
+In practice, this means generating stable operations such as `Compile`, `Verify`, `Deploy`, `DownloadArtifacts`, or `StoreCredentials`: operations that may call several internal APIs, apply ordering rules, and expose one simpler interface to users and automation.
 
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tool) for ease of use
 
@@ -27,13 +31,210 @@ go-sdk-generator -h
 
 ## Installation
 
-See `/skills/install.md` for installing `go-sdk-generator`.
+Install `go-sdk-generator` from a release or via the system package manager when available.
 
-Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `go-sdk-generator`
+For agent-specific installation guidance in this repo, see `.agents/skills/install/SKILL.md`.
 
 ## Documentation
 
 To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)
+
+## What "SDK" Means Here
+
+`SDK` does not have one universal definition. In different ecosystems it can mean anything from a full application platform such as the [Android SDK](https://developer.android.com/tools/releases/platforms) to a much smaller client library.
+
+In this repository, `SDK` has a narrower and more practical meaning.
+
+Internally, we often overload the term `SDK` to mean the library part of the generated project. That shorthand is useful in day-to-day conversation, but it is narrower than the actual goal of the manifest.
+
+Here, an SDK is a Go package that exposes a stable, user-facing set of operations for a domain or tool. It usually includes:
+
+- exported configuration and domain types
+- one or more Go interfaces and implementations for the intended operations
+- optional CLI commands exposing the same intent at the command line
+- documentation and project structure that make the package easy to adopt and automate
+
+It is not primarily a raw transport client and it is not a full framework. It sits in the middle: above low-level API clients or helper packages, but below application-specific business logic in the consuming project.
+
+More importantly, the manifest is intended to define everything around one concern, and to define it fully. Following the spirit of the [Unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) as much as practical, each generated project should do one thing well. What gets exposed is up to the author of the manifest:
+
+- a Go library only
+- one CLI tool
+- multiple CLI tools or commands
+- dedicated actions for CI/CD
+- or a combination of these
+
+The important part is not whether we call it an SDK, CLI, or action. The important part is that the generated project gives one coherent interface around one concern and handles that concern completely.
+
+In practice, that means the generated SDK is the layer that turns lower-level details into operations that make sense to callers, such as `Compile`, `Verify`, `Deploy`, `DownloadArtifacts`, or `StoreCredentials`.
+
+For comparison, a smaller client library might expose methods such as `CreateJob`, `GetJob`, and `DeleteJob`, each mapping closely to one API endpoint or RPC. In our sense, the SDK is the layer above that kind of client. It might expose one operation such as `Compile` that creates a job, uploads inputs, polls for completion, and downloads artefacts behind one Go method and one CLI command.
+
+## Why This Exists
+
+This project exists to generate the repetitive parts of SDKs and CLIs while keeping the implementation code under our control.
+
+The main problem is not generating HTTP clients. We already have tools for that. The main problem is generating the stable layer above those clients: the package structure, configuration types, CLI flags, documentation, and stubbed entrypoints for the operations we actually want people and automation to run.
+
+We built the generator because, over time:
+
+- handwritten SDKs and CLIs drifted apart
+- teams had to repeatedly rebuild the same boilerplate for config, commands, docs, and packaging
+- OpenAPI solved transport-level API description, but not the higher-level operations we wanted to expose
+- CLI behaviour such as arguments, environment-variable loading, and signal handling was too easy to implement differently from one project to another
+
+The generator addresses that by making the manifest the source of truth and emitting a consistent Go package and optional CLI around it.
+
+That gives us:
+
+- Go types for the configuration and domain data we want to expose
+- an interface-first Go library surface for user-facing operations
+- a CLI that maps onto the same intent and configuration as the Go library
+- a foundation for GitHub Actions that can call a compiled Go tool instead of re-implementing logic in bash or JavaScript
+- a more consistent repository structure and documentation model across projects
+
+It also helps uniformise how we define CLIs. Argument binding, environment-variable loading, config conventions, and signal handling can all be generated in one consistent way so that tools across projects have a single, simple look and feel. In practice this gives a more uniform [Cobra](https://cobra.dev/)-style CLI surface and [Viper](https://github.com/spf13/viper)-style configuration loading across projects. That reduces cognitive load for both users and maintainers because each tool behaves more like the others.
+
+## How It Works
+
+1. Write a manifest in YAML or JSON that follows [`generator/schema/schema.yml`](./generator/schema/schema.yml).
+2. Describe your package metadata, global configuration, interface methods, and optional CLI commands.
+3. Run `go-sdk-generator generate` against that manifest.
+4. Implement or extend the generated stubs using the project's delegate pattern and normal Go code.
+
+The manifest is the source of truth for generated structure. That makes the project contract-first and easy to regenerate when the SDK surface evolves.
+
+References:
+
+- schema source: [`generator/schema/schema.yml`](./generator/schema/schema.yml)
+- repo example manifest: [`generate.yml`](./generate.yml)
+- development usage example: [`DEVELOPMENT.md`](./DEVELOPMENT.md)
+- generated command reference: [`DOCUMENTATION.md`](./DOCUMENTATION.md)
+
+## What It Generates
+
+Depending on the manifest, the generator can produce:
+
+- a Go module layout for the SDK
+- exported configuration and domain types
+- interface and implementation scaffolding for SDK operations
+- a [Cobra](https://cobra.dev/)-style CLI surface backed by the same configuration model and [Viper](https://github.com/spf13/viper)-style configuration sources
+- a reusable Go-based entrypoint that can be wrapped by [GitHub Actions](https://docs.github.com/actions) and exercised with normal Go tests
+- generated documentation and supporting project files
+
+It generates boilerplate. It does not replace the domain-specific implementation logic you still want to own.
+
+This is especially useful for automation because the same intent can be exposed at several levels.
+
+- In another Go project, the generated SDK can be imported as a library and called directly.
+- On a laptop, in a developer environment, in scripts, or in a Kubernetes pod, the generated CLI can be invoked as a normal tool.
+- In CI/CD, dedicated actions can call the generated Go program instead of re-implementing the same logic in shell steps, [composite actions](https://docs.github.com/actions/creating-actions/creating-a-composite-action), or [JavaScript actions](https://docs.github.com/actions/creating-actions/creating-a-javascript-action).
+
+That means one implementation can serve library users, CLI users, and automation systems while remaining testable as ordinary Go code. In practice this usually gives a more robust, reviewable, and maintainable automation surface.
+
+It also improves project quality over time. When the generator learns a new concern such as better documentation, new support files, stronger defaults, CI integration, secret handling, or repository conventions, that improvement can be applied across generated projects instead of being rediscovered one repository at a time. The history of this project has shown that this is one of the main practical benefits of owning the generator.
+
+Because of that, we try hard not to introduce breaking changes in the generator or in the structure it emits without a clear reason. The intention is that projects can keep moving to newer generator versions to pick up the latest improvements, fixes, and features with minimal friction.
+
+## Quick Start
+
+Use the repo's own `generate.yml` as a concrete example manifest.
+
+Example generation command:
+
+```bash
+go-sdk-generator generate -i generate.yml -o ./ -g 1.26.4
+```
+
+Common flags:
+
+- `-i`, `--input`: path to the manifest file
+- `-o`, `--output`: destination directory for generated code
+- `-g`, `--go_version`: target Go version to generate for
+- `--overwrite`: regenerate all files, including stateful/generated project files
+
+The `-g` flag should normally match the Go version used by the target project.
+
+## Manifest Shape
+
+At a high level, the manifest describes:
+
+- `specification.package_name`: the generated module or package identity
+- `specification.main_module`: the main generated Go module within the project
+- `specification.interface`: the SDK methods users call from Go
+- `specification.command_line_commands`: the CLI binary, commands, and flags
+- `specification.global_configuration`: shared configuration used across SDK and CLI
+- `specification.additional_types`: extra exported types the generated SDK should expose
+
+For a concrete minimal manifest, see `.agents/skills/generator/SKILL.md` or the repo example [`generate.yml`](./generate.yml).
+
+## OpenAPI Analogy
+
+If you already think in OpenAPI terms, the easiest way to understand this project is:
+
+- OpenAPI describes REST contracts and then generates API-facing clients and servers
+- `go-sdk-generator` describes operation contracts and then generates Go SDK and CLI boilerplate
+
+That makes it useful when your main concern is the user-facing operation, configuration, and documentation shape rather than the transport protocol.
+
+## Alternatives
+
+We considered several alternatives before settling on a bespoke generator.
+
+### Handwritten SDKs and CLIs
+
+Writing each SDK and CLI by hand gives full control, but it repeats the same setup work for every project.
+
+- more manual effort for each new SDK
+- more inconsistency between projects
+- more maintenance for docs, config loading, commands, and packaging
+
+This is viable for one-off tools, but it scales poorly when multiple SDKs should follow the same conventions.
+
+### OpenAPI Generators
+
+[OpenAPI generators](https://openapi-generator.tech/) are a strong fit for REST contracts.
+
+- best for endpoint-focused clients and server stubs
+- less suitable for operation-oriented SDKs that orchestrate several steps behind one user-facing operation
+- models HTTP transport well, but not the higher-level SDK and CLI patterns this project targets
+
+We still use OpenAPI where the problem is API-description. `go-sdk-generator` is for the layer above that.
+
+### Smithy
+
+[Smithy](https://smithy.io/2.0/index.html) is protocol-agnostic and closer to this problem space than OpenAPI, but it still was not the right fit here.
+
+- extra language and tooling to learn and maintain
+- Go support was not strong enough for the kind of operation-oriented SDK generation we wanted when this direction was evaluated
+- still leaves a lot of project-specific SDK flow and library design work for us to own
+
+It was promising in theory, but it did not reduce enough of the work we actually needed to standardise.
+
+### Fern
+
+[Fern](https://buildwithfern.com/) focuses on API and SDK generation with strong documentation tooling.
+
+- closer to an API-definition platform than an operation-oriented boilerplate generator
+- less aligned with our existing Go-first internal development patterns
+- not aimed at generating the exact interface, CLI, and project structure conventions we wanted
+
+It solves a neighbouring problem, but not this one.
+
+### Why Bespoke Won
+
+The bespoke approach let us keep the parts we cared about most:
+
+- a schema-driven, contract-first workflow
+- output tailored to our Go project conventions
+- consistent SDK, CLI, and documentation patterns across projects
+- uniform CLI behaviour around arguments, environment variables, and signal handling
+- generated Go tooling that can also power GitHub Actions with stronger testing and structure than ad hoc shell scripts
+- a way to raise the baseline quality of many projects at once as the generator evolves
+- an upgrade path where projects can usually move to newer generator versions to pick up improvements without disruptive rewrites
+- generated boilerplate without giving up control of implementation code
+
+The main trade-off is maintaining the generator and the schema, but that was preferable to forcing a general-purpose tool into an operation-oriented problem it was not designed to solve.
 
 ## Secret Management In Generated CLI Tools
 
@@ -121,7 +322,7 @@ For release notes and a history of changes of all **production** releases, pleas
 
 ## Project Structure
 
-The follow described the major aspects of the project structure:
+The following describes the major parts of the project structure:
 
 ```
 

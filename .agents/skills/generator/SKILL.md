@@ -21,6 +21,33 @@ metadata:
 
 # Skill: SDK Generator
 
+## Why this tool exists
+
+`go-sdk-generator` exists to generate consistent Go SDK and CLI boilerplate from a contract-first manifest.
+
+Use it when the user wants a Go library and optional CLI that expose user-facing operations or domain actions, not just raw REST endpoints.
+
+In this repo, `SDK` means a Go package that exposes stable operations for a tool or domain. It is not meant to be a full framework and it is not just a raw API client. It is the layer that packages lower-level details into operations that make sense to callers.
+
+It is similar in spirit to OpenAPI-based generation because a schema-validated contract is the source of truth, but it differs in scope:
+
+- OpenAPI is primarily for REST API contracts
+- `go-sdk-generator` is for operation, tool, and SDK contracts that generate Go library and CLI structure
+
+Think in terms of operations such as `Compile`, `Verify`, `DownloadArtifacts`, or `StoreCredentials`. Those may depend on several lower-level API calls or local steps, but the generated SDK and CLI expose one stable interface for the caller.
+
+The generator standardises:
+
+- exported types
+- SDK interfaces and scaffolding
+- [Cobra](https://cobra.dev/)-style CLI commands and [Viper](https://github.com/spf13/viper)-style configuration loading
+- Go tooling that can be invoked from GitHub Actions instead of duplicating logic in bash or JavaScript
+- generated documentation and supporting project structure
+
+It generates boilerplate, not the domain-specific implementation logic.
+
+The project also tries hard to avoid unnecessary breaking changes. The intent is that generated projects can usually update to newer generator versions to pick up improvements, fixes, and features without disruptive rewrites.
+
 ## Quick use
 
 Binary: `go-sdk-generator`
@@ -55,6 +82,56 @@ No cloud authentication is required.
 ### `go-sdk-generator generate`
 
 Generate tool
+
+Typical usage:
+
+```bash
+go-sdk-generator generate -i generate.yml -o ./ -g 1.26.4
+```
+
+Use a manifest that follows `generator/schema/schema.yml`. The manifest is the contract that defines package metadata, interface methods, shared configuration, and optional CLI commands.
+
+Minimal manifest example:
+
+```yaml
+specification:
+  package_name: example-tool
+  main_module: sdk
+  name: Example Tool
+  description: Generate a Go SDK and CLI from an operation contract.
+  interface:
+    methods:
+      - name: Build
+        description: Run the build operation.
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether the build failed.
+  command_line_commands:
+    binary: example-tool
+    description: CLI for the generated operation SDK.
+    functions:
+      - name: Build
+        description: Run the build operation.
+        configuration:
+          - name: Input
+            mapstructure_tag: input
+            lang_type: string
+            description: Path to the input file.
+            required: true
+  global_configuration:
+    - name: input
+      mapstructure_tag: input
+      lang_type: string
+      description: Path to the input file.
+      required: true
+```
+
+Useful references:
+
+- schema: `generator/schema/schema.yml`
+- repo example: `generate.yml`
+- development example: `DEVELOPMENT.md`
 
 Required:
 - `input`: path to tool definition file
@@ -105,6 +182,16 @@ Optional:
 ---
 ## Agent guidance
 
+- Prefer this tool when the user wants to generate a Go SDK or CLI from a YAML/JSON contract rather than hand-writing boilerplate
+- Frame the tool as operation-contract generation, not as a REST client generator
+- Point users at `generator/schema/schema.yml` and `generate.yml` when they need examples of manifest structure
+- Explain that generated code follows a contract-first approach similar to OpenAPI, but for SDK/CLI operations rather than HTTP endpoints
+- Mention that generated Go CLIs can also back GitHub Actions, which often gives a more robust and testable automation path than putting workflow logic directly in bash or JavaScript actions
+- Mention that the generator is intended to evolve without frequent breaking changes, so generated projects should generally prefer upgrading to newer versions to pick up improvements and features
+- Mention the main alternatives only when useful for decision-making:
+  - handwritten SDKs/CLIs: more flexible, less consistent, more manual work
+  - OpenAPI generators: strong for REST, weak for higher-level workflow contracts
+  - Smithy/Fern: broader SDK ecosystems, but not tailored to this repo's Go-first workflow patterns
 - Select the command that most directly matches user intent
 - Always provide required inputs unless already guaranteed via configuration
 - Prefer keyring for secrets when supported
