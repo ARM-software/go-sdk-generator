@@ -2,6 +2,34 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.36.0" (2026-06-24)
+=====================
+
+Features
+--------
+
+- :sparkles: Update the list of acronyms to cover most of the ones we are likely to encounter when creating SDKs or CLIs (#20260624112411)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.35.0 (#20260619042337)
+- :sparkles: Updated the acronyms list to handle HAL properly (#20260623182545)
+- :bug: Fix the support for multiline descriptions (#20260624110436)
+
+
+Improved Documentation
+----------------------
+
+- :book: Improve the README and generator skill documentation to better explain the generator rationale and usage. (#20260623141229)
+- :book: Added a skill to document how to add to the acronym list (#20260623222141)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.35.0" (2026-06-18)
 =====================
 
