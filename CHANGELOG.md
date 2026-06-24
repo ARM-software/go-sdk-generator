@@ -2,6 +2,31 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.37.0" (2026-06-24)
+=====================
+
+Features
+--------
+
+- :sparkles: Add built-in `connection` manifest types for generating HTTP request configuration defaults. (#20260624134227)
+
+
+Bugfixes
+--------
+
+- :bug: Fix the licence value in some frontmatter (#20260624141852)
+
+
+Improved Documentation
+----------------------
+
+- :book: Added a skill for authoring a manifest (#20260624144410)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.36.0" (2026-06-24)
 =====================
 
