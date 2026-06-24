@@ -577,6 +577,8 @@ func convertLangType(s string) string {
 		behindAuthConnectionLangType, behindAuthServiceLangType, behindAuthServerLangType,
 		serviceBehindAuthLangType, serverBehindAuthLangType:
 		return requestConfigurationType
+	case "string", "bool", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "float32", "float64", "any", "error", "[]string":
+		return st
 	case "decimal":
 		return "float64"
 	case "time.Duration", "duration":
@@ -587,8 +589,23 @@ func convertLangType(s string) string {
 		return "string"
 	case "port":
 		return "uint32"
+	}
+	return normaliseCustomLangType(st)
+}
+
+func normaliseCustomLangType(st string) string {
+	switch {
+	case strings.HasPrefix(st, "[]"):
+		return fmt.Sprintf("[]%s", convertLangType(st[2:]))
+	case strings.HasPrefix(st, "*"):
+		return fmt.Sprintf("*%s", convertLangType(st[1:]))
+	case strings.HasPrefix(st, "..."):
+		return fmt.Sprintf("...%s", convertLangType(st[3:]))
+	case strings.Contains(st, "."):
+		lastDot := strings.LastIndex(st, ".")
+		return fmt.Sprintf("%s%s", st[:lastDot+1], toPascalCase(st[lastDot+1:]))
 	default:
-		return st
+		return toPascalCase(st)
 	}
 }
 

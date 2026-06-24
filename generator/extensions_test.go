@@ -107,6 +107,10 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, requestConfigurationType, convertLangType(behindAuthServerLangType))
 	assert.Equal(t, requestConfigurationType, convertLangType(serviceBehindAuthLangType))
 	assert.Equal(t, requestConfigurationType, convertLangType(serverBehindAuthLangType))
+	assert.Equal(t, "HALLink", convertLangType("HalLink"))
+	assert.Equal(t, "[]HALLink", convertLangType("[]HalLink"))
+	assert.Equal(t, "types.HALLink", convertLangType("types.HalLink"))
+	assert.Equal(t, "*types.HALLink", convertLangType("*types.HalLink"))
 }
 
 func TestDefaultsWithMultilines(t *testing.T) {

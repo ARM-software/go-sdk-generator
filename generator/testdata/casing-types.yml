@@ -1,0 +1,53 @@
+specification:
+  package_name: portal-entities-sdk
+  main_module: portalentities
+  name: PortalEntities
+  description: Test manifest ensuring custom lang_type values are normalised to generated type casing.
+
+  interface:
+    methods: []
+
+  global_configuration:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      description: Whether the test configuration is enabled.
+      default_value: "true"
+
+  additional_types:
+    - name: HalLink
+      description: Minimal HAL link representation for an affected AI Portal entity.
+      fields:
+        - name: Href
+          lang_type: string
+          json_tag: href
+          mapstructure_tag: href
+          description: Href of the affected AI Portal entity.
+        - name: Name
+          lang_type: string
+          json_tag: name
+          mapstructure_tag: name
+          description: Stable name of the affected AI Portal entity.
+        - name: Title
+          lang_type: string
+          json_tag: title
+          mapstructure_tag: title
+          description: Human-readable title of the affected AI Portal entity.
+    - name: AIPortalEntities
+      description: AI Portal entities affected by a documentation link update, grouped by resource kind and described as HAL links.
+      fields:
+        - name: Models
+          lang_type: "[]HalLink"
+          json_tag: models
+          mapstructure_tag: models
+          description: Affected AI Portal model entities.
+        - name: ModelFamilies
+          lang_type: "[]HalLink"
+          json_tag: model_families
+          mapstructure_tag: model_families
+          description: Affected AI Portal model family entities.
+        - name: Targets
+          lang_type: "[]HalLink"
+          json_tag: targets
+          mapstructure_tag: targets
+          description: Affected AI Portal target entities.

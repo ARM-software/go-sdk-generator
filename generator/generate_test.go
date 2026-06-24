@@ -326,6 +326,26 @@ func TestGenerate(t *testing.T) {
 		assert.Contains(t, string(interfaceContent), "// This also verifies multiline descriptions.")
 	})
 
+	t.Run("Custom lang types are normalised to generated type casing", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "casing-types.yml")
+		cfg.Output = tmpDir
+
+		err := Generate(ctx, cfg)
+		require.NoError(t, err)
+
+		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "portalentities", "types", "portalentities.go")
+		typesContent, err := filesystem.ReadFile(typesFile)
+		require.NoError(t, err)
+
+		assert.Contains(t, string(typesContent), "type HALLink struct {")
+		assert.Contains(t, string(typesContent), "Models []HALLink `json:\"models\" mapstructure:\"models\"`")
+		assert.Contains(t, string(typesContent), "ModelFamilies []HALLink `json:\"model_families\" mapstructure:\"model_families\"`")
+		assert.Contains(t, string(typesContent), "Targets []HALLink `json:\"targets\" mapstructure:\"targets\"`")
+	})
+
 	t.Run("No actions skips action outputs", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()

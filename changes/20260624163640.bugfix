@@ -1,0 +1,1 @@
+:bug: Fix generated custom lang_type references so acronym-normalised types are used consistently.
