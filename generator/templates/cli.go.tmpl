@@ -64,8 +64,8 @@ func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.C
 
 var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
-	Short: "{{ .Description }}",
-	Long:  "{{ .Description }}",
+	Short: {{ .Description | quoteDescription }},
+	Long:  {{ .Description | quoteDescription }},
 	RunE: func(cmd *cobra.Command, {{ if .Operands }}args []string{{ else }}_ []string{{ end }}) (err error) {
 		ctx := context.Background()
 		logger, err := logs.NewStdLogger("{{ .Name | toPascal }}")

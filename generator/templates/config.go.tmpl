@@ -23,7 +23,7 @@ import (
 // {{ $configName }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
-	// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
 	{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool

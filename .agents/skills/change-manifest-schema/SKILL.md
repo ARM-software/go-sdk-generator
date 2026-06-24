@@ -26,7 +26,7 @@ Follow this workflow in order:
 
 - Keep schema descriptions in `schema.yml` clear and authoritative.
 - If generated files change because of the schema update, regenerate them instead of patching them.
-- Update tests and fixtures when the generated output changes.
+- When integration or regression fixtures may need updating, follow the local `integration-regression-tests` skill.
 - Prefer the smallest coherent schema change that supports the requested behaviour.
 - Make sure naming is clear, self-explanatory, and precise.
 

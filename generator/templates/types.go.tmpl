@@ -17,10 +17,10 @@ import (
 
 {{ range .Specification.AdditionalTypes }}
 {{ $structName := .Name | toPascal -}}
-// {{ $structName  }} represents {{ .Description | lowerFirst }}
+{{ goComment "" (printf "%s represents %s" $structName (.Description | lowerFirst)) }}
 type {{ $structName  }} struct {
 {{ range .Fields -}}
-	// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
 	{{ .Name | toPascal }} {{ referenceType .Reference (.LangType | convertLangType) }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}	
 }

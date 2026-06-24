@@ -23,7 +23,7 @@ import (
 //go:generate go tool mockgen -destination=mocks/mock_$GOPACKAGE.go -package=mocks {{ sdkModuleRoot .Specification }} I{{ $interfaceName }}Manager
 
 
-// I{{ $interfaceName }}Manager defines the manager interface: {{ .Specification.Description }}
+{{ goComment "" (printf "I%sManager defines the manager interface: %s" $interfaceName (dereferenceString .Specification.Description)) }}
 type I{{ $interfaceName }}Manager interface {
     {{ if not .Specification.Interface.NotCloseable -}}
 	io.Closer

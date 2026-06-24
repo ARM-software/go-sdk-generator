@@ -3,7 +3,6 @@ package generator
 import (
 	"context"
 	fSys "io/fs"
-	"os"
 	"path"
 	"slices"
 	"strings"
@@ -14,11 +13,36 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/hashing"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
+
+func compareGeneratedOutputWithRegressionArchive(ctx context.Context, localFs filesystem.FS, generatedDir, baselineZip string, t *testing.T) {
+	t.Helper()
+
+	generatedZip := filesystem.FilePathJoin(localFs, t.TempDir(), "generated.zip")
+	err := localFs.ZipWithContext(ctx, generatedDir, generatedZip)
+	require.NoError(t, err)
+
+	baselineHash, err := localFs.FileHashWithContext(ctx, hashing.HashSha256, baselineZip)
+	require.NoError(t, err)
+
+	generatedHash, err := localFs.FileHashWithContext(ctx, hashing.HashSha256, generatedZip)
+	require.NoError(t, err)
+
+	if generatedHash == baselineHash {
+		t.Skipf("generated archive hash matches baseline fixture %s, so unpacked content comparison is unnecessary", filesystem.FilePathBase(localFs, baselineZip))
+	}
+
+	baselineDir := t.TempDir()
+	_, err = filesystem.Unzip(baselineZip, baselineDir)
+	require.NoError(t, err)
+
+	checkFilesAreEqual(t, generatedDir, baselineDir, filesystem.NewStandardFileSystem(), "pyproject.toml")
+}
 
 func TestFormatImports(t *testing.T) {
 	localFs := filesystem.NewStandardFileSystem()
@@ -226,8 +250,8 @@ func TestGenerate(t *testing.T) {
 	for i := range tests {
 		test := tests[i]
 		t.Run(test.title, func(t *testing.T) {
-			tmpDir := t.TempDir()
 			ctx := context.Background()
+			tmpDir := t.TempDir()
 			cfg := config.DefaultSdkGeneratorManagerConfiguration()
 			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", test.recipe)
 			cfg.Output = tmpDir
@@ -238,13 +262,8 @@ func TestGenerate(t *testing.T) {
 				errortest.AssertError(t, err, test.err)
 			} else {
 				assert.NoError(t, err)
-
-				tmpDir2 := t.TempDir()
 				zipped := filesystem.FilePathJoin(localFs, "testdata", test.regressionSrc)
-				_, err = filesystem.Unzip(zipped, tmpDir2)
-				require.NoError(t, err)
-
-				checkFilesAreEqual(t, tmpDir, tmpDir2, filesystem.NewStandardFileSystem(), "pyproject.toml")
+				compareGeneratedOutputWithRegressionArchive(ctx, localFs, tmpDir, zipped, t)
 			}
 		})
 	}
@@ -289,15 +308,22 @@ func TestGenerate(t *testing.T) {
 
 		configFile := filesystem.FilePathJoin(localFs, tmpDir, "multilinetest", "config", "multilinetest.go")
 		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "multilinetest", "types", "multilinetest.go")
+		interfaceFile := filesystem.FilePathJoin(localFs, tmpDir, "multilinetest", "interfaces.go")
 
-		configContent, err := os.ReadFile(configFile)
+		configContent, err := filesystem.ReadFile(configFile)
 		require.NoError(t, err, "Generated config file should exist")
 
-		typesContent, err := os.ReadFile(typesFile)
+		typesContent, err := filesystem.ReadFile(typesFile)
 		require.NoError(t, err, "Generated types file should exist")
+
+		interfaceContent, err := filesystem.ReadFile(interfaceFile)
+		require.NoError(t, err, "Generated interface file should exist")
 
 		assert.NotContains(t, string(configContent), "\n,", "Generated config should not have commas on new lines")
 		assert.NotContains(t, string(typesContent), "\n,", "Generated types should not have commas on new lines")
+		assert.Contains(t, string(configContent), "// It supports multiline descriptions.")
+		assert.Contains(t, string(typesContent), "// It supports multiline descriptions.")
+		assert.Contains(t, string(interfaceContent), "// This also verifies multiline descriptions.")
 	})
 
 	t.Run("No actions skips action outputs", func(t *testing.T) {

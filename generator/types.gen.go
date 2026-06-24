@@ -67,7 +67,9 @@ type CliFunction struct {
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []FunctionConfigFields `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Whether this function is hidden and should NOT show up in the list of available
@@ -160,7 +162,9 @@ type CommandArgument struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Whether to mark the flag as hidden in the command line
@@ -250,7 +254,9 @@ type CommandLineCommands struct {
 	//
 	CallCloud *bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
 
-	// The description of the CLI binary
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// Functions corresponds to the JSON schema field "functions".
@@ -311,7 +317,9 @@ type ConfigurationOption struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Whether to mark the flag as hidden in the command line
@@ -412,7 +420,9 @@ type EntityField struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Whether to mark the flag as hidden in the command line
@@ -526,7 +536,9 @@ type FunctionConfigFields struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Whether to mark the flag as hidden in the command line
@@ -630,7 +642,9 @@ type InterfaceMethod struct {
 	// Args corresponds to the JSON schema field "args".
 	Args []CommandArgument `json:"args,omitempty" yaml:"args,omitempty" mapstructure:"args,omitempty"`
 
-	// The description of the field
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// The name of the field
@@ -742,7 +756,9 @@ type SDKSpecification struct {
 	// addtion to cli args and env vars)
 	ConfFile *string `json:"conf_file,omitempty" yaml:"conf_file,omitempty" mapstructure:"conf_file,omitempty"`
 
-	// The description of the SDK
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// ExtraImports corresponds to the JSON schema field "extra_imports".
@@ -845,7 +861,9 @@ func (j *SDK) UnmarshalJSON(value []byte) error {
 
 // A entity type
 type Type struct {
-	// The description of the entity
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
 	// Fields corresponds to the JSON schema field "fields".

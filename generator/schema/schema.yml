@@ -1,3 +1,9 @@
+x-description: &x-description
+  type: string
+  description: |
+    A human-readable description.
+    Multiline YAML descriptions using `|` are supported.
+
 x-parameter: &x-parameter
   description: A command argument or code parameter
   type: object
@@ -37,9 +43,7 @@ x-parameter: &x-parameter
       description: Bind congifuration options to variables
       items:
         $ref: "#/$defs/binding"
-    description:
-      type: string
-      description: The description of the field
+    description: *x-description
     is_root:
       type: boolean
       description: Whether the variable should be in the root command so it can be shared between sub commands
@@ -81,9 +85,7 @@ properties:
       name:
         type: string
         description: The name of the SDK to expose (used for the interface and its implementations)
-      description:
-        type: string
-        description: The description of the SDK
+      description: *x-description
       repository_url:
         type: string
         description: |
@@ -139,9 +141,7 @@ $defs:
       name:
         type: string
         description: The name of the entity
-      description:
-        type: string
-        description: The description of the entity
+      description: *x-description
       fields:
         type: array
         items:
@@ -183,9 +183,7 @@ $defs:
       root_environment_var:
         type: string
         description: Environment variable prefix
-      description:
-        type: string
-        description: The description of the CLI binary
+      description: *x-description
       no_actions:
         type: boolean
         default: false
@@ -210,9 +208,7 @@ $defs:
       name:
         type: string
         description: The name of the field
-      description:
-        type: string
-        description: The description of the field
+      description: *x-description
       args:
         type: array
         items:
@@ -265,9 +261,7 @@ $defs:
       name:
         type: string
         description: The name of the field
-      description:
-        type: string
-        description: The description of the field
+      description: *x-description
       configuration:
         type: array
         items:

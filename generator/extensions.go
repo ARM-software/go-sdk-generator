@@ -69,6 +69,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	},
 	"lower": strings.ToLower,
 	"lowerFirst": func(s string) string {
+		s = normaliseDescription(s)
 		if s == "" {
 			return s
 		}
@@ -98,7 +99,9 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"toKebab":                      toKebabCase,
 	"toPascal":                     toPascalCase,
 	"quote":                        withQuote,
+	"quoteDescription":             quoteDescription,
 	"toPackageName":                toPackageName,
+	"goComment":                    goComment,
 	"referenceType":                referenceType,
 	"ignoreLinting":                ignoreLintingError,
 	"nowYear":                      nowYear,
@@ -264,8 +267,36 @@ func normaliseActionName(s string) string {
 func nowYear() string {
 	return fmt.Sprint(time.Now().Year())
 }
+
+func normaliseDescription(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\r", "\n")
+	return strings.TrimSpace(s)
+}
+
 func withQuote(s string) string {
 	return strconv.Quote(s)
+}
+
+func quoteDescription(s string) string {
+	return withQuote(normaliseDescription(s))
+}
+
+func goComment(linePrefix, s string) string {
+	s = normaliseDescription(s)
+	if s == "" {
+		return fmt.Sprintf("%s//", linePrefix)
+	}
+
+	commentLines := collection.Map(strings.Split(s, "\n"), func(line string) string {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			return fmt.Sprintf("%s//", linePrefix)
+		}
+		return fmt.Sprintf("%s// %s", linePrefix, line)
+	})
+
+	return strings.Join(commentLines, "\n")
 }
 
 func referenceType(reference bool, langType string) string {

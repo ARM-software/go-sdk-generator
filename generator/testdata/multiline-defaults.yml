@@ -2,7 +2,9 @@ specification:
   package_name: multiline-test-sdk
   main_module: multilinetest
   name: MultilineTest
-  description: Test SDK to verify multiline default values are properly handled
+  description: |
+    Test SDK to verify multiline default values are properly handled.
+    This also verifies multiline descriptions.
 
   interface:
     methods: []
@@ -11,18 +13,24 @@ specification:
     - name: TestValue
       lang_type: string
       mapstructure_tag: test_value
-      description: A simple string value
+      description: |
+        A simple string value.
+        It supports multiline descriptions.
       default_value: |
         test value
 
   additional_types:
     - name: TestConfig
-      description: Test configuration with multiline defaults
+      description: |
+        Test configuration with multiline defaults.
+        It should generate multiline-safe comments.
       fields:
         - name: SomeFunc
           lang_type: string
           json_tag: some_func
           mapstructure_tag: some_func
-          description: Some function
+          description: |
+            Some function.
+            It supports multiline descriptions.
           default_value: |
             func(){}

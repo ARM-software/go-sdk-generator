@@ -41,6 +41,20 @@ func TestNowYear(t *testing.T) {
 	require.NotEmpty(t, nowYear())
 }
 
+func TestQuoteDescription(t *testing.T) {
+	assert.Equal(t, "\"first line\\nsecond line\"", quoteDescription("first line\nsecond line\n"))
+}
+
+func TestGoComment(t *testing.T) {
+	assert.Equal(t, "\t// Field is first line\n\t// second line", goComment("\t", "Field is first line\nsecond line\n"))
+	assert.Equal(t, "//", goComment("", "\n\n"))
+}
+
+func TestNormaliseDescriptionWindowsLineEndings(t *testing.T) {
+	assert.Equal(t, "first line\nsecond line", normaliseDescription("  first line\r\nsecond line\r\n"))
+	assert.Equal(t, "single line", normaliseDescription("single line\r\n"))
+}
+
 func TestToURIEncoded(t *testing.T) {
 	assert.Equal(t, "Apache%202.0", toURIEncoded("Apache 2.0"))
 }

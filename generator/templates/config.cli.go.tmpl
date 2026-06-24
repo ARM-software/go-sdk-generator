@@ -35,7 +35,7 @@ const (
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
 	type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
-		// {{ .Name | toPascal }} is {{ .Description | lowerFirst }}
+		{{ goComment "\t\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
 		{{ .Name | toPascal }} {{ configFieldType . }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 		// ToolVersion contains the version of the CLI tool
