@@ -29,6 +29,13 @@ const (
 	App = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
 )
 
+{{- $toolName := .Specification.PackageName -}}
+{{- $toolVersion := "0.0.0" -}}
+{{- $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
+{{- if $binary -}}
+{{- $toolName = $binary -}}
+{{- end -}}
+
 
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $configName:= .Name | toPascal -}}
@@ -81,10 +88,10 @@ func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .Bindings }}
 	{{ if .DefaultValue -}}
-	{{ .Name  | toPascal }}: {{ configFieldDefaultValue . }},
+	{{ .Name  | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
 	{{ end -}}
 	{{ else }}
-	{{ .Name  | toPascal }}: {{ configFieldDefaultValue . }},
+	{{ .Name  | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
 	{{ end -}}
 	{{ end -}}
 	}

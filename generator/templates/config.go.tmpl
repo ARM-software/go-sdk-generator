@@ -19,6 +19,14 @@ import (
 	{{ end -}}
 )
 {{ $configName:= .Specification.Name | toPascal -}}
+{{- $toolName := .Specification.PackageName -}}
+{{- $toolVersion := "0.0.0" -}}
+{{- if .Specification.CommandLineCommands -}}
+{{- $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
+{{- if $binary -}}
+{{- $toolName = $binary -}}
+{{- end -}}
+{{- end -}}
 
 // {{ $configName }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
 type {{ $configName }}ManagerConfiguration struct {
@@ -62,7 +70,7 @@ func Default{{ $configName }}ManagerConfiguration() *{{ $configName }}ManagerCon
 	return &{{ $configName }}ManagerConfiguration{
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultValue .LangType (dereferenceString .DefaultValue) }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion .LangType (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ end -}}
 	}

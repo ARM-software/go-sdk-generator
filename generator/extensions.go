@@ -26,14 +26,28 @@ import (
 var (
 	// validArgTypes lists all the types of variable which can be used in specification
 	// it tries to support special types such as the one defined by OpenAPI specification https://spec.openapis.org/registry/format/
-	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex", "[]string"}
+	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex", "[]string", connectionLangType, onlineTargetLangType, protectedConnectionLangType, serviceLangType, serverLangType, protectedServiceLangType, protectedServerLangType, behindAuthConnectionLangType, behindAuthServiceLangType, behindAuthServerLangType, serviceBehindAuthLangType, serverBehindAuthLangType}
 
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
 )
 
 const (
-	urlPathSeparator       = "/"
-	defaultNamespacePrefix = defaultGitHubOrganisation
+	urlPathSeparator             = "/"
+	defaultNamespacePrefix       = defaultGitHubOrganisation
+	connectionLangType           = "connection"
+	onlineTargetLangType         = "onlineTarget"
+	protectedConnectionLangType  = "protectedConnection"
+	serviceLangType              = "service"
+	serverLangType               = "server"
+	protectedServiceLangType     = "protectedService"
+	protectedServerLangType      = "protectedServer"
+	behindAuthConnectionLangType = "behindAuthConnection"
+	behindAuthServiceLangType    = "behindAuthService"
+	behindAuthServerLangType     = "behindAuthServer"
+	serviceBehindAuthLangType    = "serviceBehindAuth"
+	serverBehindAuthLangType     = "serverBehindAuth"
+	requestConfigurationType     = "httpUtils.RequestConfiguration"
+	defaultGeneratedToolVersion  = "0.0.0"
 )
 
 func argFlagType(s string) string {
@@ -92,6 +106,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"convertLangType":              convertLangType,
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
+	"defaultFieldValue":            defaultFieldValue,
 	"configFieldType":              configFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
 	"toCamel":                      toCamelCase,
@@ -362,6 +377,78 @@ func determineZeroValue(s string) string {
 	}
 }
 
+func isConnectionLangType(s string) bool {
+	return collection.In([]string{
+		connectionLangType,
+		onlineTargetLangType,
+		protectedConnectionLangType,
+		serviceLangType,
+		serverLangType,
+		protectedServiceLangType,
+		protectedServerLangType,
+		behindAuthConnectionLangType,
+		behindAuthServiceLangType,
+		behindAuthServerLangType,
+		serviceBehindAuthLangType,
+		serverBehindAuthLangType,
+	}, s, collection.StringCleanCaseInsensitiveMatch)
+}
+
+func isProtectedConnectionLangType(s string) bool {
+	normalised := strings.ToLower(strings.TrimSpace(s))
+	return isConnectionLangType(s) && (strings.Contains(normalised, "protected") || strings.Contains(normalised, "behindauth"))
+}
+
+func requestConfigurationUserAgent(toolName, toolVersion *string) string {
+	name := strings.TrimSpace(field.OptionalString(toolName, "tool"))
+	version := strings.TrimSpace(field.OptionalString(toolVersion, defaultGeneratedToolVersion))
+	if reflection.IsEmpty(name) {
+		name = "tool"
+	}
+	if reflection.IsEmpty(version) {
+		version = defaultGeneratedToolVersion
+	}
+	return fmt.Sprintf("%s/%s", name, version)
+}
+
+func requestConfigurationDefaultValue(toolName, toolVersion, host string, protected bool, reference bool) string {
+	constructor := "httpUtils.DefaultHTTPRequestConfiguration"
+	if protected {
+		constructor = "httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced"
+	}
+
+	host = strings.TrimSpace(host)
+	userAgent := requestConfigurationUserAgent(field.ToOptionalStringOrNilIfEmpty(toolName), field.ToOptionalStringOrNilIfEmpty(toolVersion))
+
+	if reference {
+		var builder strings.Builder
+		builder.WriteString("func() *httpUtils.RequestConfiguration {\n")
+		_, _ = fmt.Fprintf(&builder, "request := %s(%q)\n", constructor, userAgent)
+		if protected {
+			builder.WriteString("request.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\n")
+		}
+		if reflection.IsNotEmpty(host) {
+			_, _ = fmt.Fprintf(&builder, "request.Host = %q\n", host)
+		}
+		builder.WriteString("return request\n")
+		builder.WriteString("}()")
+		return builder.String()
+	}
+
+	var builder strings.Builder
+	builder.WriteString("func() httpUtils.RequestConfiguration {\n")
+	_, _ = fmt.Fprintf(&builder, "request := *%s(%q)\n", constructor, userAgent)
+	if protected {
+		builder.WriteString("request.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\n")
+	}
+	if reflection.IsNotEmpty(host) {
+		_, _ = fmt.Fprintf(&builder, "request.Host = %q\n", host)
+	}
+	builder.WriteString("return request\n")
+	builder.WriteString("}()")
+	return builder.String()
+}
+
 func isFunc(s any) bool {
 	return strings.Contains(fmt.Sprint(s), "func()")
 }
@@ -415,6 +502,13 @@ return values
 	default:
 		return dValueStr
 	}
+}
+
+func defaultFieldValue(toolName, toolVersion, s string, dValue any, reference bool) string {
+	if isConnectionLangType(s) {
+		return requestConfigurationDefaultValue(toolName, toolVersion, fmt.Sprintf("%v", dValue), isProtectedConnectionLangType(s), reference)
+	}
+	return defaultValue(s, dValue)
 }
 
 func defaultValueForStrings(dValueStr string) string {
@@ -477,6 +571,12 @@ func defaultValueForStrings(dValueStr string) string {
 func convertLangType(s string) string {
 	st := strings.TrimSpace(s)
 	switch st {
+	case connectionLangType, onlineTargetLangType, protectedConnectionLangType,
+		serviceLangType, serverLangType,
+		protectedServiceLangType, protectedServerLangType,
+		behindAuthConnectionLangType, behindAuthServiceLangType, behindAuthServerLangType,
+		serviceBehindAuthLangType, serverBehindAuthLangType:
+		return requestConfigurationType
 	case "decimal":
 		return "float64"
 	case "time.Duration", "duration":

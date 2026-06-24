@@ -1,7 +1,7 @@
 ---
 name: install-go-sdk-generator
 description: "Install, upgrade, or reinstall the go-sdk-generator CLI tool using the system package manager (preferred approach)"
-license:  $spec.Licence
+license: Proprietary
 compatibility: opencode
 metadata:
   binary: go-sdk-generator

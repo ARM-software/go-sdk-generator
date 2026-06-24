@@ -60,6 +60,10 @@ func TestProcessExtraImports(t *testing.T) {
 				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/filesystem"),
 			},
 			{
+				ImportRef: field.ToOptionalString("httpUtils"),
+				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/http"),
+			},
+			{
 				ImportRef: field.ToOptionalString("platform"),
 				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/platform"),
 			},

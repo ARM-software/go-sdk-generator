@@ -22,6 +22,7 @@ func usualExtraImports() map[string]string {
 	return map[string]string{
 		"xdg":        "github.com/adrg/xdg",
 		"filesystem": "github.com/ARM-software/golang-utils/utils/filesystem",
+		"httpUtils":  "github.com/ARM-software/golang-utils/utils/http",
 		"platform":   "github.com/ARM-software/golang-utils/utils/platform",
 	}
 }

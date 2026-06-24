@@ -95,6 +95,18 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, "func() time.Duration {\nduration, _ := time.ParseDuration(\"5m\")\nreturn duration\n}()", defaultValue("duration", "5m"))
 	assert.Equal(t, "5 * time.Minute", defaultValue("duration", "5 * time.Minute"))
 	assert.Equal(t, "false", defaultValue("bool", "false"))
+	assert.Equal(t, requestConfigurationType, convertLangType(connectionLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(onlineTargetLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(protectedConnectionLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(serviceLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(serverLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(protectedServiceLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(protectedServerLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(behindAuthConnectionLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(behindAuthServiceLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(behindAuthServerLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(serviceBehindAuthLangType))
+	assert.Equal(t, requestConfigurationType, convertLangType(serverBehindAuthLangType))
 }
 
 func TestDefaultsWithMultilines(t *testing.T) {
@@ -123,6 +135,14 @@ func TestDefaultValueForStrings(t *testing.T) {
 	assert.Contains(t, defaultValueForStrings("here"), "filesystem.CurrentDirectory()")
 	assert.Contains(t, defaultValueForStrings("home"), "os.UserHomeDir()")
 	assert.Contains(t, defaultValueForStrings("      Maddy      's home"), `platform.GetHomeDirectory("Maddy")`)
+}
+
+func TestDefaultFieldValueForConnections(t *testing.T) {
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", connectionLangType, "https://some-mcp.org/mcp", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", protectedConnectionLangType, "https://some-mcp.org/mcp", true))
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", serviceLangType, "https://some-service.org/api", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", behindAuthServiceLangType, "https://some-service.org/api", true))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", serviceBehindAuthLangType, "https://some-service.org/api", true))
 }
 
 func Test_toCase(t *testing.T) {
@@ -244,6 +264,6 @@ func TestSecretStringHelpersSupportPointerStrings(t *testing.T) {
 
 	assert.True(t, isSecretCompatibleLangType(cfg.LangType))
 	assert.Equal(t, "*secretutil.ProtectedString", configFieldType(cfg))
-	assert.Contains(t, configFieldDefaultValue(cfg), "field.ToOptional(")
-	assert.Contains(t, configFieldDefaultValue(cfg), `secretutil.ProtectedString("hello")`)
+	assert.Contains(t, configFieldDefaultValue("", "", cfg), "field.ToOptional(")
+	assert.Contains(t, configFieldDefaultValue("", "", cfg), `secretutil.ProtectedString("hello")`)
 }

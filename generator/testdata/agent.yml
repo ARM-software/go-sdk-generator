@@ -25,13 +25,26 @@ x-afaas-host: &x-afaas-host
   required: true
   default_value: https://all.api.test.keil.arm.com
   description: The host of the FPGA service itself
-x-afaas-token: &x-afaas-token
-  name: AFAASToken
-  lang_type: string
-  mapstructure_tag: afaas_service_token
-  required: true
-  description: An API token for the agent to authenticate with the FPGA service itself
-  secret: true
+x-afaas-target: &x-afaas-target
+  name: AFAASTarget
+  lang_type: protectedConnection
+  reference: true
+  mapstructure_tag: afaas_service_target
+  default_value: https://all.api.test.keil.arm.com
+  description: HTTP request configuration for the FPGA service itself
+  bindings:
+    - name: Host
+      arg: afaas-host
+      mapstructure_tag: target_host
+      lang_type: host
+      description: The host of the FPGA service itself
+    - name: Token
+      lang_type: string
+      mapstructure_tag: authorisation_token
+      required: true
+      arg: afaas-token
+      description: An API token for the agent to authenticate with the FPGA service itself
+      secret: true
 x-afaas-store-host: &x-afaas-store-host
   name: AFAASStoreHost
   lang_type: host
@@ -192,8 +205,7 @@ specification:
             description: An API token to enforce authorisation when communicating with the agent via the API server
           - <<: *x-fpga-manifest
           - <<: *x-sandpit
-          - <<: *x-afaas-host
-          - <<: *x-afaas-token
+          - <<: *x-afaas-target
           - <<: *x-afaas-store-host
           - <<: *x-afaas-store-token
           - <<: *x-afaas-store-public-key
@@ -206,7 +218,7 @@ specification:
         description: Store AFaaS agent's credentials securely in the platform
         configuration:
           - <<: *x-sandpit
-          - <<: *x-afaas-host
+          - <<: *x-afaas-target
           - <<: *x-afaas-store-host
           - <<: *x-datastore-location
           - <<: *x-afaas-store-public-key

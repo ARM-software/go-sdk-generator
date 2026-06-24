@@ -51,9 +51,9 @@ func configFieldType(cfg FunctionConfigFields) string {
 	return referenceType(isReferenceLikeSecretField(cfg), langType)
 }
 
-func configFieldDefaultValue(cfg FunctionConfigFields) string {
+func configFieldDefaultValue(toolName, toolVersion string, cfg FunctionConfigFields) string {
 	baseType := baseLangType(cfg.LangType)
-	value := defaultValue(baseType, field.OptionalString(cfg.DefaultValue, ""))
+	value := defaultFieldValue(toolName, toolVersion, baseType, field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
 	if cfg.Secret && convertLangType(baseType) == stringLangType {
 		protectedValue := fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
 		if isReferenceLikeSecretField(cfg) {
