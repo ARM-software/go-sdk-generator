@@ -368,6 +368,439 @@ acronyms:
       - unveil
       - wait
       - waitress
+  - token: Hal
+    replacement: HAL
+    exceptions:
+      - behalf
+      - chalice
+      - chalk
+      - chalkboard
+      - chalky
+      - challenge
+      - challenger
+      - challenging
+      - chalked
+      - chalking
+      - exhale
+      - exhaled
+      - exhaling
+      - exhalation
+      - half
+      - halftime
+      - halfway
+      - halibut
+      - hall
+      - hallmark
+      - hallway
+      - halo
+      - halt
+      - halted
+      - halting
+      - inhale
+      - inhaled
+      - inhaling
+      - inhalation
+      - marshaling
+      - marshalled
+      - marshal
+      - phalanx
+      - phalanges
+      - rehashal
+      - shaled
+      - shale
+      - shall
+      - shallow
+      - shamelessly
+      - thallium
+      - thalidomide
+      - whale
+      - whaler
+      - whaling
+  - token: Cli
+    replacement: CLI
+    exceptions:
+      - acclimate
+      - client
+      - cliff
+      - climate
+      - climb
+      - cling
+      - clinic
+      - clip
+      - clique
+      - decline
+      - incline
+      - recline
+  - token: Ci
+    replacement: CI
+    exceptions: []
+  - token: Cd
+    replacement: CD
+    exceptions: []
+  - token: Ui
+    replacement: UI
+    exceptions: []
+  - token: Tui
+    replacement: TUI
+    exceptions: []
+  - token: Ux
+    replacement: UX
+    exceptions:
+      - auxiliary
+      - deluxe
+      - flux
+      - luxury
+  - token: Repl
+    replacement: REPL
+    exceptions: []
+  - token: Stdin
+    replacement: STDIN
+    exceptions: []
+  - token: Stdout
+    replacement: STDOUT
+    exceptions: []
+  - token: Stderr
+    replacement: STDERR
+    exceptions: []
+  - token: Sdk
+    replacement: SDK
+    exceptions: []
+  - token: Llm
+    replacement: LLM
+    exceptions: []
+  - token: Slm
+    replacement: SLM
+    exceptions: []
+  - token: Ml
+    replacement: ML
+    exceptions: []
+  - token: Mlops
+    replacement: MLOps
+    exceptions: []
+  - token: Aiops
+    replacement: AIOps
+    exceptions: []
+  - token: Nlp
+    replacement: NLP
+    exceptions: []
+  - token: Cv
+    replacement: CV
+    exceptions: []
+  - token: Asr
+    replacement: ASR
+    exceptions: []
+  - token: Tts
+    replacement: TTS
+    exceptions: []
+  - token: Rag
+    replacement: RAG
+    exceptions:
+      - drag
+      - dragon
+      - fragrance
+      - fragile
+      - pragmatic
+  - token: Mcp
+    replacement: MCP
+    exceptions: []
+  - token: Rl
+    replacement: RL
+    exceptions: []
+  - token: Rlhf
+    replacement: RLHF
+    exceptions: []
+  - token: Dpo
+    replacement: DPO
+    exceptions: []
+  - token: Ppo
+    replacement: PPO
+    exceptions: []
+  - token: Lora
+    replacement: LoRA
+    exceptions: []
+  - token: Qlora
+    replacement: QLoRA
+    exceptions: []
+  - token: Sft
+    replacement: SFT
+    exceptions: []
+  - token: Moe
+    replacement: MoE
+    exceptions: []
+  - token: Gpu
+    replacement: GPU
+    exceptions: []
+  - token: Tpu
+    replacement: TPU
+    exceptions: []
+  - token: Cuda
+    replacement: CUDA
+    exceptions: []
+  - token: Rope
+    replacement: ROPE
+    exceptions: []
+  - token: Bpe
+    replacement: BPE
+    exceptions: []
+  - token: Gpt
+    replacement: GPT
+    exceptions: []
+  - token: Bert
+    replacement: BERT
+    exceptions: []
+  - token: T5
+    replacement: T5
+    exceptions: []
+  - token: Vae
+    replacement: VAE
+    exceptions: []
+  - token: Gan
+    replacement: GAN
+    exceptions: []
+  - token: Cnn
+    replacement: CNN
+    exceptions: []
+  - token: Rnn
+    replacement: RNN
+    exceptions: []
+  - token: Lstm
+    replacement: LSTM
+    exceptions: []
+  - token: Gru
+    replacement: GRU
+    exceptions: []
+  - token: Ocr
+    replacement: OCR
+    exceptions: []
+  - token: Ner
+    replacement: NER
+    exceptions: []
+  - token: Knn
+    replacement: KNN
+    exceptions: []
+  - token: Svm
+    replacement: SVM
+    exceptions: []
+  - token: Xgboost
+    replacement: XGBoost
+    exceptions: []
+  - token: Dns
+    replacement: DNS
+    exceptions: []
+  - token: Dnssec
+    replacement: DNSSEC
+    exceptions: []
+  - token: Jwt
+    replacement: JWT
+    exceptions: []
+  - token: Oidc
+    replacement: OIDC
+    exceptions: []
+  - token: Toml
+    replacement: TOML
+    exceptions: []
+  - token: Csv
+    replacement: CSV
+    exceptions: []
+  - token: Tsv
+    replacement: TSV
+    exceptions: []
+  - token: Ini
+    replacement: INI
+    exceptions:
+      - administer
+      - initial
+      - initialise
+      - initialised
+      - initialising
+      - initialisation
+      - initialization
+      - initiative
+      - initiatives
+      - mini
+      - minimum
+      - miniature
+      - minify
+  - token: Md
+    replacement: MD
+    exceptions:
+      - markdown
+      - mode
+      - model
+      - modern
+      - modifier
+      - modify
+  - token: Html
+    replacement: HTML
+    exceptions: []
+  - token: Css
+    replacement: CSS
+    exceptions: []
+  - token: Js
+    replacement: JS
+    exceptions: []
+  - token: Ts
+    replacement: TS
+    exceptions:
+      - tsar
+      - tsarina
+      - tsunami
+      - tsetse
+  - token: Oci
+    replacement: OCI
+    exceptions: []
+  - token: Sbom
+    replacement: SBOM
+    exceptions: []
+  - token: Uid
+    replacement: UID
+    exceptions: []
+  - token: Gid
+    replacement: GID
+    exceptions: []
+  - token: K8s
+    replacement: K8S
+    exceptions: []
+  - token: Pki
+    replacement: PKI
+    exceptions: []
+  - token: Amqp
+    replacement: AMQP
+    exceptions: []
+  - token: Mqtt
+    replacement: MQTT
+    exceptions: []
+  - token: Nats
+    replacement: NATS
+    exceptions: []
+  - token: Rest
+    replacement: REST
+    exceptions:
+      - arrest
+      - arrested
+      - crest
+      - forest
+      - interest
+      - interested
+      - interesting
+      - restaurant
+      - restore
+      - restored
+      - unrest
+  - token: Soap
+    replacement: SOAP
+    exceptions:
+      - soapy
+      - soapstone
+  - token: Jwk
+    replacement: JWK
+    exceptions: []
+  - token: Jwks
+    replacement: JWKS
+    exceptions: []
+  - token: Sso
+    replacement: SSO
+    exceptions:
+      - espresso
+      - gesso
+  - token: Saml
+    replacement: SAML
+    exceptions: []
+  - token: Ldap
+    replacement: LDAP
+    exceptions: []
+  - token: Tty
+    replacement: TTY
+    exceptions: []
+  - token: Eof
+    replacement: EOF
+    exceptions: []
+  - token: Iac
+    replacement: IaC
+    exceptions:
+      - cardiac
+      - maniac
+      - zodiac
+  - token: Vcs
+    replacement: VCS
+    exceptions: []
+  - token: Scm
+    replacement: SCM
+    exceptions: []
+  - token: Hmac
+    replacement: HMAC
+    exceptions: []
+  - token: Aes
+    replacement: AES
+    exceptions: []
+  - token: Rsa
+    replacement: RSA
+    exceptions: []
+  - token: Ecdsa
+    replacement: ECDSA
+    exceptions: []
+  - token: Pem
+    replacement: PEM
+    exceptions: []
+  - token: Der
+    replacement: DER
+    exceptions: []
+  - token: Csr
+    replacement: CSR
+    exceptions: []
+  - token: Ca
+    replacement: CA
+    exceptions:
+      - cache
+      - cached
+      - caching
+      - call
+      - called
+      - caller
+      - calling
+      - callback
+      - callbacks
+      - cancel
+      - cancelled
+      - cancelling
+      - case
+      - cast
+      - category
+      - cause
+      - caveat
+  - token: Kms
+    replacement: KMS
+    exceptions: []
+  - token: Os
+    replacement: OS
+    exceptions:
+      - osmosis
+      - osprey
+      - ostrich
+  - token: Cpu
+    replacement: CPU
+    exceptions: []
+  - token: Ram
+    replacement: RAM
+    exceptions: []
+  - token: Posix
+    replacement: POSIX
+    exceptions: []
+  - token: Abi
+    replacement: ABI
+    exceptions: []
+  - token: Pid
+    replacement: PID
+    exceptions: []
+  - token: Etl
+    replacement: ETL
+    exceptions: []
+  - token: Elt
+    replacement: ELT
+    exceptions:
+      - melt
+      - smelt
+      - welt
   - token: Db
     replacement: DB
     exceptions: []
@@ -394,6 +827,36 @@ acronyms:
     exceptions: []
   - token: Url
     replacement: URL
+    exceptions: []
+  - token: Uri
+    replacement: URI
+    exceptions: []
+  - token: Uuid
+    replacement: UUID
+    exceptions: []
+  - token: Guid
+    replacement: GUID
+    exceptions: []
+  - token: Ip
+    replacement: IP
+    exceptions: []
+  - token: Tcp
+    replacement: TCP
+    exceptions: []
+  - token: Udp
+    replacement: UDP
+    exceptions: []
+  - token: Tls
+    replacement: TLS
+    exceptions: []
+  - token: Ssh
+    replacement: SSH
+    exceptions: []
+  - token: Sql
+    replacement: SQL
+    exceptions: []
+  - token: Rpc
+    replacement: RPC
     exceptions: []
   - token: Fpga
     replacement: FPGA
