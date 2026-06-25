@@ -5,7 +5,25 @@ specification:
   description: Test manifest ensuring custom lang_type values are normalised to generated type casing.
 
   interface:
-    methods: []
+    methods:
+      - name: ListEntities
+        description: List portal entities.
+        args:
+          - name: seed
+            lang_type: types.HalLink
+            reference: true
+            description: Seed link used to scope the query.
+        returns:
+          - name: entities
+            lang_type: types.AIPortalEntities
+            reference: true
+            description: Matching portal entities.
+          - name: links
+            lang_type: "[]types.HalLink"
+            description: Matching HAL links.
+          - name: err
+            lang_type: error
+            description: Whether listing failed.
 
   global_configuration:
     - name: Enabled

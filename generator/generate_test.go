@@ -337,13 +337,17 @@ func TestGenerate(t *testing.T) {
 		require.NoError(t, err)
 
 		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "portalentities", "types", "portalentities.go")
+		interfaceFile := filesystem.FilePathJoin(localFs, tmpDir, "portalentities", "interfaces.go")
 		typesContent, err := filesystem.ReadFile(typesFile)
+		require.NoError(t, err)
+		interfaceContent, err := filesystem.ReadFile(interfaceFile)
 		require.NoError(t, err)
 
 		assert.Contains(t, string(typesContent), "type HALLink struct {")
 		assert.Contains(t, string(typesContent), "Models []HALLink `json:\"models\" mapstructure:\"models\"`")
 		assert.Contains(t, string(typesContent), "ModelFamilies []HALLink `json:\"model_families\" mapstructure:\"model_families\"`")
 		assert.Contains(t, string(typesContent), "Targets []HALLink `json:\"targets\" mapstructure:\"targets\"`")
+		assert.Contains(t, string(interfaceContent), "ListEntities(ctx context.Context, seed *types.HALLink) (entities *types.AIPortalEntities, links []types.HALLink, err error)")
 	})
 
 	t.Run("No actions skips action outputs", func(t *testing.T) {
