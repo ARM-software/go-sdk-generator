@@ -2,6 +2,21 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.37.1" (2026-06-25)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Fix generated custom lang_type references so acronym-normalised types are used consistently. (#20260624163640)
+- :bug: Fix generated method and field references for custom lang_type values so acronym-normalised type names are used consistently. (#20260624191214)
+- Dependency upgrade: generator-0.37.0 (#20260625042354)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.37.0" (2026-06-24)
 =====================
 

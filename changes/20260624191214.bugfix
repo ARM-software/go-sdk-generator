@@ -1,1 +1,0 @@
-:bug: Fix generated method and field references for custom lang_type values so acronym-normalised type names are used consistently.
