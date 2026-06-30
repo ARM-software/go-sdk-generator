@@ -41,7 +41,7 @@ require (
 	github.com/evanphx/hclogr v0.2.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/go-faker/faker/v4 v4.8.0 // indirect
+	github.com/go-faker/faker/v4 v4.9.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
