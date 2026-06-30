@@ -6,7 +6,7 @@ go 1.26
 
 require (
 	github.com/ARM-software/golang-utils/utils v1.164.0
-	github.com/Arm-Debug/go-sdk-generator/generator v0.37.0
+	github.com/Arm-Debug/go-sdk-generator/generator v0.37.1
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/spf13/cobra v1.10.2
