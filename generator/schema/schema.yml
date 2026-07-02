@@ -14,6 +14,11 @@ x-parameter: &x-parameter
     lang_type:
       type: string
       description: The language type for the field
+    enum:
+      type: array
+      description: Allowed string values for the field. This is only supported for string-compatible values.
+      items:
+        type: string
     json_tag:
       type: string
       description: The JSON tag of the field

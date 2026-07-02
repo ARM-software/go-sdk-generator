@@ -48,12 +48,15 @@ func configFieldType(cfg FunctionConfigFields) string {
 	if cfg.Secret && langType == stringLangType {
 		langType = secretProtectedStringType
 	}
-	return parameterType(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
+	if hasEnum(cfg.Enum) && !cfg.Secret {
+		langType = enumTypeName("", cfg.Name, baseLangType(cfg.LangType), cfg.Enum)
+	}
+	return parameterTypeFromBase(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
 }
 
 func configFieldDefaultValue(toolName, toolVersion string, cfg FunctionConfigFields) string {
 	baseType := baseLangType(cfg.LangType)
-	value := defaultFieldValue(toolName, toolVersion, baseType, field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
+	value := defaultFieldValue(toolName, toolVersion, "", cfg.Name, baseType, cfg.Enum, field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
 	if cfg.Secret && convertLangType(baseType) == stringLangType {
 		protectedValue := fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
 		if isReferenceLikeSecretField(cfg) {
@@ -68,25 +71,11 @@ func configFieldDefaultValue(toolName, toolVersion string, cfg FunctionConfigFie
 // is both marked as secret and represented as a string. This is used to decide
 // whether the generated CLI needs the local `secretutil` helper package.
 func hasSecretStringParameters(cmds *CommandLineCommands) bool {
-	if cmds == nil {
-		return false
-	}
-	return collection.AnyFunc(cmds.Functions, func(fct CliFunction) bool {
-		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
-			return cfg.Secret && isSecretCompatibleLangType(cfg.LangType)
-		})
-	})
+	return cmds.HasSecretStringParameters()
 }
 
 func hasReferenceLikeSecretStringParameters(cmds *CommandLineCommands) bool {
-	if cmds == nil {
-		return false
-	}
-	return collection.AnyFunc(cmds.Functions, func(fct CliFunction) bool {
-		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
-			return cfg.Secret && isReferenceLikeSecretField(cfg) && isSecretCompatibleLangType(cfg.LangType)
-		})
-	})
+	return cmds.HasReferenceLikeSecretStringParameters()
 }
 
 func validateSecretParameters(cmds *CommandLineCommands) error {

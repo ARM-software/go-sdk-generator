@@ -522,6 +522,25 @@ func TestProcessArguments(t *testing.T) {
 
 		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
 	})
+
+	t.Run("rejects enum default value outside allowed list", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				GlobalConfiguration: []ConfigurationOption{
+					{
+						Name:            "Mode",
+						LangType:        "string",
+						MapstructureTag: "mode",
+						Description:     "Execution mode",
+						Enum:            []string{"fast", "safe"},
+						DefaultValue:    field.ToOptionalString("turbo"),
+					},
+				},
+			},
+		}
+
+		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
+	})
 }
 
 func TestPrecomputeFlagsAndBindings(t *testing.T) {

@@ -237,6 +237,24 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "No CLI (custom lang types are normalised to generated type casing)",
+			recipe:        "casing-types.yml",
+			regressionSrc: "casing-types.zip",
+			err:           nil,
+		},
+		{
+			title:         "No CLI (list and iterator flags shape generated signatures and fields)",
+			recipe:        "list-iterator.yml",
+			regressionSrc: "list-iterator.zip",
+			err:           nil,
+		},
+		{
+			title:         "Yes CLI (string enums generate constants validation and cli help text)",
+			recipe:        "enum.yml",
+			regressionSrc: "enum.zip",
+			err:           nil,
+		},
+		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,
@@ -324,54 +342,6 @@ func TestGenerate(t *testing.T) {
 		assert.Contains(t, string(configContent), "// It supports multiline descriptions.")
 		assert.Contains(t, string(typesContent), "// It supports multiline descriptions.")
 		assert.Contains(t, string(interfaceContent), "// This also verifies multiline descriptions.")
-	})
-
-	t.Run("Custom lang types are normalised to generated type casing", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ctx := context.Background()
-		cfg := config.DefaultSdkGeneratorManagerConfiguration()
-		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "casing-types.yml")
-		cfg.Output = tmpDir
-
-		err := Generate(ctx, cfg)
-		require.NoError(t, err)
-
-		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "portalentities", "types", "portalentities.go")
-		interfaceFile := filesystem.FilePathJoin(localFs, tmpDir, "portalentities", "interfaces.go")
-		typesContent, err := filesystem.ReadFile(typesFile)
-		require.NoError(t, err)
-		interfaceContent, err := filesystem.ReadFile(interfaceFile)
-		require.NoError(t, err)
-
-		assert.Contains(t, string(typesContent), "type HALLink struct {")
-		assert.Contains(t, string(typesContent), "Models []HALLink `json:\"models\" mapstructure:\"models\"`")
-		assert.Contains(t, string(typesContent), "ModelFamilies []HALLink `json:\"model_families\" mapstructure:\"model_families\"`")
-		assert.Contains(t, string(typesContent), "Targets []HALLink `json:\"targets\" mapstructure:\"targets\"`")
-		assert.Contains(t, string(interfaceContent), "ListEntities(ctx context.Context, seed *types.HALLink) (entities *types.AIPortalEntities, links []types.HALLink, err error)")
-	})
-
-	t.Run("List and iterator flags shape generated signatures and fields", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		ctx := context.Background()
-		cfg := config.DefaultSdkGeneratorManagerConfiguration()
-		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "list-iterator.yml")
-		cfg.Output = tmpDir
-
-		err := Generate(ctx, cfg)
-		require.NoError(t, err)
-
-		interfaceFile := filesystem.FilePathJoin(localFs, tmpDir, "listiterator", "interfaces.go")
-		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "listiterator", "types", "listiterator.go")
-
-		interfaceContent, err := filesystem.ReadFile(interfaceFile)
-		require.NoError(t, err)
-		typesContent, err := filesystem.ReadFile(typesFile)
-		require.NoError(t, err)
-
-		assert.Contains(t, string(interfaceContent), "Collect(ctx context.Context, values ...string) (count int, err error)")
-		assert.Contains(t, string(interfaceContent), "Stream(ctx context.Context) (values iter.Seq[string], err error)")
-		assert.Contains(t, string(typesContent), "Items []string `json:\"items\" mapstructure:\"items\"`")
-		assert.Contains(t, string(typesContent), "Stream iter.Seq[string] `json:\"stream\" mapstructure:\"stream\"`")
 	})
 
 	t.Run("No actions skips action outputs", func(t *testing.T) {

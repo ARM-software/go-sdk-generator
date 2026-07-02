@@ -3,11 +3,13 @@ package generator
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -17,6 +19,34 @@ func validateParameterShape(name string, langType string, list bool, iterator bo
 	}
 	if isVariadicLangType(langType) && (list || iterator) {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot combine an explicit variadic lang_type %q with list or iterator", name, langType)
+	}
+	return nil
+}
+
+func validateStringEnumDefinition(name string, langType string, reference bool, list bool, iterator bool, enum []string) error {
+	if len(enum) == 0 {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot define enum values together with list or iterator", name)
+	}
+	baseType := strings.TrimSpace(baseLangType(langType))
+	if baseType != stringLangType {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define enum values for string or *string types", name)
+	}
+	if reference && isPointerLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s should use either reference or *string for enum values, not both", name)
+	}
+	return nil
+}
+
+func validateStringEnumDefaultValue(name string, enum []string, defaultValue *string) error {
+	if len(enum) == 0 || reflection.IsEmpty(defaultValue) {
+		return nil
+	}
+	value := field.OptionalString(defaultValue, "")
+	if !collection.In(enum, value, collection.StringCleanCaseInsensitiveMatch) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s default value %q must be one of %v", name, value, enum)
 	}
 	return nil
 }
@@ -46,6 +76,12 @@ func (arg *CommandArgument) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("command argument %q", arg.Name), langType, arg.List, arg.Iterator)
 		})),
+		validation.Field(&arg.Enum, validation.By(func(value any) error {
+			return validateStringEnumDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.Reference, arg.List, arg.Iterator, arg.Enum)
+		})),
+		validation.Field(&arg.DefaultValue, validation.By(func(value any) error {
+			return validateStringEnumDefaultValue(fmt.Sprintf("command argument %q", arg.Name), arg.Enum, arg.DefaultValue)
+		})),
 		validation.Field(&arg.Bindings, validation.By(func(value any) error {
 			return collection.Each(slices.Values(arg.Bindings), func(binding Binding) error {
 				return (&binding).Validate()
@@ -69,6 +105,12 @@ func (cfg *ConfigurationOption) Validate() error {
 		validation.Field(&cfg.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("global configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
+		})),
+		validation.Field(&cfg.Enum, validation.By(func(value any) error {
+			return validateStringEnumDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
+		})),
+		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
+			return validateStringEnumDefaultValue(fmt.Sprintf("global configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
 			return collection.Each(slices.Values(cfg.Bindings), func(binding Binding) error {
@@ -94,6 +136,12 @@ func (fieldDef *EntityField) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("entity field %q", fieldDef.Name), langType, fieldDef.List, fieldDef.Iterator)
 		})),
+		validation.Field(&fieldDef.Enum, validation.By(func(value any) error {
+			return validateStringEnumDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.Enum)
+		})),
+		validation.Field(&fieldDef.DefaultValue, validation.By(func(value any) error {
+			return validateStringEnumDefaultValue(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.Enum, fieldDef.DefaultValue)
+		})),
 		validation.Field(&fieldDef.Bindings, validation.By(func(value any) error {
 			return collection.Each(slices.Values(fieldDef.Bindings), func(binding Binding) error {
 				return (&binding).Validate()
@@ -117,6 +165,12 @@ func (cfg *FunctionConfigFields) Validate() error {
 		validation.Field(&cfg.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("function configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
+		})),
+		validation.Field(&cfg.Enum, validation.By(func(value any) error {
+			return validateStringEnumDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
+		})),
+		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
+			return validateStringEnumDefaultValue(fmt.Sprintf("function configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
 			return collection.Each(slices.Values(cfg.Bindings), func(binding Binding) error {

@@ -1,0 +1,67 @@
+specification:
+  package_name: enum-test-sdk
+  main_module: enumtest
+  name: EnumTest
+  description: Test manifest ensuring string enums generate validation, constants, and CLI help text.
+
+  interface:
+    methods:
+      - name: Publish
+        description: Publish a document.
+        args:
+          - name: status
+            lang_type: string
+            enum:
+              - draft
+              - published
+            description: Document status.
+        returns:
+          - name: result
+            lang_type: string
+            enum:
+              - accepted
+              - rejected
+            description: Publication result.
+          - name: err
+            lang_type: error
+            description: Whether publishing failed.
+
+  command_line_commands:
+    binary: enum-test-sdk
+    root_environment_var: ENUM_TEST
+    description: CLI for enum generation tests
+    functions:
+      - name: Publish
+        description: Publish a document.
+        configuration:
+          - name: Mode
+            lang_type: string
+            enum:
+              - fast
+              - safe
+            mapstructure_tag: mode
+            description: Execution mode.
+            required: true
+
+  global_configuration:
+    - name: OutputFormat
+      lang_type: string
+      enum:
+        - json
+        - yaml
+      mapstructure_tag: output_format
+      description: Output format.
+      default_value: json
+
+  additional_types:
+    - name: Document
+      description: Published document.
+      fields:
+        - name: Status
+          lang_type: string
+          enum:
+            - draft
+            - published
+          json_tag: status
+          mapstructure_tag: status
+          description: Document status.

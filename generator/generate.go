@@ -38,14 +38,18 @@ const (
 	implementationWrapperCLIFile = "templates/wrapper.cli.go.tmpl"
 	secretUtilCLIFile            = "templates/secretutil.go.tmpl"
 	interfaceFile                = "templates/interface.go.tmpl"
+	interfaceEnumFile            = "templates/interface.enums.go.tmpl"
 	configCLIFile                = "templates/config.cli.go.tmpl"
+	configCLIEnumFile            = "templates/config.cli.enums.go.tmpl"
 	configFile                   = "templates/config.go.tmpl"
+	configEnumFile               = "templates/config.enums.go.tmpl"
 	cliFile                      = "templates/cli.go.tmpl"
 	readmeFile                   = "templates/readme.md.tmpl"
 	documentationFile            = "templates/documentation.md.tmpl"
 	rootCliFile                  = "templates/root.go.tmpl"
 	mainCliFile                  = "templates/main.go.tmpl"
 	typesFile                    = "templates/types.go.tmpl"
+	typesEnumFile                = "templates/types.enums.go.tmpl"
 	goWorkFile                   = "templates/go.work.tmpl"
 	goModSdkFile                 = "templates/go.mod.sdk.tmpl"
 	goModCliFile                 = "templates/go.mod.cli.tmpl"
@@ -331,7 +335,13 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	var templatesToPopulate templates
 	templatesToPopulate.addStateFile(implementationFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 	templatesToPopulate.addStateFile(interfaceFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "interfaces.go"), true, true)
+	if hasInterfaceEnums(&sdk.Specification) {
+		templatesToPopulate.addStateFile(interfaceEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "enums.go"), true, true)
+	}
 	templatesToPopulate.addStateFile(configFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+	if hasConfigEnums(&sdk.Specification) {
+		templatesToPopulate.addStateFile(configEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", "enums.go"), true, true)
+	}
 	templatesToPopulate.addStateFile(documentationFile, filesystem.FilePathJoin(localFs, cfg.Output, "DOCUMENTATION.md"), true, true)
 	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
@@ -385,6 +395,9 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 	if len(sdk.Specification.AdditionalTypes) > 0 {
 		templatesToPopulate.addStateFile(typesFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "types", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		if hasTypeEnums(&sdk.Specification) {
+			templatesToPopulate.addStateFile(typesEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "types", "enums.go"), true, true)
+		}
 	}
 
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
@@ -408,6 +421,9 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "root.go"), true, true)
 		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "main.go"), true, true)
 		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		if hasCLIConfigEnums(sdk.Specification.CommandLineCommands) {
+			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", "enums.go"), true, true)
+		}
 		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
 		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
 		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {

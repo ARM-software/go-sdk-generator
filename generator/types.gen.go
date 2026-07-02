@@ -180,6 +180,10 @@ type CommandArgument struct {
 	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	// Allowed string values for the field. This is only supported for
+	// string-compatible values.
+	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
@@ -348,6 +352,10 @@ type ConfigurationOption struct {
 	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
 
+	// Allowed string values for the field. This is only supported for
+	// string-compatible values.
+	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
@@ -463,6 +471,10 @@ type EntityField struct {
 	// Multiline YAML descriptions using `|` are supported.
 	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Allowed string values for the field. This is only supported for
+	// string-compatible values.
+	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
@@ -592,6 +604,10 @@ type FunctionConfigFields struct {
 	// Multiline YAML descriptions using `|` are supported.
 	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Allowed string values for the field. This is only supported for
+	// string-compatible values.
+	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`

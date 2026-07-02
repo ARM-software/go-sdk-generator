@@ -47,6 +47,23 @@ Use these built-ins because the generator can then:
 
 If the meaning is already covered by a built-in type, prefer the built-in type.
 
+### Use `enum` for closed string choices
+
+If a field or parameter is really a closed set of string-like choices, prefer `enum` in the manifest rather than leaving it as an unconstrained string.
+
+This is intended for:
+
+- `string`
+- `reference: true` on a string-like value
+
+When present, `enum` should drive:
+
+- generated Go enum definitions
+- generated validation
+- clearer CLI help text listing allowed values
+
+Use this when the value set is truly closed and stable. Do not use it for open-ended free text.
+
 ### Prefer structured request-target built-ins over separate host strings when appropriate
 
 If the manifest is modelling an HTTP target or online service configuration, prefer a request-target built-in such as:

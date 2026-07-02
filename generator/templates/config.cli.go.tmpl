@@ -4,8 +4,6 @@ package config
 
 import (
 	"regexp"
-
-	"github.com/ARM-software/golang-utils/utils/logs"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	{{ if hasReferenceLikeSecretStringParameters .Specification.CommandLineCommands -}}
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -18,7 +16,7 @@ import (
 	"{{ cliModuleRoot .Specification }}/internal/secretutil"
 	{{ end -}}
 	{{ if .Specification.AdditionalTypes -}}
-	"{{ sdkModuleRoot .Specification }}/types"	
+	"{{ sdkModuleRoot .Specification }}/types"
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
@@ -29,27 +27,25 @@ const (
 	App = "{{ .Specification.CommandLineCommands.RootEnvironmentVar }}"
 )
 
-{{- $toolName := .Specification.PackageName -}}
-{{- $toolVersion := "0.0.0" -}}
-{{- $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
-{{- if $binary -}}
-{{- $toolName = $binary -}}
-{{- end -}}
-
-
+{{ $toolName := .Specification.PackageName -}}
+{{ $toolVersion := "0.0.0" -}}
+{{ $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
+{{ if $binary -}}
+{{ $toolName = $binary -}}
+{{ end -}}
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $configName:= .Name | toPascal -}}
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
-	type {{ $configName }}Configuration struct {
+type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
-		{{ goComment "\t\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
-		{{ .Name | toPascal }} {{ configFieldType . }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+		{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+		{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ configFieldType . }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
-		// ToolVersion contains the version of the CLI tool
-		ToolVersion *string
+	// ToolVersion contains the version of the CLI tool
+	ToolVersion *string
 	{{ if .Operands -}}
-		// Operands contains any positional operands that were passed through the cobra flags after the '--' flag
-		Operands []string
+	// Operands contains any positional operands that were passed through the cobra flags after the '--' flag
+	Operands []string
 	{{ end }}
 }
 
@@ -58,24 +54,25 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	if err != nil {
 		return err
 	}
-	
+
 	return validation.ValidateStruct(cfg,
 	{{ range .Configuration -}}
 	{{ if not .Bindings -}}
 	{{ $validation := .LangType | validationLangType -}}
+	{{ $enumValidation := enumValidationRule $configName .Name .LangType .Reference .Enum -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
 	{{ else -}}
-        validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
 	{{ end -}}
 	{{ else -}}
 	{{ if .Required -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
-	{{ else if $validation -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+	{{ else if or $validation $enumValidation -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -88,10 +85,10 @@ func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .Bindings }}
 	{{ if .DefaultValue -}}
-	{{ .Name  | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ else }}
-	{{ .Name  | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
+	{{ .Name | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
 	{{ end -}}
 	{{ end -}}
 	}

@@ -4,35 +4,33 @@ package config
 
 import (
 	"regexp"
-
-	"github.com/ARM-software/golang-utils/utils/logs"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	{{ if .Specification.AdditionalTypes -}}
-	"{{ sdkModuleRoot .Specification }}/types"	
+	"{{ sdkModuleRoot .Specification }}/types"
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
 	{{ end -}}
 )
 {{ $configName:= .Specification.Name | toPascal -}}
-{{- $toolName := .Specification.PackageName -}}
-{{- $toolVersion := "0.0.0" -}}
-{{- if .Specification.CommandLineCommands -}}
-{{- $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
-{{- if $binary -}}
-{{- $toolName = $binary -}}
-{{- end -}}
-{{- end -}}
+{{ $toolName := .Specification.PackageName -}}
+{{ $toolVersion := "0.0.0" -}}
+{{ if .Specification.CommandLineCommands -}}
+{{ $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
+{{ if $binary -}}
+{{ $toolName = $binary -}}
+{{ end -}}
+{{ end -}}
 
 // {{ $configName }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
-	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
-	{{ .Name | toPascal }} {{ parameterType .Reference .List .Iterator .LangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
@@ -47,19 +45,20 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 	return validation.ValidateStruct(cfg,
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $validation := .LangType | validationLangType -}}
+	{{ $enumValidation := enumValidationRule $configName .Name .LangType .Reference .Enum -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
 	{{ else -}}
-        validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
 	{{ end -}}
 	{{ else -}}
 	{{ if .Required -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
-	{{ else if $validation -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+	{{ else if or $validation $enumValidation -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -70,7 +69,7 @@ func Default{{ $configName }}ManagerConfiguration() *{{ $configName }}ManagerCon
 	return &{{ $configName }}ManagerConfiguration{
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion .LangType (dereferenceString .DefaultValue) .Reference }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ end -}}
 	}

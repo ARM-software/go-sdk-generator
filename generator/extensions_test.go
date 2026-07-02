@@ -142,11 +142,17 @@ func TestDefaultValueForStrings(t *testing.T) {
 }
 
 func TestDefaultFieldValueForConnections(t *testing.T) {
-	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", connectionLangType, "https://some-mcp.org/mcp", false))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", protectedConnectionLangType, "https://some-mcp.org/mcp", true))
-	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", serviceLangType, "https://some-service.org/api", false))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", behindAuthServiceLangType, "https://some-service.org/api", true))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", serviceBehindAuthLangType, "https://some-service.org/api", true))
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", connectionLangType, nil, "https://some-mcp.org/mcp", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", protectedConnectionLangType, nil, "https://some-mcp.org/mcp", true))
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", serviceLangType, nil, "https://some-service.org/api", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", behindAuthServiceLangType, nil, "https://some-service.org/api", true))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", serviceBehindAuthLangType, nil, "https://some-service.org/api", true))
+}
+
+func TestDefaultFieldValueForEnums(t *testing.T) {
+	enumValues := []string{"draft", "published"}
+	assert.Equal(t, `DocumentStatusDraft`, defaultFieldValue("example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", false))
+	assert.Equal(t, "func() *DocumentStatus {\nvalue := DocumentStatusDraft\nreturn &value\n}()", defaultFieldValue("example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", true))
 }
 
 func Test_toCase(t *testing.T) {

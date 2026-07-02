@@ -172,7 +172,7 @@ func processCallCloud(cmds *CommandLineCommands) (err error) {
 		return
 	}
 
-	shouldPromoteCallCloudToRoot := isCallCloudTrue(cmds.Functions)
+	shouldPromoteCallCloudToRoot := cmds.HasCloudCommands()
 	if shouldPromoteCallCloudToRoot {
 		cmds.CallCloud = field.ToOptionalBool(true)
 	}
@@ -210,13 +210,8 @@ func shouldInjectCallCloudArgs(fct CliFunction, callCloudPromotedToRoot bool) bo
 
 // isCallCloudTrue checks if all functions either have CallCloud set to true or are storing credentials to keyring.
 func isCallCloudTrue(fcts []CliFunction) bool {
-	if len(fcts) == 0 {
-		return false
-	}
-
-	return collection.AllFunc(fcts, func(fct CliFunction) bool {
-		return fct.CallCloud || fct.StoreToKeyring
-	})
+	cmds := &CommandLineCommands{Functions: fcts}
+	return cmds.HasCloudCommands()
 }
 
 // hasMixedRootAuth reports whether the CLI manifest mixes function-level callCloud usage with explicit root-scoped cloud auth configuration.
@@ -483,6 +478,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 	if err != nil {
 		return
 	}
+	desc = descriptionWithEnum(desc, cfg.Enum)
 
 	argShort := field.Optional(binding.ArgShort, "")
 
@@ -516,6 +512,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 	if err != nil {
 		return
 	}
+	desc = descriptionWithEnum(desc, cfg.Enum)
 
 	argShort := ""
 	if cfg.ArgShort != nil {

@@ -107,8 +107,15 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"defaultFieldValue":            defaultFieldValue,
 	"configFieldType":              configFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
+	"enumTypeName":                 enumTypeName,
+	"enumConstName":                enumConstName,
+	"enumValidationRule":           enumValidationRule,
+	"descriptionWithEnum":          descriptionWithEnum,
+	"hasEnum":                      hasEnum,
 	"parameterType":                parameterType,
+	"parameterTypeFromBase":        parameterTypeFromBase,
 	"methodArgumentType":           methodArgumentType,
+	"methodArgumentTypeFromBase":   methodArgumentTypeFromBase,
 	"isVariadicParameter":          isVariadicParameter,
 	"isLastIndex":                  func(index, total int) bool { return total > 0 && index == total-1 },
 	"toCamel":                      toCamelCase,
@@ -320,6 +327,51 @@ func isVariadicLangType(s string) bool {
 	return strings.HasPrefix(strings.TrimSpace(s), "...")
 }
 
+func hasEnum(enum []string) bool {
+	return reflection.IsNotEmpty(enum)
+}
+
+func enumTypeName(ownerName, fieldName, langType string, enum []string) string {
+	if !hasEnum(enum) {
+		return convertLangType(langType)
+	}
+	return fmt.Sprintf("%s%s", toPascalCase(ownerName), toPascalCase(fieldName))
+}
+
+func enumConstName(typeName, value string) string {
+	return fmt.Sprintf("%s%s", typeName, toPascalCase(value))
+}
+
+func enumConstRefs(ownerName, fieldName, langType string, enum []string) string {
+	if !hasEnum(enum) {
+		return ""
+	}
+	typeName := enumTypeName(ownerName, fieldName, langType, enum)
+	constRefs := collection.Map(enum, func(value string) string {
+		return enumConstName(typeName, value)
+	})
+	return strings.Join(constRefs, ", ")
+}
+
+func enumValidationRule(ownerName, fieldName, langType string, reference bool, enum []string) string {
+	if !hasEnum(enum) {
+		return ""
+	}
+	baseType := enumTypeName(ownerName, fieldName, langType, enum)
+	constRefs := enumConstRefs(ownerName, fieldName, langType, enum)
+	if reference {
+		return fmt.Sprintf(", validation.By(func(value any) error { enumValue, _ := value.(*%s); if enumValue == nil { return nil }; return validation.In(%s).Validate(*enumValue) })", baseType, constRefs)
+	}
+	return fmt.Sprintf(", validation.In(%s)", constRefs)
+}
+
+func descriptionWithEnum(description string, enum []string) string {
+	if !hasEnum(enum) {
+		return description
+	}
+	return fmt.Sprintf("%s Allowed values: %s.", strings.TrimSpace(description), strings.Join(enum, ", "))
+}
+
 func referenceType(reference bool, langType string) string {
 	if reference {
 		return fmt.Sprintf("*%s", langType)
@@ -329,6 +381,10 @@ func referenceType(reference bool, langType string) string {
 
 func parameterType(reference bool, list bool, iterator bool, langType string) string {
 	baseType := convertLangType(langType)
+	return parameterTypeFromBase(reference, list, iterator, baseType)
+}
+
+func parameterTypeFromBase(reference bool, list bool, iterator bool, baseType string) string {
 
 	switch {
 	case iterator:
@@ -346,16 +402,36 @@ func parameterType(reference bool, list bool, iterator bool, langType string) st
 
 func methodArgumentType(reference bool, list bool, iterator bool, langType string, variadic bool) string {
 	baseType := convertLangType(langType)
+	return methodArgumentTypeFromBase(reference, list, iterator, baseType, variadic)
+}
+
+func methodArgumentTypeFromBase(reference bool, list bool, iterator bool, baseType string, variadic bool) string {
 
 	if variadic {
 		return fmt.Sprintf("...%s", baseType)
 	}
 
-	return parameterType(reference, list, iterator, langType)
+	return parameterTypeFromBase(reference, list, iterator, baseType)
 }
 
 func isVariadicParameter(reference bool, list bool, iterator bool, isLast bool) bool {
 	return isLast && list && !iterator && !reference
+}
+
+func hasTypeEnums(spec *SDKSpecification) bool {
+	return spec.HasTypeEnums()
+}
+
+func hasConfigEnums(spec *SDKSpecification) bool {
+	return spec.HasConfigEnums()
+}
+
+func hasCLIConfigEnums(cmds *CommandLineCommands) bool {
+	return cmds.HasConfigEnums()
+}
+
+func hasInterfaceEnums(spec *SDKSpecification) bool {
+	return spec.HasInterfaceEnums()
 }
 
 func toPackageName(value string) string {
@@ -541,7 +617,15 @@ return values
 	}
 }
 
-func defaultFieldValue(toolName, toolVersion, s string, dValue any, reference bool) string {
+func defaultFieldValue(toolName, toolVersion, ownerName, fieldName, s string, enum []string, dValue any, reference bool) string {
+	if hasEnum(enum) {
+		enumType := enumTypeName(ownerName, fieldName, s, enum)
+		value := enumConstName(enumType, strings.TrimSpace(fmt.Sprintf("%v", dValue)))
+		if reference {
+			return fmt.Sprintf("func() *%s {\nvalue := %s\nreturn &value\n}()", enumType, value)
+		}
+		return value
+	}
 	if isConnectionLangType(s) {
 		return requestConfigurationDefaultValue(toolName, toolVersion, fmt.Sprintf("%v", dValue), isProtectedConnectionLangType(s), reference)
 	}

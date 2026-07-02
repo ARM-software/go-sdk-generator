@@ -50,7 +50,7 @@ Return values:
 {{ end }}
 */
 {{ $functionName := .Name | toPascal -}}
-func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ methodArgumentType $arg.Reference $arg.List $arg.Iterator $arg.LangType (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ parameterType $arg.Reference $arg.List $arg.Iterator $arg.LangType }}{{ end }}) {
+func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if hasEnum $arg.Enum }}{{ methodArgumentTypeFromBase $arg.Reference $arg.List $arg.Iterator (enumTypeName $functionName $arg.Name $arg.LangType $arg.Enum) (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ else }}{{ methodArgumentType $arg.Reference $arg.List $arg.Iterator $arg.LangType (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ end }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ if hasEnum $arg.Enum }}{{ parameterTypeFromBase $arg.Reference $arg.List $arg.Iterator (enumTypeName $functionName $arg.Name $arg.LangType $arg.Enum) }}{{ else }}{{ parameterType $arg.Reference $arg.List $arg.Iterator $arg.LangType }}{{ end }}{{ end }}) {
 	if imp.Delegate == nil {
 		err = commonerrors.UndefinedVariable("delegate")
 		return

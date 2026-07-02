@@ -8,30 +8,27 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
-    {{ if .Specification.ExtraImports -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
 	{{ end -}}
-	{{ end -}}
 )
 
-{{- $toolName := .Specification.PackageName -}}
-{{- $toolVersion := "0.0.0" -}}
-{{- if .Specification.CommandLineCommands -}}
-{{- $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
-{{- if $binary -}}
-{{- $toolName = $binary -}}
-{{- end -}}
-{{- end -}}
-
+{{ $toolName := .Specification.PackageName -}}
+{{ $toolVersion := "0.0.0" -}}
+{{ if .Specification.CommandLineCommands -}}
+{{ $binary := dereferenceString .Specification.CommandLineCommands.Binary -}}
+{{ if $binary -}}
+{{ $toolName = $binary -}}
+{{ end -}}
+{{ end -}}
 {{ range .Specification.AdditionalTypes }}
 {{ $structName := .Name | toPascal -}}
 {{ goComment "" (printf "%s represents %s" $structName (.Description | lowerFirst)) }}
 type {{ $structName  }} struct {
 {{ range .Fields -}}
-	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
-	{{ .Name | toPascal }} {{ parameterType .Reference .List .Iterator .LangType }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
-	{{ end }}	
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $structName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ end }}
 }
 
 func (cfg *{{ $structName  }}) Validate() error {
@@ -43,22 +40,23 @@ func (cfg *{{ $structName  }}) Validate() error {
 	return validation.ValidateStruct(cfg,
 	{{ range .Fields -}}
 	{{ $validation := .LangType | validationLangType -}}
+	{{ $enumValidation := enumValidationRule $structName .Name .LangType .Reference .Enum -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
 	{{ else }}
-        validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
 	{{ end }}
 	{{ else }}
-    {{ if .Required }}
-        validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
-    {{ else if .Condition -}}
-        validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
-    {{ else if $validation -}}
-        validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+	{{ if .Required }}
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+	{{ else if .Condition -}}
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+	{{ else if or $validation $enumValidation -}}
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
 	{{ end }}
 	{{ end }}
-    {{ end }}
+	{{ end }}
 	)
 }
 
@@ -66,10 +64,9 @@ func Default{{ $structName  }}() *{{ $structName  }} {
 	return &{{ $structName  }}{
 	{{ range .Fields -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion .LangType (dereferenceString .DefaultValue) .Reference }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion $structName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ end -}}
 	}
 }
 {{ end }}
-
