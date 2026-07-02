@@ -32,7 +32,7 @@ import (
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
-	{{ .Name | toPascal }} {{ .LangType | convertLangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ .Name | toPascal }} {{ parameterType .Reference .List .Iterator .LangType }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string

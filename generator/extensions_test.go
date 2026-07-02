@@ -19,8 +19,8 @@ func TestLangTypeValidationRule(t *testing.T) {
 }
 
 func TestArgFlagType(t *testing.T) {
-	assert.Equal(t, "StringArray", argFlagType("[]string"))
-	assert.Equal(t, "StringArray", argFlagType(" []string "))
+	assert.Equal(t, "StringSlice", argFlagType("[]string"))
+	assert.Equal(t, "StringSlice", argFlagType(" []string "))
 }
 
 func TestZeros(t *testing.T) {

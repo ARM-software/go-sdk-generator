@@ -279,12 +279,14 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
-	var sdk SDK
-	if ext == ".yml" || ext == ".yaml" {
-		err = sdk.UnmarshalYAML(spec)
-	} else {
-		err = sdk.UnmarshalJSON(spec)
+	err = validateManifestContent(ctx, ext, spec)
+	if err != nil {
+		err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "the file '%v' does not comply with the schema and thus, cannot be parsed", cfg.Input)
+		return
 	}
+
+	var sdk SDK
+	err = unmarshalManifestContent(ext, spec, &sdk)
 	if err != nil {
 		err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "the file '%v' does not comply with the schema and thus, cannot be parsed", cfg.Input)
 		return

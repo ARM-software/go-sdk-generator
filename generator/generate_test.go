@@ -350,6 +350,30 @@ func TestGenerate(t *testing.T) {
 		assert.Contains(t, string(interfaceContent), "ListEntities(ctx context.Context, seed *types.HALLink) (entities *types.AIPortalEntities, links []types.HALLink, err error)")
 	})
 
+	t.Run("List and iterator flags shape generated signatures and fields", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "list-iterator.yml")
+		cfg.Output = tmpDir
+
+		err := Generate(ctx, cfg)
+		require.NoError(t, err)
+
+		interfaceFile := filesystem.FilePathJoin(localFs, tmpDir, "listiterator", "interfaces.go")
+		typesFile := filesystem.FilePathJoin(localFs, tmpDir, "listiterator", "types", "listiterator.go")
+
+		interfaceContent, err := filesystem.ReadFile(interfaceFile)
+		require.NoError(t, err)
+		typesContent, err := filesystem.ReadFile(typesFile)
+		require.NoError(t, err)
+
+		assert.Contains(t, string(interfaceContent), "Collect(ctx context.Context, values ...string) (count int, err error)")
+		assert.Contains(t, string(interfaceContent), "Stream(ctx context.Context) (values iter.Seq[string], err error)")
+		assert.Contains(t, string(typesContent), "Items []string `json:\"items\" mapstructure:\"items\"`")
+		assert.Contains(t, string(typesContent), "Stream iter.Seq[string] `json:\"stream\" mapstructure:\"stream\"`")
+	})
+
 	t.Run("No actions skips action outputs", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
@@ -363,5 +387,22 @@ func TestGenerate(t *testing.T) {
 
 		assert.NoDirExists(t, filesystem.FilePathJoin(localFs, tmpDir, "actions"))
 		assert.NoFileExists(t, filesystem.FilePathJoin(localFs, tmpDir, ".agents", "skills", "using-fpga-service-agent-in-a-github-action", "SKILL.md"))
+	})
+}
+
+func TestValidateManifest(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+
+	t.Run("valid yaml manifest", func(t *testing.T) {
+		validationErr, err := Validate(context.Background(), filesystem.FilePathJoin(localFs, "testdata", "verify.yml"))
+		require.NoError(t, err)
+		assert.NoError(t, validationErr)
+	})
+
+	t.Run("invalid yaml manifest", func(t *testing.T) {
+		validationErr, err := Validate(context.Background(), filesystem.FilePathJoin(localFs, "testdata", "verify.bad.yml"))
+		require.NoError(t, err)
+		require.Error(t, validationErr)
+		assert.True(t, commonerrors.Any(validationErr, commonerrors.ErrInvalid))
 	})
 }

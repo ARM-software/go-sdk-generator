@@ -19,8 +19,15 @@ type Binding struct {
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
 	// The type for the field
 	LangType *string `json:"lang_type,omitempty" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The tag fragment used when building the environment variable key
 	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
@@ -46,6 +53,12 @@ func (j *Binding) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["hidden"]; !ok || v == nil {
 		plain.Hidden = false
+	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
 	}
 	if v, ok := raw["secret"]; !ok || v == nil {
 		plain.Secret = false
@@ -150,7 +163,7 @@ type CommandArgument struct {
 	// The short version of the argument to bind to
 	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
-	// Bind congifuration options to variables
+	// Bind configuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
@@ -174,11 +187,18 @@ type CommandArgument struct {
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
 	// The JSON tag of the field
 	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
@@ -228,6 +248,12 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
+	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
 	}
 	if v, ok := raw["reference"]; !ok || v == nil {
 		plain.Reference = false
@@ -305,7 +331,7 @@ type ConfigurationOption struct {
 	// The short version of the argument to bind to
 	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
-	// Bind congifuration options to variables
+	// Bind configuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
@@ -329,11 +355,18 @@ type ConfigurationOption struct {
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
 	// The JSON tag of the field
 	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
@@ -387,6 +420,12 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
 	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
+	}
 	if v, ok := raw["reference"]; !ok || v == nil {
 		plain.Reference = false
 	}
@@ -408,7 +447,7 @@ type EntityField struct {
 	// The short version of the argument to bind to
 	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
-	// Bind congifuration options to variables
+	// Bind configuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
@@ -432,11 +471,18 @@ type EntityField struct {
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
 	// The JSON tag of the field
 	JsonTag string `json:"json_tag" yaml:"json_tag" mapstructure:"json_tag"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
@@ -490,6 +536,12 @@ func (j *EntityField) UnmarshalJSON(value []byte) error {
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
 	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
+	}
 	if v, ok := raw["reference"]; !ok || v == nil {
 		plain.Reference = false
 	}
@@ -524,7 +576,7 @@ type FunctionConfigFields struct {
 	// The short version of the argument to bind to
 	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
-	// Bind congifuration options to variables
+	// Bind configuration options to variables
 	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
@@ -548,11 +600,18 @@ type FunctionConfigFields struct {
 	// sub commands
 	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
 	// The JSON tag of the field
 	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
@@ -605,6 +664,12 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["is_root"]; !ok || v == nil {
 		plain.IsRoot = false
+	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
 	}
 	if v, ok := raw["reference"]; !ok || v == nil {
 		plain.Reference = false

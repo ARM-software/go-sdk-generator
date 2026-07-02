@@ -15,16 +15,18 @@ Follow this workflow in order:
 
 1. Load and use the local `grill-me` skill first to challenge the design before implementation.
 2. Treat `schema.yml` as the source of truth for schema changes.
-3. Make the implementation changes needed in the generator and templates.
-4. Create a news file with the correct change type and a message written as described in `CONTRIBUTING.md`. Use `cd-create-news-file`.
-5. Regenerate generated files using `go generate ./...`.
-6. Never edit generated files matching `*.gen.*` manually.
-7. Build the updated generator using `go build` in the `cli` project.
-8. Dogfood the updated generator against this repository's own manifest `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
+3. If the schema change introduces or tightens validation, follow the repository validation pattern: `Validate() error`, `config.ValidateEmbedded(...)`, `validation.ValidateStruct(...)`, and collection helpers for nested slices.
+4. Make the implementation changes needed in the generator and templates.
+5. Create a news file with the correct change type and a message written as described in `CONTRIBUTING.md`. Use `cd-create-news-file`. This is required for generator feature work, not optional.
+6. Regenerate generated files using `go generate ./...`.
+7. Never edit generated files matching `*.gen.*` manually.
+8. Build the updated generator using `go build` in the `cli` project.
+9. Dogfood the updated generator against this repository's own manifest `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
 
 ## Implementation Rules
 
 - Keep schema descriptions in `schema.yml` clear and authoritative.
+- Do not consider a schema or generator feature complete until the corresponding news file has been created.
 - If generated files change because of the schema update, regenerate them instead of patching them.
 - When integration or regression fixtures may need updating, follow the local `integration-regression-tests` skill.
 - Prefer the smallest coherent schema change that supports the requested behaviour.

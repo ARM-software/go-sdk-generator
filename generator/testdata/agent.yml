@@ -41,7 +41,6 @@ x-afaas-target: &x-afaas-target
     - name: Token
       lang_type: string
       mapstructure_tag: authorisation_token
-      required: true
       arg: afaas-token
       description: An API token for the agent to authenticate with the FPGA service itself
       secret: true

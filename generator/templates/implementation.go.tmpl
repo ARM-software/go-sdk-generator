@@ -34,6 +34,7 @@ func (imp *{{ $sdkInterfaceName }}Manager) Close() (err error) {
 }
 {{ end -}}
 {{ range .Specification.Interface.Methods -}}
+{{ $args := .Args -}}
 /*
 {{ .Name | toPascal }} function: {{ .Description }}
 
@@ -49,13 +50,13 @@ Return values:
 {{ end }}
 */
 {{ $functionName := .Name | toPascal -}}
-func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) {
+func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Context, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ methodArgumentType $arg.Reference $arg.List $arg.Iterator $arg.LangType (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ parameterType $arg.Reference $arg.List $arg.Iterator $arg.LangType }}{{ end }}) {
 	if imp.Delegate == nil {
 		err = commonerrors.UndefinedVariable("delegate")
 		return
 	}
 
-	return imp.Delegate.{{ $functionName }}(ctx, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }}{{ if isVariadicArg $arg.LangType }}...{{ end }}{{ end }})
+	return imp.Delegate.{{ $functionName }}(ctx, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }}{{ if isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args)) }}...{{ end }}{{ end }})
 }
 
 {{ end -}}

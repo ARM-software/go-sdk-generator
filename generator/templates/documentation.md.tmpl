@@ -45,19 +45,20 @@ Documentation about {{ .Specification.Name }} SDK
 
 ## Interface defined in this package `I{{ .Specification.Name }}Manager`
 {{ range .Specification.Interface.Methods }}
+{{ $args := .Args -}}
 {{ .Description }}
 
 ```go
-{{ .Name  | toPascal  }}({{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }})
+{{ .Name  | toPascal  }}({{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ methodArgumentType $arg.Reference $arg.List $arg.Iterator $arg.LangType (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ parameterType $arg.Reference $arg.List $arg.Iterator $arg.LangType }}{{ end }})
 ```
 
 Input arguments:
 {{ range .Args }}
-  * `{{ .Name  | toCamel }} : {{ referenceType .Reference .LangType }}`: {{ .Description }}
+  * `{{ .Name  | toCamel }} : {{ parameterType .Reference .List .Iterator .LangType }}`: {{ .Description }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * `{{ .Name  | toCamel }} : {{ referenceType .Reference .LangType }}`: {{ .Description }}
+  * `{{ .Name  | toCamel }} : {{ parameterType .Reference .List .Iterator .LangType }}`: {{ .Description }}
 {{ end }}
 {{ end -}}
 

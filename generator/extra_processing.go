@@ -260,6 +260,10 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
 	}
+	err = validateCollectionParameters(sdk)
+	if err != nil {
+		return
+	}
 	if !reflection.IsEmpty(sdk.Specification.CommandLineCommands) {
 		err = processCallCloud(sdk.Specification.CommandLineCommands)
 		if err != nil {

@@ -66,7 +66,7 @@ func argFlagType(s string) string {
 	case "port":
 		return "Int"
 	case "[]string":
-		return "StringArray"
+		return "StringSlice"
 	case "decimal":
 		return "Float64"
 	default:
@@ -100,15 +100,17 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		validArgTypes = append(validArgTypes, extraType)
 		return "" // a return value is required
 	},
-	"isVariadicArg": func(s string) bool {
-		return strings.HasPrefix(strings.TrimSpace(s), "...")
-	},
+	"isVariadicArg":                isVariadicLangType,
 	"convertLangType":              convertLangType,
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
 	"defaultFieldValue":            defaultFieldValue,
 	"configFieldType":              configFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
+	"parameterType":                parameterType,
+	"methodArgumentType":           methodArgumentType,
+	"isVariadicParameter":          isVariadicParameter,
+	"isLastIndex":                  func(index, total int) bool { return total > 0 && index == total-1 },
 	"toCamel":                      toCamelCase,
 	"toSnake":                      toSnakeCase,
 	"toKebab":                      toKebabCase,
@@ -314,11 +316,46 @@ func goComment(linePrefix, s string) string {
 	return strings.Join(commentLines, "\n")
 }
 
+func isVariadicLangType(s string) bool {
+	return strings.HasPrefix(strings.TrimSpace(s), "...")
+}
+
 func referenceType(reference bool, langType string) string {
 	if reference {
 		return fmt.Sprintf("*%s", langType)
 	}
 	return langType
+}
+
+func parameterType(reference bool, list bool, iterator bool, langType string) string {
+	baseType := convertLangType(langType)
+
+	switch {
+	case iterator:
+		baseType = fmt.Sprintf("iter.Seq[%s]", baseType)
+	case list:
+		baseType = fmt.Sprintf("[]%s", baseType)
+	}
+
+	if reference {
+		return fmt.Sprintf("*%s", baseType)
+	}
+
+	return baseType
+}
+
+func methodArgumentType(reference bool, list bool, iterator bool, langType string, variadic bool) string {
+	baseType := convertLangType(langType)
+
+	if variadic {
+		return fmt.Sprintf("...%s", baseType)
+	}
+
+	return parameterType(reference, list, iterator, langType)
+}
+
+func isVariadicParameter(reference bool, list bool, iterator bool, isLast bool) bool {
+	return isLast && list && !iterator && !reference
 }
 
 func toPackageName(value string) string {

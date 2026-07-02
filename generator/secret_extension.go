@@ -48,7 +48,7 @@ func configFieldType(cfg FunctionConfigFields) string {
 	if cfg.Secret && langType == stringLangType {
 		langType = secretProtectedStringType
 	}
-	return referenceType(isReferenceLikeSecretField(cfg), langType)
+	return parameterType(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
 }
 
 func configFieldDefaultValue(toolName, toolVersion string, cfg FunctionConfigFields) string {

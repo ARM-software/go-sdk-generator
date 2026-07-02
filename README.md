@@ -166,6 +166,19 @@ At a high level, the manifest describes:
 - `specification.global_configuration`: shared configuration used across SDK and CLI
 - `specification.additional_types`: extra exported types the generated SDK should expose
 
+At the field and parameter level, a few flags are especially important:
+
+- `lang_type`: the base type or built-in alias to generate from. See [Built-in Types](#formats).
+- `reference: true`: generate the value as a pointer to that type
+- `list: true`: generate the value as a list of that type, usually `[]T`
+- `iterator: true`: generate the value as an iterator of that type, `iter.Seq[T]`
+
+Rules:
+
+- `list` and `iterator` are mutually exclusive
+- if a method argument is the last argument and `list: true`, the generated method signature uses a variadic form `...T`
+- `reference`, `list`, and `iterator` shape the generated Go type on top of the base `lang_type`
+
 For a concrete minimal manifest, see `.agents/skills/generator/SKILL.md` or the repo example [`generate.yml`](./generate.yml).
 
 ## OpenAPI Analogy

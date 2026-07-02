@@ -31,6 +31,7 @@ type I{{ $interfaceName }}Manager interface {
 	// GetConfig returns the manager's configuration
 	GetConfig() *config.{{ .Specification.Name | toPascal }}ManagerConfiguration
 	{{ range .Specification.Interface.Methods -}}
+{{ $args := .Args -}}
 /*
 {{ .Name | toPascal }} function: {{ .Description }}
 
@@ -41,10 +42,10 @@ Input arguments:
   * {{ .Name | toCamel }}: {{ .Description }}
 {{ end }}
 Return values:
-{{ range .Returns }}
+ {{ range .Returns }}
   * {{ .Name | toCamel  }}: {{ .Description }}
 {{ end }}
 */
-	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := .Args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel  }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ referenceType $arg.Reference ($arg.LangType | convertLangType) }}{{ end }})
+	{{ .Name | toPascal }}(ctx context.Context, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel  }} {{ methodArgumentType $arg.Reference $arg.List $arg.Iterator $arg.LangType (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}{{ end }}) ({{ range $i, $arg := .Returns }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }} {{ parameterType $arg.Reference $arg.List $arg.Iterator $arg.LangType }}{{ end }})
 	{{ end -}}
 }

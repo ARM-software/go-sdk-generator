@@ -1,0 +1,56 @@
+specification:
+  package_name: list-iterator-sdk
+  main_module: listiterator
+  name: ListIterator
+  description: Test manifest ensuring list and iterator flags shape generated types and signatures correctly.
+
+  interface:
+    methods:
+      - name: Collect
+        description: Collect values.
+        args:
+          - name: values
+            lang_type: string
+            list: true
+            description: Values to collect.
+        returns:
+          - name: count
+            lang_type: int
+            description: Number of values collected.
+          - name: err
+            lang_type: error
+            description: Whether collection failed.
+      - name: Stream
+        description: Stream values.
+        returns:
+          - name: values
+            lang_type: string
+            iterator: true
+            description: Streamed values.
+          - name: err
+            lang_type: error
+            description: Whether streaming failed.
+
+  global_configuration:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      description: Whether the test configuration is enabled.
+      default_value: "true"
+
+  additional_types:
+    - name: ValueBatch
+      description: Batch of streamed values.
+      fields:
+        - name: Items
+          lang_type: string
+          list: true
+          json_tag: items
+          mapstructure_tag: items
+          description: Collected items.
+        - name: Stream
+          lang_type: string
+          iterator: true
+          json_tag: stream
+          mapstructure_tag: stream
+          description: Iterated items.

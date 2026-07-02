@@ -30,7 +30,7 @@ import (
 type {{ $structName  }} struct {
 {{ range .Fields -}}
 	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (.Description | lowerFirst)) }}
-	{{ .Name | toPascal }} {{ referenceType .Reference (.LangType | convertLangType) }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ .Name | toPascal }} {{ parameterType .Reference .List .Iterator .LangType }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}	
 }
 

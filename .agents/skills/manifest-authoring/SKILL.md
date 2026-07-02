@@ -99,6 +99,55 @@ In short:
 - raw value types: usually keep as values
 - interfaces: usually keep as values in the manifest type declaration
 
+### Prefer shape flags over composing shape into `lang_type`
+
+When the manifest wants to express pointer, list, or iterator semantics, prefer the dedicated flags:
+
+- `reference: true`
+- `list: true`
+- `iterator: true`
+
+instead of encoding those shapes directly into the `lang_type` string.
+
+Prefer:
+
+```yaml
+lang_type: string
+list: true
+```
+
+instead of:
+
+```yaml
+lang_type: "[]string"
+```
+
+Prefer:
+
+```yaml
+lang_type: types.Project
+reference: true
+```
+
+instead of:
+
+```yaml
+lang_type: "*types.Project"
+```
+
+Avoid composed forms such as:
+
+- `*[]string`
+- `[]*types.Project`
+- `*httpUtils.RequestConfiguration`
+- `iter.Seq[string]`
+
+unless there is a very specific repository constraint that the dedicated manifest flags cannot express.
+
+This keeps the manifest more declarative and lets the generator own the final Go type construction consistently.
+
+It also keeps the manifest more Go-agnostic. Using separate shape flags such as `reference`, `list`, and `iterator` preserves the intent of the contract without baking Go syntax directly into the manifest. That makes the manifest easier to reason about as a language-neutral description and keeps the door open for other generators to interpret the same contract in other ways later.
+
 ### Keep naming intent obvious
 
 Prefer names that explain the role of the field directly.

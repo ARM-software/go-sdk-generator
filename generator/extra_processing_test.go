@@ -211,20 +211,26 @@ func TestProcessArguments(t *testing.T) {
 	})
 
 	t.Run("no CommandLineCommands", func(t *testing.T) {
-		var sdk SDK
-		err := faker.FakeData(&sdk)
-		require.NoError(t, err)
-		// Remove commands
-		sdk.Specification.CommandLineCommands = nil
+		sdk := SDK{
+			Specification: SDKSpecification{
+				PackageName: "pkg",
+				MainModule:  "main",
+				Interface:   Interface{},
+			},
+		}
 		assert.NoError(t, ProcessArguments(context.Background(), &sdk))
 	})
 
 	t.Run("empty CommandLineCommands.Functions", func(t *testing.T) {
-		var sdk SDK
-		err := faker.FakeData(&sdk)
-		require.NoError(t, err)
-		sdk.Specification.CommandLineCommands = &CommandLineCommands{
-			Functions: []CliFunction{},
+		sdk := SDK{
+			Specification: SDKSpecification{
+				PackageName: "pkg",
+				MainModule:  "main",
+				Interface:   Interface{},
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{},
+				},
+			},
 		}
 		assert.NoError(t, ProcessArguments(context.Background(), &sdk))
 	})
@@ -445,6 +451,76 @@ func TestProcessArguments(t *testing.T) {
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 5)
+	})
+
+	t.Run("rejects parameters that set both list and iterator", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				Interface: Interface{
+					Methods: []InterfaceMethod{
+						{
+							Name:        "Collect",
+							Description: "Collect values",
+							Args: []CommandArgument{{
+								Name:        "values",
+								LangType:    "string",
+								Description: "Values to collect",
+								List:        true,
+								Iterator:    true,
+							}},
+						},
+					},
+				},
+			},
+		}
+
+		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
+	})
+
+	t.Run("rejects explicit variadic lang type combined with list", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				Interface: Interface{
+					Methods: []InterfaceMethod{
+						{
+							Name:        "Collect",
+							Description: "Collect values",
+							Args: []CommandArgument{{
+								Name:        "values",
+								LangType:    "...string",
+								Description: "Values to collect",
+								List:        true,
+							}},
+						},
+					},
+				},
+			},
+		}
+
+		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
+	})
+
+	t.Run("rejects explicit variadic lang type combined with iterator", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				Interface: Interface{
+					Methods: []InterfaceMethod{
+						{
+							Name:        "Collect",
+							Description: "Collect values",
+							Args: []CommandArgument{{
+								Name:        "values",
+								LangType:    "...string",
+								Description: "Values to collect",
+								Iterator:    true,
+							}},
+						},
+					},
+				},
+			},
+		}
+
+		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
 	})
 }
 

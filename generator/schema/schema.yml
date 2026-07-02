@@ -35,12 +35,20 @@ x-parameter: &x-parameter
       type: boolean
       default: false
       description: Whether the value is a pointer
+    list:
+      type: boolean
+      default: false
+      description: Whether the value should be represented as a list of the language type
+    iterator:
+      type: boolean
+      default: false
+      description: Whether the value should be represented as an iterator over the language type using iter.Seq
     default_value:
       type: string
       description: An optional default value for use when creating a new instance of the configuration
     bindings:
       type: array
-      description: Bind congifuration options to variables
+      description: Bind configuration options to variables
       items:
         $ref: "#/$defs/binding"
     description: *x-description
@@ -342,6 +350,14 @@ $defs:
       lang_type:
         type: string
         description: The type for the field
+      list:
+        type: boolean
+        default: false
+        description: Whether the value should be represented as a list of the language type
+      iterator:
+        type: boolean
+        default: false
+        description: Whether the value should be represented as an iterator over the language type using iter.Seq
       description:
         type: string
         description: The description of the field
