@@ -11,7 +11,7 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.164.0
+	github.com/ARM-software/golang-utils/utils v1.164.1
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/go-faker/faker/v4 v4.9.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -67,7 +67,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.26.5 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect

@@ -5,7 +5,7 @@ module github.com/Arm-Debug/go-sdk-generator/cli
 go 1.26
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.164.0
+	github.com/ARM-software/golang-utils/utils v1.164.1
 	github.com/Arm-Debug/go-sdk-generator/generator v0.37.1
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -84,7 +84,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.26.5 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.6 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
