@@ -2,6 +2,32 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.38.0" (2026-07-07)
+=====================
+
+Features
+--------
+
+- :sparkles: Add manifest support for list and iterator parameter shapes in generated types and method signatures. (#20260701113626)
+- :recycle: improve the validation of manifest using the embedded json schema (#20260701132128)
+- :sparkles: Add string enum manifest support with generated Go enums, validation, and CLI help text. (#20260702124212)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.37.1 (#20260626042351)
+- Dependency upgrade: v4-4.9.0 (#20260629042716)
+- Dependency upgrade: tools-0.47.0 (#20260630135426)
+- Dependency upgrade: utils-1.164.1 (#20260702042343, #20260702042351)
+- :bug: Generate StringSlice CLI flags for string list parameters. (#20260702101210)
+- Dependency upgrade: text-0.39.0 (#20260707042357)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.37.1" (2026-06-25)
 =====================
 
