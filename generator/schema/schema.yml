@@ -154,11 +154,19 @@ $defs:
       name:
         type: string
         description: The name of the entity
+      package:
+        type: string
+        default: types
+        description: |
+          The package the type is defined in.
+          Defaults to `types`.
+          This must resolve to a single package segment, not a nested path.
       description: *x-description
       fields:
         type: array
         items:
           $ref: "#/$defs/entity_field"
+    additionalProperties: false
   interface:
     description: An interface
     type: object

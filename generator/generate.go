@@ -151,16 +151,19 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 type DataModel struct {
 	SchemaFileName string
 	SDK
-	GeneratedActions      []GeneratedAction
-	GeneratedAction       *GeneratedAction
-	TargetedGoVersion     string
-	ToolVersion           string
-	FlagRegistrations     []FlagRegistration
-	CliEnvVarBindings     []ArgFlagBindingInfo
-	CliArgConsts          []ArgDefinition
-	RootArgConsts         []ArgDefinition
-	RootFlagRegistrations []FlagRegistration
-	RootEnvVarBindings    []ArgFlagBindingInfo
+	AdditionalTypesPackagesByName map[string]string
+	CurrentTypePackage            string
+	CurrentAdditionalTypes        Types
+	GeneratedActions              []GeneratedAction
+	GeneratedAction               *GeneratedAction
+	TargetedGoVersion             string
+	ToolVersion                   string
+	FlagRegistrations             []FlagRegistration
+	CliEnvVarBindings             []ArgFlagBindingInfo
+	CliArgConsts                  []ArgDefinition
+	RootArgConsts                 []ArgDefinition
+	RootFlagRegistrations         []FlagRegistration
+	RootEnvVarBindings            []ArgFlagBindingInfo
 }
 
 type GenerationOutput struct {
@@ -308,6 +311,12 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
+	err = ProcessAdditionalTypePackages(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for additional type packages")
+		return
+	}
+
 	err = ProcessBindings(ctx, &sdk)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for bindings")
@@ -393,13 +402,6 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 	generateAction := len(generatedActions) > 0
 
-	if len(sdk.Specification.AdditionalTypes) > 0 {
-		templatesToPopulate.addStateFile(typesFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "types", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
-		if hasTypeEnums(&sdk.Specification) {
-			templatesToPopulate.addStateFile(typesEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "types", "enums.go"), true, true)
-		}
-	}
-
 	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
 		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	} else {
@@ -464,23 +466,52 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	data := &DataModel{
-		SchemaFileName:        filesystem.FilepathStem(cfg.Input),
-		SDK:                   sdk,
-		GeneratedActions:      generatedActions,
-		TargetedGoVersion:     cfg.TargetedGoVersion,
-		ToolVersion:           field.OptionalString(cfg.ToolVersion, ""),
-		CliEnvVarBindings:     cliEnvVarBindings,
-		FlagRegistrations:     flagRegs,
-		CliArgConsts:          argConsts,
-		RootArgConsts:         rootArgConsts,
-		RootFlagRegistrations: rootFlagRegs,
-		RootEnvVarBindings:    rootEnvVarBindings,
+		SchemaFileName:                filesystem.FilepathStem(cfg.Input),
+		SDK:                           sdk,
+		AdditionalTypesPackagesByName: additionalTypePackagesByName(sdk.Specification.AdditionalTypes),
+		CurrentAdditionalTypes:        sdk.Specification.AdditionalTypes,
+		GeneratedActions:              generatedActions,
+		TargetedGoVersion:             cfg.TargetedGoVersion,
+		ToolVersion:                   field.OptionalString(cfg.ToolVersion, ""),
+		CliEnvVarBindings:             cliEnvVarBindings,
+		FlagRegistrations:             flagRegs,
+		CliArgConsts:                  argConsts,
+		RootArgConsts:                 rootArgConsts,
+		RootFlagRegistrations:         rootFlagRegs,
+		RootEnvVarBindings:            rootEnvVarBindings,
 	}
 
 	generated, err := templatesToPopulate.Populate(ctx, data)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate templates")
 		return
+	}
+
+	if reflection.IsNotEmpty(sdk.Specification.AdditionalTypes) {
+		groupedTypes := groupAdditionalTypesByPackage(sdk.Specification.AdditionalTypes)
+		err = collection.ForAll(sortedAdditionalTypePackages(sdk.Specification.AdditionalTypes), func(pkg string) error {
+			packageData := *data
+			packageData.CurrentTypePackage = pkg
+			packageData.CurrentAdditionalTypes = groupedTypes[pkg]
+
+			typeOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
+			if subErr := populateTemplate(ctx, &packageData, typesFile, typeOutput); subErr != nil {
+				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate types template")
+			}
+			generated = append(generated, typeOutput)
+
+			if groupedTypes[pkg].HasEnum() {
+				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
+				if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput); subErr != nil {
+					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate type enums template")
+				}
+				generated = append(generated, enumOutput)
+			}
+			return nil
+		})
+		if err != nil {
+			return
+		}
 	}
 
 	if sdk.Specification.PackageName == "go-sdk-generator" {

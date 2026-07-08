@@ -255,6 +255,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "Yes CLI (packaged additional types generate into grouped packages)",
+			recipe:        "packaged-types.yml",
+			regressionSrc: "packaged-types.zip",
+			err:           nil,
+		},
+		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,

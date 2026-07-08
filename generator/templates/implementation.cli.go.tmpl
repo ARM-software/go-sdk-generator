@@ -10,7 +10,9 @@ import (
 	"github.com/ARM-software/golang-utils/utils" 
 
 	"{{ cliModuleRoot .Specification }}/cmd/config"
-	"{{ sdkModuleRoot .Specification }}/types"
+	{{ range additionalTypeImports .Specification "" -}}
+	{{ .Alias }} "{{ .Path }}"
+	{{ end -}}
 
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"

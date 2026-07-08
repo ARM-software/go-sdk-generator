@@ -15,8 +15,8 @@ import (
 	{{ if hasSecretStringParameters .Specification.CommandLineCommands -}}
 	"{{ cliModuleRoot .Specification }}/internal/secretutil"
 	{{ end -}}
-	{{ if .Specification.AdditionalTypes -}}
-	"{{ sdkModuleRoot .Specification }}/types"
+	{{ range additionalTypeImports .Specification "" -}}
+	{{ .Alias }} "{{ .Path }}"
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
@@ -85,10 +85,10 @@ func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .Bindings }}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ else }}
-	{{ .Name | toPascal }}: {{ configFieldDefaultValue $toolName $toolVersion . }},
+	{{ .Name | toPascal }}: {{ configFieldDefaultValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion . }},
 	{{ end -}}
 	{{ end -}}
 	}

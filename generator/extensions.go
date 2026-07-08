@@ -81,14 +81,8 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		}
 		return fmt.Sprintf("%s%s", strings.ToUpper(string(s[0])), s[1:])
 	},
-	"lower": strings.ToLower,
-	"lowerFirst": func(s string) string {
-		s = normaliseDescription(s)
-		if s == "" {
-			return s
-		}
-		return strings.ToLower(string(s[0])) + s[1:]
-	},
+	"lower":      strings.ToLower,
+	"lowerFirst": lowerFirstDescription,
 	"uuid": func() string {
 		uuid, err := idgen.GenerateUUID4()
 		for err != nil {
@@ -100,40 +94,51 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		validArgTypes = append(validArgTypes, extraType)
 		return "" // a return value is required
 	},
-	"isVariadicArg":                isVariadicLangType,
-	"convertLangType":              convertLangType,
-	"validationLangType":           argValidationRule,
-	"defaultValue":                 defaultValue,
-	"defaultFieldValue":            defaultFieldValue,
-	"configFieldType":              configFieldType,
-	"configFieldDefaultValue":      configFieldDefaultValue,
-	"enumTypeName":                 enumTypeName,
-	"enumConstName":                enumConstName,
-	"enumValidationRule":           enumValidationRule,
-	"descriptionWithEnum":          descriptionWithEnum,
-	"hasEnum":                      hasEnum,
-	"parameterType":                parameterType,
-	"parameterTypeFromBase":        parameterTypeFromBase,
-	"methodArgumentType":           methodArgumentType,
-	"methodArgumentTypeFromBase":   methodArgumentTypeFromBase,
-	"isVariadicParameter":          isVariadicParameter,
-	"isLastIndex":                  func(index, total int) bool { return total > 0 && index == total-1 },
-	"toCamel":                      toCamelCase,
-	"toSnake":                      toSnakeCase,
-	"toKebab":                      toKebabCase,
-	"toPascal":                     toPascalCase,
-	"quote":                        withQuote,
-	"quoteDescription":             quoteDescription,
-	"toPackageName":                toPackageName,
-	"goComment":                    goComment,
-	"referenceType":                referenceType,
-	"ignoreLinting":                ignoreLintingError,
-	"nowYear":                      nowYear,
-	"toURIEncoded":                 toURIEncoded,
-	"linkToManifest":               linkToManifest,
-	"normaliseActionDirectoryName": normaliseActionDirectoryName,
-	"normaliseActionName":          normaliseActionName,
-	"hasCloudCommands":             isCallCloudTrue,
+	"isVariadicArg":           isVariadicLangType,
+	"convertLangType":         convertLangType,
+	"validationLangType":      argValidationRule,
+	"defaultValue":            defaultValue,
+	"defaultFieldValue":       defaultFieldValue,
+	"configFieldType":         configFieldType,
+	"configFieldDefaultValue": configFieldDefaultValue,
+	"enumTypeName":            enumTypeName,
+	"enumConstName":           enumConstName,
+	"enumValidationRule":      enumValidationRule,
+	"descriptionWithEnum":     descriptionWithEnum,
+	"hasEnum":                 hasEnum,
+	"parameterType":           parameterType,
+	"documentedAdditionalTypeFieldType": func(typeName string, fieldDef EntityField) string {
+		return documentedAdditionalTypeFieldType(typeName, &fieldDef)
+	},
+	"documentedConfigFieldType": func(specName string, cfg ConfigurationOption) string {
+		return documentedConfigFieldType(specName, &cfg)
+	},
+	"parameterTypeFromBase":         parameterTypeFromBase,
+	"methodArgumentType":            methodArgumentType,
+	"methodArgumentTypeFromBase":    methodArgumentTypeFromBase,
+	"isVariadicParameter":           isVariadicParameter,
+	"isLastIndex":                   func(index, total int) bool { return total > 0 && index == total-1 },
+	"toCamel":                       toCamelCase,
+	"toSnake":                       toSnakeCase,
+	"toKebab":                       toKebabCase,
+	"toPascal":                      toPascalCase,
+	"quote":                         withQuote,
+	"quoteDescription":              quoteDescription,
+	"toPackageName":                 toPackageName,
+	"additionalTypeImports":         additionalTypeImports,
+	"additionalTypePackageName":     additionalTypePackageName,
+	"groupAdditionalTypesByPackage": groupAdditionalTypesByPackage,
+	"hasSingleDefaultTypesPackage":  hasSingleDefaultTypesPackage,
+	"sortedAdditionalTypePackages":  sortedAdditionalTypePackages,
+	"goComment":                     goComment,
+	"referenceType":                 referenceType,
+	"ignoreLinting":                 ignoreLintingError,
+	"nowYear":                       nowYear,
+	"toURIEncoded":                  toURIEncoded,
+	"linkToManifest":                linkToManifest,
+	"normaliseActionDirectoryName":  normaliseActionDirectoryName,
+	"normaliseActionName":           normaliseActionName,
+	"hasCloudCommands":              isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -228,10 +233,13 @@ func toPascalCase(s string) string {
 }
 
 func toCamelCase(s string) string {
+	var result string
 	if replacer, err := acronyms.Replacer(); err == nil && replacer != nil {
-		return casing.ToCamelCase(s, replacer)
+		result = casing.ToCamelCase(s, replacer)
+	} else {
+		result = casing.ToCamelCase(s)
 	}
-	return casing.ToCamelCase(s)
+	return applyKnownAcronymCasing(result)
 }
 
 func toSnakeCase(s string) string {
@@ -239,6 +247,14 @@ func toSnakeCase(s string) string {
 		return casing.ToSnakeCase(s, replacer)
 	}
 	return casing.ToSnakeCase(s)
+}
+
+func applyKnownAcronymCasing(value string) string {
+	applied, err := acronyms.ApplyKnownAcronyms(value)
+	if err != nil || reflection.IsEmpty(applied) {
+		return value
+	}
+	return applied
 }
 
 func toKebabCase(s string) string {
@@ -418,10 +434,6 @@ func isVariadicParameter(reference bool, list bool, iterator bool, isLast bool) 
 	return isLast && list && !iterator && !reference
 }
 
-func hasTypeEnums(spec *SDKSpecification) bool {
-	return spec.HasTypeEnums()
-}
-
 func hasConfigEnums(spec *SDKSpecification) bool {
 	return spec.HasConfigEnums()
 }
@@ -435,18 +447,8 @@ func hasInterfaceEnums(spec *SDKSpecification) bool {
 }
 
 func toPackageName(value string) string {
-	value = strings.TrimSpace(value)
-
-	var builder strings.Builder
-
-	builder.Grow(len(value))
-	for _, r := range value {
-		if unicode.IsLetter(r) {
-			builder.WriteRune(unicode.ToLower(r))
-		}
-	}
-
-	pkg := builder.String()
+	pkg := strings.ReplaceAll(casing.ToSnakeCase(strings.TrimSpace(value)), "_", "")
+	pkg = strings.TrimLeftFunc(pkg, unicode.IsDigit)
 	if reflection.IsEmpty(pkg) {
 		return "main"
 	}
@@ -617,7 +619,7 @@ return values
 	}
 }
 
-func defaultFieldValue(toolName, toolVersion, ownerName, fieldName, s string, enum []string, dValue any, reference bool) string {
+func defaultFieldValue(additionalTypesPackages map[string]string, currentPackage, toolName, toolVersion, ownerName, fieldName, s string, enum []string, dValue any, reference bool) string {
 	if hasEnum(enum) {
 		enumType := enumTypeName(ownerName, fieldName, s, enum)
 		value := enumConstName(enumType, strings.TrimSpace(fmt.Sprintf("%v", dValue)))
@@ -628,6 +630,11 @@ func defaultFieldValue(toolName, toolVersion, ownerName, fieldName, s string, en
 	}
 	if isConnectionLangType(s) {
 		return requestConfigurationDefaultValue(toolName, toolVersion, fmt.Sprintf("%v", dValue), isProtectedConnectionLangType(s), reference)
+	}
+	if reflection.IsEmpty(dValue) {
+		if value, ok := localAdditionalTypeDefaultValue(additionalTypesPackages, currentPackage, s, reference); ok {
+			return value
+		}
 	}
 	return defaultValue(s, dValue)
 }

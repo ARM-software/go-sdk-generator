@@ -861,6 +861,9 @@ acronyms:
   - token: Fpga
     replacement: FPGA
     exceptions: []
+  - token: Ifpga
+    replacement: IFPGA
+    exceptions: []
   - token: Afaas
     replacement: AFAAS
     exceptions: []

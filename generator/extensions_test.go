@@ -111,6 +111,8 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, "[]HALLink", convertLangType("[]HalLink"))
 	assert.Equal(t, "types.HALLink", convertLangType("types.HalLink"))
 	assert.Equal(t, "*types.HALLink", convertLangType("*types.HalLink"))
+	assert.Equal(t, "*encryption.HybridAESRSAEncryptedPayload", convertLangType("*encryption.HybridAESRSAEncryptedPayload"))
+	assert.Equal(t, "credentials.IFPGAAgentCredentials", convertLangType("credentials.IFPGAAgentCredentials"))
 }
 
 func TestDefaultsWithMultilines(t *testing.T) {
@@ -142,22 +144,35 @@ func TestDefaultValueForStrings(t *testing.T) {
 }
 
 func TestDefaultFieldValueForConnections(t *testing.T) {
-	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", connectionLangType, nil, "https://some-mcp.org/mcp", false))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", protectedConnectionLangType, nil, "https://some-mcp.org/mcp", true))
-	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", serviceLangType, nil, "https://some-service.org/api", false))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", behindAuthServiceLangType, nil, "https://some-service.org/api", true))
-	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue("example-tool", "0.0.0", "", "", serviceBehindAuthLangType, nil, "https://some-service.org/api", true))
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "", "", connectionLangType, nil, "https://some-mcp.org/mcp", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-mcp.org/mcp\"\nreturn request\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "", "", protectedConnectionLangType, nil, "https://some-mcp.org/mcp", true))
+	assert.Equal(t, "func() httpUtils.RequestConfiguration {\nrequest := *httpUtils.DefaultHTTPRequestConfiguration(\"example-tool/0.0.0\")\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "", "", serviceLangType, nil, "https://some-service.org/api", false))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "", "", behindAuthServiceLangType, nil, "https://some-service.org/api", true))
+	assert.Equal(t, "func() *httpUtils.RequestConfiguration {\nrequest := httpUtils.DefaultHTTPRequestWithAuthorisationConfigurationEnforced(\"example-tool/0.0.0\")\nrequest.Authorisation.Scheme = httpUtils.AuthorisationSchemeBearer\nrequest.Host = \"https://some-service.org/api\"\nreturn request\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "", "", serviceBehindAuthLangType, nil, "https://some-service.org/api", true))
 }
 
 func TestDefaultFieldValueForEnums(t *testing.T) {
 	enumValues := []string{"draft", "published"}
-	assert.Equal(t, `DocumentStatusDraft`, defaultFieldValue("example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", false))
-	assert.Equal(t, "func() *DocumentStatus {\nvalue := DocumentStatusDraft\nreturn &value\n}()", defaultFieldValue("example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", true))
+	assert.Equal(t, `DocumentStatusDraft`, defaultFieldValue(nil, "", "example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", false))
+	assert.Equal(t, "func() *DocumentStatus {\nvalue := DocumentStatusDraft\nreturn &value\n}()", defaultFieldValue(nil, "", "example-tool", "0.0.0", "Document", "Status", "string", enumValues, "draft", true))
+}
+
+func TestDefaultFieldValueForLocalAdditionalTypes(t *testing.T) {
+	additionalTypesPackages := map[string]string{
+		"DirectoryEntry": "models",
+		"Page":           "results",
+	}
+	assert.Equal(t, "models.DefaultDirectoryEntry()", defaultFieldValue(additionalTypesPackages, "", "example-tool", "0.0.0", "", "Seed", "models.DirectoryEntry", nil, "", true))
+	assert.Equal(t, "*results.DefaultPage()", defaultFieldValue(additionalTypesPackages, "", "example-tool", "0.0.0", "", "Page", "results.Page", nil, "", false))
+	assert.Equal(t, "DefaultPage()", defaultFieldValue(additionalTypesPackages, "results", "example-tool", "0.0.0", "", "Page", "Page", nil, "", true))
 }
 
 func Test_toCase(t *testing.T) {
 	assert.Equal(t, "Port", toPascalCase("Port"))
 	assert.Equal(t, "Port", toPascalCase("port"))
+	assert.Equal(t, "List", toPascalCase("list"))
+	assert.Equal(t, "IFPGAAgentCredentials", toPascalCase("ifpga_agent_credentials"))
+	assert.Equal(t, "HybridAESRSAEncryptedPayload", toPascalCase("HybridAESRSAEncryptedPayload"))
 	assert.Equal(t, "APITestAPIXMLTest", toPascalCase("ApiTestApiXMLTest"))
 	assert.Equal(t, "ThisIsOneMessedUpStringCanWeReallyPascalCaseIt", toPascalCase("ThisIsOne___messed up string. Can we Really pascal-case It"))
 	assert.Equal(t, "AdrienID", toPascalCase("adrien_id"))
@@ -176,6 +191,11 @@ func Test_toCase(t *testing.T) {
 	assert.Equal(t, "port", toSnakeCase("Port"))
 	assert.Equal(t, "port", toSnakeCase("port"))
 	assert.Equal(t, "this_is_one_messed_up_string_can_we_really_snake_case_it_test", toSnakeCase("ThisIsOne___messed up string. Can we Really Snake Case It,test"))
+}
+
+func TestEnumConstNameCapitalisesLowercaseValues(t *testing.T) {
+	assert.Equal(t, "PageStatusDraft", enumConstName("PageStatus", "draft"))
+	assert.Equal(t, "PageStatusPublished", enumConstName("PageStatus", "published"))
 }
 
 func Test_ignoreLintingError(t *testing.T) {
@@ -274,6 +294,6 @@ func TestSecretStringHelpersSupportPointerStrings(t *testing.T) {
 
 	assert.True(t, isSecretCompatibleLangType(cfg.LangType))
 	assert.Equal(t, "*secretutil.ProtectedString", configFieldType(cfg))
-	assert.Contains(t, configFieldDefaultValue("", "", cfg), "field.ToOptional(")
-	assert.Contains(t, configFieldDefaultValue("", "", cfg), `secretutil.ProtectedString("hello")`)
+	assert.Contains(t, configFieldDefaultValue(nil, "", "", "", cfg), "field.ToOptional(")
+	assert.Contains(t, configFieldDefaultValue(nil, "", "", "", cfg), `secretutil.ProtectedString("hello")`)
 }

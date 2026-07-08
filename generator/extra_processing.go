@@ -78,6 +78,25 @@ func ProcessRepositoryAndModuleMetadata(ctx context.Context, sdk *SDK) (err erro
 	return
 }
 
+func ProcessAdditionalTypePackages(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+
+	additionalTypesPackages, err := sdk.Specification.AdditionalTypes.NormalisePackages()
+	if err != nil {
+		return
+	}
+	sdk.Specification.RewriteAdditionalTypeReferences(additionalTypesPackages)
+
+	return
+}
+
 func validateURL(value string) error {
 	err := validation.Validate(value, validation.Required, is.URL)
 	if err != nil {

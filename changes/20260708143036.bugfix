@@ -1,0 +1,1 @@
+:bug: fix generated additional type and documentation text so acronym-heavy type names and descriptions preserve expected casing, including custom types such as HybridAESRSAEncryptedPayload and acronym-led phrases.

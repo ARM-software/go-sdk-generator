@@ -952,6 +952,12 @@ type Type struct {
 
 	// The name of the entity
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The package the type is defined in.
+	// Defaults to `types`.
+	// This must resolve to a single package segment, not a nested path.
+	//
+	Package string `json:"package,omitempty" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -973,6 +979,9 @@ func (j *Type) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["package"]; !ok || v == nil {
+		plain.Package = "types"
 	}
 	*j = Type(plain)
 	return nil

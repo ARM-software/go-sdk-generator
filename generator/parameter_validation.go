@@ -237,6 +237,9 @@ func (typ *Type) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in type")
 	}
 	err := validation.ValidateStruct(typ,
+		validation.Field(&typ.Package, validation.By(func(value any) error {
+			return validateAdditionalTypePackageName(typ.Package)
+		})),
 		validation.Field(&typ.Fields, validation.By(func(value any) error {
 			return collection.Each(slices.Values(typ.Fields), func(fieldDef EntityField) error {
 				return (&fieldDef).Validate()

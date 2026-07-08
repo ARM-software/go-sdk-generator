@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -42,30 +41,6 @@ var secretCompatibleLangTypeRule = validation.By(func(value any) error {
 	}
 	return commonerrors.New(commonerrors.ErrInvalid, secretTypeValidationMessage)
 })
-
-func configFieldType(cfg FunctionConfigFields) string {
-	langType := convertLangType(baseLangType(cfg.LangType))
-	if cfg.Secret && langType == stringLangType {
-		langType = secretProtectedStringType
-	}
-	if hasEnum(cfg.Enum) && !cfg.Secret {
-		langType = enumTypeName("", cfg.Name, baseLangType(cfg.LangType), cfg.Enum)
-	}
-	return parameterTypeFromBase(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
-}
-
-func configFieldDefaultValue(toolName, toolVersion string, cfg FunctionConfigFields) string {
-	baseType := baseLangType(cfg.LangType)
-	value := defaultFieldValue(toolName, toolVersion, "", cfg.Name, baseType, cfg.Enum, field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
-	if cfg.Secret && convertLangType(baseType) == stringLangType {
-		protectedValue := fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
-		if isReferenceLikeSecretField(cfg) {
-			return fmt.Sprintf("field.ToOptional(%s)", protectedValue)
-		}
-		return protectedValue
-	}
-	return value
-}
 
 // hasSecretStringParameters reports whether any generated CLI configuration field
 // is both marked as secret and represented as a string. This is used to decide

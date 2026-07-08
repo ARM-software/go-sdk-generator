@@ -9,8 +9,8 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
-	{{ if .Specification.AdditionalTypes -}}
-	"{{ sdkModuleRoot .Specification }}/types"
+	{{ range additionalTypeImports .Specification "" -}}
+	{{ .Alias }} "{{ .Path }}"
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
 	{{ .ImportRef }} "{{ .ImportUrl }}"
@@ -69,7 +69,7 @@ func Default{{ $configName }}ManagerConfiguration() *{{ $configName }}ManagerCon
 	return &{{ $configName }}ManagerConfiguration{
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
+	{{ .Name | toPascal }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ end -}}
 	}

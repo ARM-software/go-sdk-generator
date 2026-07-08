@@ -31,6 +31,7 @@ Follow this order:
 4. Only inspect unpacked contents if the archive hash differs.
 5. Only update fixtures or snapshot archives if the final, intended output truly changed.
 6. Re-run the regression tests after refreshing fixtures.
+7. Analyse the changed generated files and explicitly call out anything that smells like a regression or bug before accepting the fixture update.
 
 Do not refresh fixtures pre-emptively while the implementation is still unstable.
 
@@ -63,6 +64,7 @@ When this repository refers to `TestGenerate` or the fixture-backed generator re
 5. decide whether the differences are intentional
 6. refresh fixture archives only for the intentional final differences
 7. run the focused regression tests again
+8. review the file-level diff and highlight suspicious changes, not just accepted ones
 
 ## Fixture Updates
 
@@ -73,6 +75,7 @@ When a fixture-backed test is correct but the generated output intentionally cha
 - compare the generated archive hash to the baseline archive hash first
 - verify the unpacked contents, not just the ZIP file timestamp or binary blob
 - prefer understanding file-level differences before accepting a refreshed archive
+- explicitly note suspicious changes such as broken casing, unexpected type changes, incorrect imports, malformed comments, or generated text that looks less correct than before
 
 If the generated archive hash is unchanged, do not rewrite or commit a new ZIP fixture. If the archive hash changed, inspect the unpacked contents before deciding whether the fixture update is legitimate.
 
@@ -86,6 +89,7 @@ Before finishing, check:
 - Was archive-hash comparison used before falling back to unpacked-content comparison?
 - Are unchanged archives avoided?
 - Can the final diff be explained file by file?
+- Were any suspicious changes explicitly highlighted for review instead of being silently accepted into refreshed fixtures?
 
 ## Anti-patterns
 
@@ -97,3 +101,4 @@ Avoid these unless there is a strong reason:
 - rewriting or committing a ZIP fixture when the generated archive hash is unchanged
 - skipping the inspection step for generated-output differences
 - keeping rewritten archives when the final unpacked content is unchanged
+- refreshing fixtures without calling out suspicious file-level changes that may indicate a regression

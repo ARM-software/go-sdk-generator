@@ -8,8 +8,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils" 
 
 	"{{ sdkModuleRoot .Specification }}/config"
-{{ if .Specification.AdditionalTypes -}}
-	"{{ sdkModuleRoot .Specification }}/types"
+{{ range additionalTypeImports .Specification "" -}}
+	{{ .Alias }} "{{ .Path }}"
 {{ end -}}
 
 	{{ range .Specification.ExtraImports -}}

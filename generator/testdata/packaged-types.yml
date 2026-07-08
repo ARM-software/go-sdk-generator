@@ -1,0 +1,87 @@
+specification:
+  package_name: packaged-types-sdk
+  main_module: packagedtypes
+  name: PackagedTypes
+  description: Test manifest ensuring additional types can be grouped into generated packages.
+
+  interface:
+    methods:
+      - name: List
+        description: List packaged types.
+        returns:
+          - name: page
+            lang_type: types.Page
+            reference: true
+            description: Paged result.
+          - name: err
+            lang_type: error
+            description: Whether listing failed.
+
+  global_configuration:
+    - name: Seed
+      lang_type: types.DirectoryEntry
+      reference: true
+      mapstructure_tag: seed
+      description: Seed entry.
+
+  command_line_commands:
+    binary: packaged-types
+    root_environment_var: PACKAGED_TYPES
+    description: CLI for packaged type generation tests.
+    functions:
+      - name: list
+        description: List packaged types.
+        configuration:
+          - name: PageFilter
+            lang_type: types.Page
+            mapstructure_tag: page_filter
+            description: Page filter.
+            bindings:
+              - name: Featured
+                arg: featured
+                mapstructure_tag: featured
+                lang_type: types.FileEntry
+                description: Featured file filter.
+
+  additional_types:
+    - name: DirectoryEntry
+      package: Models
+      description: Directory entry.
+      fields:
+        - name: Name
+          lang_type: string
+          json_tag: name
+          mapstructure_tag: name
+          description: Entry name.
+    - name: FileEntry
+      package: Models
+      description: File entry.
+      fields:
+        - name: Path
+          lang_type: string
+          json_tag: path
+          mapstructure_tag: path
+          description: File path.
+    - name: Page
+      package: Results
+      description: Paged result.
+      fields:
+        - name: Status
+          lang_type: string
+          enum:
+            - draft
+            - published
+          json_tag: status
+          mapstructure_tag: status
+          description: Page status.
+        - name: Entries
+          lang_type: "[]types.DirectoryEntry"
+          json_tag: entries
+          mapstructure_tag: entries
+          description: Returned entries.
+        - name: Featured
+          lang_type: types.FileEntry
+          reference: true
+          json_tag: featured
+          mapstructure_tag: featured
+          description: Featured file.
