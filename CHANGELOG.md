@@ -2,6 +2,28 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.39.0" (2026-07-08)
+=====================
+
+Features
+--------
+
+- :sparkles: allow additional generated types to declare their package and emit grouped type code outside the default types package. (#20260708135916)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.38.0 (#20260708042352)
+- :bug: fix generated defaults for locally defined additional types so blank defaults resolve to the appropriate Default<Type>() constructor across generated packages. (#20260708135916)
+- :bug: fix generated additional type and documentation text so acronym-heavy type names and descriptions preserve expected casing, including custom types such as HybridAESRSAEncryptedPayload and acronym-led phrases. (#20260708143036)
+- :bug: fix generated comments and documentation so acronym-heavy identifiers and descriptions preserve expected casing instead of producing corrupted words like aI or hTTP. (#20260708143614)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.38.0" (2026-07-07)
 =====================
 

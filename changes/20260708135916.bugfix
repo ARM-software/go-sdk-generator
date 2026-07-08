@@ -1,1 +1,0 @@
-:bug: fix generated defaults for locally defined additional types so blank defaults resolve to the appropriate Default<Type>() constructor across generated packages.
