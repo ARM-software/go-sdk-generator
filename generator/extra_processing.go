@@ -18,6 +18,10 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
+const (
+	noKeyringArgument = "NoKeyring"
+)
+
 func usualExtraImports() map[string]string {
 	return map[string]string{
 		"xdg":        "github.com/adrg/xdg",
@@ -329,13 +333,13 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 
 func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
 	args := map[string]FunctionConfigFields{
-		"NoKeyring": {
+		noKeyringArgument: {
 			ArgShort:        nil,
 			Description:     "Disable loading configuration from the system keyring",
 			IsRoot:          false,
 			LangType:        "bool",
-			MapstructureTag: "no_keyring",
-			Name:            "NoKeyring",
+			MapstructureTag: toSnakeCase(noKeyringArgument),
+			Name:            noKeyringArgument,
 			Pattern:         nil,
 			Reference:       false,
 			Required:        false,

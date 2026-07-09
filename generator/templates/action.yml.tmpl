@@ -29,7 +29,7 @@ inputs:
     description: {{ .Description | quote }}
     required: {{ .Required }}
 {{- if not .Required }}
-    default: ""
+    default: {{ .Default | quote }}
 {{- end }}
 {{- end }}
 

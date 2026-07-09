@@ -155,6 +155,41 @@ func TestBuildGeneratedActions(t *testing.T) {
 		require.Len(t, actions, 1)
 		assert.Equal(t, "validate", actions[0].DirectoryName)
 	})
+
+	t.Run("sets no-keyring action input default to true", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName: "example-tool",
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Verify",
+						Description: "verify output",
+						Configuration: []FunctionConfigFields{{
+							Name:            "NoKeyring",
+							LangType:        "bool",
+							MapstructureTag: "no_keyring",
+							Description:     "Disable keyring",
+							Bindings: []Binding{{
+								Arg:             field.ToOptionalString("no-keyring"),
+								MapstructureTag: field.ToOptionalString("no_keyring"),
+								Description:     field.ToOptionalString("Disable keyring"),
+								LangType:        field.ToOptionalString("bool"),
+							}},
+						}},
+					}},
+				},
+			},
+		}
+
+		actions, err := BuildGeneratedActions(sdk)
+		require.NoError(t, err)
+		require.Len(t, actions, 1)
+		require.Len(t, actions[0].Inputs, 1)
+		match, err := matchingActionInputFlagName(noKeyringArgument, actions[0].Inputs[0].Name)
+		require.NoError(t, err)
+		assert.True(t, match)
+		assert.Equal(t, "true", actions[0].Inputs[0].Default)
+	})
 }
 
 func actionInputNames(t *testing.T, inputs []GeneratedActionInput) (names []string) {

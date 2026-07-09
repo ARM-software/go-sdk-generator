@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 )
+
+var actionInputFlagsDefaultingToTrue = []string{noKeyringArgument}
 
 type GeneratedActionInput struct {
 	Name        string
@@ -17,6 +20,7 @@ type GeneratedActionInput struct {
 	Required    bool
 	IsBoolean   bool
 	IsOperand   bool
+	Default     string
 }
 
 type GeneratedAction struct {
@@ -181,7 +185,8 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			FlagName:    flagName,
 			Description: describeActionInput(cfg.Description, cfg.Condition),
 			Required:    required,
-			IsBoolean:   strings.TrimSpace(cfg.LangType) == "bool",
+			IsBoolean:   isBoolean(cfg.LangType),
+			Default:     defaultActionInputValue(flagName),
 		})
 
 		return
@@ -211,7 +216,8 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			FlagName:    flagName,
 			Description: describeActionInput(description, cfg.Condition),
 			Required:    required,
-			IsBoolean:   strings.TrimSpace(langType) == "bool",
+			IsBoolean:   isBoolean(langType),
+			Default:     defaultActionInputValue(flagName),
 		})
 	}
 
@@ -259,4 +265,15 @@ func describeActionInput(description string, condition string) (newDescription s
 
 	newDescription = fmt.Sprintf("%s Required when %s.", description, condition)
 	return
+}
+
+func defaultActionInputValue(flagName string) string {
+	if collection.In(actionInputFlagsDefaultingToTrue, flagName, matchingActionInputFlagName) {
+		return "true"
+	}
+	return ""
+}
+
+func matchingActionInputFlagName(a, b string) (bool, error) {
+	return collection.StringCleanCaseInsensitiveMatch(toKebabCase(a), toKebabCase(b))
 }
