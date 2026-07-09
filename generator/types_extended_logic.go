@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"strings"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -8,6 +10,10 @@ import (
 
 // types_extended_logic centralises capability queries and small schema-model
 // traversal logic that belongs on the generated manifest types themselves.
+
+func isBoolean(langType string) bool {
+	return strings.EqualFold(strings.TrimSpace(langType), "bool")
+}
 
 func (b *Binding) HasEnum() bool {
 	return false
@@ -34,11 +40,25 @@ func (cfg *ConfigurationOption) HasEnum() bool {
 	return hasEnum(cfg.Enum)
 }
 
+func (cfg *ConfigurationOption) SuppressesRequiredValidation() bool {
+	if cfg == nil {
+		return false
+	}
+	return cfg.HasEnum() || isBoolean(cfg.LangType)
+}
+
 func (cfg *FunctionConfigFields) HasEnum() bool {
 	if cfg == nil {
 		return false
 	}
 	return hasEnum(cfg.Enum)
+}
+
+func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {
+	if cfg == nil {
+		return false
+	}
+	return cfg.HasEnum() || isBoolean(cfg.LangType)
 }
 
 func (typ *Type) HasEnum() bool {
@@ -48,6 +68,13 @@ func (typ *Type) HasEnum() bool {
 	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool {
 		return fieldDef.HasEnum()
 	})
+}
+
+func (fieldDef *EntityField) SuppressesRequiredValidation() bool {
+	if fieldDef == nil {
+		return false
+	}
+	return fieldDef.HasEnum() || isBoolean(fieldDef.LangType)
 }
 
 func (types Types) HasEnum() bool {
@@ -60,6 +87,16 @@ func (cfgs Configuration) HasEnum() bool {
 	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
 		return cfg.HasEnum()
 	})
+}
+
+func (cfgs Configuration) SuppressedRequiredValidationMap() map[string]bool {
+	result := map[string]bool{}
+	collection.ForEachRef(cfgs, func(cfg *ConfigurationOption) {
+		if cfg.SuppressesRequiredValidation() {
+			result[validationSuppressionKey(globalConfigurationValidationScope, "", cfg.Name)] = true
+		}
+	})
+	return result
 }
 
 func (method *InterfaceMethod) HasEnum() bool {
@@ -91,6 +128,19 @@ func (fct *CliFunction) HasEnum() bool {
 	})
 }
 
+func (fct *CliFunction) SuppressedRequiredValidationMap() map[string]bool {
+	if fct == nil {
+		return nil
+	}
+	result := map[string]bool{}
+	collection.ForEachRef(fct.Configuration, func(cfg *FunctionConfigFields) {
+		if cfg.SuppressesRequiredValidation() {
+			result[validationSuppressionKey(cliConfigurationValidationScope, fct.Name, cfg.Name)] = true
+		}
+	})
+	return result
+}
+
 func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	if cmds == nil {
 		return false
@@ -98,6 +148,19 @@ func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
 		return fct.HasEnum()
 	})
+}
+
+func (cmds *CommandLineCommands) SuppressedRequiredValidationMap() map[string]bool {
+	if cmds == nil {
+		return nil
+	}
+	result := map[string]bool{}
+	collection.ForEachRef(cmds.Functions, func(fct *CliFunction) {
+		for key := range fct.SuppressedRequiredValidationMap() {
+			result[key] = true
+		}
+	})
+	return result
 }
 
 func (cmds *CommandLineCommands) HasSecretStringParameters() bool {
@@ -150,6 +213,43 @@ func (spec *SDKSpecification) HasInterfaceEnums() bool {
 		return false
 	}
 	return (&spec.Interface).HasEnum()
+}
+
+func (typ *Type) SuppressedRequiredValidationMap() map[string]bool {
+	if typ == nil {
+		return nil
+	}
+	result := map[string]bool{}
+	collection.ForEachRef(typ.Fields, func(fieldDef *EntityField) {
+		if fieldDef.SuppressesRequiredValidation() {
+			result[validationSuppressionKey(additionalTypeValidationScope, typ.Name, fieldDef.Name)] = true
+		}
+	})
+	return result
+}
+
+func (types Types) SuppressedRequiredValidationMap() map[string]bool {
+	result := map[string]bool{}
+	collection.ForEachRef(types, func(typ *Type) {
+		for key := range typ.SuppressedRequiredValidationMap() {
+			result[key] = true
+		}
+	})
+	return result
+}
+
+func (spec *SDKSpecification) SuppressedRequiredValidationMap() map[string]bool {
+	if spec == nil {
+		return nil
+	}
+	result := spec.GlobalConfiguration.SuppressedRequiredValidationMap()
+	for key := range spec.CommandLineCommands.SuppressedRequiredValidationMap() {
+		result[key] = true
+	}
+	for key := range spec.AdditionalTypes.SuppressedRequiredValidationMap() {
+		result[key] = true
+	}
+	return result
 }
 
 func (b *Binding) RewriteAdditionalTypeReferences(currentPackage string, additionalTypesPackages map[string]string) {

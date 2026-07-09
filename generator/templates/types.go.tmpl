@@ -44,6 +44,7 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ range .Fields -}}
 	{{ $validation := .LangType | validationLangType -}}
 	{{ $enumValidation := enumValidationRule $structName .Name .LangType .Reference .Enum -}}
+	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "additional-type" $structName .Name -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
@@ -52,9 +53,9 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ end }}
 	{{ else }}
 	{{ if .Required }}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
 	{{ else if .Condition -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validation.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
 	{{ else if or $validation $enumValidation -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
 	{{ end }}

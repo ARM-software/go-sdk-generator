@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -104,6 +105,37 @@ func TestProcessRepositoryAndModuleMetadataNormalisesCLIPackage(t *testing.T) {
 	}
 	require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
 	assert.Equal(t, "toolssdk", sdk.Specification.CommandLineCommands.Package)
+}
+
+func TestSuppressedRequiredValidationMapIncludesBoolAndEnum(t *testing.T) {
+	t.Parallel()
+	spec := &SDKSpecification{
+		Name: field.ToOptionalString("Example"),
+		GlobalConfiguration: Configuration{
+			{Name: "Enabled", LangType: "bool", Required: true, Description: "enabled", MapstructureTag: "enabled"},
+			{Name: "Mode", LangType: "string", Required: true, Enum: []string{"fast", "safe"}, Description: "mode", MapstructureTag: "mode"},
+		},
+		CommandLineCommands: &CommandLineCommands{
+			Functions: []CliFunction{{
+				Name:        "Run",
+				Description: "run",
+				Configuration: []FunctionConfigFields{
+					{Name: "Verbose", LangType: "bool", Required: true, Description: "verbose", MapstructureTag: "verbose"},
+				},
+			}},
+		},
+		AdditionalTypes: Types{{
+			Name:        "Resource",
+			Description: "resource",
+			Fields:      []EntityField{{Name: "Active", LangType: "bool", Required: true, Description: "active"}},
+		}},
+	}
+
+	suppressed := spec.SuppressedRequiredValidationMap()
+	assert.True(t, suppressesRequiredValidation(suppressed, globalConfigurationValidationScope, "", "Enabled"))
+	assert.True(t, suppressesRequiredValidation(suppressed, globalConfigurationValidationScope, "", "Mode"))
+	assert.True(t, suppressesRequiredValidation(suppressed, cliConfigurationValidationScope, "Run", "Verbose"))
+	assert.True(t, suppressesRequiredValidation(suppressed, additionalTypeValidationScope, "Resource", "Active"))
 }
 
 func TestCommandLineCommandsValidateRejectsNestedPackage(t *testing.T) {

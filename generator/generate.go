@@ -152,6 +152,7 @@ type DataModel struct {
 	SchemaFileName string
 	SDK
 	AdditionalTypesPackagesByName map[string]string
+	SuppressRequiredValidationMap map[string]bool
 	CurrentTypePackage            string
 	CurrentAdditionalTypes        Types
 	GeneratedActions              []GeneratedAction
@@ -470,6 +471,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		SchemaFileName:                filesystem.FilepathStem(cfg.Input),
 		SDK:                           sdk,
 		AdditionalTypesPackagesByName: additionalTypePackagesByName(sdk.Specification.AdditionalTypes),
+		SuppressRequiredValidationMap: sdk.Specification.SuppressedRequiredValidationMap(),
 		CurrentAdditionalTypes:        sdk.Specification.AdditionalTypes,
 		GeneratedActions:              generatedActions,
 		TargetedGoVersion:             cfg.TargetedGoVersion,

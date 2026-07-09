@@ -12,7 +12,7 @@ type {{ $enumTypeName }} int
 
 const (
 	{{- range $i, $value := .Enum }}
-	{{ enumConstName $enumTypeName $value }} {{ $enumTypeName }}{{ if eq $i 0 }} = iota{{ end }} // {{ $value }}
+	{{ enumConstName $enumTypeName $value }}{{ if eq $i 0 }} {{ $enumTypeName }} = iota{{ end }} // {{ $value }}
 	{{- end }}
 )
 

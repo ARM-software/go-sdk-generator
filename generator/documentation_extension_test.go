@@ -54,6 +54,9 @@ func TestEmbeddedConfigTemplateCommentRendering(t *testing.T) {
 	require.NoError(t, err)
 
 	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{
+			validationSuppressionKey(globalConfigurationValidationScope, "", "OutputFormat"): true,
+		},
 		SDK: SDK{
 			Specification: SDKSpecification{
 				Name:        field.ToOptionalString("PortalEntities"),
@@ -98,4 +101,62 @@ func TestCasingTypesDescriptionsRemainCleanAfterPreprocessing(t *testing.T) {
 	assert.Equal(t, "Whether the test configuration is enabled.", sdk.Specification.GlobalConfiguration[0].Description)
 	assert.Equal(t, "Minimal HAL link representation for an affected AI Portal entity.", sdk.Specification.AdditionalTypes[0].Description)
 	assert.Equal(t, "AI Portal entities affected by a documentation link update, grouped by resource kind and described as HAL links.", sdk.Specification.AdditionalTypes[1].Description)
+}
+
+func TestEmbeddedTypeEnumTemplateUsesTypedFirstConstantOnly(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/types.enums.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		CurrentTypePackage: "results",
+		CurrentAdditionalTypes: Types{{
+			Name:        "Page",
+			Description: "Paged result.",
+			Fields: []EntityField{{
+				Name:        "Status",
+				LangType:    "string",
+				Enum:        []string{"draft", "published"},
+				Description: "Page status.",
+			}},
+		}},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "types.enums.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "PageStatusDraft PageStatus = iota // draft")
+	assert.Contains(t, output, "PageStatusPublished // published")
+	assert.NotContains(t, output, "PageStatusPublished PageStatus")
+}
+
+func TestEmbeddedConfigTemplateOmitsRequiredForEnumFields(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{
+			validationSuppressionKey(globalConfigurationValidationScope, "", "OutputFormat"): true,
+		},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("EnumTest"),
+				PackageName: "enum-test-sdk",
+				MainModule:  "enumtest",
+				GlobalConfiguration: Configuration{{
+					Name:            "OutputFormat",
+					LangType:        "string",
+					Enum:            []string{"json", "yaml"},
+					MapstructureTag: "output_format",
+					Description:     "Output format.",
+					Required:        true,
+				}},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "validation.Field(&cfg.OutputFormat, validation.In(")
+	assert.NotContains(t, output, "validation.Field(&cfg.OutputFormat, validation.Required")
 }
