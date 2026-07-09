@@ -299,6 +299,12 @@ type CommandLineCommands struct {
 	// Whether to skip generating GitHub Actions for the CLI
 	NoActions bool `json:"no_actions,omitempty" yaml:"no_actions,omitempty" mapstructure:"no_actions,omitempty"`
 
+	// The package the generated CLI project is defined in.
+	// Defaults to `cli`.
+	// This must resolve to a single package segment, not a nested path.
+	//
+	Package string `json:"package,omitempty" yaml:"package,omitempty" mapstructure:"package,omitempty"`
+
 	// Environment variable prefix
 	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
 }
@@ -319,6 +325,9 @@ func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["no_actions"]; !ok || v == nil {
 		plain.NoActions = false
+	}
+	if v, ok := raw["package"]; !ok || v == nil {
+		plain.Package = "cli"
 	}
 	*j = CommandLineCommands(plain)
 	return nil

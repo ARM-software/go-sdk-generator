@@ -236,12 +236,12 @@ build_from_source() {
     fail "go is required to build ${package_name} from source."
   fi
 
-  if [[ -z "$source_dir" || ! -d "$source_dir/cli" ]]; then
+  if [[ -z "$source_dir" || ! -d "$source_dir/{{ .Specification.CommandLineCommands.Package }}" ]]; then
     fail "Checked-out source for ${package_name} was not found at '${source_dir}'."
   fi
 
   log "Building ${package_name} from checked-out source ref '${resolved_ref}'."
-  go -C "$source_dir/cli" build -o "$output_path" .
+  go -C "$source_dir/{{ .Specification.CommandLineCommands.Package }}" build -o "$output_path" .
 
   binary_path="$output_path"
   if [[ "$os" != "windows" ]]; then

@@ -66,6 +66,9 @@ func ProcessRepositoryAndModuleMetadata(ctx context.Context, sdk *SDK) (err erro
 	}
 
 	sdk.Specification.Interface.Namespace = normaliseNamespace(sdk.Specification.Interface.Namespace)
+	if sdk.Specification.CommandLineCommands != nil {
+		sdk.Specification.CommandLineCommands.Package = normaliseCLIPackageName(sdk.Specification.CommandLineCommands.Package)
+	}
 
 	repoURL := repositoryURL(&sdk.Specification)
 	err = validateURL(repoURL)

@@ -1,6 +1,6 @@
 go {{ .TargetedGoVersion }}
 
 use (
-	./cli
+	./{{ .Specification.CommandLineCommands.Package }}
 	./{{ .Specification.MainModule }}
 )

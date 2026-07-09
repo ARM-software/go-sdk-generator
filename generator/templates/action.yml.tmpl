@@ -98,7 +98,7 @@ runs:
       if: steps.installation-mode.outputs.source-build == 'true'
       uses: actions/setup-go@v5
       with:
-        go-version-file: ${{ "{{" }} github.workspace }}/.action-source/cli/go.mod
+        go-version-file: ${{ "{{" }} github.workspace }}/.action-source/{{ .Specification.CommandLineCommands.Package }}/go.mod
 
     - name: Set up Go to run the CLI
       if: steps.installation-mode.outputs.source-build != 'true' && inputs.install-only != 'true'

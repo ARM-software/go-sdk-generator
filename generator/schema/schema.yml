@@ -198,6 +198,13 @@ $defs:
       binary:
         type: string
         description: Name of the executable
+      package:
+        type: string
+        default: cli
+        description: |
+          The package the generated CLI project is defined in.
+          Defaults to `cli`.
+          This must resolve to a single package segment, not a nested path.
       interrupt_exit_code:
         type: integer
         description: The exit code to return when an interrupt signal (SIGINT or SIGTERM) is received

@@ -19,7 +19,7 @@ updates:
     - github
 {{ if .Specification.CommandLineCommands -}}
 - package-ecosystem: gomod
-  directory: "/cli"
+  directory: "/{{ .Specification.CommandLineCommands.Package }}"
   schedule:
     interval: daily
     timezone: Europe/London

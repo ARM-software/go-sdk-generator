@@ -76,6 +76,8 @@ When a fixture-backed test is correct but the generated output intentionally cha
 - verify the unpacked contents, not just the ZIP file timestamp or binary blob
 - prefer understanding file-level differences before accepting a refreshed archive
 - explicitly note suspicious changes such as broken casing, unexpected type changes, incorrect imports, malformed comments, or generated text that looks less correct than before
+- if a fixture refresh only changes unstable metadata such as regenerated UUIDs in files like `pyproject.toml`, revert the archive refresh instead of keeping meaningless churn
+- if unpacked inspection shows no meaningful generated-output changes, revert the ZIP file from the worktree instead of leaving it in the commit
 
 If the generated archive hash is unchanged, do not rewrite or commit a new ZIP fixture. If the archive hash changed, inspect the unpacked contents before deciding whether the fixture update is legitimate.
 
@@ -102,3 +104,5 @@ Avoid these unless there is a strong reason:
 - skipping the inspection step for generated-output differences
 - keeping rewritten archives when the final unpacked content is unchanged
 - refreshing fixtures without calling out suspicious file-level changes that may indicate a regression
+- keeping a refreshed fixture when the only diffs are unstable metadata churn and the meaningful generated content is unchanged
+- leaving a refreshed ZIP in the worktree when unpacked inspection shows there is no meaningful generated-output change to keep

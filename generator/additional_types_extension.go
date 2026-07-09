@@ -13,7 +13,10 @@ import (
 	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
-const defaultAdditionalTypePackage = "types"
+const (
+	defaultAdditionalTypePackage = "types"
+	defaultCLIPackage            = "cli"
+)
 
 type additionalTypeImport struct {
 	Alias string
@@ -38,6 +41,10 @@ func normaliseAdditionalTypePackageName(value string) string {
 }
 
 func validateAdditionalTypePackageName(value string) error {
+	return validateGeneratedPackageName(value)
+}
+
+func validateGeneratedPackageName(value string) error {
 	if reflection.IsEmpty(value) {
 		return nil
 	}
@@ -46,6 +53,21 @@ func validateAdditionalTypePackageName(value string) error {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "package %q must be a single package segment, not a nested path", value)
 	}
 	return nil
+}
+
+func normaliseCLIPackageName(value string) string {
+	if reflection.IsEmpty(value) {
+		return defaultCLIPackage
+	}
+	normalised := toPackageName(value)
+	if normalised == "main" {
+		return defaultCLIPackage
+	}
+	return normalised
+}
+
+func validateCLIPackageName(value string) error {
+	return validateGeneratedPackageName(value)
 }
 
 func additionalTypePackageName(typ *Type) string {

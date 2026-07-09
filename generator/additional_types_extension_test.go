@@ -23,6 +23,21 @@ func TestValidateAdditionalTypePackageName(t *testing.T) {
 	require.Error(t, validateAdditionalTypePackageName("foo.bar"))
 }
 
+func TestNormaliseCLIPackageName(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, defaultCLIPackage, normaliseCLIPackageName(""))
+	assert.Equal(t, "tools", normaliseCLIPackageName("Tools"))
+	assert.Equal(t, "toolssdk", normaliseCLIPackageName("tools-sdk"))
+}
+
+func TestValidateCLIPackageName(t *testing.T) {
+	t.Parallel()
+	require.NoError(t, validateCLIPackageName("tools"))
+	require.Error(t, validateCLIPackageName("foo/bar"))
+	require.Error(t, validateCLIPackageName("foo\\bar"))
+	require.Error(t, validateCLIPackageName("foo.bar"))
+}
+
 func TestProcessAdditionalTypePackages(t *testing.T) {
 	t.Parallel()
 	sdk := &SDK{
@@ -71,4 +86,31 @@ func TestProcessAdditionalTypePackages(t *testing.T) {
 	assert.Equal(t, "results.Page", sdk.Specification.Interface.Methods[0].Returns[0].LangType)
 	assert.Equal(t, "[]models.DirectoryEntry", sdk.Specification.AdditionalTypes[1].Fields[0].LangType)
 	assert.Equal(t, "Page", sdk.Specification.AdditionalTypes[1].Fields[1].LangType)
+}
+
+func TestProcessRepositoryAndModuleMetadataNormalisesCLIPackage(t *testing.T) {
+	t.Parallel()
+	sdk := &SDK{
+		Specification: SDKSpecification{
+			PackageName:         "pkg",
+			MainModule:          "mod",
+			GlobalConfiguration: Configuration{},
+			Interface:           Interface{Namespace: "github.com/Arm-Debug/"},
+			CommandLineCommands: &CommandLineCommands{
+				Package:   "Tools-SDK",
+				Functions: []CliFunction{{Name: "Run", Description: "run", Configuration: []FunctionConfigFields{}}},
+			},
+		},
+	}
+	require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
+	assert.Equal(t, "toolssdk", sdk.Specification.CommandLineCommands.Package)
+}
+
+func TestCommandLineCommandsValidateRejectsNestedPackage(t *testing.T) {
+	t.Parallel()
+	cmds := &CommandLineCommands{
+		Package:   "foo/bar",
+		Functions: []CliFunction{{Name: "Run", Description: "run", Configuration: []FunctionConfigFields{}}},
+	}
+	require.Error(t, cmds.Validate())
 }

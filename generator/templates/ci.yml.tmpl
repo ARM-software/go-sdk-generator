@@ -54,7 +54,7 @@ jobs:
 {{- end }}
 
       - name: Build CLI
-        working-directory: ./cli
+        working-directory: ./{{ .Specification.CommandLineCommands.Package }}
         run: go build ./...
 
 {{- if .GeneratedActions }}

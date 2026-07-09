@@ -1,0 +1,35 @@
+specification:
+  package_name: cli-package-sdk
+  main_module: clipackage
+  name: CLIPackage
+  description: Test manifest ensuring generated CLI output can live in a custom top-level package.
+
+  interface:
+    methods:
+      - name: Ping
+        description: Ping the service.
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether ping failed.
+
+  global_configuration:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      description: Whether the CLI package test is enabled.
+      default_value: "true"
+
+  command_line_commands:
+    package: tools
+    binary: cli-package
+    root_environment_var: CLI_PACKAGE
+    description: CLI for custom CLI package tests.
+    functions:
+      - name: ping
+        description: Ping the service.
+        configuration:
+          - name: Host
+            lang_type: string
+            mapstructure_tag: host
+            description: Host to ping.

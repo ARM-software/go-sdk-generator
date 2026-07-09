@@ -194,7 +194,10 @@ func sdkModuleRoot(spec *SDKSpecification) string {
 }
 
 func cliModuleRoot(spec *SDKSpecification) string {
-	return fmt.Sprintf("%s/cli", moduleRoot(spec))
+	if spec == nil || spec.CommandLineCommands == nil {
+		return fmt.Sprintf("%s/%s", moduleRoot(spec), defaultCLIPackage)
+	}
+	return fmt.Sprintf("%s/%s", moduleRoot(spec), spec.CommandLineCommands.Package)
 }
 
 func importPrefix(spec *SDKSpecification) string {

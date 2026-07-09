@@ -409,6 +409,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
+		cliDir := sdk.Specification.CommandLineCommands.Package
 		templatesToPopulate.addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
 		if onGithub {
 			templatesToPopulate.addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
@@ -419,29 +420,29 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		if generateAction {
 			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
 		}
-		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
-		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "root.go"), true, true)
-		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "main.go"), true, true)
-		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
+		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
+		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 		if hasCLIConfigEnums(sdk.Specification.CommandLineCommands) {
-			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "config", "enums.go"), true, true)
+			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", "enums.go"), true, true)
 		}
-		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
+		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
 		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
 		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {
-			templatesToPopulate.addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "internal", "secretutil", "secret.go"), true, true)
+			templatesToPopulate.addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "internal", "secretutil", "secret.go"), true, true)
 		}
 
-		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
+		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
 		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, "cli", "go.mod"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "go.mod"), cfg.Overwrite, true)
 	}
 
 	var modulePropertiesFilePath string
 	if sdk.Specification.CommandLineCommands == nil {
 		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, "module.properties")
 	} else {
-		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, "cli", "cmd", "module.properties")
+		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.CommandLineCommands.Package, "cmd", "module.properties")
 	}
 	templatesToPopulate.addStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)

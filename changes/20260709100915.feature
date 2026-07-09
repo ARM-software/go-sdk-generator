@@ -1,0 +1,1 @@
+:sparkles: allow generated CLI projects to declare their top-level package directory through `command_line_commands.package`. This should help use of tools directly as [go tools](https://go.dev/ref/mod#go-mod-file-tool) without having them named `cli`. See https://go.dev/doc/modules/gomod-ref#tool

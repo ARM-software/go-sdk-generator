@@ -29,6 +29,9 @@ func TestGitHubRepositoryHelpers(t *testing.T) {
 	assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk/pulls", githubPullsURL(&spec))
 	assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk/discussions", githubDiscussionsURL(&spec))
 	assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk/blob/main/schema.yml", linkToFileOnGitHub(&spec, "schema.yml"))
+
+	spec.CommandLineCommands = &CommandLineCommands{Package: "tools"}
+	assert.Equal(t, "github.com/Arm-Debug/verify-cmsis-example-sdk/tools", cliModuleRoot(&spec))
 }
 
 func TestLinkToManifest(t *testing.T) {

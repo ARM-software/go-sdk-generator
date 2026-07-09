@@ -261,6 +261,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "Yes CLI (custom CLI package changes generated project root)",
+			recipe:        "cli-package.yml",
+			regressionSrc: "cli-package.zip",
+			err:           nil,
+		},
+		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,

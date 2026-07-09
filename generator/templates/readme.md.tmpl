@@ -76,7 +76,7 @@ For release notes and a history of changes of all **production** releases, pleas
 The follow described the major aspects of the project structure:
 ```
 {{ if .Specification.CommandLineCommands }}
-    cli/ - Definition of the CLI to use the tool directly from a terminal.
+    {{ .Specification.CommandLineCommands.Package }}/ - Definition of the CLI to use the tool directly from a terminal.
 {{- end }}
     {{ .Specification.MainModule }}/ - Go source files describing the SDK.
     changes/ - Collection of news files for unreleased changes.

@@ -280,6 +280,9 @@ func (cmds *CommandLineCommands) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in command line commands")
 	}
 	err := validation.ValidateStruct(cmds,
+		validation.Field(&cmds.Package, validation.By(func(value any) error {
+			return validateCLIPackageName(cmds.Package)
+		})),
 		validation.Field(&cmds.Functions, validation.By(func(value any) error {
 			return collection.Each(slices.Values(cmds.Functions), func(fct CliFunction) error {
 				return (&fct).Validate()

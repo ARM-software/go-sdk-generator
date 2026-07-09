@@ -18,7 +18,7 @@ MODULE_TO_DOCUMENT = "{{ .Specification.MainModule }}"
 DOCUMENTATION_DEFAULT_OUTPUT_PATH = "./docs"
 DOCUMENTATION_PRODUCTION_OUTPUT_PATH = "./docs"
 {{ if .Specification.CommandLineCommands -}}
-VERSION_FILE_PATH = "cli/cmd/module.properties"
+VERSION_FILE_PATH = "{{ .Specification.CommandLineCommands.Package }}/cmd/module.properties"
 {{else}}
 VERSION_FILE_PATH = "module.properties"
 {{end}}
@@ -35,7 +35,7 @@ PRERELEASE_TOKEN = "beta"
 BUILD_TOKEN = "dev"
 TAG_TEMPLATE = "release/{version}"
 {{ if .Specification.CommandLineCommands -}}
-targets = [ "cli/cmd/module.properties",]
+targets = [ "{{ .Specification.CommandLineCommands.Package }}/cmd/module.properties",]
 {{else}}
 targets = [ "module.properties",]
 {{end}}

@@ -6,8 +6,8 @@ WORKDIR /build
 COPY {{ .Specification.MainModule }} {{ .Specification.MainModule }}
 
 {{ if .Specification.CommandLineCommands -}}
-COPY cli cli
-WORKDIR /build/cli
+COPY {{ .Specification.CommandLineCommands.Package }} {{ .Specification.CommandLineCommands.Package }}
+WORKDIR /build/{{ .Specification.CommandLineCommands.Package }}
 {{ else -}}
 WORKDIR /build/{{ .Specification.MainModule }}
 {{ end -}}

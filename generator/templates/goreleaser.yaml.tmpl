@@ -7,7 +7,7 @@ report_sizes: true
 env:
   - GO111MODULE=on
 builds:
-  - dir: cli
+  - dir: {{ .Specification.CommandLineCommands.Package }}
     id: {{ .Specification.PackageName }}
     binary: {{ .Specification.CommandLineCommands.Binary }}
     env:
