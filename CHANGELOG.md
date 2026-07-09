@@ -2,6 +2,27 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.40.0" (2026-07-09)
+=====================
+
+Features
+--------
+
+- :sparkles: allow generated CLI projects to declare their top-level package directory through `command_line_commands.package`. This should help use of tools directly as [go tools](https://go.dev/ref/mod#go-mod-file-tool) without having them named `cli`. See https://go.dev/doc/modules/gomod-ref#tool (#20260709100915)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.39.0 (#20260709042355)
+- Dependency upgrade: tools-0.48.0 (#20260709042505)
+- :bug: fix generated enum validation and enum constant emission so enum-backed fields do not emit incorrect required validation and generated enum const blocks work correctly with go generate. (#20260709142002)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.39.0" (2026-07-08)
 =====================
 

@@ -1,1 +1,0 @@
-:bug: fix generated enum validation and enum constant emission so enum-backed fields do not emit incorrect required validation and generated enum const blocks work correctly with go generate.
