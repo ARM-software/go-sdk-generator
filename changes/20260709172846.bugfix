@@ -1,1 +1,0 @@
-:bug: default generated GitHub Action inputs such as no-keyring to safer values when the generated CLI expects those flags to be enabled by default in automation.

@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.40.1" (2026-07-09)
+=====================
+
+Bugfixes
+--------
+
+- :bug: default generated GitHub Action inputs such as no-keyring to safer values when the generated CLI expects those flags to be enabled by default in automation. (#20260709172846)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.40.0" (2026-07-09)
 =====================
 
