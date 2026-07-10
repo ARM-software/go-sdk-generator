@@ -9,9 +9,16 @@
 
 `go-sdk-generator` is a contract-first generator for Go SDKs, CLI tools, and automation entrypoints.
 
-It follows the same broad idea as [OpenAPI](https://www.openapis.org/): define the contract once, validate it against a schema, and generate the boilerplate consistently. The difference is scope. OpenAPI is primarily concerned with describing transport-level API contracts. `go-sdk-generator` is concerned with describing user-facing operations and then generating the Go package, CLI, and supporting project structure around those operations.
+Like [OpenAPI](https://www.openapis.org/), it starts from a validated contract and generates consistent boilerplate from it. The difference is scope. OpenAPI is mainly about transport-level API contracts. `go-sdk-generator` is about user-facing operations and the Go package, CLI, and repository structure around those operations.
 
-In practice, this means generating stable operations such as `Compile`, `Verify`, `Deploy`, `DownloadArtifacts`, or `StoreCredentials`: operations that may call several internal APIs, apply ordering rules, and expose one simpler interface to users and automation.
+In practice, this means generating stable operations such as `Compile`, `Verify`, `Deploy`, `DownloadArtifacts`, or `StoreCredentials`: operations that may coordinate several lower-level calls, apply workflow rules, and expose one simpler interface to users and automation.
+
+At a glance, this generator can produce:
+
+- a Go SDK surface for one concern
+- an optional CLI exposing the same intent
+- generated documentation and support files
+- generated GitHub Actions that wrap the generated tool for one workflow step
 
 > :gear: This project also comes with [CLI tools and commands](./DOCUMENTATION.md#cli-tool) for ease of use
 
@@ -33,11 +40,11 @@ go-sdk-generator -h
 
 Install `go-sdk-generator` from a release or via the system package manager when available.
 
-For agent-specific installation guidance in this repo, see `.agents/skills/install/SKILL.md`.
+For agent-specific installation guidance in this repo, see `.agents/skills/install-go-sdk-generator/SKILL.md`.
 
 ## Documentation
 
-To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)
+To learn more about the generated SDK and CLI shape, see the [documentation guide](./DOCUMENTATION.md).
 
 ## What "SDK" Means Here
 
@@ -128,13 +135,85 @@ This is especially useful for automation because the same intent can be exposed 
 
 - In another Go project, the generated SDK can be imported as a library and called directly.
 - On a laptop, in a developer environment, in scripts, or in a Kubernetes pod, the generated CLI can be invoked as a normal tool.
-- In CI/CD, dedicated actions can call the generated Go program instead of re-implementing the same logic in shell steps, [composite actions](https://docs.github.com/actions/creating-actions/creating-a-composite-action), or [JavaScript actions](https://docs.github.com/actions/creating-actions/creating-a-javascript-action).
+- In CI/CD, generated actions can call the generated Go program instead of re-implementing the same logic in shell steps, [composite actions](https://docs.github.com/actions/creating-actions/creating-a-composite-action), or [JavaScript actions](https://docs.github.com/actions/creating-actions/creating-a-javascript-action).
 
 That means one implementation can serve library users, CLI users, and automation systems while remaining testable as ordinary Go code. In practice this usually gives a more robust, reviewable, and maintainable automation surface.
+
+It is important to note that generated GitHub Actions are still only one part of a larger workflow. `go-sdk-generator` can generate an action for one operation or one step, but the surrounding workflow orchestration still lives elsewhere, for example in a [GitHub Actions workflow](https://docs.github.com/actions/using-workflows) or a task runner.
 
 It also improves project quality over time. When the generator learns a new concern such as better documentation, new support files, stronger defaults, CI integration, secret handling, or repository conventions, that improvement can be applied across generated projects instead of being rediscovered one repository at a time. The history of this project has shown that this is one of the main practical benefits of owning the generator.
 
 Because of that, we try hard not to introduce breaking changes in the generator or in the structure it emits without a clear reason. The intention is that projects can keep moving to newer generator versions to pick up the latest improvements, fixes, and features with minimal friction.
+
+## Compared To Scaffolding Tools
+
+It is useful to compare `go-sdk-generator` to scaffolding tools such as `kickstart`, `yeoman`, `cookiecutter`, `plop`, or `slush`.
+
+Those tools usually optimise for flexibility. They are designed to let users compose templates, answer prompts, choose project variants, and adapt the generated structure to many unrelated use cases.
+
+`go-sdk-generator` makes a different tradeoff. It is much more opinionated.
+
+The goal is not to be a general-purpose scaffolding engine. The goal is to generate Go SDK and CLI repositories in one consistent way from a validated contract.
+
+In practice that means:
+
+- fewer per-project decisions about repository layout, config loading, command structure, and support files
+- less freedom to shape every generated file differently
+- more consistency across generated SDKs, CLIs, actions, documentation, and packaging
+- more emphasis on one manifest describing one concern clearly and completely
+
+In short:
+
+- scaffolding tools optimise for flexibility
+- `go-sdk-generator` optimises for consistency
+
+That opinionated approach is intentional. It reduces boilerplate drift across repositories and lets improvements in the generator apply uniformly across many generated projects instead of being reimplemented one project at a time.
+
+## Compared To Task Runners
+
+It is also useful to compare `go-sdk-generator` to task runners such as:
+
+- [Task](https://taskfile.dev/)
+- [just](https://github.com/casey/just)
+- [`make`](https://www.gnu.org/software/make/)
+- [Mage](https://magefile.org/)
+- `npm` or `pnpm` scripts in JavaScript-heavy projects
+
+These tools solve a different problem.
+
+Task runners help define and execute repeatable commands such as:
+
+- build
+- test
+- lint
+- release
+- deployment or local developer workflows
+
+`go-sdk-generator` is not primarily a task runner. It is the tool that generates one focused Go tool surface around one concern: typically a CLI, a step-level action, or both, together with the supporting documentation and repository structure.
+
+In practice, that means the two can complement each other well:
+
+- `go-sdk-generator` generates the tool and project structure for one concern
+- a task runner can then orchestrate how that generated tool is built, tested, invoked, or released as part of local workflows and CI/CD pipelines
+- `go-sdk-generator` can generate [GitHub Actions](https://docs.github.com/actions) for a specific step in a workflow, but the workflow itself still has to be defined elsewhere and the workflow orchestrator is a separate concern
+
+For example, a generated CLI such as `verify-cmsis-example-sdk` can later be used inside a `Taskfile.yml`, `justfile`, `Makefile`, or CI workflow as one step in a larger automation pipeline.
+
+Similarly, a generated [composite GitHub Action](https://docs.github.com/actions/creating-actions/creating-a-composite-action) can wrap one generated command, but a larger workflow such as build, test, release, or deployment orchestration still belongs in a higher-level workflow definition or task runner.
+
+That mirrors the spirit of the Unix or POSIX model: generate one tool that does one concern well, then compose it with other tools inside a broader workflow.
+
+If you think in CI terms:
+
+- `go-sdk-generator` can generate a tool and optionally a step-level action
+- [GitHub Actions workflows](https://docs.github.com/actions/using-workflows) define how several steps fit together
+- task runners such as [Task](https://taskfile.dev/) or [just](https://github.com/casey/just) define how commands are orchestrated locally or in CI
+
+In short:
+
+- task runners optimise for command orchestration
+- workflow systems such as GitHub Actions orchestrate multi-step automation
+- `go-sdk-generator` optimises for consistent contract-driven tool generation for one concern, which those systems can then compose into larger workflows
 
 ## Quick Start
 
@@ -170,6 +249,7 @@ At the field and parameter level, a few flags are especially important:
 
 - `lang_type`: the base type or built-in alias to generate from. See [Built-in Types](#formats).
 - `enum`: for string or `*string` shaped values, define a closed set of allowed manifest values that generate Go enums, validation, and clearer CLI help text
+- `example` / `examples`: provide representative values for generated documentation, CLI help, GitHub Action input descriptions, and agent-facing skills. For `list` or `iterator` shapes, each example represents one item value.
 - `reference: true`: generate the value as a pointer to that type
 - `list: true`: generate the value as a list of that type, usually `[]T`
 - `iterator: true`: generate the value as an iterator of that type, `iter.Seq[T]`
