@@ -370,6 +370,7 @@ func TestGenerate(t *testing.T) {
 		assert.NoDirExists(t, filesystem.FilePathJoin(localFs, tmpDir, "actions"))
 		assert.NoFileExists(t, filesystem.FilePathJoin(localFs, tmpDir, ".agents", "skills", "using-fpga-service-agent-in-a-github-action", "SKILL.md"))
 	})
+
 }
 
 func TestValidateManifest(t *testing.T) {

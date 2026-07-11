@@ -403,7 +403,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 
 	generateAction := len(generatedActions) > 0
 
-	if sdk.Specification.ReleaseToArtifactory != nil && *sdk.Specification.ReleaseToArtifactory {
+	if sdk.Specification.CommandLineCommands != nil {
 		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	} else {
 		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
