@@ -2,6 +2,25 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.40.2" (2026-07-11)
+=====================
+
+Bugfixes
+--------
+
+- :bug: fix goreleaser template selection for CLI manifests (#20260711190829)
+
+
+Improved Documentation
+----------------------
+
+- :book: Improve generator documentation and how it compares to close but different types of tools/generators (#20260710103141)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.40.1" (2026-07-09)
 =====================
 
