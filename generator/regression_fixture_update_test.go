@@ -22,7 +22,7 @@ func updateRegressionFixture(t *testing.T, repoRoot string, fixture struct {
 
 	localFs := filesystem.NewStandardFileSystem()
 	outputDir := t.TempDir()
-	cfg := config.DefaultSdkGeneratorManagerConfiguration()
+	cfg := config.DefaultSDKGeneratorManagerConfiguration()
 	cfg.Input = filesystem.FilePathJoin(localFs, repoRoot, "testdata", fixture.recipe)
 	cfg.Output = outputDir
 	cfg.ToolVersion = field.ToOptionalString("0.31.0")
@@ -30,8 +30,8 @@ func updateRegressionFixture(t *testing.T, repoRoot string, fixture struct {
 	require.NoError(t, Generate(context.Background(), cfg))
 
 	zipPath := filepath.Join(repoRoot, "testdata", fixture.zip)
-	if filesystem.Exists(zipPath) {
-		require.NoError(t, filesystem.Rm(zipPath))
+	if localFs.Exists(zipPath) {
+		require.NoError(t, localFs.Rm(zipPath))
 	}
 	require.NoError(t, localFs.ZipWithContext(context.Background(), outputDir, zipPath), fmt.Sprintf("failed updating %s", fixture.zip))
 }

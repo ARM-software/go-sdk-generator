@@ -6,6 +6,15 @@
 
 [![Go Badge](https://img.shields.io/badge/go-v{{ .TargetedGoVersion }}-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-{{ .Specification.Licence | toURIEncoded }}-blue.svg)](https://opensource.org/licenses/{{ .Specification.Licence | toURIEncoded }})
+[![Manifest](https://img.shields.io/badge/Manifest-{{ .ManifestFileName | toURIEncoded }}-blue)]({{ if isHostedOnGitHub .Specification }}{{ linkToManifest .Specification .ManifestFileName }}{{ else }}./{{ .ManifestFileName }}{{ end }})
+{{- if .Specification.Public }}
+[![Go Reference](https://pkg.go.dev/badge/{{ sdkModuleRoot .Specification }}.svg)](https://pkg.go.dev/{{ sdkModuleRoot .Specification }})
+[![Go Report Card](https://goreportcard.com/badge/{{ moduleRoot .Specification }})](https://goreportcard.com/report/{{ moduleRoot .Specification }})
+![Scorecard](https://img.shields.io/ossf-scorecard/{{ moduleRoot .Specification }}?label=openssf%20scorecard&style=flat)
+{{- end }}
+{{- if and .Specification.Public (isHostedOnGitHub .Specification) }}
+[![Documentation](https://badgen.net/badge/Documentation/GitHub%20Pages/blue?icon=github)]({{ githubPagesURL .Specification }})
+{{- end }}
 
 
 {{ .Specification.Description }}
@@ -29,9 +38,19 @@ or the help
 
 ## Installation
 
-See `/skills/install.md` for installing `{{ .Specification.CommandLineCommands.Binary }}`.
-
 Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `{{ .Specification.PackageName }}`
+
+See the [Agent](#agent) section for generated skills that describe how to install, run, and integrate `{{ .Specification.CommandLineCommands.Binary }}`.
+
+## Agent
+
+Skills for working with `{{ .Specification.CommandLineCommands.Binary }}`:
+
+- [Install `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
+- [Run `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
+{{ if not .Specification.CommandLineCommands.NoActions -}}
+- [Integrate the project's GitHub Actions](./.agents/skills/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
+{{- end }}
 
 {{ if .Specification.CommandLineCommands -}}
 {{ range .Specification.CommandLineCommands.Functions -}}
@@ -73,7 +92,7 @@ For release notes and a history of changes of all **production** releases, pleas
 
 ## Project Structure
 
-The follow described the major aspects of the project structure:
+The following describes the major aspects of the project structure:
 ```
 {{ if .Specification.CommandLineCommands }}
     {{ .Specification.CommandLineCommands.Package }}/ - Definition of the CLI to use the tool directly from a terminal.

@@ -38,7 +38,7 @@ func compareGeneratedOutputWithRegressionArchive(ctx context.Context, localFs fi
 	}
 
 	baselineDir := t.TempDir()
-	_, err = filesystem.Unzip(baselineZip, baselineDir)
+	_, err = localFs.Unzip(baselineZip, baselineDir)
 	require.NoError(t, err)
 
 	checkFilesAreEqual(t, generatedDir, baselineDir, filesystem.NewStandardFileSystem(), "pyproject.toml")
@@ -282,7 +282,7 @@ func TestGenerate(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			ctx := context.Background()
 			tmpDir := t.TempDir()
-			cfg := config.DefaultSdkGeneratorManagerConfiguration()
+			cfg := config.DefaultSDKGeneratorManagerConfiguration()
 			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", test.recipe)
 			cfg.Output = tmpDir
 			cfg.ToolVersion = field.ToOptionalString("0.31.0")
@@ -307,7 +307,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("Context cancel", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		cfg := &config.SdkGeneratorManagerConfiguration{
+		cfg := &config.SDKGeneratorManagerConfiguration{
 			Input:  filesystem.FilePathJoin(localFs, "testdata", "verify.json"),
 			Output: "aaaa",
 		}
@@ -317,7 +317,7 @@ func TestGenerate(t *testing.T) {
 
 	t.Run("Invalid specification", func(t *testing.T) {
 		ctx := context.Background()
-		cfg := &config.SdkGeneratorManagerConfiguration{
+		cfg := &config.SDKGeneratorManagerConfiguration{
 			Input:  filesystem.FilePathJoin(localFs, "testdata", "i-dont-exist.json"),
 			Output: "bbb",
 		}
@@ -329,7 +329,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("Multiline YAML defaults generate valid code", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
-		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg := config.DefaultSDKGeneratorManagerConfiguration()
 		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "multiline-defaults.yml")
 		cfg.Output = tmpDir
 
@@ -359,7 +359,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("No actions skips action outputs", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		ctx := context.Background()
-		cfg := config.DefaultSdkGeneratorManagerConfiguration()
+		cfg := config.DefaultSDKGeneratorManagerConfiguration()
 		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "agent.yml")
 		cfg.Output = tmpDir
 		cfg.ToolVersion = field.ToOptionalString("0.31.0")

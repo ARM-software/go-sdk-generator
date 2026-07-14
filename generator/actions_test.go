@@ -89,9 +89,13 @@ func TestBuildGeneratedActions(t *testing.T) {
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
-		require.Len(t, actions, 1)
+		require.Len(t, actions, 2)
 
-		action := actions[0]
+		installAction := requireAction(t, actions, installToolActionDirectoryName)
+		assert.True(t, installAction.InstallOnly)
+		assert.Empty(t, installAction.Inputs)
+
+		action := requireAction(t, actions, "generate")
 		assert.Equal(t, "generate", action.DirectoryName)
 		assert.Equal(t, "generate", action.Subcommand)
 		assert.Equal(t, "Example Tool - Generate Action", action.Name)
@@ -125,7 +129,9 @@ func TestBuildGeneratedActions(t *testing.T) {
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
-		assert.Empty(t, actions)
+		require.Len(t, actions, 1)
+		assert.Equal(t, installToolActionDirectoryName, actions[0].DirectoryName)
+		assert.True(t, actions[0].InstallOnly)
 	})
 
 	t.Run("skips commands with no action enabled", func(t *testing.T) {
@@ -152,8 +158,9 @@ func TestBuildGeneratedActions(t *testing.T) {
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
-		require.Len(t, actions, 1)
-		assert.Equal(t, "validate", actions[0].DirectoryName)
+		require.Len(t, actions, 2)
+		assert.Equal(t, installToolActionDirectoryName, actions[0].DirectoryName)
+		assert.Equal(t, "validate", actions[1].DirectoryName)
 	})
 
 	t.Run("sets no-keyring action input default to true", func(t *testing.T) {
@@ -183,13 +190,27 @@ func TestBuildGeneratedActions(t *testing.T) {
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
-		require.Len(t, actions, 1)
-		require.Len(t, actions[0].Inputs, 1)
-		match, err := matchingActionInputFlagName(noKeyringArgument, actions[0].Inputs[0].Name)
+		require.Len(t, actions, 2)
+		verifyAction := requireAction(t, actions, "verify")
+		require.Len(t, verifyAction.Inputs, 1)
+		match, err := matchingActionInputFlagName(noKeyringArgument, verifyAction.Inputs[0].Name)
 		require.NoError(t, err)
 		assert.True(t, match)
-		assert.Equal(t, "true", actions[0].Inputs[0].Default)
+		assert.Equal(t, "true", verifyAction.Inputs[0].Default)
 	})
+}
+
+func requireAction(t *testing.T, actions []GeneratedAction, directoryName string) GeneratedAction {
+	t.Helper()
+
+	for i := range actions {
+		if actions[i].DirectoryName == directoryName {
+			return actions[i]
+		}
+	}
+
+	require.Failf(t, "missing action", "could not find action %q", directoryName)
+	return GeneratedAction{}
 }
 
 func actionInputNames(t *testing.T, inputs []GeneratedActionInput) (names []string) {

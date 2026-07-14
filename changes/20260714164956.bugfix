@@ -1,0 +1,1 @@
+:bug: fix global configuration field settings to use the correct casing as dogfooding the generator revealed a bug was present in generated configuration

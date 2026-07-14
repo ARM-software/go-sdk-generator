@@ -29,8 +29,9 @@ import (
 // {{ $configName }}ManagerConfiguration provides some configuration data object for {{ .Specification.Name }}
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
-	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
-	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ $fieldName := .Name | toPascal | title -}}
+	{{ goComment "\t" (printf "%s is %s" $fieldName (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+	{{ $fieldName }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
@@ -44,22 +45,23 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 
 	return validation.ValidateStruct(cfg,
 	{{ range .Specification.GlobalConfiguration -}}
+	{{ $fieldName := .Name | toPascal | title -}}
 	{{ $validation := .LangType | validationLangType -}}
 	{{ $enumValidation := enumValidationRule $configName .Name .LangType .Reference .Enum -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "global-configuration" "" .Name -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
+	    validation.Field(&cfg.{{ $fieldName }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
 	{{ else -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}),
+	    validation.Field(&cfg.{{ $fieldName }}{{ $validation }}),
 	{{ end -}}
 	{{ else -}}
 	{{ if .Required -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+		validation.Field(&cfg.{{ $fieldName }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+		validation.Field(&cfg.{{ $fieldName }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
 	{{ else if or $validation $enumValidation -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
+		validation.Field(&cfg.{{ $fieldName }}{{ $validation }}{{ $enumValidation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -69,8 +71,9 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 func Default{{ $configName }}ManagerConfiguration() *{{ $configName }}ManagerConfiguration {
 	return &{{ $configName }}ManagerConfiguration{
 	{{ range .Specification.GlobalConfiguration -}}
+	{{ $fieldName := .Name | toPascal | title -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
+	{{ $fieldName }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
 	{{ end -}}
 	{{ end -}}
 	}

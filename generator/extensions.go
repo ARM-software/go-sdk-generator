@@ -3,6 +3,7 @@ package generator
 import (
 	"fmt"
 	"net/url"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -137,6 +138,9 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"nowYear":                       nowYear,
 	"toURIEncoded":                  toURIEncoded,
 	"linkToManifest":                linkToManifest,
+	"runSkillName":                  runSkillName,
+	"installSkillName":              installSkillName,
+	"githubActionSkillName":         githubActionSkillName,
 	"normaliseActionDirectoryName":  normaliseActionDirectoryName,
 	"normaliseActionName":           normaliseActionName,
 	"hasCloudCommands":              isCallCloudTrue,
@@ -144,6 +148,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
 	"dereferenceString":                      ptr.Deref[string],
+	"moduleRoot":                             moduleRoot,
 	"sdkModuleRoot":                          sdkModuleRoot,
 	"cliModuleRoot":                          cliModuleRoot,
 	"importPrefix":                           importPrefix,
@@ -221,12 +226,26 @@ func repositoryURL(spec *SDKSpecification) string {
 }
 
 func linkToManifest(spec *SDKSpecification, schemaFileName string) string {
-	fileName := fmt.Sprintf("%s.yml", schemaFileName)
+	fileName := normaliseManifestFileName(schemaFileName)
+	if reflection.IsEmpty(fileName) {
+		return ""
+	}
 	if isHostedOnGitHub(spec) {
 		return linkToFileOnGitHub(spec, fileName)
 	}
 
 	return ""
+}
+
+func normaliseManifestFileName(fileName string) string {
+	trimmed := strings.TrimSpace(fileName)
+	if reflection.IsEmpty(trimmed) {
+		return ""
+	}
+	if reflection.IsNotEmpty(path.Ext(trimmed)) {
+		return trimmed
+	}
+	return fmt.Sprintf("%s.yml", trimmed)
 }
 
 func toPascalCase(s string) string {

@@ -51,7 +51,7 @@ jobs:
       - name: Assert news
         run: cd-assert-news -b ${{ "{{" }} github.head_ref || github.ref_name }}
         env:
-          GIT_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN }}
+          GIT_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
       - name: Report failure if needed
         if: ${{ "{{" }} failure() }}
         run: |
@@ -88,7 +88,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ "{{" }} github.event.pull_request.head.ref }}
-          token: ${{ "{{" }} secrets.GITHUB_TOKEN }}
+          token: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
       - *x-setup-go-step
       - <<: *x-go-mod-tidy-step
         name: Go mod tidy ({{ .Specification.MainModule }})
@@ -163,8 +163,7 @@ jobs:
           echo "## :warning: CI failure" >> "$GITHUB_STEP_SUMMARY"
           echo "Build, linting, or tests failed for module \\`${{ "{{" }} matrix.go-module }}\\` on runner \\`${{ "{{" }} matrix.os }}\\`." >> "$GITHUB_STEP_SUMMARY"
 
-{{- if .GeneratedActions }}
-  {{- $primary := index .GeneratedActions 0 }}
+{{- if .InstallAction }}
   dogfood-action:
     name: Dogfood Action
     runs-on: ubuntu-latest
@@ -175,18 +174,51 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{ "{{" }} env.go_version }}
-      - name: Run local action
-        uses: ./actions/{{ $primary.DirectoryName }}
+      - name: Detect whether published releases exist
+        id: published-releases
+        env:
+          GH_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          has_release="$(gh api "repos/${{ "{{" }} github.repository }}/releases?per_page=1" --jq 'length > 0')"
+          echo "has-release=${has_release}" >> "$GITHUB_OUTPUT"
+      - name: Run local action against published release
+        if: steps.published-releases.outputs.has-release == 'true'
+        id: install-published-release
+        uses: ./actions/{{ .InstallAction.DirectoryName }}
+        with:
+          action-repo: ${{ "{{" }} github.repository }}
+      - name: Verify published release cmd output
+        if: steps.published-releases.outputs.has-release == 'true'
+        shell: bash
+        run: |
+          cmd="${{ "{{" }} steps.install-published-release.outputs.cmd }}"
+          test -n "$cmd"
+      - name: Skip published release install check when no releases exist
+        if: steps.published-releases.outputs.has-release != 'true'
+        run: echo "No published GitHub release exists yet; skipping published release install check."
+      - name: Run local action at current commit SHA
+        id: install-current-sha
+        uses: ./actions/{{ .InstallAction.DirectoryName }}
         with:
           action-repo: ${{ "{{" }} github.repository }}
           action-ref: ${{ "{{" }} github.sha }}
-          install-only: true
-      - name: Run unpublished action and binary
-        uses: ./actions/{{ $primary.DirectoryName }}
+      - name: Verify current commit SHA cmd output
+        shell: bash
+        run: |
+          cmd="${{ "{{" }} steps.install-current-sha.outputs.cmd }}"
+          test -n "$cmd"
+      - name: Run local action and force source build
+        id: install-force-source
+        env:
+          FORCE_SOURCE_BUILD: "true"
+        uses: ./actions/{{ .InstallAction.DirectoryName }}
         with:
           action-repo: ${{ "{{" }} github.repository }}
-          action-ref: ${{ "{{" }} github.sha }}
-          install-only: true
+      - name: Verify forced source build cmd output
+        shell: bash
+        run: |
+          cmd="${{ "{{" }} steps.install-force-source.outputs.cmd }}"
+          test -n "$cmd"
       - name: Report failure if needed
         if: ${{ "{{" }} failure() }}
         run: |

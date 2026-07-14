@@ -126,6 +126,8 @@ properties:
       command_line_commands:
         $ref: "#/$defs/command_line_commands"
       global_configuration:
+        description: |
+          Global configuration fields shared across the generated SDK and CLI.
         $ref: "#/$defs/configuration"
       extra_imports:
         $ref: "#/$defs/extra_imports"

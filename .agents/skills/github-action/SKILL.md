@@ -1,10 +1,10 @@
 ---
 name: github-action
-description: "Use and integrate the generated `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
+description: "Use and integrate the generated `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
 license: Proprietary
 compatibility: opencode
 metadata:
-  action_path: actions/generate
+  action_path: actions/install-tool
   action_type: composite
   package: go-sdk-generator
   binary: go-sdk-generator
@@ -32,6 +32,7 @@ Use this skill when the user wants to:
 ## Available actions
 
 Generated actions in this repository:
+- `actions/install-tool` installs `go-sdk-generator`
 - `actions/generate` runs `go-sdk-generator generate`
 - `actions/schema` runs `go-sdk-generator schema`
 - `actions/agent` runs `go-sdk-generator agent`
@@ -39,26 +40,30 @@ Generated actions in this repository:
 Example published action:
 
 ```yaml
-uses: Arm-Debug/go-sdk-generator/actions/generate@v0
+uses: Arm-Debug/go-sdk-generator/actions/install-tool@v0
 ```
 
 Example local path:
 
 ```yaml
-uses: ./actions/generate
+uses: ./actions/install-tool
 ```
 
 ---
 
 ## What the actions do
 
-Each generated action:
+Every generated action:
 - resolves the release version from the action ref
 - downloads the matching GitHub Release assets using `gh`
 - installs the tool natively on Linux when a supported package manager is available
 - otherwise extracts the released archive into the requested working directory
 - verifies the installation with `--version`
-- optionally runs a fixed `go-sdk-generator` subcommand using structured action inputs
+
+The dedicated install action stops there.
+
+Each generated command action additionally:
+- runs a fixed `go-sdk-generator` subcommand using structured action inputs
 
 ---
 
@@ -68,9 +73,13 @@ Every generated action exposes:
 - `action-repo`
 - `action-ref`
 - `workdir`
-- `install-only`
 
-Each action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
+Every generated action also exposes:
+- the `cmd` output: a reference to the installed `go-sdk-generator` command for later workflow steps
+
+The install action exposes no CLI-specific inputs.
+
+Each generated command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
 
 Commands that support positional operands also expose an `operands` input, with one operand per line.
 
@@ -122,9 +131,8 @@ The action installs from the released archive.
 
 ```yaml
 - name: Install go-sdk-generator
-  uses: Arm-Debug/go-sdk-generator/actions/generate@v0
+  uses: Arm-Debug/go-sdk-generator/actions/install-tool@v0
   with:
-    install-only: true
     workdir: .tools
 ```
 
@@ -141,19 +149,21 @@ The action installs from the released archive.
 
 ```yaml
 - name: Dogfood Action
-  uses: ./actions/generate
-  with:
-    install-only: true
+  uses: ./actions/install-tool
 ```
 
 ---
 
 ## Integration guidance
 
+- Prefer generated subcommand actions when the workflow step is already fully defined by that action
+- Prefer `actions/install-tool` when the goal is only to obtain the tool for later workflow steps
+- `actions/install-tool` is the right fit when later steps need to loop, pipe output, run custom shell processing, or call a script that expects `go-sdk-generator` to already be available in the environment
+- This matches the model used by other tool-installing actions such as `goreleaser/goreleaser-action` with `install-only` and `anchore/sbom-action/download-syft`
 - Prefer the local action path when validating changes to the action in this repository
 - Prefer `@v<major>` when consumers want automatic patch and minor updates within a major series
 - Prefer exact tags when builds must be strictly reproducible
-- Use `install-only: true` when later steps need to call the binary directly
+- Use `actions/install-tool` when later steps need to call the binary directly
 - Keep `workdir` explicit when command inputs depend on relative paths
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
 
@@ -167,4 +177,4 @@ Each generated action already verifies installation by running:
 go-sdk-generator --version
 ```
 
-For smoke testing, `install-only: true` is the simplest end-to-end check. For deeper coverage, call the subcommand action with real command inputs.
+For smoke testing, `actions/install-tool` is the simplest end-to-end check. For deeper coverage, call a generated subcommand action with real command inputs.

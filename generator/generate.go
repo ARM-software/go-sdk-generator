@@ -149,7 +149,8 @@ func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
 }
 
 type DataModel struct {
-	SchemaFileName string
+	SchemaFileName   string
+	ManifestFileName string
 	SDK
 	AdditionalTypesPackagesByName map[string]string
 	SuppressRequiredValidationMap map[string]bool
@@ -157,6 +158,8 @@ type DataModel struct {
 	CurrentAdditionalTypes        Types
 	GeneratedActions              []GeneratedAction
 	GeneratedAction               *GeneratedAction
+	InstallAction                 *GeneratedAction
+	CommandActions                []GeneratedAction
 	TargetedGoVersion             string
 	ToolVersion                   string
 	FlagRegistrations             []FlagRegistration
@@ -194,22 +197,22 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 		return
 	}
 
-	if filesystem.Exists(output) {
-		err = filesystem.Rm(output)
+	if localFs.Exists(output) {
+		err = localFs.Rm(output)
 		if err != nil {
 			return
 		}
 	}
 
 	outDir := filesystem.FilePathDir(localFs, output)
-	if !filesystem.Exists(outDir) {
-		err = filesystem.MkDir(outDir)
+	if !localFs.Exists(outDir) {
+		err = localFs.MkDir(outDir)
 		if err != nil {
 			return
 		}
 	}
 
-	outFile, err := filesystem.CreateFile(output)
+	outFile, err := localFs.CreateFile(output)
 	if err != nil {
 		return
 	}
@@ -232,7 +235,7 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 			return
 		}
 
-		err = filesystem.WriteFile(output, cleaned, 0644)
+		err = localFs.WriteFile(output, cleaned, 0644)
 		if err != nil {
 			return
 		}
@@ -241,7 +244,7 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	return
 }
 
-func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration) (err error) {
+func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration) (err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
@@ -262,26 +265,16 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		return
 	}
 
-	if !filesystem.Exists(cfg.Input) {
-		if strings.EqualFold(ext, ".json") {
+	if !localFs.Exists(cfg.Input) {
+		alternativeInput := resolveYAMLManifestTwin(localFs, cfg.Input)
+		if reflection.IsEmpty(alternativeInput) {
 			err = commonerrors.Newf(commonerrors.ErrNotFound, "could not read file '%v'", cfg.Input)
 			return
 		}
-		if strings.EqualFold(ext, ".yml") {
-			ext = ".yaml"
-		} else if strings.EqualFold(ext, ".yaml") {
-			ext = ".yml"
-		}
-		alternativeInput := filesystem.FilePathJoin(localFs, filesystem.FilePathDir(localFs, cfg.Input), fmt.Sprintf("%v%v", filesystem.FilepathStem(cfg.Input), ext))
-		if filesystem.Exists(alternativeInput) {
-			cfg.Input = alternativeInput
-		} else {
-			err = commonerrors.Newf(commonerrors.ErrNotFound, "could not read file '%v'", cfg.Input)
-			return
-		}
+		cfg.Input = alternativeInput
 	}
 
-	spec, err := filesystem.ReadFile(cfg.Input)
+	spec, err := localFs.ReadFile(cfg.Input)
 	if err != nil {
 		err = commonerrors.Newf(commonerrors.ErrUnexpected, "could not read file '%v'", cfg.Input)
 		return
@@ -334,7 +327,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		err = commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid version for 'go'")
 		return
 	}
-	defaultGoVersion, err := semver.Canonical(config.DefaultSdkGeneratorManagerConfiguration().TargetedGoVersion)
+	defaultGoVersion, err := semver.Canonical(config.DefaultSDKGeneratorManagerConfiguration().TargetedGoVersion)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid default version for 'go'")
 		return
@@ -468,12 +461,15 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	}
 
 	data := &DataModel{
-		SchemaFileName:                filesystem.FilepathStem(cfg.Input),
+		SchemaFileName:                filesystem.FilePathStemOnFilesystem(localFs, cfg.Input),
+		ManifestFileName:              resolveManifestFileName(localFs, cfg.Input),
 		SDK:                           sdk,
 		AdditionalTypesPackagesByName: additionalTypePackagesByName(sdk.Specification.AdditionalTypes),
 		SuppressRequiredValidationMap: sdk.Specification.SuppressedRequiredValidationMap(),
 		CurrentAdditionalTypes:        sdk.Specification.AdditionalTypes,
 		GeneratedActions:              generatedActions,
+		InstallAction:                 nil,
+		CommandActions:                nil,
 		TargetedGoVersion:             cfg.TargetedGoVersion,
 		ToolVersion:                   field.OptionalString(cfg.ToolVersion, ""),
 		CliEnvVarBindings:             cliEnvVarBindings,
@@ -483,6 +479,7 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 		RootFlagRegistrations:         rootFlagRegs,
 		RootEnvVarBindings:            rootEnvVarBindings,
 	}
+	data.InstallAction, data.CommandActions = splitGeneratedActions(generatedActions)
 
 	generated, err := templatesToPopulate.Populate(ctx, data)
 	if err != nil {
@@ -556,22 +553,67 @@ func Generate(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration)
 	return
 }
 
+func resolveManifestFileName(localFs filesystem.FS, inputPath string) string {
+	fileName := filesystem.FilePathBase(localFs, inputPath)
+	if !strings.EqualFold(filesystem.FilePathExt(localFs, inputPath), ".json") {
+		return fileName
+	}
+	// Prefer a sibling YAML manifest for links and references when generation was
+	// triggered from JSON, so human-facing docs point at the easier-to-read form.
+	if alternativeInput := resolveYAMLManifestTwin(localFs, inputPath); !reflection.IsEmpty(alternativeInput) {
+		return filesystem.FilePathBase(localFs, alternativeInput)
+	}
+
+	return fileName
+}
+
+func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
+	ext := strings.ToLower(filesystem.FilePathExt(localFs, inputPath))
+	if ext == ".json" {
+		candidates := collection.Filter(collection.Map([]string{".yml", ".yaml"}, func(candidateExt string) string {
+			return filesystem.FilePathJoin(localFs, filesystem.FilePathDir(localFs, inputPath), fmt.Sprintf("%v%v", filesystem.FilepathStem(inputPath), candidateExt))
+		}), func(candidate string) bool {
+			return localFs.Exists(candidate)
+		})
+		if candidate, found := collection.First(candidates); found {
+			return candidate
+		}
+		return ""
+	}
+
+	if ext != ".yml" && ext != ".yaml" {
+		return ""
+	}
+
+	otherExt := ".yml"
+	if ext == ".yml" {
+		otherExt = ".yaml"
+	}
+
+	candidate := filesystem.FilePathJoin(localFs, filesystem.FilePathDir(localFs, inputPath), fmt.Sprintf("%v%v", filesystem.FilepathStem(inputPath), otherExt))
+	if localFs.Exists(candidate) {
+		return candidate
+	}
+
+	return ""
+}
+
 func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) (updatedGenerated []string, err error) {
 	updatedGenerated = generated
 	localFs := filesystem.GetGlobalFileSystem()
 
 	skillsRoot := filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills")
-	if !filesystem.Exists(skillsRoot) {
+	if !localFs.Exists(skillsRoot) {
 		return
 	}
 
 	for _, skillPath := range embeddedAgentSkillPaths {
 		sourcePath := filesystem.FilePathJoin(localFs, append([]string{skillsRoot}, strings.Split(skillPath, "/")...)...)
-		if !filesystem.Exists(sourcePath) {
+		if !localFs.Exists(sourcePath) {
 			continue
 		}
 
-		skill, subErr := filesystem.ReadFile(sourcePath)
+		skill, subErr := localFs.ReadFile(sourcePath)
 		if subErr != nil {
 			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read generated skill %q", sourcePath)
 			return
@@ -579,15 +621,15 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 
 		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
 		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
-		if !filesystem.Exists(embeddedDir) {
-			err = filesystem.MkDir(embeddedDir)
+		if !localFs.Exists(embeddedDir) {
+			err = localFs.MkDir(embeddedDir)
 			if err != nil {
 				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not create %q", embeddedDir)
 				return
 			}
 		}
 
-		err = filesystem.WriteFile(embeddedPath, skill, 0644)
+		err = localFs.WriteFile(embeddedPath, skill, 0644)
 		if err != nil {
 			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not write embedded skill %q", embeddedPath)
 			return
@@ -622,7 +664,7 @@ func (t *templates) addStateFile(templateFile, dest string, overwrite bool, mark
 	}
 }
 
-func generateGitAttributesFile(ctx context.Context, cfg *config.SdkGeneratorManagerConfiguration, generated []string) (err error) {
+func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
 	generated, err = filesystem.GetGlobalFileSystem().ConvertToRelativePath(cfg.Output, generated...)
 	if err != nil {
 		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not convert generated files to path relative to output directory '%v'", cfg.Output)

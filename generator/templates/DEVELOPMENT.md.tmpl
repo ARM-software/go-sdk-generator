@@ -11,7 +11,7 @@ SPDX-License-Identifier: {{ .Specification.Licence }}
 
 ### Generating the SDK
 
-The interface that this project provides, including what CLI commands are available and what configuration is required is defined in {{ if isHostedOnGitHub .Specification }}[`{{ .SchemaFileName }}.yml`]({{ linkToManifest .Specification .SchemaFileName }}){{ else }}`{{ .SchemaFileName }}.yml`{{ end }}. From this file the Go SDK code is generated using {{ if .Specification.Public }}`go-sdk-generator`{{ else }}the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator){{ end }}. Follow these steps to make changes to the interface.
+The interface that this project provides, including what CLI commands are available and what configuration is required is defined in {{ if isHostedOnGitHub .Specification }}[`{{ .ManifestFileName }}`]({{ linkToManifest .Specification .ManifestFileName }}){{ else }}`{{ .ManifestFileName }}`{{ end }}. From this file the Go SDK code is generated using {{ if .Specification.Public }}`go-sdk-generator`{{ else }}the [Go SDK Generator](https://github.com/Arm-Debug/go-sdk-generator){{ end }}. Follow these steps to make changes to the interface.
 
 #### Prerequisites
 
@@ -42,11 +42,11 @@ On Red Hat based systems:
 
 #### Steps
 
-1. Manually change the interface definition in `{{ .SchemaFileName }}.yml` (or `{{ .SchemaFileName }}.json`).
+1. Manually change the interface definition in {{ if isHostedOnGitHub .Specification }}[`{{ .ManifestFileName }}`]({{ linkToManifest .Specification .ManifestFileName }}){{ else }}`{{ .ManifestFileName }}`{{ end }}.
 2. Run the Go SDK Generator
 
 ```
-go-sdk-generator generate -i {{ .SchemaFileName }}.yml -o ./ -g {{ .TargetedGoVersion }} # or {{ .SchemaFileName }}.json
+go-sdk-generator generate -i {{ .ManifestFileName }} -o ./ -g {{ .TargetedGoVersion }}
 ```
 
 > :book: Note: The `-g` flag specifies the targeted Go version in semver format (e.g., `1.25.0`). Use the Go version from your project's `go.mod` file.

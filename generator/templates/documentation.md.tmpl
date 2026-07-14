@@ -49,7 +49,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .Name | toPascal }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal | title }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
 {{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 
@@ -84,23 +84,32 @@ Return values:
 
 GitHub Actions are also published so that `{{ .Specification.CommandLineCommands.Binary }}` subcommands can be used easily in CI workflows.
 
+Prefer using the generated actions directly when they already represent one complete workflow step.
+Prefer the installation action when the goal is only to obtain the tool for later workflow steps, for example when a later step needs to loop, pipe output, perform additional shell processing, or call a script that expects the tool to already be available in the environment.
+This follows the same general model used by tool-installing actions such as `goreleaser/goreleaser-action` with `install-only` and `anchore/sbom-action/download-syft`.
+
 Available generated actions:
-{{- range .GeneratedActions }}
+{{- if .InstallAction }}
+- `actions/{{ .InstallAction.DirectoryName }}` installs `{{ $.Specification.CommandLineCommands.Binary }}`
+{{- end }}
+{{- range .CommandActions }}
 - `actions/{{ .DirectoryName }}` runs `{{ $.Specification.CommandLineCommands.Binary }} {{ .Subcommand }}`
 {{- end }}
 
-{{ $primary := index .GeneratedActions 0 -}}
+{{ $install := .InstallAction -}}
 
-Use the published action from official releases:
+Use the published installation action to obtain the tool so it can be used in other workflow steps:
 
 ```yaml
 - name: Install {{ .Specification.CommandLineCommands.Binary }} from release
-  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
+  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $install.DirectoryName }}@v0
   with:
-    install-only: true
+    workdir: .tools
 ```
 
-To run a subcommand directly, use the matching action and provide that command's inputs:
+{{ if .CommandActions }}
+{{ $primary := index .CommandActions 0 -}}
+Use the published action from an official release to perform a particular action [`{{ $primary.Subcommand }}`] directly:
 
 ```yaml
 - name: Run {{ .Specification.CommandLineCommands.Binary }} {{ $primary.Subcommand }}
@@ -108,23 +117,23 @@ To run a subcommand directly, use the matching action and provide that command's
   with:
     # provide the inputs required by the `{{ $primary.Subcommand }}` command here
 ```
+{{ end }}
 
-You can also install the released binary without running it immediately:
-
-```yaml
-- name: Install {{ .Specification.CommandLineCommands.Binary }}
-  uses: {{ projectOwnGitHubActionsLocation .Specification }}/{{ $primary.DirectoryName }}@v0
-  with:
-    install-only: true
-    workdir: .tools
-```
+The generated actions expose inputs for selecting the release source and installation location.
+For actions that perform a particular subcommand, the remaining inputs map onto that subcommand's CLI flags.
+Every generated action also exposes the `cmd` output, which resolves to a usable reference for the installed `{{ .Specification.CommandLineCommands.Binary }}` command in later workflow steps.
 
 Inputs:
 - `action-repo`: repository to download releases from; defaults to the repository running the action
-- `workdir`: working directory where the CLI is run, and where it is installed if a native package is not used
-- `install-only`: installs the package without running the CLI afterwards
-- each generated action also exposes one input per non-hidden CLI flag for that subcommand, including repeated root inputs shared across commands
+- `workdir`: working directory where the CLI is run. When the released archive is extracted, the tool is made available from this directory. On Linux native package installs, the tool should also be available on `PATH`
+- `actions/{{ $install.DirectoryName }}` exposes only installation inputs
+- each generated action other than the installation one also exposes one input per non-hidden CLI flag for that subcommand, including repeated root inputs shared across commands
+{{- if .CommandActions }}
 - commands with positional operands also expose an `operands` input, one operand per line
+{{- end }}
+
+Outputs:
+- `cmd` output: a reference to the installed `{{ .Specification.CommandLineCommands.Binary }}` command for later workflow steps
 
 The action resolves official releases from the action version:
 - `@v0.29.0` installs exactly `v0.29.0`

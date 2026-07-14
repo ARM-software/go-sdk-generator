@@ -20,6 +20,7 @@ install_only="${INPUT_INSTALL_ONLY:-false}"
 workdir_input="${INPUT_WORKDIR:-.}"
 action_ref="${ACTION_REF:-}"
 action_inputs_spec="${INPUT_ACTION_INPUTS_SPEC:-}"
+force_source_build="${FORCE_SOURCE_BUILD:-false}"
 
 fail() {
   printf '%s\n' "$*" >&2
@@ -156,6 +157,19 @@ resolve_installation_source() {
 
   install_mode="release"
   resolved_ref=""
+
+  if is_true "$force_source_build"; then
+    install_mode="source"
+    resolved_ref="$ref"
+    if [[ -z "$resolved_ref" && -n "${GITHUB_SHA:-}" ]]; then
+      resolved_ref="${GITHUB_SHA}"
+    fi
+    if [[ -z "$resolved_ref" ]]; then
+      resolved_ref="forced-source-build"
+    fi
+    log "Force source build was requested; building ${package_name} from source."
+    return
+  fi
 
   if [[ -z "$ref" ]]; then
     log "No action version was set; resolving the latest ${package_name} release."
@@ -375,6 +389,28 @@ verify_installation() {
   log "${package_name} is successfully installed and ready to use. Version: ${version_output}"
 }
 
+resolve_binary_path() {
+  if [[ "$binary_path" == *"/"* ]]; then
+    printf '%s\n' "$binary_path"
+    return
+  fi
+
+  if command -v "$binary_path" >/dev/null 2>&1; then
+    command -v "$binary_path"
+    return
+  fi
+
+  printf '%s\n' "$binary_path"
+}
+
+emit_action_outputs() {
+  if [[ -z "${GITHUB_OUTPUT:-}" ]]; then
+    return
+  fi
+
+  printf 'cmd=%s\n' "$(resolve_binary_path)" >> "$GITHUB_OUTPUT"
+}
+
 run_cli() {
   # install-only stops after installation and deliberately ignores subcommand inputs.
   if is_true "$install_only"; then
@@ -437,4 +473,5 @@ else
 fi
 
 verify_installation
+emit_action_outputs
 run_cli

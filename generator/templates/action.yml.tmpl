@@ -3,6 +3,11 @@
 name: {{ .GeneratedAction.Name }}
 description: {{ .GeneratedAction.Description }}
 
+outputs:
+  cmd:
+    description: A reference to the `{{ .Specification.CommandLineCommands.Binary }}` command.
+    value: ${{ "{{" }} steps.install-and-run.outputs.cmd }}
+
 inputs:
   action-repo:
     description: Repository to download releases from. Defaults to the repository providing this action.
@@ -17,13 +22,9 @@ inputs:
     required: false # only needed for fetching releases or private source refs
     default: ""
   workdir:
-    description: Working directory where the CLI is run, and where it is installed if a native package is not used.
+    description: Working directory where the CLI is run. If later workflow steps need to call the installed tool, use the `cmd` output rather than inferring its location from this directory.
     required: false
     default: .
-  install-only:
-    description: Just install the package. If a native Linux package is available for the machine in use, it is installed into PATH; otherwise, the binary is extracted into workdir.
-    required: false
-    default: "false"
 {{- range .GeneratedAction.Inputs }}
   {{ .Name }}:
     description: {{ .Description | quote }}
@@ -44,8 +45,15 @@ runs:
       run: |
         ref="${ACTION_REF:-}"
         source_build=false
+        force_source_build="${FORCE_SOURCE_BUILD:-}"
 
-        if [[ -n "$ref" ]]; then
+        case "${force_source_build:-}" in
+          [Tt][Rr][Uu][Ee]|1|[Yy][Ee][Ss]|[Yy]|[Oo][Nn])
+            source_build=true
+            ;;
+        esac
+
+        if [[ "$source_build" != "true" && -n "$ref" ]]; then
           if [[ "$ref" =~ ^refs/heads/ ]]; then
             source_build=true
           elif [[ "$ref" =~ ^[0-9a-f]{7,40}$ ]]; then
@@ -67,10 +75,19 @@ runs:
       run: |
         resolved_repo="${INPUT_ACTION_REPO:-}"
         resolved_ref="${ACTION_REF:-}"
+        force_source_build="${FORCE_SOURCE_BUILD:-}"
 
         if [[ -z "$resolved_repo" ]]; then
           resolved_repo="${DEFAULT_ACTION_REPOSITORY}"
         fi
+
+        case "${force_source_build:-}" in
+          [Tt][Rr][Uu][Ee]|1|[Yy][Ee][Ss]|[Yy]|[Oo][Nn])
+            if [[ -z "$resolved_ref" ]]; then
+              resolved_ref="${GITHUB_SHA:-}"
+            fi
+            ;;
+        esac
 
         fetch_ref="$resolved_ref"
         if [[ -n "$resolved_ref" && ! "$resolved_ref" =~ ^refs/ && ! "$resolved_ref" =~ ^[0-9a-f]{7,40}$ ]]; then
@@ -100,25 +117,32 @@ runs:
       with:
         go-version-file: ${{ "{{" }} github.workspace }}/.action-source/{{ .Specification.CommandLineCommands.Package }}/go.mod
 
+{{- if not .GeneratedAction.InstallOnly }}
     - name: Set up Go to run the CLI
-      if: steps.installation-mode.outputs.source-build != 'true' && inputs.install-only != 'true'
+      if: steps.installation-mode.outputs.source-build != 'true'
       uses: actions/setup-go@v5
       with:
         go-version: {{ .TargetedGoVersion }}
 
     - name: Install and run {{ .Specification.CommandLineCommands.Binary }}
+{{- else }}
+    - name: Install {{ .Specification.CommandLineCommands.Binary }}
+{{- end }}
+      id: install-and-run
       shell: bash
       env:
         ACTION_REF: ${{ "{{" }} steps.action-source.outputs.ref }}
         GH_TOKEN: ${{ "{{" }} inputs.github-token || github.token }}
         INPUT_ACTION_REPO: ${{ "{{" }} inputs.action-repo }}
         DEFAULT_REPO: ${{ "{{" }} steps.action-source.outputs.repository }}
-        INPUT_INSTALL_ONLY: ${{ "{{" }} inputs.install-only }}
+        INPUT_INSTALL_ONLY: {{ if .GeneratedAction.InstallOnly }}"true"{{ else }}"false"{{ end }}
         INPUT_WORKDIR: ${{ "{{" }} inputs.workdir }}
-        INPUT_SUBCOMMAND: {{ .GeneratedAction.Subcommand }}
+        INPUT_SUBCOMMAND: {{ .GeneratedAction.Subcommand | quote }}
+{{- if .GeneratedAction.Inputs }}
         INPUT_ACTION_INPUTS_SPEC: |-
 {{- range .GeneratedAction.Inputs }}
           ACTION_INPUT_{{ .EnvName }}|{{ .FlagName }}|{{ .IsBoolean }}|{{ .IsOperand }}
+{{- end }}
 {{- end }}
         SOURCE_CHECKOUT_DIR: ${{ "{{" }} github.workspace }}/.action-source
 {{- range .GeneratedAction.Inputs }}

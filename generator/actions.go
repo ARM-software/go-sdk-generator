@@ -8,9 +8,12 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
 var actionInputFlagsDefaultingToTrue = []string{noKeyringArgument}
+
+const installToolActionDirectoryName = "install-tool"
 
 type GeneratedActionInput struct {
 	Name        string
@@ -30,6 +33,7 @@ type GeneratedAction struct {
 	Description   string
 	Inputs        []GeneratedActionInput
 	HasOperands   bool
+	InstallOnly   bool
 }
 
 // BuildGeneratedActions derives generated GitHub Actions from the CLI schema.
@@ -54,6 +58,16 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 		field.OptionalString(cmds.Binary, sdk.Specification.PackageName),
 	)
 	binaryName := field.OptionalString(cmds.Binary, sdk.Specification.PackageName)
+	seenDirectories := mapset.NewSet[string]()
+
+	installAction := GeneratedAction{
+		DirectoryName: installToolActionDirectoryName,
+		Name:          fmt.Sprintf("%s - Install Tool Action", actionPrefix),
+		Description:   fmt.Sprintf("Install %s from official releases, or build it from source when required, so it can be used in later workflow steps.", binaryName),
+		InstallOnly:   true,
+	}
+	seenDirectories.Add(installAction.DirectoryName)
+	actions = append(actions, installAction)
 
 	for _, cliFunc := range cmds.Functions {
 		if cliFunc.Hidden || cliFunc.NoAction {
@@ -72,11 +86,18 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 			return
 		}
 
+		directoryName := normaliseActionDirectoryName(cliFunc.Name)
+		if seenDirectories.Contains(directoryName) {
+			err = commonerrors.Newf(commonerrors.ErrConflict, "duplicate action directory %q", directoryName)
+			return
+		}
+		seenDirectories.Add(directoryName)
+
 		actionName := fmt.Sprintf("%s - %s Action", actionPrefix, toPascalCase(cliFunc.Name))
 		actionDescription := fmt.Sprintf("Install and optionally run %s %s from GitHub Releases.", binaryName, strings.ToLower(cliFunc.Name))
 
 		actions = append(actions, GeneratedAction{
-			DirectoryName: normaliseActionDirectoryName(cliFunc.Name),
+			DirectoryName: directoryName,
 			Subcommand:    strings.ToLower(cliFunc.Name),
 			Name:          actionName,
 			Description:   actionDescription,
@@ -84,6 +105,19 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 			HasOperands:   cliFunc.Operands,
 		})
 	}
+
+	return
+}
+
+func splitGeneratedActions(actions []GeneratedAction) (installAction *GeneratedAction, commandActions []GeneratedAction) {
+	grouped := collection.GroupByRef(actions, func(action *GeneratedAction) bool {
+		return action != nil && action.InstallOnly
+	})
+
+	if action, found := collection.First(grouped[true]); found {
+		installAction = &action
+	}
+	commandActions = grouped[false]
 
 	return
 }

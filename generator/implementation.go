@@ -9,10 +9,10 @@ import (
 )
 
 type sdkGenerator struct {
-	cfg *config.SdkGeneratorManagerConfiguration
+	cfg *config.SDKGeneratorManagerConfiguration
 }
 
-func (g *sdkGenerator) GetConfig() *config.SdkGeneratorManagerConfiguration {
+func (g *sdkGenerator) GetConfig() *config.SDKGeneratorManagerConfiguration {
 	return g.cfg
 }
 
@@ -20,7 +20,7 @@ func (g *sdkGenerator) Generate(ctx context.Context) error {
 	return Generate(ctx, g.GetConfig())
 }
 
-func NewSdkGenerator(cfg *config.SdkGeneratorManagerConfiguration) (g ISdkGeneratorManager, err error) {
+func NewSdkGenerator(cfg *config.SDKGeneratorManagerConfiguration) (g ISDKGeneratorManager, err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return

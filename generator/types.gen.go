@@ -857,8 +857,8 @@ type SDKSpecification struct {
 	// ExtraValidTypes corresponds to the JSON schema field "extra_valid_types".
 	ExtraValidTypes ExtraValidTypes `json:"extra_valid_types,omitempty" yaml:"extra_valid_types,omitempty" mapstructure:"extra_valid_types,omitempty"`
 
-	// GlobalConfiguration corresponds to the JSON schema field
-	// "global_configuration".
+	// Global configuration fields shared across the generated SDK and CLI.
+	//
 	GlobalConfiguration Configuration `json:"global_configuration" yaml:"global_configuration" mapstructure:"global_configuration"`
 
 	// Interface corresponds to the JSON schema field "interface".

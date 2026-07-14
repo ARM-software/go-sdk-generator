@@ -17,20 +17,15 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-
 # env file
 .env*
 *.pem
 .idea
+.DS_Store
+.qlty/
 
 # used in build step
 dist
 .manpages
 go-sdk-generator
 
-.qlty/logs
-.qlty/out
-.qlty/plugin_cachedir
-.qlty/results
-.qlty/sources
-.DS_Store

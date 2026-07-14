@@ -21,6 +21,8 @@ import (
 var gitHubFuncMap = template.FuncMap{
 	"isHostedOnGitHub":                             isHostedOnGitHub,
 	"repositoryLocationOnGitHub":                   repositoryLocationOnGitHub,
+	"repositoryImportPathOnGitHub":                 repositoryImportPathOnGitHub,
+	"githubPagesURL":                               githubPagesURL,
 	"projectOwnGitHubActionsLocation":              projectOwnGitHubActionsLocation,
 	"githubIssuesURL":                              githubIssuesURL,
 	"githubPullsURL":                               githubPullsURL,
@@ -76,6 +78,13 @@ func repositoryLocationOnGitHub(spec *SDKSpecification) string {
 	return repo
 }
 
+func repositoryImportPathOnGitHub(spec *SDKSpecification) string {
+	if repo := repositoryLocationOnGitHub(spec); !reflection.IsEmpty(repo) {
+		return fmt.Sprintf("github.com/%s", repo)
+	}
+	return ""
+}
+
 // projectOwnGitHubActionsLocation returns the repository-qualified `actions`
 // path used in GitHub Actions `uses:` references for actions published from the
 // project itself.
@@ -94,6 +103,20 @@ func repositoryOrganisationOnGitHub(spec *SDKSpecification) string {
 		}
 	}
 	return ""
+}
+
+func repositoryNameOnGitHub(spec *SDKSpecification) string {
+	_, _, repoName, _ := parseGitHubRepositoryURL(repositoryURL(spec))
+	return repoName
+}
+
+func githubPagesURL(spec *SDKSpecification) string {
+	organisation := strings.ToLower(repositoryOrganisationOnGitHub(spec))
+	repoName := repositoryNameOnGitHub(spec)
+	if collection.AnyTrue(reflection.IsEmpty(organisation), reflection.IsEmpty(repoName)) {
+		return ""
+	}
+	return fmt.Sprintf("https://%s.github.io/%s", organisation, repoName)
 }
 
 // githubIssuesURL returns the standard GitHub Issues URL for the repository.
