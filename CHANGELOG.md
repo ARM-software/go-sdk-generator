@@ -2,6 +2,33 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.41.0" (2026-07-14)
+=====================
+
+Features
+--------
+
+- :sparkles: add a dedicated install-tool GitHub Action for generated CLIs (#20260711192747)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.40.1 (#20260710042403)
+- :memo: improve README structure, badges, and agent guidance links (#20260714145102)
+- :bug: fix global configuration field settings to use the correct casing as dogfooding the generator revealed a bug was present in generated configuration (#20260714164956)
+
+
+Improved Documentation
+----------------------
+
+- :memo: improve generated documentation for actions, manifests, and exported configuration fields (#20260714145102)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.40.2" (2026-07-11)
 =====================
 
