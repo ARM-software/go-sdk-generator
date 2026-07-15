@@ -11,6 +11,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/go-faker/faker/v4"
+	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -171,7 +172,11 @@ func TestProcessBindings(t *testing.T) {
 	})
 	t.Run("happy", func(t *testing.T) {
 		var sdk SDK
-		err := faker.FakeData(&sdk)
+		err := faker.FakeData(&sdk,
+			options.WithRandomMapAndSliceMinSize(1),
+			options.WithRandomMapAndSliceMaxSize(3),
+			options.WithMaxFieldDepthOption(2),
+		)
 		require.NoError(t, err)
 		bindingTypes := fmt.Sprintf("types.%v-%v", faker.Word(), faker.Word())
 		expectedBinding := Binding{

@@ -29,7 +29,7 @@ import (
 {{ goComment "" (printf "%s represents %s" $structName (.Description | lowerFirst)) }}
 type {{ $structName  }} struct {
 {{ range .Fields -}}
-	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples)) }}
 	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $structName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 }

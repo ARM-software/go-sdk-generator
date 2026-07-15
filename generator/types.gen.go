@@ -16,6 +16,16 @@ type Binding struct {
 	// The description of the field
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
@@ -183,6 +193,16 @@ type CommandArgument struct {
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
 	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
@@ -365,6 +385,16 @@ type ConfigurationOption struct {
 	// string-compatible values.
 	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
@@ -484,6 +514,16 @@ type EntityField struct {
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
 	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
@@ -617,6 +657,16 @@ type FunctionConfigFields struct {
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
 	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`

@@ -56,7 +56,7 @@ This tool interacts with cloud services and requires credentials.
 
 Recommended workflow:
 1. Store credentials using `{{ $cli.Binary }} credentials`
-2. Reuse credentials from the keyring (default behavior when supported)
+2. Reuse credentials from the keyring (default behaviour when supported)
 3. Override using flags or environment variables only when necessary
 
 Security guidelines:
@@ -89,6 +89,9 @@ Required:
 {{- if $cfg.Required }}
 {{- $hasRequired = true }}
 - `{{ $cfg.MapstructureTag | toSnake }}`: {{ $cfg.Description }}
+{{- if or $cfg.Example $cfg.Examples }}
+  {{ descriptionWithExamples "" $cfg.Example $cfg.Examples }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if not $hasRequired }}
@@ -101,6 +104,9 @@ Optional:
 {{- if not $cfg.Required }}
 {{- $hasOptional = true }}
 - `{{ $cfg.MapstructureTag | toSnake }}`: {{ $cfg.Description }}
+{{- if or $cfg.Example $cfg.Examples }}
+  {{ descriptionWithExamples "" $cfg.Example $cfg.Examples }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if not $hasOptional }}

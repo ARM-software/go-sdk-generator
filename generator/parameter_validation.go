@@ -1,9 +1,13 @@
 package generator
 
 import (
+	"encoding/json"
 	"fmt"
+	"regexp"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
@@ -11,6 +15,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 func validateParameterShape(name string, langType string, list bool, iterator bool) error {
@@ -51,6 +56,95 @@ func validateStringEnumDefaultValue(name string, enum []string, defaultValue *st
 	return nil
 }
 
+func validateExamplesDefinition(name string, langType string, list bool, iterator bool, enum []string, example *string, examples []string) error {
+	if reflection.IsNotEmpty(example) && reflection.IsNotEmpty(examples) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot define both example and examples", name)
+	}
+	if reflection.IsNotEmpty(example) {
+		if err := validateExampleValue(fmt.Sprintf("%s example", name), langType, list, iterator, field.OptionalString(example, "")); err != nil {
+			return err
+		}
+	}
+	for index, value := range collection.Enumerate(examples) {
+		if err := validateExampleValue(fmt.Sprintf("%s examples[%d]", name, index), langType, list, iterator, value); err != nil {
+			return err
+		}
+	}
+	values := append(collection.Filter([]string{field.OptionalString(example, "")}, func(v string) bool { return reflection.IsNotEmpty(strings.TrimSpace(v)) }), examples...)
+	if err := collection.Each(slices.Values(values), func(value string) error {
+		if len(enum) > 0 && !collection.In(enum, value, collection.StringCleanCaseInsensitiveMatch) {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s example value %q must be one of %v", name, value, enum)
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateExampleValue(name string, langType string, list bool, iterator bool, value string) error {
+	baseType := strings.TrimSpace(baseLangType(langType))
+	if list || iterator {
+		baseType = strings.TrimSpace(baseLangType(baseType))
+	}
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must not be empty", name)
+	}
+	switch baseType {
+	case stringLangType:
+		return nil
+	case "bool":
+		_, err := strconv.ParseBool(value)
+		return wrapExampleParseError(name, err)
+	case "int", "int8", "int16", "int32", "int64":
+		_, err := strconv.ParseInt(value, 10, 64)
+		return wrapExampleParseError(name, err)
+	case "uint", "uint8", "uint16", "uint32", "uint64", "port":
+		_, err := strconv.ParseUint(value, 10, 64)
+		return wrapExampleParseError(name, err)
+	case "float32", "float64", "decimal":
+		_, err := strconv.ParseFloat(value, 64)
+		return wrapExampleParseError(name, err)
+	case "duration", "time.Duration":
+		_, err := time.ParseDuration(value)
+		return wrapExampleParseError(name, err)
+	case "uuid":
+		return wrapExampleValidationError(name, validation.Validate(value, is.UUID))
+	case "email":
+		return wrapExampleValidationError(name, validation.Validate(value, is.Email))
+	case "host", "url", "uri":
+		return wrapExampleValidationError(name, validation.Validate(value, is.URL))
+	case "version", "semver":
+		return wrapExampleValidationError(name, validation.Validate(value, is.Semver))
+	case "json":
+		var tmp any
+		return wrapExampleParseError(name, json.Unmarshal([]byte(value), &tmp))
+	case "datetime":
+		_, err := time.Parse(time.RFC3339, value)
+		return wrapExampleParseError(name, err)
+	case "regex":
+		_, err := regexp.Compile(value)
+		return wrapExampleParseError(name, err)
+	default:
+		return nil
+	}
+}
+
+func wrapExampleParseError(name string, err error) error {
+	if err == nil {
+		return nil
+	}
+	return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s does not comply with its lang_type", name)
+}
+
+func wrapExampleValidationError(name string, err error) error {
+	if err == nil {
+		return nil
+	}
+	return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s does not comply with its lang_type", name)
+}
+
 func (b *Binding) Validate() error {
 	if b == nil {
 		return commonerrors.UndefinedVariable("binding")
@@ -60,6 +154,9 @@ func (b *Binding) Validate() error {
 	}
 	if err := validateParameterShape(fmt.Sprintf("binding %q", field.OptionalString(b.Name, "")), field.OptionalString(b.LangType, ""), b.List, b.Iterator); err != nil {
 		return commonerrors.DescribeCircumstance(err, "failed to validate binding shape")
+	}
+	if err := validateExamplesDefinition(fmt.Sprintf("binding %q", field.OptionalString(b.Name, "")), field.OptionalString(b.LangType, ""), b.List, b.Iterator, nil, b.Example, b.Examples); err != nil {
+		return commonerrors.DescribeCircumstance(err, "failed to validate binding examples")
 	}
 	return nil
 }
@@ -75,6 +172,9 @@ func (arg *CommandArgument) Validate() error {
 		validation.Field(&arg.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("command argument %q", arg.Name), langType, arg.List, arg.Iterator)
+		})),
+		validation.Field(&arg.Example, validation.By(func(value any) error {
+			return validateExamplesDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.List, arg.Iterator, arg.Enum, arg.Example, arg.Examples)
 		})),
 		validation.Field(&arg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.Reference, arg.List, arg.Iterator, arg.Enum)
@@ -106,6 +206,9 @@ func (cfg *ConfigurationOption) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("global configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
 		})),
+		validation.Field(&cfg.Example, validation.By(func(value any) error {
+			return validateExamplesDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
+		})),
 		validation.Field(&cfg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
 		})),
@@ -136,6 +239,9 @@ func (fieldDef *EntityField) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("entity field %q", fieldDef.Name), langType, fieldDef.List, fieldDef.Iterator)
 		})),
+		validation.Field(&fieldDef.Example, validation.By(func(value any) error {
+			return validateExamplesDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.List, fieldDef.Iterator, fieldDef.Enum, fieldDef.Example, fieldDef.Examples)
+		})),
 		validation.Field(&fieldDef.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.Enum)
 		})),
@@ -165,6 +271,9 @@ func (cfg *FunctionConfigFields) Validate() error {
 		validation.Field(&cfg.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("function configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
+		})),
+		validation.Field(&cfg.Example, validation.By(func(value any) error {
+			return validateExamplesDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
 		})),
 		validation.Field(&cfg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)

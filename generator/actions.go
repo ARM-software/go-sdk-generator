@@ -217,7 +217,7 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			Name:        flagName,
 			EnvName:     toActionInputEnvName(flagName),
 			FlagName:    flagName,
-			Description: describeActionInput(cfg.Description, cfg.Condition),
+			Description: describeActionInput(descriptionWithMetadata(cfg.Description, cfg.Enum, cfg.Example, cfg.Examples), cfg.Condition),
 			Required:    required,
 			IsBoolean:   isBoolean(cfg.LangType),
 			Default:     defaultActionInputValue(flagName),
@@ -241,6 +241,14 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 		if !reflection.IsEmpty(binding.Description) {
 			description = field.Optional(binding.Description, cfg.Description)
 		}
+		example := cfg.Example
+		if !reflection.IsEmpty(binding.Example) {
+			example = binding.Example
+		}
+		examples := cfg.Examples
+		if reflection.IsNotEmpty(binding.Examples) {
+			examples = binding.Examples
+		}
 
 		langType := field.Optional(binding.LangType, cfg.LangType)
 
@@ -248,7 +256,7 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			Name:        flagName,
 			EnvName:     toActionInputEnvName(flagName),
 			FlagName:    flagName,
-			Description: describeActionInput(description, cfg.Condition),
+			Description: describeActionInput(descriptionWithMetadata(description, cfg.Enum, example, examples), cfg.Condition),
 			Required:    required,
 			IsBoolean:   isBoolean(langType),
 			Default:     defaultActionInputValue(flagName),

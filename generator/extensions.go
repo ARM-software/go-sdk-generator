@@ -107,6 +107,8 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"enumConstName":                enumConstName,
 	"enumValidationRule":           enumValidationRule,
 	"descriptionWithEnum":          descriptionWithEnum,
+	"descriptionWithExamples":      descriptionWithExamples,
+	"descriptionWithMetadata":      descriptionWithMetadata,
 	"hasEnum":                      hasEnum,
 	"parameterType":                parameterType,
 	"documentedAdditionalTypeFieldType": func(typeName string, fieldDef EntityField) string {
@@ -409,6 +411,34 @@ func descriptionWithEnum(description string, enum []string) string {
 		return description
 	}
 	return fmt.Sprintf("%s Allowed values: %s.", strings.TrimSpace(description), strings.Join(enum, ", "))
+}
+
+func descriptionWithExamples(description string, example *string, examples []string) string {
+	parts := make([]string, 0, 2)
+	if trimmed := strings.TrimSpace(description); trimmed != "" {
+		parts = append(parts, trimmed)
+	}
+	values := make([]string, 0, 1+len(examples))
+	if reflection.IsNotEmpty(example) {
+		values = append(values, field.OptionalString(example, ""))
+	}
+	values = append(values, examples...)
+	values = collection.Filter(values, func(value string) bool {
+		return reflection.IsNotEmpty(strings.TrimSpace(value))
+	})
+	if len(values) == 1 {
+		parts = append(parts, fmt.Sprintf("Example: %s.", withQuote(strings.TrimSpace(values[0]))))
+	} else if len(values) > 1 {
+		quoted := collection.Map(values, func(value string) string {
+			return withQuote(strings.TrimSpace(value))
+		})
+		parts = append(parts, fmt.Sprintf("Examples: %s.", strings.Join(quoted, ", ")))
+	}
+	return strings.Join(parts, " ")
+}
+
+func descriptionWithMetadata(description string, enum []string, example *string, examples []string) string {
+	return descriptionWithExamples(descriptionWithEnum(description, enum), example, examples)
 }
 
 func referenceType(reference bool, langType string) string {

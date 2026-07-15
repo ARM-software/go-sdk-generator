@@ -38,7 +38,7 @@ const (
 // {{ $configName }}Configuration defines the configuration for {{ $configName }} command
 type {{ $configName }}Configuration struct {
 	{{ range .Configuration -}}
-		{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithEnum (.Description | lowerFirst) .Enum)) }}
+		{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples)) }}
 		{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ configFieldType . }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool

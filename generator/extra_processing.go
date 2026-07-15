@@ -504,7 +504,15 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 	if err != nil {
 		return
 	}
-	desc = descriptionWithEnum(desc, cfg.Enum)
+	example := cfg.Example
+	if !reflection.IsEmpty(binding.Example) {
+		example = binding.Example
+	}
+	examples := cfg.Examples
+	if reflection.IsNotEmpty(binding.Examples) {
+		examples = binding.Examples
+	}
+	desc = descriptionWithMetadata(desc, cfg.Enum, example, examples)
 
 	argShort := field.Optional(binding.ArgShort, "")
 
@@ -538,7 +546,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 	if err != nil {
 		return
 	}
-	desc = descriptionWithEnum(desc, cfg.Enum)
+	desc = descriptionWithMetadata(desc, cfg.Enum, cfg.Example, cfg.Examples)
 
 	argShort := ""
 	if cfg.ArgShort != nil {

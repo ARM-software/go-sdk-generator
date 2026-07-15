@@ -280,6 +280,7 @@ func TestGenerate(t *testing.T) {
 	for i := range tests {
 		test := tests[i]
 		t.Run(test.title, func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			tmpDir := t.TempDir()
 			cfg := config.DefaultSDKGeneratorManagerConfiguration()

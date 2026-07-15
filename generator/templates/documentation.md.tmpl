@@ -39,7 +39,7 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Fields }}
-- **`{{ .Name | toCamel }} : {{ documentedAdditionalTypeFieldType $structName . }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toCamel }} : {{ documentedAdditionalTypeFieldType $structName . }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
 {{ end }}
 {{ end }}
 {{ end }}
@@ -49,7 +49,8 @@ Documentation about {{ .Specification.Name }} SDK
 
 #### Fields
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .Name | toPascal | title }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ .Description }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal | title }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
 {{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 
@@ -65,11 +66,11 @@ Documentation about {{ .Specification.Name }} SDK
 
 Input arguments:
 {{ range .Args }}
-  * `{{ .Name  | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`: {{ descriptionWithEnum .Description .Enum }}
+  * `{{ .Name  | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`: {{ descriptionWithMetadata .Description .Enum .Example .Examples }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * `{{ .Name  | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`: {{ descriptionWithEnum .Description .Enum }}
+  * `{{ .Name  | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`: {{ descriptionWithMetadata .Description .Enum .Example .Examples }}
 {{ end }}
 {{ end -}}
 
@@ -158,7 +159,7 @@ func(ctx context.Context, logger logs.Loggers, cfg config.{{ $functionName }}Con
  ```go
 type {{ $functionName }}Configuration struct {
 	{{ range .Configuration -}}
-		// {{ descriptionWithEnum .Description .Enum }}
+		// {{ descriptionWithMetadata .Description .Enum .Example .Examples }}
 		{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag }}"`
 	{{ end }}
 }

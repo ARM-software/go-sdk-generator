@@ -7,12 +7,12 @@ compatibility: opencode
 
 # Skill: Extend Generated Model Logic
 
-Use this skill when changing generator behavior that depends on traversing the generated manifest model types such as:
+Use this skill when changing generator behaviour that depends on traversing the generated manifest model types such as:
 
 - capability checks
 - preprocessing decisions
 - small derived maps or lookups
-- rewrite or normalization passes over nested schema values
+- rewrite or normalisation passes over nested schema values
 
 ## Preferred Pattern
 

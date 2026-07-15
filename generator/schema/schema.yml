@@ -51,6 +51,18 @@ x-parameter: &x-parameter
     default_value:
       type: string
       description: An optional default value for use when creating a new instance of the configuration
+    example:
+      type: string
+      description: |
+        A single example value for the field.
+        For list or iterator shapes, the example represents one item value.
+    examples:
+      type: array
+      description: |
+        Example values for the field.
+        For list or iterator shapes, each example represents one item value.
+      items:
+        type: string
     bindings:
       type: array
       description: Bind configuration options to variables
@@ -360,6 +372,18 @@ $defs:
       name:
         type: string
         description: The name of the field
+      example:
+        type: string
+        description: |
+          A single example value for the field.
+          For list or iterator shapes, the example represents one item value.
+      examples:
+        type: array
+        description: |
+          Example values for the field.
+          For list or iterator shapes, each example represents one item value.
+        items:
+          type: string
       arg:
         type: string
         description: The argument to bind to

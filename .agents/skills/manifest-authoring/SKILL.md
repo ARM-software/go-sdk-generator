@@ -64,6 +64,17 @@ When present, `enum` should drive:
 
 Use this when the value set is truly closed and stable. Do not use it for open-ended free text.
 
+### Add `example` or `examples` when representative values help users
+
+If a field or parameter benefits from showing what a valid value looks like, add:
+
+- `example` for one representative value
+- `examples` for several representative values
+
+These values are intended to improve generated documentation, CLI help, action input descriptions, and agent-facing skills.
+
+For `list` or `iterator` shapes, treat each example as an item value rather than trying to serialise the whole collection.
+
 ### Prefer structured request-target built-ins over separate host strings when appropriate
 
 If the manifest is modelling an HTTP target or online service configuration, prefer a request-target built-in such as:
