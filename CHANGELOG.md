@@ -2,6 +2,27 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.42.0" (2026-07-15)
+=====================
+
+Features
+--------
+
+- :sparkles: support example and examples metadata on manifest field values, validate them against compatible types, and surface them in generated documentation, skills, CLI help, and action input descriptions. (#20260710010415)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: generator-0.41.0 (#20260715042344)
+- :bug: fix some language spelling mistakes (#20260715132455)
+- Dependency upgrade: utils-1.165.2 (#20260715170450)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.41.0" (2026-07-14)
 =====================
 

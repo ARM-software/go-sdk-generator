@@ -1,1 +1,0 @@
-:sparkles: support example and examples metadata on manifest field values, validate them against compatible types, and surface them in generated documentation, skills, CLI help, and action input descriptions.
