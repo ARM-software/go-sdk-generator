@@ -2,6 +2,7 @@ bitbucket.org/creachadair/stringset v0.0.9/go.mod h1:t+4WcQ4+PXTa8aQdNKe40ZP6iwe
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 h1:D9PbaszZYpB4nj+d6HTWr1onlmlyuGVNfL9gAi8iB3k=
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410/go.mod h1:1qZyvvVCenJO2M1ac2mX0yyiIZJoZmDM4DG4s0udJkU=
 github.com/ARM-software/golang-utils/utils v1.165.2 h1:j9x5LefLbgIewg7K2xW0yAqd+HqQQLM7iNiXpUzajdI=
+github.com/ARM-software/golang-utils/utils v1.165.2/go.mod h1:l2XCoS45OCD4CDFWUSsMBk0SQRar6vjilgiTV0zDZyU=
 github.com/Arm-Debug/go-sdk-generator/generator v0.41.0 h1:0ZLGjeA1kSPOuAKp9CbLIuN8AZbQq9G/9ERlY9VHoGo=
 github.com/Arm-Debug/go-sdk-generator/generator v0.41.0/go.mod h1:rBrT7RaTNGz9wTJANClsXwdHRQ0S4fh4Ho7ZCZk1naY=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
