@@ -58,8 +58,8 @@ func validateSecretParameters(cmds *CommandLineCommands) error {
 		return nil
 	}
 
-	return collection.Each(slices.Values(cmds.Functions), func(fct CliFunction) error {
-		return collection.Each(slices.Values(fct.Configuration), func(cfg FunctionConfigFields) error {
+	return collection.ForAll(cmds.Functions, func(fct CliFunction) error {
+		return collection.ForAll(fct.Configuration, func(cfg FunctionConfigFields) error {
 			if cfg.Secret {
 				err := validation.Validate(cfg.LangType, validation.Required, secretCompatibleLangTypeRule)
 				if err != nil {
@@ -67,7 +67,7 @@ func validateSecretParameters(cmds *CommandLineCommands) error {
 				}
 			}
 
-			return collection.Each(slices.Values(cfg.Bindings), func(binding Binding) error {
+			return collection.ForAll(cfg.Bindings, func(binding Binding) error {
 				if !binding.Secret {
 					return nil
 				}

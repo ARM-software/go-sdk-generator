@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -71,7 +70,7 @@ func validateExamplesDefinition(name string, langType string, list bool, iterato
 		}
 	}
 	values := append(collection.Filter([]string{field.OptionalString(example, "")}, func(v string) bool { return reflection.IsNotEmpty(strings.TrimSpace(v)) }), examples...)
-	if err := collection.Each(slices.Values(values), func(value string) error {
+	if err := collection.ForAll(values, func(value string) error {
 		if len(enum) > 0 && !collection.In(enum, value, collection.StringCleanCaseInsensitiveMatch) {
 			return commonerrors.Newf(commonerrors.ErrInvalid, "%s example value %q must be one of %v", name, value, enum)
 		}
@@ -183,7 +182,7 @@ func (arg *CommandArgument) Validate() error {
 			return validateStringEnumDefaultValue(fmt.Sprintf("command argument %q", arg.Name), arg.Enum, arg.DefaultValue)
 		})),
 		validation.Field(&arg.Bindings, validation.By(func(value any) error {
-			return collection.Each(slices.Values(arg.Bindings), func(binding Binding) error {
+			return collection.ForAll(arg.Bindings, func(binding Binding) error {
 				return (&binding).Validate()
 			})
 		})),
@@ -216,7 +215,7 @@ func (cfg *ConfigurationOption) Validate() error {
 			return validateStringEnumDefaultValue(fmt.Sprintf("global configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
-			return collection.Each(slices.Values(cfg.Bindings), func(binding Binding) error {
+			return collection.ForAll(cfg.Bindings, func(binding Binding) error {
 				return (&binding).Validate()
 			})
 		})),
@@ -249,7 +248,7 @@ func (fieldDef *EntityField) Validate() error {
 			return validateStringEnumDefaultValue(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.Enum, fieldDef.DefaultValue)
 		})),
 		validation.Field(&fieldDef.Bindings, validation.By(func(value any) error {
-			return collection.Each(slices.Values(fieldDef.Bindings), func(binding Binding) error {
+			return collection.ForAll(fieldDef.Bindings, func(binding Binding) error {
 				return (&binding).Validate()
 			})
 		})),
@@ -282,7 +281,7 @@ func (cfg *FunctionConfigFields) Validate() error {
 			return validateStringEnumDefaultValue(fmt.Sprintf("function configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
-			return collection.Each(slices.Values(cfg.Bindings), func(binding Binding) error {
+			return collection.ForAll(cfg.Bindings, func(binding Binding) error {
 				return (&binding).Validate()
 			})
 		})),
@@ -302,12 +301,12 @@ func (method *InterfaceMethod) Validate() error {
 	}
 	err := validation.ValidateStruct(method,
 		validation.Field(&method.Args, validation.By(func(value any) error {
-			return collection.Each(slices.Values(method.Args), func(arg CommandArgument) error {
+			return collection.ForAll(method.Args, func(arg CommandArgument) error {
 				return (&arg).Validate()
 			})
 		})),
 		validation.Field(&method.Returns, validation.By(func(value any) error {
-			return collection.Each(slices.Values(method.Returns), func(ret CommandArgument) error {
+			return collection.ForAll(method.Returns, func(ret CommandArgument) error {
 				return (&ret).Validate()
 			})
 		})),
@@ -327,7 +326,7 @@ func (iface *Interface) Validate() error {
 	}
 	err := validation.ValidateStruct(iface,
 		validation.Field(&iface.Methods, validation.By(func(value any) error {
-			return collection.Each(slices.Values(iface.Methods), func(method InterfaceMethod) error {
+			return collection.ForAll(iface.Methods, func(method InterfaceMethod) error {
 				return (&method).Validate()
 			})
 		})),
@@ -350,7 +349,7 @@ func (typ *Type) Validate() error {
 			return validateAdditionalTypePackageName(typ.Package)
 		})),
 		validation.Field(&typ.Fields, validation.By(func(value any) error {
-			return collection.Each(slices.Values(typ.Fields), func(fieldDef EntityField) error {
+			return collection.ForAll(typ.Fields, func(fieldDef EntityField) error {
 				return (&fieldDef).Validate()
 			})
 		})),
@@ -370,7 +369,7 @@ func (fct *CliFunction) Validate() error {
 	}
 	err := validation.ValidateStruct(fct,
 		validation.Field(&fct.Configuration, validation.By(func(value any) error {
-			return collection.Each(slices.Values(fct.Configuration), func(cfg FunctionConfigFields) error {
+			return collection.ForAll(fct.Configuration, func(cfg FunctionConfigFields) error {
 				return (&cfg).Validate()
 			})
 		})),
@@ -393,7 +392,7 @@ func (cmds *CommandLineCommands) Validate() error {
 			return validateCLIPackageName(cmds.Package)
 		})),
 		validation.Field(&cmds.Functions, validation.By(func(value any) error {
-			return collection.Each(slices.Values(cmds.Functions), func(fct CliFunction) error {
+			return collection.ForAll(cmds.Functions, func(fct CliFunction) error {
 				return (&fct).Validate()
 			})
 		})),
@@ -410,12 +409,12 @@ func validateCollectionParameters(sdk *SDK) error {
 	}
 	err := validation.ValidateStruct(&sdk.Specification,
 		validation.Field(&sdk.Specification.GlobalConfiguration, validation.By(func(value any) error {
-			return collection.Each(slices.Values(sdk.Specification.GlobalConfiguration), func(cfg ConfigurationOption) error {
+			return collection.ForAll(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) error {
 				return (&cfg).Validate()
 			})
 		})),
 		validation.Field(&sdk.Specification.AdditionalTypes, validation.By(func(value any) error {
-			return collection.Each(slices.Values(sdk.Specification.AdditionalTypes), func(typ Type) error {
+			return collection.ForAll(sdk.Specification.AdditionalTypes, func(typ Type) error {
 				return (&typ).Validate()
 			})
 		})),

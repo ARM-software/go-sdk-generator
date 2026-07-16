@@ -336,6 +336,70 @@ func TestProcessArguments(t *testing.T) {
 		errortest.AssertError(t, err, commonerrors.ErrConflict)
 	})
 
+	t.Run("duplicate long args triggers error", func(t *testing.T) {
+		arg := faker.Word()
+		arg1 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(arg),
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		arg2 := FunctionConfigFields{
+			Arg:             field.ToOptionalString(arg),
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{arg1, arg2},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		err := ProcessArguments(context.Background(), sdk)
+		errortest.AssertError(t, err, commonerrors.ErrConflict)
+	})
+
+	t.Run("duplicate binding long args triggers error", func(t *testing.T) {
+		arg := faker.Word()
+		cfg := FunctionConfigFields{
+			Description:     faker.Sentence(),
+			LangType:        faker.Word(),
+			MapstructureTag: faker.Word(),
+			Name:            faker.FirstName(),
+			Bindings: []Binding{
+				{Arg: field.ToOptionalString(arg), MapstructureTag: field.ToOptionalString(faker.Word())},
+				{Arg: field.ToOptionalString(arg), MapstructureTag: field.ToOptionalString(faker.Word())},
+			},
+		}
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{cfg},
+			Description:   faker.Sentence(),
+			Name:          faker.Name(),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+		err := ProcessArguments(context.Background(), sdk)
+		errortest.AssertError(t, err, commonerrors.ErrConflict)
+	})
+
 	t.Run("h and v short args triggers error", func(t *testing.T) {
 		for _, arg := range []string{"h", "v"} {
 			t.Run(arg, func(t *testing.T) {

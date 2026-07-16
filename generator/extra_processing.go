@@ -170,23 +170,84 @@ func ProcessBindings(ctx context.Context, sdk *SDK) (err error) {
 	return
 }
 
-func processArguments(arg *string, argShort *string, mapstructureTag *string, seenShortArguments mapset.Set[string]) (err error) {
-	if (arg == nil && mapstructureTag == nil) ||
-		(mapstructureTag != nil && reflection.IsEmpty(*mapstructureTag)) {
+type cliFlagNames struct {
+	Long  string
+	Short string
+}
+
+func processArguments(arg *string, mapstructureTag *string) (err error) {
+	if reflection.IsEmpty(arg) && reflection.IsEmpty(mapstructureTag) {
 		err = commonerrors.New(commonerrors.ErrUndefined, "A parameter must have at least one long argument (or mapstructure tag) to bind to")
 		return
 	}
-	if argShort == nil {
-		return
+	return
+}
+
+func normalisedCLIArgumentName(cfg FunctionConfigFields, binding *Binding) string {
+	if binding != nil {
+		if reflection.IsNotEmpty(binding.Arg) {
+			return field.OptionalString(binding.Arg, "")
+		}
+		if reflection.IsNotEmpty(binding.MapstructureTag) {
+			return replaceUnderscores(field.OptionalString(binding.MapstructureTag, ""))
+		}
+		return replaceUnderscores(cfg.Name)
+	}
+	if reflection.IsNotEmpty(cfg.Arg) {
+		return field.OptionalString(cfg.Arg, "")
+	}
+	return replaceUnderscores(cfg.MapstructureTag)
+}
+
+func validateCLIArgumentBindingUniqueness(fct CliFunction) error {
+	bindings := []cliFlagNames{{Short: "h"}, {Short: "v"}}
+
+	collection.ForEach(fct.Configuration, func(cfg FunctionConfigFields) {
+		if len(cfg.Bindings) > 0 {
+			collection.ForEach(cfg.Bindings, func(binding Binding) {
+				bindings = append(bindings, cliFlagNames{
+					Long:  normalisedCLIArgumentName(cfg, &binding),
+					Short: field.OptionalString(binding.ArgShort, ""),
+				})
+			})
+			return
+		}
+
+		bindings = append(bindings, cliFlagNames{
+			Long:  normalisedCLIArgumentName(cfg, nil),
+			Short: field.OptionalString(cfg.ArgShort, ""),
+		})
+	})
+
+	longGroups := collection.GroupByRef(collection.Filter(bindings, func(binding cliFlagNames) bool {
+		return reflection.IsNotEmpty(binding.Long)
+	}), func(binding *cliFlagNames) string {
+		return binding.Long
+	})
+	if err := collection.ForAll(slices.Sorted(maps.Keys(longGroups)), func(longName string) error {
+		if len(longGroups[longName]) > 1 {
+			return commonerrors.Newf(commonerrors.ErrConflict, "cannot specify duplicate argument %v", longName)
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	short := *argShort
-	if seenShortArguments.Contains(short) {
-		err = commonerrors.Newf(commonerrors.ErrConflict, "cannot specify duplicate short argument %v", short)
-		return
+	shortGroups := collection.GroupByRef(collection.Filter(bindings, func(binding cliFlagNames) bool {
+		return reflection.IsNotEmpty(binding.Short)
+	}), func(binding *cliFlagNames) string {
+		return binding.Short
+	})
+	if err := collection.ForAll(slices.Sorted(maps.Keys(shortGroups)), func(shortName string) error {
+		if len(shortGroups[shortName]) > 1 {
+			return commonerrors.Newf(commonerrors.ErrConflict, "cannot specify duplicate short argument %v", shortName)
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
-	seenShortArguments.Add(short)
-	return
+
+	return nil
 }
 
 // processCallCloud enforces that
@@ -271,7 +332,8 @@ func hasMixedRootAuth(cmds *CommandLineCommands) bool {
 	return hasCallCloud && hasExplicitAuth
 }
 
-// ProcessArguments enforces that arguments are specified on commands and short arguments aren't duplicated
+// ProcessArguments enforces that commands expose long arguments and that the
+// resulting long and short CLI argument names remain unique after preprocessing.
 func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
@@ -303,7 +365,6 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
-			seenShortArguments := mapset.NewSetFromMapKeys(map[string]any{"h": nil, "v": nil}) // -h and -v come provided
 			if fct.StoreToKeyring && fct.LoadFromKeyring {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
 			}
@@ -313,16 +374,19 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 					return subErr
 				}
 			}
-			subErr := collection.Each(slices.Values(fct.Configuration), func(param FunctionConfigFields) error {
-				subErr := collection.Each(slices.Values(param.Bindings), func(binding Binding) error {
-					return processArguments(binding.Arg, binding.ArgShort, binding.MapstructureTag, seenShortArguments)
+			subErr := collection.ForAll(fct.Configuration, func(param FunctionConfigFields) error {
+				subErr := collection.ForAll(param.Bindings, func(binding Binding) error {
+					return processArguments(binding.Arg, binding.MapstructureTag)
 				})
 				if subErr != nil {
 					return subErr
 				}
-				return processArguments(param.Arg, param.ArgShort, &param.MapstructureTag, seenShortArguments)
+				return processArguments(param.Arg, &param.MapstructureTag)
 			})
 			if subErr != nil {
+				return subErr
+			}
+			if subErr = validateCLIArgumentBindingUniqueness(fct); subErr != nil {
 				return subErr
 			}
 			sdk.Specification.CommandLineCommands.Functions[i] = fct
