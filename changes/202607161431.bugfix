@@ -1,1 +1,0 @@
-:bug: Generated `pre.sh` now creates the `.manpages` directory with `mkdir -p`, so re-running the script (or running it when `.manpages` already exists) no longer fails.

@@ -1,1 +1,0 @@
-:bug: validate generated CLI argument names and short flags for uniqueness after preprocessing

@@ -2,6 +2,22 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.42.1" (2026-07-16)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Generated `pre.sh` now creates the `.manpages` directory with `mkdir -p`, so re-running the script (or running it when `.manpages` already exists) no longer fails. (#202607161431)
+- :bug: validate generated CLI argument names and short flags for uniqueness after preprocessing (#20260715185003)
+- :bug: Fix import issues in `[cli]` (#20260716135505)
+- :camel: Update dependencies (#20260716140359)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.42.0" (2026-07-15)
 =====================
 
