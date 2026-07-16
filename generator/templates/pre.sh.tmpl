@@ -9,5 +9,5 @@ cd .. || exit 1
 
 cd {{ .Specification.CommandLineCommands.Package }} || exit 1
 go build -o {{ .Specification.CommandLineCommands.Binary }} .
-mkdir ../.manpages
+mkdir -p ../.manpages
 ./{{ .Specification.CommandLineCommands.Binary }} man >../.manpages/{{ .Specification.CommandLineCommands.Binary }}.1

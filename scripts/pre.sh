@@ -9,5 +9,5 @@ cd .. || exit 1
 
 cd cli || exit 1
 go build -o go-sdk-generator .
-mkdir ../.manpages
+mkdir -p ../.manpages
 ./go-sdk-generator man >../.manpages/go-sdk-generator.1
