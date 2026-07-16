@@ -7,7 +7,10 @@
 package {{ $packageName }}
 
 import (
-	"github.com/ARM-software/golang-utils/utils" 
+	"context"
+
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/logs"
 
 	"{{ cliModuleRoot .Specification }}/cmd/config"
 	{{ range additionalTypeImports .Specification "" -}}

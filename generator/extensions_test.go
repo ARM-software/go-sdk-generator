@@ -179,6 +179,7 @@ func Test_toCase(t *testing.T) {
 	assert.Equal(t, "AdrienIdentifier", toPascalCase("adrien_identifier"))
 	assert.Equal(t, "IdempotentRetry", toPascalCase("idempotent_retry"))
 	assert.Equal(t, "IdentityProvider", toPascalCase("identity_provider"))
+	assert.Equal(t, "NoKeyring", toPascalCase("NoKeyring"))
 	assert.Equal(t, "port", toCamelCase("Port"))
 	assert.Equal(t, "port", toCamelCase("port"))
 	assert.Equal(t, "apiTestAPIXMLTest", toCamelCase("ApiTestApiXMLTest"))
@@ -188,8 +189,10 @@ func Test_toCase(t *testing.T) {
 	assert.Equal(t, "adrienID", toCamelCase("adrien_id"))
 	assert.Equal(t, "adrienIdentifier", toCamelCase("adrien_identifier"))
 	assert.Equal(t, "idempotentRetry", toCamelCase("idempotent_retry"))
+	assert.Equal(t, "noKeyring", toCamelCase("NoKeyring"))
 	assert.Equal(t, "port", toSnakeCase("Port"))
 	assert.Equal(t, "port", toSnakeCase("port"))
+	assert.Equal(t, "no_keyring", toSnakeCase("NoKeyring"))
 	assert.Equal(t, "this_is_one_messed_up_string_can_we_really_snake_case_it_test", toSnakeCase("ThisIsOne___messed up string. Can we Really Snake Case It,test"))
 }
 
