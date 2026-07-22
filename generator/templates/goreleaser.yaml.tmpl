@@ -46,7 +46,6 @@ changelog:
       - "^test:"
 nfpms:
   - formats:
-      - apk
       - deb
       - rpm
     license: {{ .Specification.Licence }}
@@ -60,14 +59,35 @@ nfpms:
       - src: ./.agents/skills/
         dst: {{ .Distribution.ToolSkillsPath }}/
         type: tree
+  - formats:
+      - apk
+    license: {{ .Specification.Licence }}
+    maintainer: Arm Online Services <monty-bot@arm.com>
+    description: |-
+      {{ .Specification.Description }}
+    contents:
+      # FIXME: nfpm currently produces APK archives that apk-tools rejects when a
+      # contents entry uses `type: tree`, so APK packaging lists the skill files
+      # explicitly instead of packaging the whole directory as a tree.
+      - src: ./.manpages/
+        dst: /usr/share/man/man1/
+        type: tree
+      - src: ./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+        dst: {{ .Distribution.ToolSkillsPath }}/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+      - src: ./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+        dst: {{ .Distribution.ToolSkillsPath }}/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+{{- if .GeneratedActions }}
+      - src: ./.agents/skills/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+        dst: {{ .Distribution.ToolSkillsPath }}/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
+{{- end }}
 {{ if .OCI.PublishesToGHCR }}
 dockers_v2:
-  - id: {{ .Specification.PackageName }}-alpine
-    dockerfile: Dockerfile.oci.alpine
+  - id: {{ .Specification.PackageName }}-ubuntu
+    dockerfile: Dockerfile.oci.ubuntu
     images:
       - {{ .OCI.ImageName }}
     tags:
-      - v{{ "{{" }} .Version }}-alpine
+      - v{{ "{{" }} .Version }}-ubuntu
     platforms:
       - linux/amd64
       - linux/arm64
@@ -79,12 +99,12 @@ dockers_v2:
 {{- range .OCI.Attributes }}
       {{ .Name | quote }}: {{ .Value | quote }}
 {{- end }}
-  - id: {{ .Specification.PackageName }}-ubuntu
-    dockerfile: Dockerfile.oci.ubuntu
+  - id: {{ .Specification.PackageName }}-alpine
+    dockerfile: Dockerfile.oci.alpine
     images:
       - {{ .OCI.ImageName }}
     tags:
-      - v{{ "{{" }} .Version }}-ubuntu
+      - v{{ "{{" }} .Version }}-alpine
     platforms:
       - linux/amd64
       - linux/arm64

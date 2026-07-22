@@ -13,7 +13,12 @@ ARG TARGETPLATFORM
 
 COPY $TARGETPLATFORM/*.apk /tmp/
 
-RUN apk add --allow-untrusted --no-cache jq yq curl /tmp/*.apk && \
-    rm -f /tmp/*.apk
+RUN apk add --no-cache jq yq curl && \
+    apk add --allow-untrusted --no-cache /tmp/*.apk && \
+    rm -f /tmp/*.apk && \
+    addgroup -S tool && \
+    adduser -S -G tool tool
+
+USER tool
 
 ENTRYPOINT ["{{ .Specification.CommandLineCommands.Binary }}"]

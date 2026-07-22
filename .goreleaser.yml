@@ -46,7 +46,6 @@ changelog:
       - "^test:"
 nfpms:
   - formats:
-      - apk
       - deb
       - rpm
     license: Proprietary
@@ -60,14 +59,33 @@ nfpms:
       - src: ./.agents/skills/
         dst: /etc/go-sdk-generator/.agents/skills/
         type: tree
+  - formats:
+      - apk
+    license: Proprietary
+    maintainer: Arm Online Services <monty-bot@arm.com>
+    description: |-
+      SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
+    contents:
+      # FIXME: nfpm currently produces APK archives that apk-tools rejects when a
+      # contents entry uses `type: tree`, so APK packaging lists the skill files
+      # explicitly instead of packaging the whole directory as a tree.
+      - src: ./.manpages/
+        dst: /usr/share/man/man1/
+        type: tree
+      - src: ./.agents/skills/install-go-sdk-generator/SKILL.md
+        dst: /etc/go-sdk-generator/.agents/skills/install-go-sdk-generator/SKILL.md
+      - src: ./.agents/skills/run-go-sdk-generator/SKILL.md
+        dst: /etc/go-sdk-generator/.agents/skills/run-go-sdk-generator/SKILL.md
+      - src: ./.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md
+        dst: /etc/go-sdk-generator/.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md
 
 dockers_v2:
-  - id: go-sdk-generator-alpine
-    dockerfile: Dockerfile.oci.alpine
+  - id: go-sdk-generator-ubuntu
+    dockerfile: Dockerfile.oci.ubuntu
     images:
       - ghcr.io/arm-debug/go-sdk-generator
     tags:
-      - v{{ .Version }}-alpine
+      - v{{ .Version }}-ubuntu
     platforms:
       - linux/amd64
       - linux/arm64
@@ -88,12 +106,12 @@ dockers_v2:
       "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
       "org.opencontainers.image.title": "SDK Generator"
       "org.opencontainers.image.version": "{{ .Version }}"
-  - id: go-sdk-generator-ubuntu
-    dockerfile: Dockerfile.oci.ubuntu
+  - id: go-sdk-generator-alpine
+    dockerfile: Dockerfile.oci.alpine
     images:
       - ghcr.io/arm-debug/go-sdk-generator
     tags:
-      - v{{ .Version }}-ubuntu
+      - v{{ .Version }}-alpine
     platforms:
       - linux/amd64
       - linux/arm64

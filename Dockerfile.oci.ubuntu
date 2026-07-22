@@ -15,6 +15,11 @@ COPY $TARGETPLATFORM/*.deb /tmp/
 
 RUN apt-get update && \
     apt-get install -y ca-certificates curl jq yq /tmp/*.deb && \
-    rm -rf /var/lib/apt/lists/* /tmp/*.deb
+    rm -f /tmp/*.deb && \
+    rm -rf /var/lib/apt/lists/* && \
+    groupadd --system tool && \
+    useradd --system --gid tool --create-home --home-dir /home/tool tool
+
+USER tool
 
 ENTRYPOINT ["go-sdk-generator"]
