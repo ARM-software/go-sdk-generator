@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.43.4" (2026-07-22)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Use the working GitHub Container Registry package page URL in OCI README badges and links. (#20260722174737)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.43.3" (2026-07-22)
 =====================
 
