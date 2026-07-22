@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.43.2" (2026-07-22)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Assign explicit GoReleaser package IDs when splitting Alpine and Debian-style Linux package definitions. (#20260722161651)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.43.1" (2026-07-22)
 =====================
 
