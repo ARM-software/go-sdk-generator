@@ -101,22 +101,26 @@ dockers_v2:
 {{- range .OCI.Attributes }}
       {{ .Name | quote }}: {{ .Value | quote }}
 {{- end }}
-  - id: {{ .Specification.PackageName }}-alpine
-    dockerfile: Dockerfile.oci.alpine
-    images:
-      - {{ .OCI.ImageName }}
-    tags:
-      - v{{ "{{" }} .Version }}-alpine
-    platforms:
-      - linux/amd64
-      - linux/arm64
-    labels:
+  # FIXME: Alpine OCI image publishing is temporarily disabled because the
+  # nfpm-generated APK currently fails to install with `package file format
+  # error` during image assembly. Upstream tracking issue:
+  # https://github.com/goreleaser/nfpm/issues/1117
+  # - id: {{ .Specification.PackageName }}-alpine
+  #   dockerfile: Dockerfile.oci.alpine
+  #   images:
+  #     - {{ .OCI.ImageName }}
+  #   tags:
+  #     - v{{ "{{" }} .Version }}-alpine
+  #   platforms:
+  #     - linux/amd64
+  #     - linux/arm64
+  #   labels:
 {{- range .OCI.Labels }}
-      {{ .Name | quote }}: {{ .Value | quote }}
+  #     {{ .Name | quote }}: {{ .Value | quote }}
 {{- end }}
-    annotations:
+  #   annotations:
 {{- range .OCI.Attributes }}
-      {{ .Name | quote }}: {{ .Value | quote }}
+  #     {{ .Name | quote }}: {{ .Value | quote }}
 {{- end }}
 {{ end }}
 release:

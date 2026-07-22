@@ -108,32 +108,36 @@ dockers_v2:
       "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
       "org.opencontainers.image.title": "SDK Generator"
       "org.opencontainers.image.version": "{{ .Version }}"
-  - id: go-sdk-generator-alpine
-    dockerfile: Dockerfile.oci.alpine
-    images:
-      - ghcr.io/arm-debug/go-sdk-generator
-    tags:
-      - v{{ .Version }}-alpine
-    platforms:
-      - linux/amd64
-      - linux/arm64
-    labels:
-      "io.arm.feature": "contract-first-sdk-generation"
-      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
-      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator"
-      "org.opencontainers.image.licenses": "Proprietary"
-      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
-      "org.opencontainers.image.title": "SDK Generator"
-    annotations:
-      "org.opencontainers.image.created": "{{ .Date }}"
-      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
-      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md"
-      "org.opencontainers.image.licenses": "Proprietary"
-      "org.opencontainers.image.name": "{{ .ProjectName }}"
-      "org.opencontainers.image.revision": "{{ .FullCommit }}"
-      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
-      "org.opencontainers.image.title": "SDK Generator"
-      "org.opencontainers.image.version": "{{ .Version }}"
+  # FIXME: Alpine OCI image publishing is temporarily disabled because the
+  # nfpm-generated APK currently fails to install with `package file format
+  # error` during image assembly. Upstream tracking issue:
+  # https://github.com/goreleaser/nfpm/issues/1117
+  # - id: go-sdk-generator-alpine
+  #   dockerfile: Dockerfile.oci.alpine
+  #   images:
+  #     - ghcr.io/arm-debug/go-sdk-generator
+  #   tags:
+  #     - v{{ .Version }}-alpine
+  #   platforms:
+  #     - linux/amd64
+  #     - linux/arm64
+  #   labels:
+  #     "io.arm.feature": "contract-first-sdk-generation"
+  #     "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+  #     "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator"
+  #     "org.opencontainers.image.licenses": "Proprietary"
+  #     "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+  #     "org.opencontainers.image.title": "SDK Generator"
+  #   annotations:
+  #     "org.opencontainers.image.created": "{{ .Date }}"
+  #     "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+  #     "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md"
+  #     "org.opencontainers.image.licenses": "Proprietary"
+  #     "org.opencontainers.image.name": "{{ .ProjectName }}"
+  #     "org.opencontainers.image.revision": "{{ .FullCommit }}"
+  #     "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+  #     "org.opencontainers.image.title": "SDK Generator"
+  #     "org.opencontainers.image.version": "{{ .Version }}"
 
 release:
   discussion_category_name: Releases
