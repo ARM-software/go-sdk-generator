@@ -1,1 +1,0 @@
-:bug: Disable Alpine OCI image publishing until goreleaser/nfpm APK installation failures are resolved upstream.

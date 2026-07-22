@@ -2,6 +2,19 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.43.3" (2026-07-22)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Disable Alpine OCI image publishing until goreleaser/nfpm APK installation failures are resolved upstream. (#20260722170732)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.43.2" (2026-07-22)
 =====================
 
