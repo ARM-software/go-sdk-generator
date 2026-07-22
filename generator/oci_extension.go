@@ -91,6 +91,14 @@ func ghcrReleaseBadgeURL(spec *SDKSpecification) string {
 	return fmt.Sprintf("https://img.shields.io/github/v/release/%s?label=container", repositoryLocationOnGitHub(spec))
 }
 
+// ghcrPackagePageURL returns the GitHub Packages UI URL for a container image.
+//
+// GitHub's package URLs are documented under the organisation packages UI and,
+// in practice, the `/packages/container/package/<name>` form is the safer link
+// target for container packages. The shorter `/packages/container/<name>` form
+// did not resolve correctly for this project and returned a failing page, while
+// `/packages/container/package/<name>` and the broader listing URL
+// `/packages?repo_name=<repository>` both worked.
 func ghcrPackagePageURL(spec *SDKSpecification) string {
 	if !publishesOCIToGHCR(spec) {
 		return ""
@@ -102,7 +110,7 @@ func ghcrPackagePageURL(spec *SDKSpecification) string {
 		return ""
 	}
 
-	return fmt.Sprintf("https://github.com/orgs/%s/packages/container/%s", owner, packageName)
+	return fmt.Sprintf("https://github.com/orgs/%s/packages/container/package/%s", owner, packageName)
 }
 
 func toolSkillsInstallPath(spec *SDKSpecification) string {

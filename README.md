@@ -7,7 +7,7 @@
 [![Go Badge](https://img.shields.io/badge/go-v1.26.5-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 [![Manifest](https://img.shields.io/badge/Manifest-generate.yml-blue)](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generate.yml)
-[![GHCR version](https://img.shields.io/github/v/release/Arm-Debug/go-sdk-generator?label=container)](https://github.com/orgs/Arm-Debug/packages/container/go-sdk-generator)
+[![GHCR version](https://img.shields.io/github/v/release/Arm-Debug/go-sdk-generator?label=container)](https://github.com/orgs/Arm-Debug/packages/container/package/go-sdk-generator)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Arm-Debug/go-sdk-generator)](https://goreportcard.com/report/github.com/Arm-Debug/go-sdk-generator)
 ![Scorecard](https://img.shields.io/ossf-scorecard/github.com/Arm-Debug/go-sdk-generator?label=openssf%20scorecard&style=flat)
 [![Documentation](https://badgen.net/badge/Documentation/GitHub%20Pages/blue?icon=github)](https://arm-debug.github.io/go-sdk-generator)
