@@ -28,10 +28,10 @@ var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $
 // Wrap{{ $functionName }} wraps around {{ $functionName }}
 func Wrap{{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration, f func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error) (err error) {
 	if f == nil {
-		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}",  f)
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}", f)
 		return
 	}
-	
+
 	return f(ctx, logger, cfg)
 }
 

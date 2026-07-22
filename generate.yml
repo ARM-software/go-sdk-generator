@@ -25,20 +25,17 @@ specification:
             lang_type: string
             mapstructure_tag: input
             description: path to tool definition file
-            is_root: true
             arg_short: "i"
             required: true
           - name: Output
             lang_type: string
             mapstructure_tag: output
             description: destination of the generated code
-            is_root: true
             required: true
             arg_short: "o"
             default_value: here
           - name: Generate
             lang_type: bool
-            is_root: true
             mapstructure_tag: overwrite
             description: regenerate all files
             default_value: "false"
@@ -49,10 +46,12 @@ specification:
             description: targeted go version for the tool
             mapstructure_tag: go_version
       - name: Schema
-        description: Run `go-sdk-generator schema` to dump the embedded tool definition schema as JSON for agents and other tooling
+        description: Run `go-sdk-generator schema` to dump the embedded manifest schema as JSON for agents and other tooling
+        no_action: true
         configuration: []
       - name: Agent
         description: Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills
+        no_action: true
         configuration:
           - name: Init
             lang_type: bool

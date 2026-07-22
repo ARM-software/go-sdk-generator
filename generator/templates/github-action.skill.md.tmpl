@@ -3,7 +3,7 @@
 {{- $install := .InstallAction -}}
 ---
 name: using-{{ $cli.Binary }}-in-a-github-action
-description: "Use and integrate the generated `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `{{ $cli.Binary }}` in workflows"
+description: "Use and integrate `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `{{ $cli.Binary }}` in workflows"
 license: {{ $spec.Licence }}
 compatibility: opencode
 metadata:
@@ -30,11 +30,14 @@ Use this skill when the user wants to:
 - dogfood one of the generated subcommand actions from this repository
 - run `{{ $cli.Binary }}` commands without building the CLI from source
 
+Prefer the actions when one of them already represents the workflow step that needs to be run.
+Prefer `actions/{{ $install.DirectoryName }}` when the workflow only needs the tool to be available for later shell commands, loops, or more complex parallel orchestration.
+
 ---
 
-## Available actions
+## Available Actions
 
-Generated actions in this repository:
+Actions in this repository:
 
 {{- if .InstallAction }}
 - `actions/{{ .InstallAction.DirectoryName }}` installs `{{ $cli.Binary }}`
@@ -57,9 +60,9 @@ uses: ./actions/{{ $install.DirectoryName }}
 
 ---
 
-## What the actions do
+## What The Actions Do
 
-Every generated action:
+Every action:
 - resolves the release version from the action ref
 - downloads the matching GitHub Release assets using `gh`
 - installs the tool natively on Linux when a supported package manager is available
@@ -68,30 +71,30 @@ Every generated action:
 
 The dedicated install action stops there.
 
-Each generated command action additionally:
+Each command action additionally:
 - runs a fixed `{{ $cli.Binary }}` subcommand using structured action inputs
 
 ---
 
-## Shared inputs
+## Shared Inputs
 
-Every generated action exposes:
+Every action exposes:
 - `action-repo`
 - `action-ref`
 - `workdir`
 
-Every generated action also exposes:
+Every action also exposes:
 - the `cmd` output: a reference to the installed `{{ $cli.Binary }}` command for later workflow steps
 
 The install action exposes no CLI-specific inputs.
 
-Each generated command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
+Each command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
 
 Commands that support positional operands also expose an `operands` input, with one operand per line.
 
 ---
 
-## Version resolution
+## Version Resolution
 
 The version of the tool follows the GitHub Action ref.
 
@@ -110,7 +113,7 @@ If no release exists yet:
 
 ---
 
-## Platform behaviour
+## Platform Behaviour
 
 ### Linux
 
@@ -131,7 +134,7 @@ The action installs from the released archive.
 
 ---
 
-## Recommended patterns
+## Recommended Patterns
 
 ### Install only
 
@@ -144,7 +147,7 @@ The action installs from the released archive.
 
 {{- if .CommandActions }}
 {{- $primary := index .CommandActions 0 }}
-### Run a generated subcommand action
+### Run a subcommand action
 
 ```yaml
 - name: Run {{ $cli.Binary }} {{ $primary.Subcommand }}
@@ -163,9 +166,9 @@ The action installs from the released archive.
 
 ---
 
-## Integration guidance
+## Integration Guidance
 
-- Prefer generated subcommand actions when the workflow step is already fully defined by that action
+- Prefer subcommand actions when the workflow step is already fully defined by that action
 - Prefer `actions/{{ $install.DirectoryName }}` when the goal is only to obtain the tool for later workflow steps
 - `actions/{{ $install.DirectoryName }}` is the right fit when later steps need to loop, pipe output, run custom shell processing, or call a script that expects `{{ $cli.Binary }}` to already be available in the environment
 - This matches the model used by other tool-installing actions such as `goreleaser/goreleaser-action` with `install-only` and `anchore/sbom-action/download-syft`
@@ -180,10 +183,10 @@ The action installs from the released archive.
 
 ## Verification
 
-Each generated action already verifies installation by running:
+Each action already verifies installation by running:
 
 ```bash
 {{ $cli.Binary }} --version
 ```
 
-For smoke testing, `actions/{{ $install.DirectoryName }}` is the simplest end-to-end check. For deeper coverage, call a generated subcommand action with real command inputs.
+For smoke testing, `actions/{{ $install.DirectoryName }}` is the simplest end-to-end check. For deeper coverage, call a subcommand action with real command inputs.

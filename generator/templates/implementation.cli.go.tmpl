@@ -24,7 +24,7 @@ import (
 
 {{ range .Specification.CommandLineCommands.Functions -}}
 /*
-    {{ .Name | toPascal }} function: {{ .Description }}
+{{ .Name | toPascal }} function: {{ .Description }}
 */
 {{ $functionName:= .Name  | toPascal -}}
 func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {
@@ -34,7 +34,7 @@ func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{
 	// TODO implement me
 	// Note: this function code was generated to help setting up the project. It can be moved to separate files
 	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
-	return commonerrors.New(commonerrors.ErrNotImplemented,"missing `{{ $functionName }}()` implementation", )
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}()` implementation")
 {{ end -}}
 }
 
@@ -43,16 +43,16 @@ func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{
 {{ end -}}
 
 
-func init(){
-  // Note: The following makes the link between the CLI command definitions and their actual implementations.
-  // The binding is performed at runtime when package {{ $packageName }} is imported.
- // TODO uncomment when implemented
+func init() {
+	// Note: The following makes the link between the CLI command definitions and their actual implementations.
+	// The binding is performed at runtime when package {{ $packageName }} is imported.
+	// TODO uncomment when implemented
 {{ range .Specification.CommandLineCommands.Functions -}}
-    {{ $functionName:= .Name  | toPascal -}}
+{{ $functionName:= .Name  | toPascal -}}
 {{ if .StoreToKeyring -}}
-    {{ $functionName }}ImplFunc = {{ $functionName }}
+	{{ $functionName }}ImplFunc = {{ $functionName }}
 {{ else }}
-    //  {{ $functionName }}ImplFunc = {{ $functionName }}
+	// {{ $functionName }}ImplFunc = {{ $functionName }}
 {{ end -}}
 {{ end -}}
 }

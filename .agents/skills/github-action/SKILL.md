@@ -1,6 +1,6 @@
 ---
 name: github-action
-description: "Use and integrate the generated `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
+description: "Use and integrate `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
 license: Proprietary
 compatibility: opencode
 metadata:
@@ -29,13 +29,11 @@ Use this skill when the user wants to:
 
 ---
 
-## Available actions
+## Available Actions
 
-Generated actions in this repository:
+Actions in this repository:
 - `actions/install-tool` installs `go-sdk-generator`
 - `actions/generate` runs `go-sdk-generator generate`
-- `actions/schema` runs `go-sdk-generator schema`
-- `actions/agent` runs `go-sdk-generator agent`
 
 Example published action:
 
@@ -51,9 +49,9 @@ uses: ./actions/install-tool
 
 ---
 
-## What the actions do
+## What The Actions Do
 
-Every generated action:
+Every action:
 - resolves the release version from the action ref
 - downloads the matching GitHub Release assets using `gh`
 - installs the tool natively on Linux when a supported package manager is available
@@ -62,30 +60,30 @@ Every generated action:
 
 The dedicated install action stops there.
 
-Each generated command action additionally:
+Each command action additionally:
 - runs a fixed `go-sdk-generator` subcommand using structured action inputs
 
 ---
 
-## Shared inputs
+## Shared Inputs
 
-Every generated action exposes:
+Every action exposes:
 - `action-repo`
 - `action-ref`
 - `workdir`
 
-Every generated action also exposes:
+Every action also exposes:
 - the `cmd` output: a reference to the installed `go-sdk-generator` command for later workflow steps
 
 The install action exposes no CLI-specific inputs.
 
-Each generated command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
+Each command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
 
 Commands that support positional operands also expose an `operands` input, with one operand per line.
 
 ---
 
-## Version resolution
+## Version Resolution
 
 The version of the tool follows the GitHub Action ref.
 
@@ -104,7 +102,7 @@ If no release exists yet:
 
 ---
 
-## Platform behaviour
+## Platform Behaviour
 
 ### Linux
 
@@ -125,7 +123,7 @@ The action installs from the released archive.
 
 ---
 
-## Recommended patterns
+## Recommended Patterns
 
 ### Install only
 
@@ -136,7 +134,7 @@ The action installs from the released archive.
     workdir: .tools
 ```
 
-### Run a generated subcommand action
+### Run a subcommand action
 
 ```yaml
 - name: Run go-sdk-generator generate
@@ -154,7 +152,7 @@ The action installs from the released archive.
 
 ---
 
-## Integration guidance
+## Integration Guidance
 
 - Prefer generated subcommand actions when the workflow step is already fully defined by that action
 - Prefer `actions/install-tool` when the goal is only to obtain the tool for later workflow steps
@@ -171,10 +169,10 @@ The action installs from the released archive.
 
 ## Verification
 
-Each generated action already verifies installation by running:
+Each action already verifies installation by running:
 
 ```bash
 go-sdk-generator --version
 ```
 
-For smoke testing, `actions/install-tool` is the simplest end-to-end check. For deeper coverage, call a generated subcommand action with real command inputs.
+For smoke testing, `actions/install-tool` is the simplest end-to-end check. For deeper coverage, call a subcommand action with real command inputs.
