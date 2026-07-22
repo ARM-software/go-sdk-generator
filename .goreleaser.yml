@@ -48,6 +48,7 @@ nfpms:
   - formats:
       - deb
       - rpm
+    id: linux-packages
     license: Proprietary
     maintainer: Arm Online Services <monty-bot@arm.com>
     description: |-
@@ -61,6 +62,7 @@ nfpms:
         type: tree
   - formats:
       - apk
+    id: alpine-package
     license: Proprietary
     maintainer: Arm Online Services <monty-bot@arm.com>
     description: |-
