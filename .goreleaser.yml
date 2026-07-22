@@ -57,6 +57,64 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
+      - src: ./.agents/skills/
+        dst: /etc/go-sdk-generator/.agents/skills/
+        type: tree
+
+dockers_v2:
+  - id: go-sdk-generator-alpine
+    dockerfile: Dockerfile.oci.alpine
+    images:
+      - ghcr.io/arm-debug/go-sdk-generator
+    tags:
+      - v{{ .Version }}-alpine
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      "io.arm.feature": "contract-first-sdk-generation"
+      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.licenses": "Proprietary"
+      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.title": "SDK Generator"
+    annotations:
+      "org.opencontainers.image.created": "{{ .Date }}"
+      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md"
+      "org.opencontainers.image.licenses": "Proprietary"
+      "org.opencontainers.image.name": "{{ .ProjectName }}"
+      "org.opencontainers.image.revision": "{{ .FullCommit }}"
+      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.title": "SDK Generator"
+      "org.opencontainers.image.version": "{{ .Version }}"
+  - id: go-sdk-generator-ubuntu
+    dockerfile: Dockerfile.oci.ubuntu
+    images:
+      - ghcr.io/arm-debug/go-sdk-generator
+    tags:
+      - v{{ .Version }}-ubuntu
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      "io.arm.feature": "contract-first-sdk-generation"
+      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.licenses": "Proprietary"
+      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.title": "SDK Generator"
+    annotations:
+      "org.opencontainers.image.created": "{{ .Date }}"
+      "org.opencontainers.image.description": "OCI image for running go-sdk-generator in CI and reproducible containerised workflows."
+      "org.opencontainers.image.documentation": "https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md"
+      "org.opencontainers.image.licenses": "Proprietary"
+      "org.opencontainers.image.name": "{{ .ProjectName }}"
+      "org.opencontainers.image.revision": "{{ .FullCommit }}"
+      "org.opencontainers.image.source": "https://github.com/Arm-Debug/go-sdk-generator"
+      "org.opencontainers.image.title": "SDK Generator"
+      "org.opencontainers.image.version": "{{ .Version }}"
+
 release:
   discussion_category_name: Releases
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease

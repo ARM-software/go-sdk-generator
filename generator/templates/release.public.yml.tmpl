@@ -14,6 +14,9 @@ on:
 
 permissions:
   contents: write
+{{ if .OCI.PublishesToGHCR }}
+  packages: write
+{{ end }}
 
 jobs:
   release:
@@ -40,6 +43,18 @@ jobs:
           version: latest
       - name: Install Syft
         uses: anchore/sbom-action/download-syft@v0
+{{ if .OCI.PublishesToGHCR }}
+      - name: Set up QEMU for multi-arch OCI builds
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ "{{" }} github.actor }}
+          password: ${{ "{{" }} secrets.GITHUB_TOKEN }}
+{{ end }}
       - name: Tag and release
         run: cd-tag-and-release -b ${{ "{{" }} github.ref_name }} -t ${{ "{{" }} github.event.inputs.release_type }} -vv
         env:

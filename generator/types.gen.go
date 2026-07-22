@@ -486,6 +486,48 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+// Configuration for publishing multi-architecture OCI images for the generated
+// CLI.
+// OCI images are useful for CI integration, reproducible builds, and users who
+// prefer not to install the tool locally.
+// OCI image publication currently targets GitHub Container Registry for
+// GitHub-hosted repositories.
+type DistributeOci struct {
+	// Additional OCI manifest attributes applied as OCI annotations to the
+	// published image manifests.
+	// These complement the default OCI annotations generated from the tool
+	// documentation and repository metadata.
+	//
+	Attributes OciMapStringString `json:"attributes,omitempty" yaml:"attributes,omitempty" mapstructure:"attributes,omitempty"`
+
+	// Text description applied to the OCI image metadata and registry page.
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Additional OCI image labels applied to each built image.
+	// These complement the default labels generated from the tool documentation
+	// and repository metadata.
+	//
+	Labels OciMapStringString `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *DistributeOci) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in DistributeOci: required")
+	}
+	type Plain DistributeOci
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = DistributeOci(plain)
+	return nil
+}
+
 // A command argument or code parameter
 type EntityField struct {
 	// The argument to bind to
@@ -839,6 +881,10 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+// Additional OCI image metadata used to complement the default metadata
+// generated from the tool documentation and repository metadata.
+type OciMapStringString map[string]interface{}
+
 // Whether to release the package to artifactory. Will require a .goreleaser file
 // or equivalent file to be set up
 type ReleaseToArtifactory bool
@@ -900,6 +946,9 @@ type SDKSpecification struct {
 	// Multiline YAML descriptions using `|` are supported.
 	//
 	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// DistributeOci corresponds to the JSON schema field "distribute_oci".
+	DistributeOci *DistributeOci `json:"distribute_oci,omitempty" yaml:"distribute_oci,omitempty" mapstructure:"distribute_oci,omitempty"`
 
 	// ExtraImports corresponds to the JSON schema field "extra_imports".
 	ExtraImports ExtraImports `json:"extra_imports,omitempty" yaml:"extra_imports,omitempty" mapstructure:"extra_imports,omitempty"`

@@ -57,6 +57,46 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
+      - src: ./.agents/skills/
+        dst: {{ .Distribution.ToolSkillsPath }}/
+        type: tree
+{{ if .OCI.PublishesToGHCR }}
+dockers_v2:
+  - id: {{ .Specification.PackageName }}-alpine
+    dockerfile: Dockerfile.oci.alpine
+    images:
+      - {{ .OCI.ImageName }}
+    tags:
+      - v{{ "{{" }} .Version }}-alpine
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+{{- range .OCI.Labels }}
+      {{ .Name | quote }}: {{ .Value | quote }}
+{{- end }}
+    annotations:
+{{- range .OCI.Attributes }}
+      {{ .Name | quote }}: {{ .Value | quote }}
+{{- end }}
+  - id: {{ .Specification.PackageName }}-ubuntu
+    dockerfile: Dockerfile.oci.ubuntu
+    images:
+      - {{ .OCI.ImageName }}
+    tags:
+      - v{{ "{{" }} .Version }}-ubuntu
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+{{- range .OCI.Labels }}
+      {{ .Name | quote }}: {{ .Value | quote }}
+{{- end }}
+    annotations:
+{{- range .OCI.Attributes }}
+      {{ .Name | quote }}: {{ .Value | quote }}
+{{- end }}
+{{ end }}
 release:
   discussion_category_name: Releases
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease

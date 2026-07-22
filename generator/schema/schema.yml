@@ -151,6 +151,8 @@ properties:
         $ref: "#/$defs/release_to_artifactory"
       release_to_public_artifactory:
         $ref: "#/$defs/release_to_public_artifactory"
+      distribute_oci:
+        $ref: "#/$defs/distribute_oci"
 $defs:
   types:
     type: array
@@ -291,6 +293,42 @@ $defs:
       registry:
         type: string
         description: The registry within Artifactory used for the public release upload job.
+    additionalProperties: false
+  # Copied from https://github.com/opencontainers/image-spec/blob/main/schema/defs.json
+  # (`#/definitions/mapStringString`) so this schema stays self-contained.
+  oci_map_string_string:
+    type: object
+    description: |
+      Additional OCI image metadata used to complement the default metadata
+      generated from the tool documentation and repository metadata.
+    patternProperties:
+      .{1,}:
+        type: string
+  distribute_oci:
+    type: object
+    description: |
+      Configuration for publishing multi-architecture OCI images for the generated CLI.
+      OCI images are useful for CI integration, reproducible builds, and users who prefer not to install the tool locally.
+      OCI image publication currently targets GitHub Container Registry for GitHub-hosted repositories.
+    required:
+      - description
+    properties:
+      description:
+        type: string
+        description: Text description applied to the OCI image metadata and registry page.
+      labels:
+        description: |
+          Additional OCI image labels applied to each built image.
+          These complement the default labels generated from the tool documentation
+          and repository metadata.
+        $ref: "#/$defs/oci_map_string_string"
+      attributes:
+        description: |
+          Additional OCI manifest attributes applied as OCI annotations to the
+          published image manifests.
+          These complement the default OCI annotations generated from the tool
+          documentation and repository metadata.
+        $ref: "#/$defs/oci_map_string_string"
     additionalProperties: false
   cli_function:
     description: An CLI function

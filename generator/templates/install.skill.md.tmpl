@@ -41,6 +41,13 @@ This ensures:
 - alignment with system policies
 - proper architecture handling
 
+Linux packages installed this way also include the skills related to the tool under `{{ .Distribution.ToolSkillsPath }}`.
+
+{{ if .OCI.PublishesToGHCR -}}
+If the user prefers not to install the tool locally, OCI images are also published to `{{ .OCI.ImageName }}`.
+This is useful for CI, reproducible builds, and container-first workflows.
+{{ end }}
+
 ---
 
 ## Supported platforms (preferred)
@@ -76,6 +83,22 @@ then:
 If possible, recommend:
 - switching to a supported environment, or
 - ensuring the package is published for the target platform
+
+{{ if .OCI.PublishesToGHCR -}}
+### OCI fallback
+
+Pull and run a published image instead:
+
+```bash
+docker run --rm {{ .OCI.ImageName }}:v<version>-alpine --help
+```
+
+or:
+
+```bash
+docker run --rm {{ .OCI.ImageName }}:v<version>-ubuntu --help
+```
+{{ end }}
 
 ---
 

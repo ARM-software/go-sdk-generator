@@ -111,6 +111,20 @@ Skills:
 - [Install `go-sdk-generator`](./.agents/skills/install-go-sdk-generator/SKILL.md)
 - [Run `go-sdk-generator`](./.agents/skills/run-go-sdk-generator/SKILL.md)
 
+Linux packages built for this tool also install the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
+
+### OCI Images
+
+OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator` for CI integration, reproducible builds, and workflows that prefer not to install the tool locally.
+
+Published variants:
+
+- `:v<version>-alpine`
+- `:v<version>-ubuntu`
+
+Use exact release tags or image digests when the workflow must stay reproducible.
+
+
 ### Commands
 
 
@@ -123,6 +137,17 @@ Usage:
 ```sh
 go-sdk-generator generate [flags]
 ```
+
+OCI usage:
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine generate [flags]
+```
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu generate [flags]
+```
+
 
 
 
@@ -211,6 +236,17 @@ Usage:
 go-sdk-generator schema
 ```
 
+OCI usage:
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine schema
+```
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema
+```
+
+
 
 
 
@@ -234,6 +270,17 @@ Usage:
 ```sh
 go-sdk-generator agent [flags]
 ```
+
+OCI usage:
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine agent [flags]
+```
+
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu agent [flags]
+```
+
 
 
 

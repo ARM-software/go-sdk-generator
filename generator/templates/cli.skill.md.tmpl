@@ -46,6 +46,13 @@ Supported sources:
 
 Use the `{{ $cli.Binary }} credentials` command to securely store secrets in the keyring when available.
 
+{{ if $.OCI.PublishesToGHCR -}}
+OCI distribution is also available at `{{ $.OCI.ImageName }}`.
+This is useful for CI, reproducible builds, and users who prefer not to install the tool locally.
+{{ end }}
+
+Linux packages installed via native package managers include the skills related to the tool under `{{ $.Distribution.ToolSkillsPath }}`.
+
 ---
 
 ## Authentication
@@ -80,6 +87,19 @@ No cloud authentication is required.
 ### `{{ $cli.Binary }} {{ $fn.Name | toKebab }}`
 
 {{ $fn.Description }}
+
+{{ if $.OCI.PublishesToGHCR -}}
+
+OCI usage:
+```bash
+docker run --rm {{ $.OCI.ImageName }}:v<version>-alpine {{ $fn.Name | toKebab }}
+```
+
+or:
+```bash
+docker run --rm {{ $.OCI.ImageName }}:v<version>-ubuntu {{ $fn.Name | toKebab }}
+```
+{{ end }}
 
 {{- if $fn.Configuration }}
 

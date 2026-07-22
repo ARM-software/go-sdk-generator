@@ -158,6 +158,21 @@ Skills:
 - [Install `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
 - [Run `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
 
+Linux packages built for this tool also install the skills related to the tool under `{{ .Distribution.ToolSkillsPath }}`.
+
+{{ if .OCI.PublishesToGHCR -}}
+### OCI Images
+
+OCI images are also published to `{{ .OCI.ImageName }}` for CI integration, reproducible builds, and workflows that prefer not to install the tool locally.
+
+Published variants:
+
+- `:v<version>-alpine`
+- `:v<version>-ubuntu`
+
+Use exact release tags or image digests when the workflow must stay reproducible.
+{{ end }}
+
 ### Commands
 
 {{ range .Specification.CommandLineCommands.Functions }}
@@ -173,6 +188,18 @@ Usage:
 ```sh
 {{ $.Specification.CommandLineCommands.Binary }} {{ .Name | lower }}{{ if or $options.HasAny .Operands }} [flags]{{ end }}{{ if .Operands }} [operands...]{{ end }}
 ```
+
+{{ if $.OCI.PublishesToGHCR -}}
+OCI usage:
+
+```sh
+docker run --rm {{ $.OCI.ImageName }}:v<version>-alpine {{ .Name | lower }}{{ if or $options.HasAny .Operands }} [flags]{{ end }}{{ if .Operands }} [operands...]{{ end }}
+```
+
+```sh
+docker run --rm {{ $.OCI.ImageName }}:v<version>-ubuntu {{ .Name | lower }}{{ if or $options.HasAny .Operands }} [flags]{{ end }}{{ if .Operands }} [operands...]{{ end }}
+```
+{{ end }}
 
 {{ if .LoadFromKeyring }}
 This command can read selected values from the system [keyring](https://github.com/zalando/go-keyring). When keyring loading is enabled, non-empty keyring values take precedence over flags, environment variables, the configuration file, and default values.

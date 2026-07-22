@@ -38,6 +38,12 @@ This ensures:
 - alignment with system policies
 - proper architecture handling
 
+Linux packages installed this way also include the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
+
+If the user prefers not to install the tool locally, OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator`.
+This is useful for CI, reproducible builds, and container-first workflows.
+
+
 ---
 
 ## Supported platforms (preferred)
@@ -73,6 +79,21 @@ then:
 If possible, recommend:
 - switching to a supported environment, or
 - ensuring the package is published for the target platform
+
+### OCI fallback
+
+Pull and run a published image instead:
+
+```bash
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine --help
+```
+
+or:
+
+```bash
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu --help
+```
+
 
 ---
 

@@ -248,6 +248,15 @@
       "artifactory_host": "https://arm.jfrog.io",
       "registry": "tools-tools-local-deb"
     },
+    "distribute_oci": {
+      "description": "OCI image for running verify-cmsis-example-sdk in CI and reproducible verification workflows.",
+      "labels": {
+        "io.arm.workflow": "verification"
+      },
+      "attributes": {
+        "org.opencontainers.image.documentation": "https://github.com/Arm-Examples/verify-cmsis-example-sdk/blob/main/DOCUMENTATION.md"
+      }
+    },
     "extra_imports": [
       {
         "import_url": "github.com/Arm-Debug/cmsis-project-types/project/types",

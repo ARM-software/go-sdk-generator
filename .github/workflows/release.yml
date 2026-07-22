@@ -2,6 +2,12 @@
 
 name: GitHub Release
 
+permissions:
+  contents: write
+
+  packages: write
+
+
 on:
   workflow_dispatch:
     inputs:
@@ -18,6 +24,8 @@ jobs:
       go_version: "1.26.5"
       release_type: ${{ inputs.release_type }}
       save-outputs-as-artefact: go-sdk-generator-package
+
+      distributes_oci: true
 
       release_to_artifactory: true
 

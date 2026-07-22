@@ -84,3 +84,9 @@ specification:
   release_to_public_artifactory:
     artifactory_host: https://arm.jfrog.io
     registry: tools-tools-local-deb
+  distribute_oci:
+    description: OCI image for running go-sdk-generator in CI and reproducible containerised workflows.
+    labels:
+      io.arm.feature: contract-first-sdk-generation
+    attributes:
+      org.opencontainers.image.documentation: https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md

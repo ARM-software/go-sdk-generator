@@ -55,6 +55,8 @@ const (
 	goModCliFile                 = "templates/go.mod.cli.tmpl"
 	codeOfConductFile            = "templates/CODE_OF_CONDUCT.md.tmpl"
 	dockerFile                   = "templates/Dockerfile.tmpl"
+	ociDockerfileAlpineFile      = "templates/Dockerfile.oci.alpine.tmpl"
+	ociDockerfileUbuntuFile      = "templates/Dockerfile.oci.ubuntu.tmpl"
 	pyprojectFile                = "templates/pyproject.toml.tmpl"
 	modulePropertiesFile         = "templates/module.properties.tmpl"
 	knownIssuesFile              = "templates/KNOWN_ISSUES.md.tmpl"
@@ -152,6 +154,8 @@ type DataModel struct {
 	SchemaFileName   string
 	ManifestFileName string
 	SDK
+	Distribution                  DistributionInfo
+	OCI                           OCIImageDistributionInfo
 	AdditionalTypesPackagesByName map[string]string
 	SuppressRequiredValidationMap map[string]bool
 	CurrentTypePackage            string
@@ -363,6 +367,10 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 
 	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
+	if sdk.Specification.CommandLineCommands != nil && sdk.Specification.DistributeOci != nil {
+		templatesToPopulate.addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(ociDockerfileUbuntuFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.ubuntu"), cfg.Overwrite, true)
+	}
 
 	selectedDependabotFile := dependabotFile
 	selectedCIWorkflowFile := ciWorkflowFile
@@ -460,10 +468,15 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		return
 	}
 
+	distribution := precomputeDistribution(&sdk.Specification)
+	oci := precomputeOCIImageDistribution(&sdk.Specification)
+
 	data := &DataModel{
 		SchemaFileName:                filesystem.FilePathStemOnFilesystem(localFs, cfg.Input),
 		ManifestFileName:              resolveManifestFileName(localFs, cfg.Input),
 		SDK:                           sdk,
+		Distribution:                  distribution,
+		OCI:                           oci,
 		AdditionalTypesPackagesByName: additionalTypePackagesByName(sdk.Specification.AdditionalTypes),
 		SuppressRequiredValidationMap: sdk.Specification.SuppressedRequiredValidationMap(),
 		CurrentAdditionalTypes:        sdk.Specification.AdditionalTypes,
@@ -615,7 +628,7 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 
 		skill, subErr := localFs.ReadFile(sourcePath)
 		if subErr != nil {
-			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read generated skill %q", sourcePath)
+			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read tool-related skill %q", sourcePath)
 			return
 		}
 

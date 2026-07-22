@@ -2,6 +2,12 @@
 
 name: GitHub Release
 
+permissions:
+  contents: write
+{{ if .OCI.PublishesToGHCR }}
+  packages: write
+{{ end }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -18,6 +24,9 @@ jobs:
       go_version: "{{ .TargetedGoVersion }}"
       release_type: ${{ "{{" }} inputs.release_type }}
       save-outputs-as-artefact: {{ .Specification.PackageName }}-package
+{{ if .Specification.DistributeOci }}
+      distributes_oci: true
+{{ end -}}
 {{ if .Specification.ReleaseToArtifactory }}
       release_to_artifactory: true
 {{ end -}}

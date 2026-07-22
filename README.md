@@ -7,7 +7,7 @@
 [![Go Badge](https://img.shields.io/badge/go-v1.26.5-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 [![Manifest](https://img.shields.io/badge/Manifest-generate.yml-blue)](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generate.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Arm-Debug/go-sdk-generator/generator.svg)](https://pkg.go.dev/github.com/Arm-Debug/go-sdk-generator/generator)
+[![GHCR version](https://img.shields.io/github/v/release/Arm-Debug/go-sdk-generator?label=container)](https://github.com/orgs/Arm-Debug/packages/container/go-sdk-generator)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Arm-Debug/go-sdk-generator)](https://goreportcard.com/report/github.com/Arm-Debug/go-sdk-generator)
 ![Scorecard](https://img.shields.io/ossf-scorecard/github.com/Arm-Debug/go-sdk-generator?label=openssf%20scorecard&style=flat)
 [![Documentation](https://badgen.net/badge/Documentation/GitHub%20Pages/blue?icon=github)](https://arm-debug.github.io/go-sdk-generator)
@@ -47,6 +47,17 @@ go-sdk-generator -h
 ## Installation
 
 Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `go-sdk-generator`
+
+Released Linux packages also install the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
+
+If you prefer not to install the tool locally, OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator`.
+These images are useful for CI, reproducible builds, and container-first workflows.
+
+Example:
+```sh
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine --help
+```
+
 
 See the [Agent](#agent) section for skills that describe how to install, run, and integrate `go-sdk-generator`.
 

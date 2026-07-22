@@ -29,6 +29,8 @@ Use this skill when the user wants to:
 
 Prefer the actions when one of them already represents the workflow step that needs to be run.
 Prefer `actions/install-tool` when the workflow only needs the tool to be available for later shell commands, loops, or more complex parallel orchestration.
+When workflows prefer containerised execution, reproducible builds, or avoiding local installation entirely, published OCI images from `ghcr.io/arm-debug/go-sdk-generator` are also an option.
+
 
 ---
 
@@ -166,6 +168,8 @@ The action installs from the released archive.
 - Use `actions/install-tool` when later steps need to call the binary directly
 - Keep `workdir` explicit when command inputs depend on relative paths
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
+- Prefer OCI images from `ghcr.io/arm-debug/go-sdk-generator` when the workflow wants containerised execution instead of installing the binary onto the runner
+
 
 ---
 

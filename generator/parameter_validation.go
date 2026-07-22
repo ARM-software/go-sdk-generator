@@ -403,6 +403,64 @@ func (cmds *CommandLineCommands) Validate() error {
 	return nil
 }
 
+func validateOCIStringMap(name string, entries OciMapStringString) error {
+	for key, value := range entries {
+		if err := validation.Validate(key, validation.Required); err != nil {
+			return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s contains an empty key", name)
+		}
+		stringValue, err := validation.EnsureString(value)
+		if err != nil {
+			return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s[%q] must be a string", name, key)
+		}
+		if err := validation.Validate(stringValue, validation.Required, validation.Length(1, 0)); err != nil {
+			return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s[%q] must not be empty", name, key)
+		}
+	}
+
+	return nil
+}
+
+func (distribution *DistributeOci) Validate() error {
+	if distribution == nil {
+		return nil
+	}
+
+	err := validation.ValidateStruct(distribution,
+		validation.Field(&distribution.Description, validation.Required),
+		validation.Field(&distribution.Attributes, validation.By(func(value any) error {
+			return validateOCIStringMap("distribute_oci.attributes", distribution.Attributes)
+		})),
+		validation.Field(&distribution.Labels, validation.By(func(value any) error {
+			return validateOCIStringMap("distribute_oci.labels", distribution.Labels)
+		})),
+	)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate distribute_oci")
+	}
+
+	return nil
+}
+
+func validateDistributeOCI(spec *SDKSpecification) error {
+	if spec == nil || spec.DistributeOci == nil {
+		return nil
+	}
+
+	if err := spec.DistributeOci.Validate(); err != nil {
+		return err
+	}
+
+	if spec.CommandLineCommands == nil {
+		return commonerrors.New(commonerrors.ErrInvalid, "distribute_oci requires command_line_commands because OCI images publish the generated CLI")
+	}
+
+	if !isHostedOnGitHub(spec) {
+		return commonerrors.New(commonerrors.ErrInvalid, "distribute_oci currently requires a GitHub-hosted repository so OCI images can be published to GHCR")
+	}
+
+	return nil
+}
+
 func validateCollectionParameters(sdk *SDK) error {
 	if sdk == nil {
 		return commonerrors.UndefinedVariable("generator configuration")
@@ -423,6 +481,9 @@ func validateCollectionParameters(sdk *SDK) error {
 		})),
 		validation.Field(&sdk.Specification.CommandLineCommands, validation.By(func(value any) error {
 			return sdk.Specification.CommandLineCommands.Validate()
+		})),
+		validation.Field(&sdk.Specification.DistributeOci, validation.By(func(value any) error {
+			return validateDistributeOCI(&sdk.Specification)
 		})),
 	)
 	if err != nil {

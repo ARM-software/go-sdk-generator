@@ -7,6 +7,9 @@
 [![Go Badge](https://img.shields.io/badge/go-v{{ .TargetedGoVersion }}-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/Licence-{{ .Specification.Licence | toURIEncoded }}-blue.svg)](https://opensource.org/licenses/{{ .Specification.Licence | toURIEncoded }})
 [![Manifest](https://img.shields.io/badge/Manifest-{{ .ManifestFileName | toURIEncoded }}-blue)]({{ if isHostedOnGitHub .Specification }}{{ linkToManifest .Specification .ManifestFileName }}{{ else }}./{{ .ManifestFileName }}{{ end }})
+{{- if .OCI.PublishesToGHCR }}
+[![GHCR version]({{ .OCI.ReleaseBadgeURL }})]({{ .OCI.PackagePageURL }})
+{{- end }}
 {{- if .Specification.Public }}
 [![Go Reference](https://pkg.go.dev/badge/{{ sdkModuleRoot .Specification }}.svg)](https://pkg.go.dev/{{ sdkModuleRoot .Specification }})
 [![Go Report Card](https://goreportcard.com/badge/{{ moduleRoot .Specification }})](https://goreportcard.com/report/{{ moduleRoot .Specification }})
@@ -39,6 +42,18 @@ or the help
 ## Installation
 
 Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `{{ .Specification.PackageName }}`
+
+Released Linux packages also install the skills related to the tool under `{{ .Distribution.ToolSkillsPath }}`.
+
+{{ if .OCI.PublishesToGHCR -}}
+If you prefer not to install the tool locally, OCI images are also published to `{{ .OCI.ImageName }}`.
+These images are useful for CI, reproducible builds, and container-first workflows.
+
+Example:
+```sh
+docker run --rm {{ .OCI.ImageName }}:v<version>-alpine --help
+```
+{{ end }}
 
 See the [Agent](#agent) section for skills that describe how to install, run, and integrate `{{ .Specification.CommandLineCommands.Binary }}`.
 
