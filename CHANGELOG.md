@@ -2,6 +2,20 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.43.1" (2026-07-22)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Work around nfpm APK tree packaging issues in OCI image builds while keeping Debian-style package trees for tool-related skills. (#20260722153840)
+- :lock: Run generated OCI images as a non-root user by default. (#20260722154523)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.43.0" (2026-07-22)
 =====================
 

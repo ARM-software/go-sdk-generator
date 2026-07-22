@@ -1,1 +1,0 @@
-:bug: Work around nfpm APK tree packaging issues in OCI image builds while keeping Debian-style package trees for tool-related skills.
