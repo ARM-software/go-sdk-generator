@@ -2,6 +2,35 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.43.0" (2026-07-22)
+=====================
+
+Features
+--------
+
+- :sparkles: Add OCI distribution support with multi-architecture images, GHCR publishing, and packaged skills related to the tool. (#20260722115521)
+
+
+Bugfixes
+--------
+
+- Dependency upgrade: v4-4.10.0 (#20260720043208)
+- :recycle: Change documentation templates and content to be more accurate (#20260722002912)
+- :recycle: Update `generator` definition so the different commands it has are correct (#20260722053720)
+- Dependency upgrade: golang-1.27rc2 (#20260722084756)
+- :book: Include skills related to the tool in generated Linux packages. (#20260722115551)
+
+
+Improved Documentation
+----------------------
+
+- :book: improve the generated documentation to better describe what is generated. (#20260721223951)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.42.1" (2026-07-16)
 =====================
 
