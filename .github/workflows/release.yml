@@ -15,7 +15,7 @@ jobs:
     uses: Arm-Debug/OTG-Services-Workflows/.github/workflows/release.yml@latest
     secrets: inherit
     with:
-      go_version: "1.26.4"
+      go_version: "1.26.5"
       release_type: ${{ inputs.release_type }}
       save-outputs-as-artefact: go-sdk-generator-package
 
