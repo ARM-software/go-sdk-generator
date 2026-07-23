@@ -43,6 +43,29 @@ Linux packages installed this way also include the skills related to the tool un
 If the user prefers not to install the tool locally, OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator`.
 This is useful for CI, reproducible builds, and container-first workflows.
 
+GitHub documents container-registry authentication and package permissions at:
+`https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry`
+
+On a local machine, if the package is not publicly accessible to the user's
+account yet, log in to `ghcr.io` first. With the GitHub CLI installed and
+already authenticated:
+
+```bash
+gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
+```
+
+If `docker run` or `docker pull` fails with `403 Forbidden`, the GitHub
+credentials usually do not have package-read access. The `read:packages`
+permission is required, including in CI workflows that need to pull the OCI
+image. For local-machine use with GitHub CLI credentials, refresh GitHub CLI
+credentials, then log in to GHCR again:
+
+```bash
+docker logout ghcr.io
+gh auth refresh --scopes read:packages
+gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
+```
+
 
 ---
 
