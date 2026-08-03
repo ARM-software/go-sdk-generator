@@ -1,8 +1,8 @@
 bitbucket.org/creachadair/stringset v0.0.9/go.mod h1:t+4WcQ4+PXTa8aQdNKe40ZP6iwesoMFWAxPGd3UGjyY=
 dario.cat/mergo v1.0.2 h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
 dario.cat/mergo v1.0.2/go.mod h1:E/hbnu0NxMFBjpMIE34DRGLWqDy0g5FuKDhCb31ngxA=
-github.com/ARM-software/golang-utils/utils v1.166.1 h1:8JWBtHPrNGfVuc2R7HD9zOVi95r7xJMeX8VG0sCL/64=
-github.com/ARM-software/golang-utils/utils v1.166.1/go.mod h1:l2XCoS45OCD4CDFWUSsMBk0SQRar6vjilgiTV0zDZyU=
+github.com/ARM-software/golang-utils/utils v1.167.0 h1:BmgKjzGZct5NSt0ZjlPunrzK4tdgvxWKZ9xF/zcwp+4=
+github.com/ARM-software/golang-utils/utils v1.167.0/go.mod h1:ps2lhUHuPbB6gp09v3zf5FCSbhNoO3qRS9RX1Q2KSXQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8=
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
