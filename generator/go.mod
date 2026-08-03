@@ -13,7 +13,7 @@ tool (
 require (
 	github.com/ARM-software/golang-utils/utils v1.166.1
 	github.com/deckarep/golang-set/v2 v2.9.0
-	github.com/go-faker/faker/v4 v4.10.0
+	github.com/go-faker/faker/v4 v4.10.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/stretchr/testify v1.11.1
