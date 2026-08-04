@@ -69,6 +69,7 @@ const (
 	qltyTemplateFile             = "templates/qlty.toml.tmpl"
 	ciWorkflowFile               = "templates/ci.yml.tmpl"
 	ciWorkflowPublicFile         = "templates/ci.public.yml.tmpl"
+	upgradeGeneratorWorkflowFile = "templates/upgrade-generator.yml.tmpl"
 	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
 	dependabotWorkflowPublicFile = "templates/dependabot.public.workflow.yml.tmpl"
 	releaseWorkflowFile          = "templates/release.yml.tmpl"
@@ -390,6 +391,7 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
 		}
 		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), updateGoVersion, true)
 		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), updateGoVersion, true)
 	}
