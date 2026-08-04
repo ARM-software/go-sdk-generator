@@ -210,6 +210,10 @@ func Test_ignoreLintingError(t *testing.T) {
 	assert.True(t, ignoreLintingError("afaas-store-token"))
 	assert.True(t, ignoreLintingError("serveAFAASStoreTokenArg"))
 	assert.True(t, ignoreLintingError("apiKey"))
+	assert.False(t, ignoreLintingError("verifyNoKeyringArg"))
+	assert.False(t, ignoreLintingError("noKeyring"))
+	assert.False(t, ignoreLintingError("no-keyring"))
+	assert.False(t, ignoreLintingError("turnkey"))
 	assert.False(t, ignoreLintingError(faker.Paragraph()))
 	assert.False(t, ignoreLintingError(faker.Password()))
 }

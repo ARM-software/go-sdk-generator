@@ -34,6 +34,7 @@ jobs:
           token: ${{ secrets.GIT_SECRET || github.token }}
 
       - name: Run go-sdk-generator generate action
+        id: generate-action
         uses: Arm-Debug/go-sdk-generator/actions/generate@v0.42.1
         with:
           input: generate.yml
@@ -50,6 +51,28 @@ jobs:
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Read generator version from CLI
+        if: steps.generated-changes.outputs.changed == 'true'
+        id: generator-cli-version
+        shell: bash
+        run: |
+          cmd="${{ steps.generate-action.outputs.cmd }}"
+          test -n "$cmd"
+          generator_version="$($cmd --version)"
+          test -n "$generator_version"
+          {
+            echo 'generator-version<<EOF'
+            echo "$generator_version"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create news file for generated changes
+        if: steps.generated-changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          python -m pip install continuous-delivery-scripts
+          cd-create-news-file --type bugfix ":camel: Regenerate project output after upgrading ${{ steps.generator-cli-version.outputs.generator-version }}."
 
       - name: Commit changes on non-default branches
         if: steps.generated-changes.outputs.changed == 'true' && (github.head_ref || github.ref_name) != github.event.repository.default_branch

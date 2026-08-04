@@ -511,13 +511,10 @@ func toPackageName(value string) string {
 }
 
 func ignoreLintingError(name string) bool {
-	nameLower := strings.ToLower(name)
-	for i := range namesWithLintErrorToIgnore {
-		if strings.Contains(nameLower, namesWithLintErrorToIgnore[i]) {
-			return true
-		}
-	}
-	return false
+	normalised := fmt.Sprintf("_%s_", toSnakeCase(strings.TrimSpace(name)))
+	return collection.AnyFunc(namesWithLintErrorToIgnore, func(ignored string) bool {
+		return strings.Contains(normalised, fmt.Sprintf("_%s_", ignored))
+	})
 }
 
 func determineZeroValue(s string) string {

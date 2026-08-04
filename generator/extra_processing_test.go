@@ -10,6 +10,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
@@ -604,6 +605,72 @@ func TestProcessArguments(t *testing.T) {
 
 		errortest.AssertError(t, ProcessArguments(context.Background(), sdk), commonerrors.ErrInvalid)
 	})
+}
+
+func TestPrecomputeArgNamesNoKeyringIsNotMarkedNoLint(t *testing.T) {
+	cmds := &CommandLineCommands{
+		Functions: []CliFunction{
+			{
+				Name:            "Verify",
+				LoadFromKeyring: true,
+				Configuration: []FunctionConfigFields{
+					{
+						Name:            noKeyringArgument,
+						Description:     "Disable loading configuration from the system keyring",
+						IsRoot:          false,
+						LangType:        "bool",
+						MapstructureTag: toSnakeCase(noKeyringArgument),
+					},
+					{
+						Name:            "APIKey",
+						Description:     "An API key enabling the use of the online services",
+						IsRoot:          false,
+						LangType:        "string",
+						MapstructureTag: "api_key",
+					},
+				},
+			},
+		},
+	}
+
+	args, err := PrecomputeArgNames(cmds)
+	require.NoError(t, err)
+
+	noKeyring, found := collection.FirstBy(args, func(arg ArgDefinition) bool {
+		return arg.Name == "verifyNoKeyringArg"
+	})
+	require.True(t, found)
+	assert.False(t, noKeyring.NoLint)
+
+	apiKey, found := collection.FirstBy(args, func(arg ArgDefinition) bool {
+		return arg.Name == "verifyAPIKeyArg"
+	})
+	require.True(t, found)
+	assert.True(t, apiKey.NoLint)
+}
+
+func TestPrecomputeArgNamesFromVerifyManifestNoKeyringIsNotMarkedNoLint(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+	manifestPath := filesystem.FilePathJoin(localFs, "testdata", "verify.yml")
+	content, err := filesystem.ReadFile(manifestPath)
+	require.NoError(t, err)
+
+	var sdk SDK
+	require.NoError(t, unmarshalManifestContent(filesystem.FilePathExt(localFs, manifestPath), content, &sdk))
+	require.NoError(t, ProcessExtraImports(context.Background(), &sdk))
+	require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), &sdk))
+	require.NoError(t, ProcessAdditionalTypePackages(context.Background(), &sdk))
+	require.NoError(t, ProcessBindings(context.Background(), &sdk))
+	require.NoError(t, ProcessArguments(context.Background(), &sdk))
+
+	args, err := PrecomputeArgNames(sdk.Specification.CommandLineCommands)
+	require.NoError(t, err)
+
+	noKeyring, found := collection.FirstBy(args, func(arg ArgDefinition) bool {
+		return arg.Name == "verifyNoKeyringArg"
+	})
+	require.True(t, found)
+	assert.False(t, noKeyring.NoLint)
 }
 
 func TestPrecomputeFlagsAndBindings(t *testing.T) {

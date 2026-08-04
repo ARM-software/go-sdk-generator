@@ -1,1 +1,1 @@
-:bug: fix the generator upgrade CI flow
+:green_heart: Fix the upgrade-generator workflow so Dependabot updates run correctly, workflow-file changes can be pushed, and regenerated output creates a versioned news file.
