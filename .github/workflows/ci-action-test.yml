@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configure Git with secret
         run: |
@@ -108,7 +108,7 @@ jobs:
     runs-on: self-hosted-ubuntu-latest-arm64-ephemeral
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configure Git with secret
         run: |
@@ -193,7 +193,7 @@ jobs:
     runs-on: self-hosted-ubuntu-latest-x64-ephemeral
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configure Git with secret
         run: |
