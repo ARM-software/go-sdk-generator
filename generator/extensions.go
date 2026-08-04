@@ -27,7 +27,7 @@ import (
 var (
 	// validArgTypes lists all the types of variable which can be used in specification
 	// it tries to support special types such as the one defined by OpenAPI specification https://spec.openapis.org/registry/format/
-	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "ip", "datetime", "regex", "[]string", connectionLangType, onlineTargetLangType, protectedConnectionLangType, serviceLangType, serverLangType, protectedServiceLangType, protectedServerLangType, behindAuthConnectionLangType, behindAuthServiceLangType, behindAuthServerLangType, serviceBehindAuthLangType, serverBehindAuthLangType}
+	validArgTypes = []string{"time.Duration", "duration", "[]byte", "string", "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "decimal", "float32", "float64", "bool", "hex", "binary", "byte", "base64", "url", "uri", "host", "port", "version", "semver", "uuid", "email", "json", "validJSON", "ip", "datetime", "regex", "[]string", "filepath", "existingFilepath", "pathParameter", connectionLangType, onlineTargetLangType, protectedConnectionLangType, serviceLangType, serverLangType, protectedServiceLangType, protectedServerLangType, behindAuthConnectionLangType, behindAuthServiceLangType, behindAuthServerLangType, serviceBehindAuthLangType, serverBehindAuthLangType}
 
 	namesWithLintErrorToIgnore = []string{"token", "password", "key"}
 )
@@ -60,7 +60,7 @@ func argFlagType(s string) string {
 		return "BytesHex"
 	case "base64", "byte":
 		return "BytesBase64"
-	case "host", "url", "uri", "version", "semver", "uuid", "email", "json", "datetime", "regex", "binary":
+	case "host", "url", "uri", "version", "semver", "uuid", "email", "json", "validJSON", "datetime", "regex", "binary", "filepath", "existingFilepath", "pathParameter":
 		return "String"
 	case "ip":
 		return "IP"
@@ -403,12 +403,8 @@ func enumValidationRule(ownerName, fieldName, langType string, reference bool, e
 	if !hasEnum(enum) {
 		return ""
 	}
-	baseType := enumTypeName(ownerName, fieldName, langType, enum)
 	constRefs := enumConstRefs(ownerName, fieldName, langType, enum)
-	if reference {
-		return fmt.Sprintf(", validation.By(func(value any) error { enumValue, _ := value.(*%s); if enumValue == nil { return nil }; return validation.In(%s).Validate(*enumValue) })", baseType, constRefs)
-	}
-	return fmt.Sprintf(", validation.In(%s)", constRefs)
+	return fmt.Sprintf(", validationUtils.Enum(%s)", constRefs)
 }
 
 func descriptionWithEnum(description string, enum []string) string {
@@ -802,8 +798,10 @@ func argValidationRule(s string) string {
 			return field.ToOptionalString(", is.Hexadecimal")
 		case "base64", "byte":
 			return field.ToOptionalString(", is.Base64")
-		case "host", "url", "uri":
+		case "host", "url":
 			return field.ToOptionalString(", is.URL")
+		case "uri":
+			return field.ToOptionalString(", validationUtils.IsURI")
 		case "version", "semver":
 			return field.ToOptionalString(", is.Semver")
 		case "uuid":
@@ -812,8 +810,18 @@ func argValidationRule(s string) string {
 			return field.ToOptionalString(", is.Email")
 		case "json":
 			return field.ToOptionalString(", is.JSON")
+		case "validJSON":
+			return field.ToOptionalString(", jsonutils.IsValidJSON")
 		case "ip":
 			return field.ToOptionalString(", is.IP")
+		case "datetime":
+			return field.ToOptionalString(", validationUtils.IsRFC3339Timestamp")
+		case "filepath":
+			return field.ToOptionalString(", filesystem.NewOSPathValidationRule(true)")
+		case "existingFilepath":
+			return field.ToOptionalString(", filesystem.NewOSPathExistRule(true)")
+		case "pathParameter":
+			return field.ToOptionalString(", validationUtils.IsPathParameter")
 		case "port":
 			return field.ToOptionalString(", validationUtils.IsPort")
 		}

@@ -175,6 +175,6 @@ func TestEmbeddedConfigTemplateOmitsRequiredForEnumFields(t *testing.T) {
 	var b strings.Builder
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
 	output := b.String()
-	assert.Contains(t, output, "validation.Field(&cfg.OutputFormat, validation.In(")
+	assert.Contains(t, output, "validation.Field(&cfg.OutputFormat, validationUtils.Enum(")
 	assert.NotContains(t, output, "validation.Field(&cfg.OutputFormat, validation.Required")
 }

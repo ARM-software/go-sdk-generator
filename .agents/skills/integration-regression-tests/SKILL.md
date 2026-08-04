@@ -1,11 +1,11 @@
 ---
 name: integration-regression-tests
-description: Update and verify generator integration or regression tests, especially snapshot and fixture-based generation tests, in the correct sequence.
+description: Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests.
 license: Proprietary
 compatibility: opencode
 ---
 
-# Skill: Integration And Regression Tests
+# Integration And Regression Tests
 
 Use this skill when changing the generator, templates, preprocessing, schema, or generated project shape and the repository's integration or regression tests may need updating.
 

@@ -4,7 +4,14 @@ package {{ .CurrentTypePackage }}
 
 import (
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	{{ if .CurrentAdditionalTypes.UsesFilesystemValidationAlias -}}
+	"github.com/ARM-software/golang-utils/utils/filesystem"
+	{{ end -}}
+	{{ if .CurrentAdditionalTypes.UsesJSONValidationAlias -}}
+	jsonutils "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
+	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
+	"regexp"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
@@ -53,9 +60,9 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ end }}
 	{{ else }}
 	{{ if .Required }}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
 	{{ else if .Condition -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validation.Match(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
 	{{ else if or $validation $enumValidation -}}
 	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
 	{{ end }}

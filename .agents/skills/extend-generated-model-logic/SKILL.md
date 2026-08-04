@@ -1,6 +1,6 @@
 ---
 name: extend-generated-model-logic
-description: Put small traversal, capability, and preprocessing logic on the generated schema model types instead of centralising it in large helper functions.
+description: Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions.
 license: Proprietary
 compatibility: opencode
 ---

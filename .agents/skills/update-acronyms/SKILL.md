@@ -1,6 +1,6 @@
 ---
 name: update-acronyms
-description: Define or update acronym rules and exceptions for identifier casing in the generator.
+description: Use when identifier casing is wrong and acronym or exception rules in the generator need to be added or updated.
 license: Proprietary
 compatibility: opencode
 ---

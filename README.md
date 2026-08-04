@@ -453,13 +453,14 @@ As well as native Go types, the generator supports a set of convenience aliases 
 | `decimal`                                     | `float64`         | Convenience alias for decimal numbers                       |
 | `datetime`                                    | `string`          | RFC3339-style date/time input with special default handling |
 | `uuid`                                        | `string`          | UUID-formatted string                                       |
-| `json`                                        | `string`          | JSON payload stored as a string                             |
-| `url`, `uri`, `host`                          | `string`          | URL-like string values                                      |
+| `json`, `validJSON`                           | `string`          | JSON payload stored as a string; `validJSON` enables strict JSON validation |
+| `url`, `uri`, `host`, `pathParameter`         | `string`          | URL-like string values; `uri` and `pathParameter` use specialised validators |
 | `connection`, `onlineTarget`, `service`, `server`, `protectedConnection`, `protectedService`, `protectedServer`, `behindAuthConnection`, `behindAuthService`, `behindAuthServer`, `serviceBehindAuth`, `serverBehindAuth` | `httpUtils.RequestConfiguration` | HTTP request target configuration; names containing `protected` or `behindAuth` enable authorisation-oriented defaults |
 | `email`                                       | `string`          | Email address string                                        |
 | `ip`                                          | `string`          | IP address string                                           |
 | `version`, `semver`                           | `string`          | Semantic version strings                                    |
 | `port`                                        | `uint32`          | Network port number                                         |
+| `filepath`, `existingFilepath`                | `string`          | Filesystem path strings; `existingFilepath` also requires the path to exist |
 | `hex`                                         | `[]byte`          | Hex-encoded bytes decoded at runtime                        |
 | `base64`, `byte`, `binary`, `regex`           | `string`          | Validated string-based formats                              |
 

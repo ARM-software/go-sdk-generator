@@ -12,6 +12,11 @@ import (
 
 func TestLangTypeValidationRule(t *testing.T) {
 	assert.Equal(t, ", validationUtils.IsPort", argValidationRule("port"))
+	assert.Equal(t, ", validationUtils.IsURI", argValidationRule("uri"))
+	assert.Equal(t, ", validationUtils.IsPathParameter", argValidationRule("pathParameter"))
+	assert.Equal(t, ", jsonutils.IsValidJSON", argValidationRule("validJSON"))
+	assert.Equal(t, ", filesystem.NewOSPathValidationRule(true)", argValidationRule("filepath"))
+	assert.Equal(t, ", filesystem.NewOSPathExistRule(true)", argValidationRule("existingFilepath"))
 	assert.Equal(t, ", is.UUID", argValidationRule("uuid"))
 	assert.Equal(t, ", is.URL", argValidationRule("host"))
 	assert.Empty(t, argValidationRule("string"))

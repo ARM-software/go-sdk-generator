@@ -1,6 +1,6 @@
 ---
 name: manifest-authoring
-description: Define generator manifests clearly, choose built-in types where possible, and model SDK or CLI interfaces with stable, idiomatic names.
+description: Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly.
 license: Proprietary
 compatibility: opencode
 ---

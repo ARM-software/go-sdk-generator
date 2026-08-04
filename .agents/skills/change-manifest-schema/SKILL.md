@@ -1,6 +1,6 @@
 ---
 name: change-manifest-schema
-description: Add or change fields and features in the generator manifest schema, regenerate generated files correctly, and dogfood the updated generator against its own manifest.
+description: Use when editing `generator/schema/schema.yml` or changing how manifests are validated or generated. This skill covers the follow-up work: regenerate generated files and dogfood the generator in the correct order.
 license: Proprietary
 compatibility: opencode
 ---

@@ -15,6 +15,19 @@ func isBoolean(langType string) bool {
 	return strings.EqualFold(strings.TrimSpace(langType), "bool")
 }
 
+func usesFilesystemValidationAlias(langType string) bool {
+	switch strings.TrimSpace(langType) {
+	case "filepath", "existingFilepath":
+		return true
+	default:
+		return false
+	}
+}
+
+func usesJSONValidationAlias(langType string) bool {
+	return strings.TrimSpace(langType) == "validJSON"
+}
+
 func (b *Binding) HasEnum() bool {
 	return false
 }
@@ -47,6 +60,14 @@ func (cfg *ConfigurationOption) SuppressesRequiredValidation() bool {
 	return cfg.HasEnum() || isBoolean(cfg.LangType)
 }
 
+func (cfg *ConfigurationOption) UsesFilesystemValidationAlias() bool {
+	return cfg != nil && usesFilesystemValidationAlias(cfg.LangType)
+}
+
+func (cfg *ConfigurationOption) UsesJSONValidationAlias() bool {
+	return cfg != nil && usesJSONValidationAlias(cfg.LangType)
+}
+
 func (cfg *FunctionConfigFields) HasEnum() bool {
 	if cfg == nil {
 		return false
@@ -61,12 +82,38 @@ func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {
 	return cfg.HasEnum() || isBoolean(cfg.LangType)
 }
 
+func (cfg *FunctionConfigFields) UsesFilesystemValidationAlias() bool {
+	return cfg != nil && usesFilesystemValidationAlias(cfg.LangType)
+}
+
+func (cfg *FunctionConfigFields) UsesJSONValidationAlias() bool {
+	return cfg != nil && usesJSONValidationAlias(cfg.LangType)
+}
+
 func (typ *Type) HasEnum() bool {
 	if typ == nil {
 		return false
 	}
 	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool {
 		return fieldDef.HasEnum()
+	})
+}
+
+func (typ *Type) UsesFilesystemValidationAlias() bool {
+	if typ == nil {
+		return false
+	}
+	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool {
+		return fieldDef.UsesFilesystemValidationAlias()
+	})
+}
+
+func (typ *Type) UsesJSONValidationAlias() bool {
+	if typ == nil {
+		return false
+	}
+	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool {
+		return fieldDef.UsesJSONValidationAlias()
 	})
 }
 
@@ -77,15 +124,47 @@ func (fieldDef *EntityField) SuppressesRequiredValidation() bool {
 	return fieldDef.HasEnum() || isBoolean(fieldDef.LangType)
 }
 
+func (fieldDef *EntityField) UsesFilesystemValidationAlias() bool {
+	return fieldDef != nil && usesFilesystemValidationAlias(fieldDef.LangType)
+}
+
+func (fieldDef *EntityField) UsesJSONValidationAlias() bool {
+	return fieldDef != nil && usesJSONValidationAlias(fieldDef.LangType)
+}
+
 func (types Types) HasEnum() bool {
 	return collection.AnyRefFunc(types, func(typ *Type) bool {
 		return typ.HasEnum()
 	})
 }
 
+func (types Types) UsesFilesystemValidationAlias() bool {
+	return collection.AnyRefFunc(types, func(typ *Type) bool {
+		return typ.UsesFilesystemValidationAlias()
+	})
+}
+
+func (types Types) UsesJSONValidationAlias() bool {
+	return collection.AnyRefFunc(types, func(typ *Type) bool {
+		return typ.UsesJSONValidationAlias()
+	})
+}
+
 func (cfgs Configuration) HasEnum() bool {
 	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
 		return cfg.HasEnum()
+	})
+}
+
+func (cfgs Configuration) UsesFilesystemValidationAlias() bool {
+	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
+		return cfg.UsesFilesystemValidationAlias()
+	})
+}
+
+func (cfgs Configuration) UsesJSONValidationAlias() bool {
+	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
+		return cfg.UsesJSONValidationAlias()
 	})
 }
 
@@ -128,6 +207,24 @@ func (fct *CliFunction) HasEnum() bool {
 	})
 }
 
+func (fct *CliFunction) UsesFilesystemValidationAlias() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesFilesystemValidationAlias()
+	})
+}
+
+func (fct *CliFunction) UsesJSONValidationAlias() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesJSONValidationAlias()
+	})
+}
+
 func (fct *CliFunction) SuppressedRequiredValidationMap() map[string]bool {
 	if fct == nil {
 		return nil
@@ -147,6 +244,24 @@ func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	}
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
 		return fct.HasEnum()
+	})
+}
+
+func (cmds *CommandLineCommands) UsesFilesystemValidationAlias() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.UsesFilesystemValidationAlias()
+	})
+}
+
+func (cmds *CommandLineCommands) UsesJSONValidationAlias() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.UsesJSONValidationAlias()
 	})
 }
 
@@ -213,6 +328,14 @@ func (spec *SDKSpecification) HasInterfaceEnums() bool {
 		return false
 	}
 	return (&spec.Interface).HasEnum()
+}
+
+func (spec *SDKSpecification) UsesFilesystemValidationAlias() bool {
+	return spec != nil && (spec.GlobalConfiguration.UsesFilesystemValidationAlias() || spec.AdditionalTypes.UsesFilesystemValidationAlias())
+}
+
+func (spec *SDKSpecification) UsesJSONValidationAlias() bool {
+	return spec != nil && (spec.GlobalConfiguration.UsesJSONValidationAlias() || spec.AdditionalTypes.UsesJSONValidationAlias())
 }
 
 func (typ *Type) SuppressedRequiredValidationMap() map[string]bool {

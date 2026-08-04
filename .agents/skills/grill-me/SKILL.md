@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Challenge a plan against the repo's domain model, sharpen terminology, and update ADRs inline as decisions solidify.
+description: Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation.
 license: MIT
 compatibility: opencode
 ---
