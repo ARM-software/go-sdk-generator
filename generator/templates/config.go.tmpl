@@ -30,7 +30,7 @@ import (
 type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $fieldName := .Name | toPascal | title -}}
-	{{ goComment "\t" (printf "%s is %s" $fieldName (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples)) }}
+	{{ goComment "\t" (printf "%s is %s" $fieldName (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples) .DeprecationNotice)) }}
 	{{ $fieldName }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool

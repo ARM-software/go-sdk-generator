@@ -70,6 +70,9 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 	Use:   "{{ $nameLower }}",
 	Short: {{ .Description | quoteDescription }},
 	Long:  {{ .Description | quoteDescription }},
+	{{ if .DeprecationNotice -}}
+	Deprecated: {{ cobraDeprecationMessage .DeprecationNotice | quote }},
+	{{ end -}}
 	RunE: func(cmd *cobra.Command, {{ if .Operands }}args []string{{ else }}_ []string{{ end }}) (err error) {
 		ctx := context.Background()
 		logger, err := logs.NewStdLogger("{{ .Name | toPascal }}")

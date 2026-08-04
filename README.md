@@ -161,7 +161,7 @@ It also helps uniformise how we define CLIs. Argument binding, environment-varia
 3. Run `go-sdk-generator generate` against that manifest.
 4. Implement or extend the generated stubs using the project's delegate pattern and normal Go code.
 
-The manifest is the source of truth for generated structure. That makes the project contract-first and easy to regenerate when the SDK surface evolves.
+The manifest is the source of truth for generated structure. That makes the project contract-first and easy to regenerate when the SDK surface evolves. When that contract changes incompatibly, follow the deprecation process described in [Breaking Changes And Deprecation](#breaking-changes-and-deprecation).
 
 References:
 
@@ -312,6 +312,48 @@ Rules:
 - `enum` is intended for string-like values and should not be combined with unrelated non-string shapes
 - if a method argument is the last argument and `list: true`, the generated method signature uses a variadic form `...T`
 - `reference`, `list`, and `iterator` shape the generated Go type on top of the base `lang_type`
+
+## Breaking Changes And Deprecation
+
+This process matters for any change that can force existing manifest authors or generated-project consumers to edit working manifests, generated code integrations, or automation unexpectedly. The goal is to keep contract evolution deliberate, reviewable, and migratable rather than surprising.
+
+A breaking change is any manifest or generated-surface change that can force existing manifest authors or generated-project consumers to edit working configurations or code.
+
+Common examples include:
+
+- renaming a manifest field, method, command, parameter, or type
+- removing a manifest field, method, command, parameter, or type
+- changing the meaning of an existing field incompatibly
+- tightening validation so previously valid manifests become invalid
+- changing a value shape such as scalar to list, value to reference, or one type to another incompatible type
+- replacing one concept with several new ones, or merging several old concepts into one new one
+
+A deprecation is the transitional phase before such a breaking removal or incompatible replacement. The old concept still exists, but it is marked as on the way out and points users to the preferred replacement.
+
+Recommended process:
+
+1. Add the replacement or new shape first where possible.
+2. Mark the old field, parameter, method, command, or other concept with `deprecation_notice`.
+3. State the replacement clearly and give a deprecation window with an issue date and, when known, a removal date.
+4. Surface that notice in generated documentation, comments, and CLI help so users encounter it naturally.
+5. Keep the deprecated behaviour working during the deprecation window unless there is a strong safety or correctness reason not to.
+6. Only remove the deprecated concept after that window has been communicated and consumers have had time to migrate.
+
+Semantic versioning and news-file note:
+
+- This repository still follows SemVer conceptually: breaking changes are major in theory, new features are minor, and fixes are patch.
+- The output of `go-sdk-generator` is a Go project, so a true major version bump is not just a version-number change. From `v2` onwards it also requires the Go module path and consumer import paths to change.
+- Because of that, do not treat every breaking change as an automatic normal-path major bump.
+- If the change is breaking but the project is not performing a full Go major-module transition, record it with a `.feature` news file and make the break explicit in the message, for example with a `:boom:` prefix.
+- Only use a `.major` news file when the project is genuinely doing the full Go major-version migration, including the module-path consequences.
+
+References:
+
+- [Semantic Versioning](https://semver.org/)
+- [Go modules major version suffix](https://go.dev/ref/mod#major-version-suffix)
+- [Go Modules: v2 and beyond](https://go.dev/blog/v2-go-modules)
+
+In short: prefer deprecate, document, migrate, then remove. Do not make abrupt deletions or silent incompatible renames when a managed deprecation path is possible.
 
 For a concrete minimal manifest, see `.agents/skills/generator/SKILL.md` or the repo example [`generate.yml`](./generate.yml).
 

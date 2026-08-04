@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 	"text/template"
+	"time"
 
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
@@ -49,6 +50,18 @@ func TestTemplateLowerFirstRenderingFromField(t *testing.T) {
 	assert.Equal(t, "// Enabled is whether the test configuration is enabled.", b.String())
 }
 
+func TestDescriptionWithDeprecation(t *testing.T) {
+	notice := &DeprecationNotice{
+		IssueDate:   time.Date(2026, time.July, 24, 0, 0, 0, 0, time.UTC),
+		RemovalDate: field.ToOptionalTime(time.Date(2027, time.January, 1, 0, 0, 0, 0, time.UTC)),
+		Description: field.ToOptionalString("This field is superseded by a nested configuration object"),
+		Replacement: field.ToOptionalString("NewField"),
+	}
+
+	assert.Equal(t, "Field description.\nDeprecated: Deprecated since 2026-07-24T00:00:00Z. Planned removal date: 2027-01-01T00:00:00Z. Replacement: NewField. This field is superseded by a nested configuration object.", descriptionWithDeprecation("Field description.", notice))
+	assert.Equal(t, "use NewField instead; deprecated since 2026-07-24T00:00:00Z; planned removal date 2027-01-01T00:00:00Z; This field is superseded by a nested configuration object", cobraDeprecationMessage(notice))
+}
+
 func TestEmbeddedConfigTemplateCommentRendering(t *testing.T) {
 	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
 	require.NoError(t, err)
@@ -67,7 +80,11 @@ func TestEmbeddedConfigTemplateCommentRendering(t *testing.T) {
 					LangType:        "bool",
 					MapstructureTag: "enabled",
 					Description:     "Whether the test configuration is enabled.",
-					DefaultValue:    field.ToOptionalString("true"),
+					DeprecationNotice: &DeprecationNotice{
+						IssueDate:   time.Date(2026, time.July, 24, 0, 0, 0, 0, time.UTC),
+						Replacement: field.ToOptionalString("FeatureToggle"),
+					},
+					DefaultValue: field.ToOptionalString("true"),
 				}},
 			},
 		},
@@ -76,6 +93,7 @@ func TestEmbeddedConfigTemplateCommentRendering(t *testing.T) {
 	var b strings.Builder
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
 	assert.Contains(t, b.String(), "// Enabled is whether the test configuration is enabled.")
+	assert.Contains(t, b.String(), "// Deprecated: Deprecated since 2026-07-24T00:00:00Z. Replacement: FeatureToggle.")
 }
 
 func TestDocumentedAdditionalTypeFieldTypePreservesAcronymCasing(t *testing.T) {

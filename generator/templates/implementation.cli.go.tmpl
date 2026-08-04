@@ -25,6 +25,9 @@ import (
 {{ range .Specification.CommandLineCommands.Functions -}}
 /*
 {{ .Name | toPascal }} function: {{ .Description }}
+{{ if .DeprecationNotice }}
+Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
+{{ end }}
 */
 {{ $functionName:= .Name  | toPascal -}}
 func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {

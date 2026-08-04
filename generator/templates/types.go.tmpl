@@ -26,10 +26,10 @@ import (
 {{ end -}}
 {{ range .CurrentAdditionalTypes }}
 {{ $structName := .Name | toPascal -}}
-{{ goComment "" (printf "%s represents %s" $structName (.Description | lowerFirst)) }}
+{{ goComment "" (printf "%s represents %s" $structName (descriptionWithDeprecation (.Description | lowerFirst) .DeprecationNotice)) }}
 type {{ $structName  }} struct {
 {{ range .Fields -}}
-	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples)) }}
+	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples) .DeprecationNotice)) }}
 	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $structName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 }

@@ -13,6 +13,7 @@ import (
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
@@ -144,6 +145,40 @@ func wrapExampleValidationError(name string, err error) error {
 	return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s does not comply with its lang_type", name)
 }
 
+func (notice *DeprecationNotice) Validate() error {
+	if notice == nil {
+		return nil
+	}
+	if err := configUtils.ValidateEmbedded(notice); err != nil {
+		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in deprecation notice")
+	}
+
+	err := validation.ValidateStruct(notice,
+		validation.Field(&notice.IssueDate,
+			validation.Required,
+			validationUtils.IsRFC3339Timestamp,
+		),
+		validation.Field(&notice.RemovalDate,
+			validationUtils.NilTimestampOrNotEmpty,
+			validation.When(reflection.IsNotEmpty(notice.RemovalDate),
+				validationUtils.IsRFC3339Timestamp,
+				validationUtils.TimestampMinimum(notice.IssueDate),
+			),
+		),
+		validation.Field(&notice.Description,
+			validation.NilOrNotEmpty.Error("deprecation notice description must not be empty when provided"),
+		),
+		validation.Field(&notice.Replacement,
+			validation.NilOrNotEmpty.Error("deprecation notice replacement must not be empty when provided"),
+		),
+	)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate deprecation notice")
+	}
+
+	return nil
+}
+
 func (b *Binding) Validate() error {
 	if b == nil {
 		return commonerrors.UndefinedVariable("binding")
@@ -171,6 +206,9 @@ func (arg *CommandArgument) Validate() error {
 		validation.Field(&arg.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("command argument %q", arg.Name), langType, arg.List, arg.Iterator)
+		})),
+		validation.Field(&arg.DeprecationNotice, validation.By(func(value any) error {
+			return arg.DeprecationNotice.Validate()
 		})),
 		validation.Field(&arg.Example, validation.By(func(value any) error {
 			return validateExamplesDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.List, arg.Iterator, arg.Enum, arg.Example, arg.Examples)
@@ -205,6 +243,9 @@ func (cfg *ConfigurationOption) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("global configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
 		})),
+		validation.Field(&cfg.DeprecationNotice, validation.By(func(value any) error {
+			return cfg.DeprecationNotice.Validate()
+		})),
 		validation.Field(&cfg.Example, validation.By(func(value any) error {
 			return validateExamplesDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
 		})),
@@ -237,6 +278,9 @@ func (fieldDef *EntityField) Validate() error {
 		validation.Field(&fieldDef.LangType, validation.By(func(value any) error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("entity field %q", fieldDef.Name), langType, fieldDef.List, fieldDef.Iterator)
+		})),
+		validation.Field(&fieldDef.DeprecationNotice, validation.By(func(value any) error {
+			return fieldDef.DeprecationNotice.Validate()
 		})),
 		validation.Field(&fieldDef.Example, validation.By(func(value any) error {
 			return validateExamplesDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.List, fieldDef.Iterator, fieldDef.Enum, fieldDef.Example, fieldDef.Examples)
@@ -271,6 +315,9 @@ func (cfg *FunctionConfigFields) Validate() error {
 			langType, _ := value.(string)
 			return validateParameterShape(fmt.Sprintf("function configuration %q", cfg.Name), langType, cfg.List, cfg.Iterator)
 		})),
+		validation.Field(&cfg.DeprecationNotice, validation.By(func(value any) error {
+			return cfg.DeprecationNotice.Validate()
+		})),
 		validation.Field(&cfg.Example, validation.By(func(value any) error {
 			return validateExamplesDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
 		})),
@@ -300,6 +347,9 @@ func (method *InterfaceMethod) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in interface method")
 	}
 	err := validation.ValidateStruct(method,
+		validation.Field(&method.DeprecationNotice, validation.By(func(value any) error {
+			return method.DeprecationNotice.Validate()
+		})),
 		validation.Field(&method.Args, validation.By(func(value any) error {
 			return collection.ForAll(method.Args, func(arg CommandArgument) error {
 				return (&arg).Validate()
@@ -325,6 +375,9 @@ func (iface *Interface) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in interface")
 	}
 	err := validation.ValidateStruct(iface,
+		validation.Field(&iface.DeprecationNotice, validation.By(func(value any) error {
+			return iface.DeprecationNotice.Validate()
+		})),
 		validation.Field(&iface.Methods, validation.By(func(value any) error {
 			return collection.ForAll(iface.Methods, func(method InterfaceMethod) error {
 				return (&method).Validate()
@@ -345,6 +398,9 @@ func (typ *Type) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in type")
 	}
 	err := validation.ValidateStruct(typ,
+		validation.Field(&typ.DeprecationNotice, validation.By(func(value any) error {
+			return typ.DeprecationNotice.Validate()
+		})),
 		validation.Field(&typ.Package, validation.By(func(value any) error {
 			return validateAdditionalTypePackageName(typ.Package)
 		})),
@@ -368,6 +424,9 @@ func (fct *CliFunction) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in cli function")
 	}
 	err := validation.ValidateStruct(fct,
+		validation.Field(&fct.DeprecationNotice, validation.By(func(value any) error {
+			return fct.DeprecationNotice.Validate()
+		})),
 		validation.Field(&fct.Configuration, validation.By(func(value any) error {
 			return collection.ForAll(fct.Configuration, func(cfg FunctionConfigFields) error {
 				return (&cfg).Validate()

@@ -16,12 +16,13 @@ Follow this workflow in order:
 1. Load and use the local `grill-me` skill first to challenge the design before implementation.
 2. Treat `schema.yml` as the source of truth for schema changes.
 3. If the schema change introduces or tightens validation, follow the repository validation pattern: `Validate() error`, `config.ValidateEmbedded(...)`, `validation.ValidateStruct(...)`, and collection helpers for nested slices.
-4. Make the implementation changes needed in the generator and templates.
-5. Create a news file with the correct change type and a message written as described in `CONTRIBUTING.md`. Use `cd-create-news-file`. This is required for generator feature work, not optional.
-6. Regenerate generated files using `go generate ./...`.
-7. Never edit generated files matching `*.gen.*` manually.
-8. Build the updated generator using `go build` in the `cli` project.
-9. Dogfood the updated generator against this repository's own manifest `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
+4. If the change is breaking, design the deprecation path first: define the replacement, use `deprecation_notice` where the schema allows it, document the migration, and give consumers a deprecation window rather than making an abrupt deletion.
+5. Make the implementation changes needed in the generator and templates.
+6. Create a news file with the correct change type and a message written as described in `CONTRIBUTING.md`. Use `cd-create-news-file`. This is required for generator feature work, not optional.
+7. Regenerate generated files using `go generate ./...`.
+8. Never edit generated files matching `*.gen.*` manually.
+9. Build the updated generator using `go build` in the `cli` project.
+10. Dogfood the updated generator against this repository's own manifest `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
 
 ## Implementation Rules
 
@@ -31,6 +32,11 @@ Follow this workflow in order:
 - When integration or regression fixtures may need updating, follow the local `integration-regression-tests` skill.
 - Prefer the smallest coherent schema change that supports the requested behaviour.
 - Make sure naming is clear, self-explanatory, and precise.
+- Treat renames, removals, semantic repurposing, incompatible type or shape changes, and validation tightening that breaks existing manifests as breaking changes.
+- Prefer deprecate, document, migrate, then remove.
+- Do not abruptly delete or silently repurpose a manifest concept when a deprecation window is practical.
+- Remember that the generator output is a Go project: a true major version bump also implies module-path and import-path work, so a breaking change that is not doing that full migration should usually be communicated with a `.feature` news file and an explicit breakage message rather than treated as a routine `.major` automation case.
+- Relevant references: [Semantic Versioning](https://semver.org/), [Go modules major version suffix](https://go.dev/ref/mod#major-version-suffix), and [Go Modules: v2 and beyond](https://go.dev/blog/v2-go-modules).
 
 ## Dogfooding
 

@@ -109,6 +109,9 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"descriptionWithEnum":          descriptionWithEnum,
 	"descriptionWithExamples":      descriptionWithExamples,
 	"descriptionWithMetadata":      descriptionWithMetadata,
+	"descriptionWithDeprecation":   descriptionWithDeprecation,
+	"deprecationNoticeDetails":     deprecationNoticeDetails,
+	"cobraDeprecationMessage":      cobraDeprecationMessage,
 	"hasEnum":                      hasEnum,
 	"parameterType":                parameterType,
 	"documentedAdditionalTypeFieldType": func(typeName string, fieldDef EntityField) string {

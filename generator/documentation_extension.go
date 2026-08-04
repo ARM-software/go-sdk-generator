@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
@@ -23,6 +25,69 @@ type DocumentedCLIOption struct {
 }
 
 type DocumentedCLIOptionSet []DocumentedCLIOption
+
+func ensureSentence(s string) string {
+	s = normaliseDescription(s)
+	if s == "" {
+		return ""
+	}
+	if collection.AnyFunc([]string{".", "!", "?"}, func(suffix string) bool {
+		return strings.HasSuffix(s, suffix)
+	}) {
+		return s
+	}
+	return fmt.Sprintf("%s.", s)
+}
+
+func deprecationNoticeDetails(notice *DeprecationNotice) string {
+	if notice == nil {
+		return ""
+	}
+
+	parts := []string{fmt.Sprintf("Deprecated since %s.", notice.IssueDate.UTC().Format(time.RFC3339))}
+	if notice.RemovalDate != nil {
+		parts = append(parts, fmt.Sprintf("Planned removal date: %s.", notice.RemovalDate.UTC().Format(time.RFC3339)))
+	}
+	if reflection.IsNotEmpty(notice.Replacement) {
+		parts = append(parts, fmt.Sprintf("Replacement: %s.", strings.TrimSpace(field.OptionalString(notice.Replacement, ""))))
+	}
+	if reflection.IsNotEmpty(notice.Description) {
+		parts = append(parts, ensureSentence(field.OptionalString(notice.Description, "")))
+	}
+
+	return strings.Join(parts, " ")
+}
+
+func descriptionWithDeprecation(description string, notice *DeprecationNotice) string {
+	description = normaliseDescription(description)
+	deprecation := deprecationNoticeDetails(notice)
+	if deprecation == "" {
+		return description
+	}
+	if description == "" {
+		return deprecation
+	}
+	return strings.TrimSpace(description + "\nDeprecated: " + deprecation)
+}
+
+func cobraDeprecationMessage(notice *DeprecationNotice) string {
+	if notice == nil {
+		return ""
+	}
+
+	parts := []string{}
+	if reflection.IsNotEmpty(notice.Replacement) {
+		parts = append(parts, fmt.Sprintf("use %s instead", strings.TrimSpace(field.OptionalString(notice.Replacement, ""))))
+	}
+	parts = append(parts, fmt.Sprintf("deprecated since %s", notice.IssueDate.UTC().Format(time.RFC3339)))
+	if notice.RemovalDate != nil {
+		parts = append(parts, fmt.Sprintf("planned removal date %s", notice.RemovalDate.UTC().Format(time.RFC3339)))
+	}
+	if reflection.IsNotEmpty(notice.Description) {
+		parts = append(parts, strings.TrimSpace(field.OptionalString(notice.Description, "")))
+	}
+	return strings.Join(parts, "; ")
+}
 
 func lowerFirstDescription(s string) string {
 	s = normaliseDescription(s)
@@ -166,7 +231,7 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			FlagName:     normalisedCLIArgumentName(cfg, nil),
 			ShortFlag:    field.OptionalString(cfg.ArgShort, ""),
 			EnvVar:       documentedCLIEnvVar(rootPrefix, documentedCLIEnvSuffix(cfg, nil)),
-			Description:  documentedCLIOptionDescription(cfg.Description, cfg.Condition, cfg.Enum, cfg.Example, cfg.Examples),
+			Description:  documentedCLIOptionDescription(cfg.Description, cfg.Condition, cfg.Enum, cfg.Example, cfg.Examples, cfg.DeprecationNotice),
 			Required:     cfg.Required,
 			Condition:    cfg.Condition,
 			SharedAcross: shared,
@@ -199,7 +264,7 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			FlagName:     normalisedCLIArgumentName(cfg, &binding),
 			ShortFlag:    field.OptionalString(binding.ArgShort, field.OptionalString(cfg.ArgShort, "")),
 			EnvVar:       documentedCLIEnvVar(rootPrefix, documentedCLIEnvSuffix(cfg, &binding)),
-			Description:  documentedCLIOptionDescription(description, cfg.Condition, cfg.Enum, example, examples),
+			Description:  documentedCLIOptionDescription(description, cfg.Condition, cfg.Enum, example, examples, cfg.DeprecationNotice),
 			Required:     cfg.Required,
 			Condition:    cfg.Condition,
 			SharedAcross: shared,
@@ -237,8 +302,8 @@ func documentedCLIEnvVar(prefix, suffix string) string {
 	return strings.ToUpper(joined)
 }
 
-func documentedCLIOptionDescription(description, condition string, enum []string, example *string, examples []string) string {
-	desc := descriptionWithMetadata(description, enum, example, examples)
+func documentedCLIOptionDescription(description, condition string, enum []string, example *string, examples []string, notice *DeprecationNotice) string {
+	desc := descriptionWithDeprecation(descriptionWithMetadata(description, enum, example, examples), notice)
 	if strings.TrimSpace(condition) == "" {
 		return desc
 	}

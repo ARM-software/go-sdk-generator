@@ -4,6 +4,9 @@ x-description: &x-description
     A human-readable description.
     Multiline YAML descriptions using `|` are supported.
 
+x-deprecation-notice-ref: &x-deprecation-notice-ref
+  $ref: "#/$defs/deprecation_notice"
+
 x-parameter: &x-parameter
   description: A command argument or code parameter
   type: object
@@ -87,6 +90,7 @@ x-parameter: &x-parameter
       type: boolean
       default: false
       description: Whether the parameter contains secret material and should be included in credentials storage
+    deprecation_notice: *x-deprecation-notice-ref
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -178,6 +182,7 @@ $defs:
           Defaults to `types`.
           This must resolve to a single package segment, not a nested path.
       description: *x-description
+      deprecation_notice: *x-deprecation-notice-ref
       fields:
         type: array
         items:
@@ -200,6 +205,7 @@ $defs:
         type: boolean
         default: false
         description: Whether the manager should be Closeable (i.e. has a Close() method to call whilst closing) or not.
+      deprecation_notice: *x-deprecation-notice-ref
       methods:
         type: array
         items:
@@ -253,6 +259,7 @@ $defs:
         type: string
         description: The name of the field
       description: *x-description
+      deprecation_notice: *x-deprecation-notice-ref
       args:
         type: array
         items:
@@ -330,6 +337,29 @@ $defs:
           documentation and repository metadata.
         $ref: "#/$defs/oci_map_string_string"
     additionalProperties: false
+  deprecation_notice:
+    type: object
+    description: |
+      Deprecation metadata used to surface notices in generated code comments,
+      generated documentation, and CLI deprecation warnings.
+    required:
+      - issue_date
+    properties:
+      issue_date:
+        type: string
+        format: date-time
+        description: The date-time when the deprecation was first issued.
+      removal_date:
+        type: string
+        format: date-time
+        description: |
+          The optional date-time when the deprecated item is expected to be removed.
+          When provided, it must not be earlier than `issue_date`.
+      description: *x-description
+      replacement:
+        type: string
+        description: An optional replacement to recommend to consumers.
+    additionalProperties: false
   cli_function:
     description: An CLI function
     type: object
@@ -342,6 +372,7 @@ $defs:
         type: string
         description: The name of the field
       description: *x-description
+      deprecation_notice: *x-deprecation-notice-ref
       configuration:
         type: array
         items:

@@ -299,10 +299,9 @@ func TestProcessArguments(t *testing.T) {
 	})
 
 	t.Run("duplicate short args triggers error", func(t *testing.T) {
-		short := "x"
 		arg1 := FunctionConfigFields{
 			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short,
+			ArgShort:        field.ToOptional("x"),
 			Description:     faker.Sentence(),
 			LangType:        faker.Word(),
 			MapstructureTag: faker.Word(),
@@ -310,7 +309,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		arg2 := FunctionConfigFields{
 			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short,
+			ArgShort:        field.ToOptional("x"),
 			Description:     faker.Sentence(),
 			LangType:        faker.Word(),
 			MapstructureTag: faker.Word(),
@@ -403,10 +402,9 @@ func TestProcessArguments(t *testing.T) {
 	t.Run("h and v short args triggers error", func(t *testing.T) {
 		for _, arg := range []string{"h", "v"} {
 			t.Run(arg, func(t *testing.T) {
-				short := arg
 				arg1 := FunctionConfigFields{
 					Arg:             field.ToOptionalString(faker.Word()),
-					ArgShort:        &short,
+					ArgShort:        field.ToOptional(arg),
 					Description:     faker.Sentence(),
 					LangType:        faker.Word(),
 					MapstructureTag: faker.Word(),
@@ -414,7 +412,7 @@ func TestProcessArguments(t *testing.T) {
 				}
 				arg2 := FunctionConfigFields{
 					Arg:             field.ToOptionalString(faker.Word()),
-					ArgShort:        &short,
+					ArgShort:        field.ToOptional(arg),
 					Description:     faker.Sentence(),
 					LangType:        faker.Word(),
 					MapstructureTag: faker.Word(),
@@ -443,11 +441,9 @@ func TestProcessArguments(t *testing.T) {
 	})
 
 	t.Run("happy path: all good", func(t *testing.T) {
-		short1 := "a"
-		short2 := "b"
 		arg1 := FunctionConfigFields{
 			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short1,
+			ArgShort:        field.ToOptional("a"),
 			Description:     faker.Sentence(),
 			LangType:        faker.Word(),
 			MapstructureTag: faker.Word(),
@@ -455,7 +451,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		arg2 := FunctionConfigFields{
 			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short2,
+			ArgShort:        field.ToOptional("b"),
 			Description:     faker.Sentence(),
 			LangType:        faker.Word(),
 			MapstructureTag: faker.Word(),
@@ -482,28 +478,26 @@ func TestProcessArguments(t *testing.T) {
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 	})
 	t.Run("happy path: with calls to Cloud", func(t *testing.T) {
-		short1 := "a"
-		short2 := "b"
 		arg1 := FunctionConfigFields{
-			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short1,
+			Arg:             field.ToOptionalString("first-flag"),
+			ArgShort:        field.ToOptional("a"),
 			Description:     faker.Sentence(),
-			LangType:        faker.Word(),
-			MapstructureTag: faker.Word(),
-			Name:            faker.FirstName(),
+			LangType:        "string",
+			MapstructureTag: "first_option",
+			Name:            "FirstOption",
 		}
 		arg2 := FunctionConfigFields{
-			Arg:             field.ToOptionalString(faker.Word()),
-			ArgShort:        &short2,
+			Arg:             field.ToOptionalString("second-flag"),
+			ArgShort:        field.ToOptional("b"),
 			Description:     faker.Sentence(),
-			LangType:        faker.Word(),
-			MapstructureTag: faker.Word(),
-			Name:            faker.Word(),
+			LangType:        "string",
+			MapstructureTag: "second_option",
+			Name:            "SecondOption",
 		}
 		cliFunc := CliFunction{
 			Configuration: []FunctionConfigFields{arg1, arg2},
 			Description:   faker.Sentence(),
-			Name:          faker.Name(),
+			Name:          "CloudCommand",
 			CallCloud:     true,
 		}
 		sdk := &SDK{
@@ -707,14 +701,20 @@ func TestPrecomputeFlagsAndBindings(t *testing.T) {
 
 func TestBuildFlagLine(t *testing.T) {
 	t.Run("normal flag", func(t *testing.T) {
-		result := buildFlagLine(true, false, "someCmd", "Bool", "someArg", "a", "false", "normal flag")
+		result := buildFlagLine(true, false, "someCmd", "Bool", "someArg", "a", "false", "normal flag", "")
 		expected := `rootCmd.PersistentFlags().BoolP(someArg, "a", false, "normal flag")`
 		assert.Equal(t, expected, result)
 	})
 	t.Run("hidden flag", func(t *testing.T) {
-		result := buildFlagLine(true, true, "someCmd", "Bool", "someArg", "a", "false", "normal flag")
+		result := buildFlagLine(true, true, "someCmd", "Bool", "someArg", "a", "false", "normal flag", "")
 		expected := `rootCmd.PersistentFlags().BoolP(someArg, "a", false, "normal flag")
 _ = rootCmd.PersistentFlags().MarkHidden(someArg)`
+		assert.Equal(t, expected, result)
+	})
+	t.Run("deprecated flag", func(t *testing.T) {
+		result := buildFlagLine(false, false, "someCmd", "String", "someArg", "", `""`, "normal flag", "use replacement instead; deprecated since 2026-07-24T00:00:00Z")
+		expected := `someCmd.Flags().String(someArg, "", "normal flag")
+_ = someCmd.Flags().MarkDeprecated(someArg, "use replacement instead; deprecated since 2026-07-24T00:00:00Z")`
 		assert.Equal(t, expected, result)
 	})
 }

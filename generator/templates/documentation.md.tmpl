@@ -42,11 +42,15 @@ Documentation for the {{ .Specification.Name }} SDK.
 
 > Description: {{ .Description }}
 
+{{ if .DeprecationNotice }}
+> Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
+{{ end }}
+
 {{ if .Fields }}
 Fields:
 
 {{ range .Fields }}
-- **`{{ .Name | toCamel }} : {{ documentedAdditionalTypeFieldType $structName . }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toCamel }} : {{ documentedAdditionalTypeFieldType $structName . }}`** - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }} {{ if .Required }}(required){{ end }}
 {{ end }}
 {{ else }}
 This type does not define any fields.
@@ -70,7 +74,7 @@ The same configuration model is reused by the related CLI entrypoints where appl
 Fields:
 
 {{ range .Specification.GlobalConfiguration }}
-- **`{{ .Name | toPascal | title }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal | title }} : {{ documentedConfigFieldType $.Specification.Name . }}`** - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }} {{ if .Required }}(required){{ end }}
 {{ if .Pattern }}  - This field has to follow the pattern `{{ .Pattern }}`{{ end }}
 {{ end }}
 {{ else }}
@@ -81,6 +85,11 @@ This SDK does not define any global configuration fields.
 
 The manager interface of the SDK is `I{{ .Specification.Name | toPascal }}Manager`.
 
+{{ if .Specification.Interface.DeprecationNotice }}
+
+> Deprecated: {{ deprecationNoticeDetails .Specification.Interface.DeprecationNotice }}
+{{ end }}
+
 Mocks for this interface are provided under `mocks/` using `mockgen`, so tests can target the interface rather than a concrete implementation.
 
 Methods:
@@ -90,6 +99,10 @@ Methods:
 ### `{{ $functionName }}`
 
 > Description: {{ .Description }}
+
+{{ if .DeprecationNotice }}
+> Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
+{{ end }}
 
 Signature:
 
@@ -102,7 +115,7 @@ Arguments:
 - `ctx : context.Context` - controls cancellation, deadlines, and other request-scoped values.
 {{ if .Args }}
 {{ range .Args }}
-- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithMetadata .Description .Enum .Example .Examples }}
+- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
 {{ end }}
 {{ else }}
 This method does not define any explicit arguments beyond `ctx`.
@@ -112,7 +125,7 @@ Returns:
 
 {{ if .Returns }}
 {{ range .Returns }}
-- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithMetadata .Description .Enum .Example .Examples }}
+- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
 {{ end }}
 {{ else }}
 This method does not return any values.
@@ -205,6 +218,10 @@ Use exact release tags or image digests when the workflow must stay reproducible
 #### `{{ $.Specification.CommandLineCommands.Binary }} {{ .Name | lower }}`
 
 > Description: {{ .Description }}
+
+{{ if .DeprecationNotice }}
+> Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
+{{ end }}
 
 Usage:
 

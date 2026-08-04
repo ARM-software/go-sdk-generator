@@ -204,6 +204,41 @@ But the manifest should still describe one concern cleanly rather than mixing un
 
 ## Practical Rules
 
+### Handle breaking changes through deprecation, not abrupt deletion
+
+If you are changing an existing manifest contract, treat the following as breaking changes unless proven otherwise:
+
+- renaming a field, parameter, method, command, or type
+- removing an existing field, parameter, method, command, or type
+- changing the meaning of an existing concept incompatibly
+- tightening validation so previously valid manifests stop validating
+- changing a shape or type incompatibly, such as scalar to list, value to reference, or one domain type to another incompatible one
+
+In this repo, those changes should normally follow a deprecation process:
+
+1. Add the replacement or new shape first where possible.
+2. Mark the old concept with `deprecation_notice`.
+3. Provide a deprecation window, including an issue date and, when known, a removal date.
+4. Describe the replacement clearly so generated docs, comments, and CLI help can guide users.
+5. Keep the deprecated concept working during that window unless there is a strong correctness or safety reason not to.
+6. Remove it only after consumers have had time to migrate.
+
+Versioning and news-file note for this Go project:
+
+- SemVer still applies in principle, so breaking changes are major in theory.
+- But the output of the generator is a Go project, so a true `v2+` transition also implies Go module path and import-path changes.
+- Because that is more than a routine version bump, do not assume every breaking manifest change should immediately become a normal `.major` automation path change.
+- If the change is breaking but the project is not doing a full Go major-module migration, prefer a `.feature` news file with an explicit breakage message such as a `:boom:` prefix.
+- Reserve `.major` news files for genuine major Go module transitions where the module-path consequences are being handled deliberately.
+
+References:
+
+- [Semantic Versioning](https://semver.org/)
+- [Go modules major version suffix](https://go.dev/ref/mod#major-version-suffix)
+- [Go Modules: v2 and beyond](https://go.dev/blog/v2-go-modules)
+
+Do not perform abrupt deletion or silent incompatible repurposing when a managed deprecation path is practical.
+
 ### Global configuration vs command configuration
 
 Put configuration in `global_configuration` when it is genuinely shared across the SDK or several commands.
@@ -300,4 +335,5 @@ Before finishing a manifest change, check:
 - Are raw scalar types kept as values unless there is a clear reason otherwise?
 - Are interfaces left as values rather than wrapped in pointer semantics?
 - Are descriptions clear enough to power generated docs and CLI help text well?
+- If an existing concept is being replaced or retired, has it been deprecated first with a clear migration path and deprecation window?
 - Is the manifest modelling one concern coherently?

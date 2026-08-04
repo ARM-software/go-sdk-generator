@@ -40,15 +40,19 @@ func (imp *{{ $sdkInterfaceName }}Manager) Close() (err error) {
 /*
 {{ .Name | toPascal }} function: {{ .Description }}
 
+{{ if .DeprecationNotice }}
+Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
+{{ end }}
+
 Input arguments:
 
   * ctx: A context to pass into the method. Can be used to cancel long-running tasks
 {{ range .Args }}
-  * {{ .Name  | toCamel }}: {{ .Description }}
+  * {{ .Name  | toCamel }}: {{ descriptionWithDeprecation .Description .DeprecationNotice }}
 {{ end }}
 Return values:
 {{ range .Returns }}
-  * {{ .Name | toCamel }}: {{ .Description }}
+  * {{ .Name | toCamel }}: {{ descriptionWithDeprecation .Description .DeprecationNotice }}
 {{ end }}
 */
 {{ $functionName := .Name | toPascal -}}

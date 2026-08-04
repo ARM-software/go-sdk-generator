@@ -48,6 +48,8 @@ It generates boilerplate, not the domain-specific implementation logic.
 
 The project also tries hard to avoid unnecessary breaking changes. The intent is that generated projects can usually update to newer generator versions to pick up improvements, fixes, and features without disruptive rewrites.
 
+When a manifest contract or generated surface really does need a breaking change, do not jump straight to abrupt deletion or silent renaming. Prefer a deprecation phase first: add the replacement, mark the old concept with `deprecation_notice`, describe the migration path, and give consumers a deprecation window before removal.
+
 ## Quick use
 
 Binary: `go-sdk-generator`
@@ -90,6 +92,8 @@ go-sdk-generator generate -i generate.yml -o ./ -g 1.26.4
 ```
 
 Use a manifest that follows `generator/schema/schema.yml`. The manifest is the contract that defines package metadata, interface methods, shared configuration, and optional CLI commands.
+
+If you are evolving an existing manifest rather than creating a new one, treat renames, removals, incompatible validation tightening, type-shape changes, or semantic repurposing as breaking changes. Prefer: add replacement, deprecate old concept, communicate the deprecation window, then remove later. Avoid abrupt deletion when a compatibility window is practical.
 
 Minimal manifest example:
 
@@ -188,6 +192,8 @@ Optional:
 - Explain that generated code follows a contract-first approach similar to OpenAPI, but for SDK/CLI operations rather than HTTP endpoints
 - Mention that generated Go CLIs can also back GitHub Actions, which often gives a more robust and testable automation path than putting workflow logic directly in bash or JavaScript actions
 - Mention that the generator is intended to evolve without frequent breaking changes, so generated projects should generally prefer upgrading to newer versions to pick up improvements and features
+- When discussing manifest evolution, describe breaking changes concretely: renames, removals, incompatible type or shape changes, semantic repurposing, and validation tightening that invalidates existing manifests
+- Recommend the deprecation process for those changes: add a replacement, use `deprecation_notice`, give a deprecation window, keep compatibility during that window when practical, then remove later
 - Mention the main alternatives only when useful for decision-making:
   - handwritten SDKs/CLIs: more flexible, less consistent, more manual work
   - OpenAPI generators: strong for REST, weak for higher-level workflow contracts

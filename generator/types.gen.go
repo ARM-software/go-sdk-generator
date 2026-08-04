@@ -4,6 +4,7 @@ package generator
 
 import "encoding/json"
 import "fmt"
+import "time"
 
 // A variable binding to a parameter
 type Binding struct {
@@ -89,6 +90,9 @@ type CliFunction struct {
 
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []FunctionConfigFields `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
+
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -184,6 +188,9 @@ type CommandArgument struct {
 	// An optional default value for use when creating a new instance of the
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -376,6 +383,9 @@ type ConfigurationOption struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//
@@ -486,6 +496,44 @@ func (j *ConfigurationOption) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+// Deprecation metadata used to surface notices in generated code comments,
+// generated documentation, and CLI deprecation warnings.
+type DeprecationNotice struct {
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
+	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The date-time when the deprecation was first issued.
+	IssueDate time.Time `json:"issue_date" yaml:"issue_date" mapstructure:"issue_date"`
+
+	// The optional date-time when the deprecated item is expected to be removed.
+	// When provided, it must not be earlier than `issue_date`.
+	//
+	RemovalDate *time.Time `json:"removal_date,omitempty" yaml:"removal_date,omitempty" mapstructure:"removal_date,omitempty"`
+
+	// An optional replacement to recommend to consumers.
+	Replacement *string `json:"replacement,omitempty" yaml:"replacement,omitempty" mapstructure:"replacement,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *DeprecationNotice) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["issue_date"]; raw != nil && !ok {
+		return fmt.Errorf("field issue_date in DeprecationNotice: required")
+	}
+	type Plain DeprecationNotice
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = DeprecationNotice(plain)
+	return nil
+}
+
 // Configuration for publishing multi-architecture OCI images for the generated
 // CLI.
 // OCI images are useful for CI integration, reproducible builds, and users who
@@ -547,6 +595,9 @@ type EntityField struct {
 	// An optional default value for use when creating a new instance of the
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -691,6 +742,9 @@ type FunctionConfigFields struct {
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//
@@ -803,6 +857,9 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 
 // An interface
 type Interface struct {
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
 	// Methods corresponds to the JSON schema field "methods".
 	Methods []InterfaceMethod `json:"methods" yaml:"methods" mapstructure:"methods"`
 
@@ -823,6 +880,9 @@ type Interface struct {
 type InterfaceMethod struct {
 	// Args corresponds to the JSON schema field "args".
 	Args []CommandArgument `json:"args,omitempty" yaml:"args,omitempty" mapstructure:"args,omitempty"`
+
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -1050,6 +1110,9 @@ func (j *SDK) UnmarshalJSON(value []byte) error {
 
 // A entity type
 type Type struct {
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//

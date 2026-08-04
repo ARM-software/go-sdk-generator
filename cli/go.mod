@@ -5,7 +5,7 @@ module github.com/Arm-Debug/go-sdk-generator/cli
 go 1.26.0
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.168.0
+	github.com/ARM-software/golang-utils/utils v1.168.1
 	github.com/Arm-Debug/go-sdk-generator/generator v0.41.0
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -48,7 +48,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
-	github.com/gofrs/uuid/v5 v5.4.0 // indirect
+	github.com/gofrs/uuid/v5 v5.5.0 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/google/cabbie v1.0.2 // indirect
 	github.com/google/glazier v0.0.0-20211029225403-9f766cca891d // indirect

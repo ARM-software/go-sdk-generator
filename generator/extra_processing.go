@@ -494,22 +494,37 @@ func getArgName(prefix, cfgName, bindingName string, isRoot bool) string {
 	return fmt.Sprintf("%v%v%vArg", toCamelCase(prefix), toPascalCase(cfgName), toPascalCase(bindingName))
 }
 
-func buildFlagLine(isRoot, hidden bool, funcName, flagType, argName, argShort, zeroVal, desc string) string {
+func buildFlagLine(isRoot, hidden bool, funcName, flagType, argName, argShort, zeroVal, desc, deprecationMessage string) string {
 	cmdPrefix := "rootCmd.PersistentFlags()"
 	if !isRoot {
 		cmdPrefix = fmt.Sprintf("%v.Flags()", funcName)
 	}
 
-	var hiddenStr string
+	postRegistrationLines := []string{}
 	if hidden {
-		hiddenStr = fmt.Sprintf("\n_ = %v.MarkHidden(%v)", cmdPrefix, argName)
+		postRegistrationLines = append(postRegistrationLines, fmt.Sprintf("_ = %v.MarkHidden(%v)", cmdPrefix, argName))
 	}
+	if reflection.IsNotEmpty(deprecationMessage) {
+		postRegistrationLines = append(postRegistrationLines, fmt.Sprintf("_ = %v.MarkDeprecated(%v, %v)", cmdPrefix, argName, withQuote(deprecationMessage)))
+	}
+
+	var registration string
 
 	if argShort != "" {
-		return fmt.Sprintf(`%v.%vP(%v, "%v", %v, "%v")%v`, cmdPrefix, flagType, argName, argShort, zeroVal, desc, hiddenStr)
+		registration = fmt.Sprintf(`%v.%vP(%v, "%v", %v, %v)`, cmdPrefix, flagType, argName, argShort, zeroVal, withQuote(desc))
+	} else {
+		registration = fmt.Sprintf(`%v.%v(%v, %v, %v)`, cmdPrefix, flagType, argName, zeroVal, withQuote(desc))
 	}
 
-	return fmt.Sprintf(`%v.%v(%v, %v, "%v")%v`, cmdPrefix, flagType, argName, zeroVal, desc, hiddenStr)
+	if len(postRegistrationLines) == 0 {
+		return registration
+	}
+
+	var builder strings.Builder
+	builder.WriteString(registration)
+	builder.WriteString("\n")
+	builder.WriteString(strings.Join(postRegistrationLines, "\n"))
+	return builder.String()
 }
 
 func getBindingEnv(cfgMapstructureTag string, bindingMapstructureTag *string, prefix string) string {
@@ -581,7 +596,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 	argShort := field.Optional(binding.ArgShort, "")
 
 	argName = getArgName(cliFunc.Name, cfg.Name, bindingName, cfg.IsRoot)
-	flagLine = buildFlagLine(cfg.IsRoot, binding.Hidden, funcName, flagType, argName, argShort, zeroVal, desc)
+	flagLine = buildFlagLine(cfg.IsRoot, binding.Hidden, funcName, flagType, argName, argShort, zeroVal, desc, cobraDeprecationMessage(cfg.DeprecationNotice))
 
 	if cfg.IsRoot {
 		envVar, err = determineNameFromPointer(binding.MapstructureTag, "mapstructure_tag")
@@ -619,7 +634,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 
 	funcName := fmt.Sprintf("%vCmd", strings.ToLower(cliFunc.Name))
 	argName = getArgName(cliFunc.Name, "", cfg.Name, cfg.IsRoot)
-	flagLine = buildFlagLine(cfg.IsRoot, cfg.Hidden, funcName, flagType, argName, argShort, zeroVal, desc)
+	flagLine = buildFlagLine(cfg.IsRoot, cfg.Hidden, funcName, flagType, argName, argShort, zeroVal, desc, cobraDeprecationMessage(cfg.DeprecationNotice))
 
 	envVar = cfg.MapstructureTag
 	if !cfg.IsRoot {
