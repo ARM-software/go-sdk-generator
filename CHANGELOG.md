@@ -2,6 +2,43 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.44.0" (2026-08-04)
+=====================
+
+Features
+--------
+
+- :sparkles: Add built-in filepath, existingFilepath, pathParameter, and validJSON parameter aliases with stronger generated validation. (#20260723230916)
+- :sparkles: Add generated `upgrade-generator` workflows to update the SDKs file using the generator. (#20260724010118)
+- :sparkles: Add structured deprecation notices to generated parameters, methods, types, and CLI commands. (#20260724183610)
+
+
+Bugfixes
+--------
+
+- :book: Document GHCR authentication troubleshooting for OCI image access in generated README, documentation, and tool-related skills. (#20260723115352)
+- :camel: Update dependencies (#20260723225345)
+- :recycle: use validation rules from `golang-utils` (#20260723225414)
+- Dependency upgrade: utils-1.167.0 (#20260724042401, #20260724042406)
+- Dependency upgrade: v4-4.10.1 (#20260727043213)
+- :book: Add a README badge showing the go-sdk-generator version used for generated output. (#20260803094421)
+- Dependency upgrade: utils-1.168.0 (#20260804042403)
+- :green_heart: Fix the upgrade-generator workflow so Dependabot updates run correctly, workflow-file changes can be pushed, and regenerated output creates a versioned news file. (#20260804170655)
+- :bug: fix the generator upgrade CI flow (#20260804224411)
+
+
+Improved Documentation
+----------------------
+
+- :book: Indicate the generator version used to generate the project structure in the README (#20260803095047)
+- :book: Improve the description of some of the skills of this project (#20260804143640)
+- :broom: Remove out of date generated skills (#20260804143701)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.43.4" (2026-07-22)
 =====================
 
