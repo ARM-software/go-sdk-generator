@@ -766,6 +766,192 @@ func TestPrecomputeFlagsAndBindings(t *testing.T) {
 	})
 }
 
+func TestPreComputeFlagConstraintRegistrations(t *testing.T) {
+	t.Run("builds required together and mutually exclusive registrations", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{{
+				Name:        "Verify",
+				Description: "verify",
+				Configuration: []FunctionConfigFields{
+					{
+						Name:            "Profile",
+						LangType:        "string",
+						MapstructureTag: "profile",
+						Description:     "profile",
+						IsRoot:          true,
+						Constraints: &ParameterConstraints{
+							DependentRequired:         []string{"Output"},
+							RequireTogetherAsCliFlags: true,
+						},
+					},
+					{
+						Name:            "Mode",
+						LangType:        "string",
+						MapstructureTag: "mode",
+						Description:     "mode",
+						Constraints: &ParameterConstraints{
+							ConflictsWith: []string{"Output"},
+						},
+					},
+					{
+						Name:            "Output",
+						LangType:        "string",
+						MapstructureTag: "output",
+						Description:     "output",
+						Constraints: &ParameterConstraints{
+							RequireTogetherAsCliFlags: true,
+						},
+					},
+				},
+			}},
+		}
+
+		registrations, err := PreComputeFlagConstraintRegistrations(cmds)
+		require.NoError(t, err)
+		assert.Equal(t, []FlagConstraintRegistration{
+			{CommandVar: "verifyCmd", Method: "MarkFlagsMutuallyExclusive", FlagArgs: []string{"verifyModeArg", "verifyOutputArg"}},
+			{CommandVar: "verifyCmd", Method: "MarkFlagsRequiredTogether", FlagArgs: []string{"rootProfileArg", "verifyOutputArg"}},
+		}, registrations)
+	})
+
+	t.Run("rejects constraints on non-standalone flags", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{{
+				Name:        "Verify",
+				Description: "verify",
+				Configuration: []FunctionConfigFields{
+					{
+						Name:            "Project",
+						LangType:        "string",
+						MapstructureTag: "project",
+						Description:     "project",
+						Bindings: []Binding{{
+							Name:            field.ToOptionalString("Path"),
+							LangType:        field.ToOptionalString("string"),
+							MapstructureTag: field.ToOptionalString("path"),
+							Description:     field.ToOptionalString("path"),
+						}},
+						Constraints: &ParameterConstraints{
+							DependentRequired:         []string{"Output"},
+							RequireTogetherAsCliFlags: true,
+						},
+					},
+					{
+						Name:            "Output",
+						LangType:        "string",
+						MapstructureTag: "output",
+						Description:     "output",
+						Constraints: &ParameterConstraints{
+							RequireTogetherAsCliFlags: true,
+						},
+					},
+				},
+			}},
+		}
+
+		_, err := PreComputeFlagConstraintRegistrations(cmds)
+		errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	})
+
+	t.Run("dependent required only generates required together when all referenced parameters opt in as CLI flags", func(t *testing.T) {
+		cmds := &CommandLineCommands{
+			Functions: []CliFunction{{
+				Name:        "Verify",
+				Description: "verify",
+				Configuration: []FunctionConfigFields{
+					{
+						Name:            "Profile",
+						LangType:        "string",
+						MapstructureTag: "profile",
+						Description:     "profile",
+						Constraints: &ParameterConstraints{
+							DependentRequired:         []string{"Output", "Manifest"},
+							RequireTogetherAsCliFlags: true,
+						},
+					},
+					{
+						Name:            "Output",
+						LangType:        "string",
+						MapstructureTag: "output",
+						Description:     "output",
+						Constraints:     &ParameterConstraints{RequireTogetherAsCliFlags: true},
+					},
+					{
+						Name:            "Manifest",
+						LangType:        "string",
+						MapstructureTag: "manifest",
+						Description:     "manifest",
+					},
+				},
+			}},
+		}
+
+		registrations, err := PreComputeFlagConstraintRegistrations(cmds)
+		require.NoError(t, err)
+		assert.Equal(t, []FlagConstraintRegistration{
+			{CommandVar: "verifyCmd", Method: "MarkFlagsRequiredTogether", FlagArgs: []string{"verifyProfileArg", "verifyOutputArg"}},
+		}, registrations)
+	})
+}
+
+func TestFlagConstraintRegistrationStatement(t *testing.T) {
+	registration := FlagConstraintRegistration{
+		CommandVar: "verifyCmd",
+		Method:     "MarkFlagsRequiredTogether",
+		FlagArgs:   []string{"verifyProfileArg", "verifyOutputArg"},
+	}
+	assert.Equal(t, `_ = verifyCmd.MarkFlagsRequiredTogether(verifyProfileArg, verifyOutputArg)`, registration.Statement())
+}
+
+func TestConstraintValidationRuleLines(t *testing.T) {
+	fct := &CliFunction{
+		Name:        "Verify",
+		Description: "verify",
+		Configuration: []FunctionConfigFields{
+			{
+				Name:            "Mode",
+				LangType:        "string",
+				MapstructureTag: "mode",
+				Description:     "mode",
+			},
+			{
+				Name:            "Output",
+				LangType:        "string",
+				MapstructureTag: "output",
+				Description:     "output",
+				Constraints: &ParameterConstraints{
+					RequiredWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: ParameterValueConstraintOperatorEquals, Value: "strict"},
+				},
+			},
+			{
+				Name:            "Manifest",
+				LangType:        "string",
+				MapstructureTag: "manifest",
+				Description:     "manifest",
+				Constraints: &ParameterConstraints{
+					ForbiddenWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: ParameterValueConstraintOperatorIn, Values: []interface{}{"relaxed", "archive"}},
+				},
+			},
+			{
+				Name:            "Profile",
+				LangType:        "string",
+				MapstructureTag: "profile",
+				Description:     "profile",
+				Constraints: &ParameterConstraints{
+					DependentRequired: []string{"Output"},
+					ConflictsWith:     []string{"Manifest"},
+				},
+			},
+		},
+	}
+
+	rules := fct.ConstraintValidationRules()
+	assert.Contains(t, rules, `validationUtils.DependentRequiredBy(map[any]any{&cfg.Profile: []any{&cfg.Output}})`)
+	assert.Contains(t, rules, `validationUtils.MutuallyExclusiveWithBy(&cfg.Profile, &cfg.Manifest)`)
+	assert.Contains(t, rules, `validationUtils.WhenFieldEquals(&cfg.Mode, "strict", validationUtils.RequiredPropertiesBy(&cfg.Output))`)
+	assert.Contains(t, rules, `validationUtils.WhenFieldMatches(&cfg.Mode, []any{"relaxed", "archive"}, func(actual any, expected []any) (bool, error) { return collection.In(expected, actual, func(left any, right any) (bool, error) { return reflect.DeepEqual(left, right), nil }) }, validationUtils.ForbiddenPropertiesBy(&cfg.Manifest))`)
+}
+
 func TestBuildFlagLine(t *testing.T) {
 	t.Run("normal flag", func(t *testing.T) {
 		result := buildFlagLine(true, false, "someCmd", "Bool", "someArg", "a", "false", "normal flag", "")

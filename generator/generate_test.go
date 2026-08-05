@@ -267,6 +267,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "Yes CLI (constraints generate explicit flag and validation rules)",
+			recipe:        "constraints.yml",
+			regressionSrc: "constraints.zip",
+			err:           nil,
+		},
+		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,

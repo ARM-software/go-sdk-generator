@@ -4,6 +4,9 @@ package generator
 
 import "encoding/json"
 import "fmt"
+import "github.com/go-viper/mapstructure/v2"
+import "reflect"
+import "strings"
 import "time"
 
 // A variable binding to a parameter
@@ -184,6 +187,9 @@ type CommandArgument struct {
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
 	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// Constraints corresponds to the JSON schema field "constraints".
+	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
@@ -378,6 +384,9 @@ type ConfigurationOption struct {
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
 	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// Constraints corresponds to the JSON schema field "constraints".
+	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
@@ -592,6 +601,9 @@ type EntityField struct {
 	// variable and only mention it once
 	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
+	// Constraints corresponds to the JSON schema field "constraints".
+	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+
 	// An optional default value for use when creating a new instance of the
 	// configuration
 	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
@@ -737,6 +749,9 @@ type FunctionConfigFields struct {
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
 	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// Constraints corresponds to the JSON schema field "constraints".
+	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
@@ -944,6 +959,148 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 // Additional OCI image metadata used to complement the default metadata
 // generated from the tool documentation and repository metadata.
 type OciMapStringString map[string]interface{}
+
+// Validation constraints applying to a parameter.
+// These constraints complement the existing `condition` field rather than
+// replacing it. Use `condition` for the current expression-style required
+// logic, and `constraints` for explicit cross-parameter relationships.
+type ParameterConstraints struct {
+	// Parameters that must not be provided when this parameter is provided.
+	//
+	ConflictsWith []string `json:"conflicts_with,omitempty" yaml:"conflicts_with,omitempty" mapstructure:"conflicts_with,omitempty"`
+
+	// Parameters that must be provided when this parameter is provided.
+	//
+	DependentRequired []string `json:"dependent_required,omitempty" yaml:"dependent_required,omitempty" mapstructure:"dependent_required,omitempty"`
+
+	// ForbiddenWhen corresponds to the JSON schema field "forbidden_when".
+	ForbiddenWhen *ParameterValueConstraint `json:"forbidden_when,omitempty" yaml:"forbidden_when,omitempty" mapstructure:"forbidden_when,omitempty"`
+
+	// Whether `dependent_required` should also require the related values
+	// to be passed together as CLI arguments when all referenced parameters
+	// also opt in.
+	// This only affects CLI argument behaviour and does not change the
+	// runtime validation rules.
+	//
+	RequireTogetherAsCliFlags bool `json:"require_together_as_cli_flags,omitempty" yaml:"require_together_as_cli_flags,omitempty" mapstructure:"require_together_as_cli_flags,omitempty"`
+
+	// RequiredWhen corresponds to the JSON schema field "required_when".
+	RequiredWhen *ParameterValueConstraint `json:"required_when,omitempty" yaml:"required_when,omitempty" mapstructure:"required_when,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterConstraints) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	type Plain ParameterConstraints
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["require_together_as_cli_flags"]; !ok || v == nil {
+		plain.RequireTogetherAsCliFlags = false
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = ParameterConstraints(plain)
+	return nil
+}
+
+// A value-based constraint against another parameter.
+// This definition is used by parameter `constraints` for relationships that
+// depend on another parameter's presence or value.
+type ParameterValueConstraint struct {
+	// The comparison performed against the parameter
+	Operator ParameterValueConstraintOperator `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// The name of the parameter being evaluated
+	Parameter string `json:"parameter" yaml:"parameter" mapstructure:"parameter"`
+
+	// The value used by operators such as equals or not_equals
+	Value interface{} `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+
+	// Values used by operators such as in or not_in
+	Values []interface{} `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type ParameterValueConstraintOperator string
+
+const ParameterValueConstraintOperatorAbsent ParameterValueConstraintOperator = "absent"
+const ParameterValueConstraintOperatorEquals ParameterValueConstraintOperator = "equals"
+const ParameterValueConstraintOperatorIn ParameterValueConstraintOperator = "in"
+const ParameterValueConstraintOperatorNotEquals ParameterValueConstraintOperator = "not_equals"
+const ParameterValueConstraintOperatorNotIn ParameterValueConstraintOperator = "not_in"
+const ParameterValueConstraintOperatorPresent ParameterValueConstraintOperator = "present"
+
+var enumValues_ParameterValueConstraintOperator = []interface{}{
+	"present",
+	"absent",
+	"equals",
+	"not_equals",
+	"in",
+	"not_in",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterValueConstraintOperator) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParameterValueConstraintOperator {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParameterValueConstraintOperator, v)
+	}
+	*j = ParameterValueConstraintOperator(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterValueConstraint) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["parameter"]; raw != nil && !ok {
+		return fmt.Errorf("field parameter in ParameterValueConstraint: required")
+	}
+	type Plain ParameterValueConstraint
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["operator"]; !ok || v == nil {
+		plain.Operator = "present"
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = ParameterValueConstraint(plain)
+	return nil
+}
 
 // Whether to release the package to artifactory. Will require a .goreleaser file
 // or equivalent file to be set up

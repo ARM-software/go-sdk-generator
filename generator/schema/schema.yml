@@ -39,6 +39,8 @@ x-parameter: &x-parameter
       type: string
       default: ""
       description: A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once
+    constraints:
+      $ref: "#/$defs/parameter_constraints"
     reference:
       type: boolean
       default: false
@@ -285,6 +287,72 @@ $defs:
     type: boolean
     default: false
     description: Whether to release the package to artifactory. Will require a .goreleaser file or equivalent file to be set up
+  parameter_value_constraint:
+    type: object
+    description: |
+      A value-based constraint against another parameter.
+      This definition is used by parameter `constraints` for relationships that
+      depend on another parameter's presence or value.
+    additionalProperties: true
+    required:
+      - parameter
+    properties:
+      parameter:
+        type: string
+        description: The name of the parameter being evaluated
+      operator:
+        type: string
+        default: present
+        description: The comparison performed against the parameter
+        enum:
+          - present
+          - absent
+          - equals
+          - not_equals
+          - in
+          - not_in
+      value:
+        description: The value used by operators such as equals or not_equals
+      values:
+        type: array
+        description: Values used by operators such as in or not_in
+        items: {}
+  parameter_constraints:
+    type: object
+    description: |
+      Validation constraints applying to a parameter.
+      These constraints complement the existing `condition` field rather than
+      replacing it. Use `condition` for the current expression-style required
+      logic, and `constraints` for explicit cross-parameter relationships.
+    additionalProperties: true
+    properties:
+      dependent_required:
+        type: array
+        description: |
+          Parameters that must be provided when this parameter is provided.
+        items:
+          type: string
+        uniqueItems: true
+      require_together_as_cli_flags:
+        type: boolean
+        default: false
+        description: |
+          Whether `dependent_required` should also require the related values
+          to be passed together as CLI arguments when all referenced parameters
+          also opt in.
+          This only affects CLI argument behaviour and does not change the
+          runtime validation rules.
+      conflicts_with:
+        type: array
+        description: |
+          Parameters that must not be provided when this parameter is provided.
+        items:
+          type: string
+        uniqueItems: true
+      required_when:
+        $ref: "#/$defs/parameter_value_constraint"
+      forbidden_when:
+        $ref: "#/$defs/parameter_value_constraint"
   release_to_public_artifactory:
     type: object
     description: |

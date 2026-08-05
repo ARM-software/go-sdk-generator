@@ -75,6 +75,40 @@ These values are intended to improve generated documentation, CLI help, action i
 
 For `list` or `iterator` shapes, treat each example as an item value rather than trying to serialise the whole collection.
 
+### Prefer `constraints` for parameter relationships and conditional requirements
+
+When one parameter depends on another, or parameters have to be provided together or kept apart, prefer the `constraints` block instead of encoding that relationship in the older `condition` field.
+
+Use `constraints` for cases such as:
+
+- `dependent_required`
+- `conflicts_with`
+- `required_when`
+- `forbidden_when`
+- `require_together_as_cli_flags` when `dependent_required` should also require the related values to be passed together as CLI arguments
+
+Prefer `condition` only for the older single-expression required logic when there is a concrete reason to stay with that shape.
+
+Example:
+
+```yaml
+- name: Profile
+  lang_type: string
+  mapstructure_tag: profile
+  description: Validation profile.
+  constraints:
+    dependent_required:
+      - Output
+    require_together_as_cli_flags: true
+
+- name: Output
+  lang_type: string
+  mapstructure_tag: output
+  description: Output file.
+  constraints:
+    require_together_as_cli_flags: true
+```
+
 ### Prefer structured request-target built-ins over separate host strings when appropriate
 
 If the manifest is modelling an HTTP target or online service configuration, prefer a request-target built-in such as:

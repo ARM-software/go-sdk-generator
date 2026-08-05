@@ -264,6 +264,9 @@ func (cfg *ConfigurationOption) Validate() error {
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate configuration option")
 	}
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("configuration option %q", cfg.Name), cfg.Constraints); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -300,6 +303,9 @@ func (fieldDef *EntityField) Validate() error {
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate entity field")
 	}
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.Constraints); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -335,6 +341,9 @@ func (cfg *FunctionConfigFields) Validate() error {
 	)
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate function configuration field")
+	}
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.Constraints); err != nil {
+		return err
 	}
 	return nil
 }
@@ -520,6 +529,83 @@ func validateDistributeOCI(spec *SDKSpecification) error {
 	return nil
 }
 
+func validateParameterValueConstraintDefinition(name string, condition *ParameterValueConstraint) error {
+	if condition == nil {
+		return nil
+	}
+	operator := condition.Operator
+	if operator == "" {
+		operator = ParameterValueConstraintOperatorPresent
+	}
+	if condition.Parameter == "" {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must specify a parameter", name)
+	}
+	switch operator {
+	case ParameterValueConstraintOperatorEquals, ParameterValueConstraintOperatorNotEquals:
+		if condition.Value == nil {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define value", name, operator)
+		}
+	case ParameterValueConstraintOperatorIn, ParameterValueConstraintOperatorNotIn:
+		if len(condition.Values) == 0 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define values", name, operator)
+		}
+	}
+	return nil
+}
+
+func validateParameterConstraintsDefinition(name string, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	return validation.ValidateStruct(constraints,
+		validation.Field(&constraints.RequiredWhen, validation.By(func(value any) error {
+			return validateParameterValueConstraintDefinition(fmt.Sprintf("%s required_when", name), constraints.RequiredWhen)
+		})),
+		validation.Field(&constraints.ForbiddenWhen, validation.By(func(value any) error {
+			return validateParameterValueConstraintDefinition(fmt.Sprintf("%s forbidden_when", name), constraints.ForbiddenWhen)
+		})),
+	)
+}
+
+func validateConstraintTargets(known []string, sourceName, fieldName string, targets []string) error {
+	return collection.ForAll(collection.UniqueEntries(targets), func(target string) error {
+		if collection.In(known, target, collection.StringMatch) {
+			return nil
+		}
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares %s target %q that does not exist in the same parameter collection", sourceName, fieldName, target)
+	})
+}
+
+func validateParameterConstraintReferences(names []string, sourceName string, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	known := collection.UniqueEntries(names)
+	if err := validateConstraintTargets(known, sourceName, "dependent_required", constraints.DependentRequired); err != nil {
+		return err
+	}
+	if err := validateConstraintTargets(known, sourceName, "conflicts_with", constraints.ConflictsWith); err != nil {
+		return err
+	}
+	if constraints.RequiredWhen != nil && !collection.In(known, constraints.RequiredWhen.Parameter, collection.StringMatch) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares required_when parameter %q that does not exist in the same parameter collection", sourceName, constraints.RequiredWhen.Parameter)
+	}
+	if constraints.ForbiddenWhen != nil && !collection.In(known, constraints.ForbiddenWhen.Parameter, collection.StringMatch) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares forbidden_when parameter %q that does not exist in the same parameter collection", sourceName, constraints.ForbiddenWhen.Parameter)
+	}
+	return nil
+}
+
+func validateParameterCollectionConstraintReferences[T interface {
+	GetName() string
+	GetConstraints() *ParameterConstraints
+}](parameters []T) (err error) {
+	names := collection.Map(parameters, func(parameter T) string { return parameter.GetName() })
+	return collection.ForAll(parameters, func(parameter T) error {
+		return validateParameterConstraintReferences(names, parameter.GetName(), parameter.GetConstraints())
+	})
+}
+
 func validateCollectionParameters(sdk *SDK) error {
 	if sdk == nil {
 		return commonerrors.UndefinedVariable("generator configuration")
@@ -547,6 +633,26 @@ func validateCollectionParameters(sdk *SDK) error {
 	)
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, commonerrors.DescribeCircumstance(err, "failed to validate manifest parameter collections"), "invalid manifest parameter shape")
+	}
+	if err := validateParameterCollectionConstraintReferences(collection.Map(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) *ConfigurationOption { return &cfg })); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid global configuration constraints")
+	}
+	if err := collection.ForAll(sdk.Specification.Interface.Methods, func(method InterfaceMethod) error {
+		return validateParameterCollectionConstraintReferences(collection.Map(method.Args, func(arg CommandArgument) *CommandArgument { return &arg }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid interface argument constraints")
+	}
+	if sdk.Specification.CommandLineCommands != nil {
+		if err := collection.ForAll(sdk.Specification.CommandLineCommands.Functions, func(fct CliFunction) error {
+			return validateParameterCollectionConstraintReferences(collection.Map(fct.Configuration, func(cfg FunctionConfigFields) *FunctionConfigFields { return &cfg }))
+		}); err != nil {
+			return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid CLI configuration constraints")
+		}
+	}
+	if err := collection.ForAll(sdk.Specification.AdditionalTypes, func(typ Type) error {
+		return validateParameterCollectionConstraintReferences(collection.Map(typ.Fields, func(fieldDef EntityField) *EntityField { return &fieldDef }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid additional type constraints")
 	}
 	return nil
 }

@@ -169,6 +169,7 @@ type DataModel struct {
 	TargetedGoVersion             string
 	ToolVersion                   string
 	FlagRegistrations             []FlagRegistration
+	FlagConstraintRegistrations   []FlagConstraintRegistration
 	CliEnvVarBindings             []ArgFlagBindingInfo
 	CliArgConsts                  []ArgDefinition
 	RootArgConsts                 []ArgDefinition
@@ -470,6 +471,10 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	if err != nil {
 		return
 	}
+	flagConstraintRegs, err := PreComputeFlagConstraintRegistrations(sdk.Specification.CommandLineCommands)
+	if err != nil {
+		return
+	}
 
 	distribution := precomputeDistribution(&sdk.Specification)
 	oci := precomputeOCIImageDistribution(&sdk.Specification)
@@ -490,6 +495,7 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		ToolVersion:                   field.OptionalString(cfg.ToolVersion, ""),
 		CliEnvVarBindings:             cliEnvVarBindings,
 		FlagRegistrations:             flagRegs,
+		FlagConstraintRegistrations:   flagConstraintRegs,
 		CliArgConsts:                  argConsts,
 		RootArgConsts:                 rootArgConsts,
 		RootFlagRegistrations:         rootFlagRegs,

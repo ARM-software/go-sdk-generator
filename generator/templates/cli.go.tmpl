@@ -152,6 +152,10 @@ func init() {
     {{ .FlagLine }}
     {{- end }}
 
+    {{- range .FlagConstraintRegistrations }}
+    {{ .Statement }}
+    {{- end }}
+
 	{{ range .CliEnvVarBindings }}
 	{{- if gt (len .FlagBindings) 1 }}
 	_ = configUtils.BindFlagsToEnv(viperSession, config.App, "{{ .EnvVar }}", {{- range $i, $flag := .FlagBindings -}}{{ if $i }}, {{ end }}{{ $flag }}{{- end -}})

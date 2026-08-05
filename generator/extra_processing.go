@@ -486,6 +486,24 @@ type ArgFlagBindingInfo struct {
 	FlagBindings []string
 }
 
+// FlagConstraintRegistration describes one generated Cobra flag-constraint call.
+type FlagConstraintRegistration struct {
+	CommandVar string
+	Method     string
+	FlagArgs   []string
+}
+
+// Statement renders the Cobra flag-constraint registration as Go source.
+func (registration *FlagConstraintRegistration) Statement() string {
+	if registration == nil {
+		return ""
+	}
+	if reflection.IsEmpty(registration.CommandVar) || reflection.IsEmpty(registration.Method) || reflection.IsEmpty(registration.FlagArgs) {
+		return ""
+	}
+	return fmt.Sprintf("_ = %s.%s(%s)", registration.CommandVar, registration.Method, strings.Join(registration.FlagArgs, ", "))
+}
+
 func getArgName(prefix, cfgName, bindingName string, isRoot bool) string {
 	if isRoot {
 		return fmt.Sprintf("root%vArg", bindingName)
@@ -863,6 +881,12 @@ func PreComputeRootFlagsAndBindings(cmds *CommandLineCommands) (flagRegistration
 	})
 
 	return
+}
+
+// PreComputeFlagConstraintRegistrations determines Cobra flag-relationship
+// registrations for CLI parameters that declare cross-parameter constraints.
+func PreComputeFlagConstraintRegistrations(cmds *CommandLineCommands) (out []FlagConstraintRegistration, err error) {
+	return cmds.FlagConstraintRegistrations()
 }
 
 // PrecomputeArgNames will determine the names of the command line arguments so they match the flag bindings for the non-root command line functions

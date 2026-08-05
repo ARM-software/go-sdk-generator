@@ -1,0 +1,139 @@
+specification:
+  package_name: constraint-demo
+  main_module: constraintdemo
+  name: ConstraintDemo
+  description: Constraint demo manifest.
+  repository_url: https://gitlab.example.com/acme/constraint-demo
+  public: true
+  interface:
+    methods:
+      - name: Verify
+        description: Verify constrained input.
+        args:
+          - name: mode
+            lang_type: string
+            mapstructure_tag: mode
+            description: Execution mode.
+            enum:
+              - strict
+              - relaxed
+              - archive
+          - name: output
+            lang_type: string
+            mapstructure_tag: output
+            description: Output file.
+            constraints:
+              required_when:
+                parameter: mode
+                operator: equals
+                value: strict
+          - name: manifest
+            lang_type: string
+            mapstructure_tag: manifest
+            description: Manifest path.
+            constraints:
+              forbidden_when:
+                parameter: mode
+                operator: in
+                values:
+                  - relaxed
+                  - archive
+          - name: profile
+            lang_type: string
+            mapstructure_tag: profile
+            description: Validation profile.
+            constraints:
+              dependent_required:
+                - output
+              conflicts_with:
+                - manifest
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether verification failed.
+  command_line_commands:
+    binary: constraint-demo
+    root_environment_var: CONSTRAINT_DEMO
+    description: CLI for testing generated parameter constraints.
+    no_actions: true
+    functions:
+      - name: Verify
+        description: Verify constrained input.
+        configuration:
+          - name: Mode
+            lang_type: string
+            mapstructure_tag: mode
+            description: Execution mode.
+            enum:
+              - strict
+              - relaxed
+              - archive
+          - name: Output
+            lang_type: string
+            mapstructure_tag: output
+            description: Output file.
+            constraints:
+              required_when:
+                parameter: Mode
+                operator: equals
+                value: strict
+              require_together_as_cli_flags: true
+          - name: Manifest
+            lang_type: string
+            mapstructure_tag: manifest
+            description: Manifest path.
+            constraints:
+              forbidden_when:
+                parameter: Mode
+                operator: in
+                values:
+                  - relaxed
+                  - archive
+          - name: Profile
+            lang_type: string
+            mapstructure_tag: profile
+            description: Validation profile.
+            constraints:
+              dependent_required:
+                - Output
+              conflicts_with:
+                - Manifest
+              require_together_as_cli_flags: true
+  global_configuration:
+    - name: mode
+      lang_type: string
+      mapstructure_tag: mode
+      description: Execution mode.
+      enum:
+        - strict
+        - relaxed
+        - archive
+    - name: output
+      lang_type: string
+      mapstructure_tag: output
+      description: Output file.
+      constraints:
+        required_when:
+          parameter: mode
+          operator: equals
+          value: strict
+    - name: manifest
+      lang_type: string
+      mapstructure_tag: manifest
+      description: Manifest path.
+      constraints:
+        forbidden_when:
+          parameter: mode
+          operator: in
+          values:
+            - relaxed
+            - archive
+    - name: profile
+      lang_type: string
+      mapstructure_tag: profile
+      description: Validation profile.
+      constraints:
+        dependent_required:
+          - output
+        conflicts_with:
+          - manifest
