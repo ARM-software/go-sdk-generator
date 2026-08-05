@@ -12,10 +12,10 @@ import (
     {{ end -}}
 	"{{ sdkModuleRoot .Specification }}/config"
 {{ range additionalTypeImports .Specification "" -}}
-	{{ .Alias }} "{{ .Path }}"
+	{{ renderImport .Alias .Path false }}
 {{ end -}}
 {{ range .Specification.ExtraImports -}}
-	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 {{ end -}}
 )
 

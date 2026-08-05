@@ -2,7 +2,6 @@ package generator
 
 import (
 	"context"
-	"path/filepath"
 	"strings"
 	"testing"
 	"text/template"
@@ -102,9 +101,9 @@ func TestDocumentedAdditionalTypeFieldTypePreservesAcronymCasing(t *testing.T) {
 }
 
 func TestCasingTypesDescriptionsRemainCleanAfterPreprocessing(t *testing.T) {
-	repoRoot, err := filepath.Abs(".")
+	repoRoot, err := filesystem.CurrentDirectory()
 	require.NoError(t, err)
-	manifestPath := filepath.Join(repoRoot, "testdata", "casing-types.yml")
+	manifestPath := filesystem.FilePathJoin(filesystem.NewStandardFileSystem(), repoRoot, "testdata", "casing-types.yml")
 
 	var sdk SDK
 	content, err := filesystem.ReadFile(manifestPath)
@@ -177,4 +176,97 @@ func TestEmbeddedConfigTemplateOmitsRequiredForEnumFields(t *testing.T) {
 	output := b.String()
 	assert.Contains(t, output, "validation.Field(&cfg.OutputFormat, validationUtils.Enum(")
 	assert.NotContains(t, output, "validation.Field(&cfg.OutputFormat, validation.Required")
+}
+
+func TestConfigTemplateRetainsPatternOnlyValidation(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	localFs := filesystem.NewStandardFileSystem()
+	data, err := filesystem.ReadFile(filesystem.FilePathJoin(localFs, "testdata", "verify.yml"))
+	require.NoError(t, err)
+
+	var sdk SDK
+	require.NoError(t, unmarshalManifestContent(".yml", data, &sdk))
+	require.NoError(t, ProcessExtraImports(context.Background(), &sdk))
+	require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), &sdk))
+	require.NoError(t, ProcessAdditionalTypePackages(context.Background(), &sdk))
+	require.NoError(t, ProcessBindings(context.Background(), &sdk))
+	require.NoError(t, ProcessArguments(context.Background(), &sdk))
+	require.NoError(t, ProcessConstraintMirrors(context.Background(), &sdk))
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", &DataModel{SDK: sdk}))
+	assert.Contains(t, b.String(), `validation.Field(&cfg.UserAgent, validationUtils.Pattern(regexp.MustCompile(`)
+}
+
+func TestConfigTemplateIncludesConstraintValidationAliases(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("ConstraintAliasTest"),
+				PackageName: "constraint-alias-test",
+				MainModule:  "constraintalias",
+				GlobalConfiguration: Configuration{{
+					Name:            "Format",
+					LangType:        "string",
+					MapstructureTag: "format",
+					Description:     "Format.",
+					Constraints: &ParameterConstraints{
+						Enum:        []string{"json", "yaml"},
+						Pattern:     field.ToOptionalString(`^(json|yaml)$`),
+						Required:    true,
+						Nullable:    true,
+						NotEmpty:    true,
+						Contains:    field.ToOptionalString("so"),
+						NotContains: field.ToOptionalString("tmp"),
+						Prefix:      field.ToOptionalString("j"),
+						Suffix:      field.ToOptionalString("n"),
+						MinLength:   field.ToOptional(4),
+					},
+				}, {
+					Name:            "Tags",
+					LangType:        "string",
+					List:            true,
+					MapstructureTag: "tags",
+					Description:     "Tags.",
+					Constraints: &ParameterConstraints{
+						MinItems:    field.ToOptional(1),
+						UniqueItems: true,
+					},
+				}, {
+					Name:            "ReportFile",
+					LangType:        "string",
+					MapstructureTag: "report_file",
+					Description:     "Report file.",
+					Constraints: &ParameterConstraints{
+						Extension: []string{".json", ".yaml"},
+						Suffix:    field.ToOptionalString(".json"),
+					},
+				}},
+			},
+		},
+	}
+	require.NoError(t, ProcessConstraintMirrors(context.Background(), &data.SDK))
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "validation.Field(&cfg.Format, validation.Required")
+	assert.Contains(t, output, "validationUtils.Enum(")
+	assert.Contains(t, output, "validationUtils.Pattern(regexp.MustCompile(`^(json|yaml)$`))")
+	assert.Contains(t, output, "validationUtils.Nullable(validationUtils.AllOf(")
+	assert.Contains(t, output, "validationUtils.NotEmpty()")
+	assert.Contains(t, output, `validationUtils.ContainsString("so")`)
+	assert.Contains(t, output, `validationUtils.NotContains("tmp")`)
+	assert.Contains(t, output, `validationUtils.Prefix("j")`)
+	assert.Contains(t, output, `validationUtils.Suffix("n")`)
+	assert.Contains(t, output, "validationUtils.MinLength(4)")
+	assert.Contains(t, output, "validationUtils.MinItems(1)")
+	assert.Contains(t, output, `validationUtils.UniqueItems[any, string]`)
+	assert.Contains(t, output, `filesystem.NewOSPathExtensionRule(true, ".json", ".yaml")`)
 }

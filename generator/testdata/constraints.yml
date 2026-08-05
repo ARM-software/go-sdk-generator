@@ -51,6 +51,39 @@ specification:
           - name: err
             lang_type: error
             description: Whether verification failed.
+  additional_types:
+    - name: Artifact
+      description: Generated artifact metadata.
+      fields:
+        - name: Path
+          lang_type: string
+          json_tag: path
+          mapstructure_tag: path
+          description: Artifact path.
+          constraints:
+            extension:
+              - .json
+              - .yaml
+            prefix: build/
+        - name: Labels
+          lang_type: string
+          list: true
+          json_tag: labels
+          mapstructure_tag: labels
+          description: Artifact labels.
+          constraints:
+            min_items: 1
+            unique_items: true
+        - name: Target
+          lang_type: string
+          reference: true
+          json_tag: target
+          mapstructure_tag: target
+          description: Optional target identifier.
+          constraints:
+            nullable: true
+            not_empty: true
+            prefix: cmsis-
   command_line_commands:
     binary: constraint-demo
     root_environment_var: CONSTRAINT_DEMO
@@ -99,6 +132,49 @@ specification:
               conflicts_with:
                 - Manifest
               require_together_as_cli_flags: true
+          - name: Tags
+            lang_type: string
+            list: true
+            mapstructure_tag: tags
+            description: Verification tags.
+            constraints:
+              min_items: 1
+              unique_items: true
+              at_least_one: true
+          - name: ReportFile
+            lang_type: string
+            mapstructure_tag: report_file
+            description: Report output file.
+            constraints:
+              extension:
+                - .json
+                - .yaml
+              suffix: .json
+          - name: Summary
+            lang_type: string
+            mapstructure_tag: summary
+            description: Verification summary.
+            constraints:
+              not_empty: true
+              contains: cmsis
+              not_contains: draft
+          - name: Retries
+            lang_type: int
+            mapstructure_tag: retries
+            description: Retry count.
+            constraints:
+              minimum: 1
+              maximum: 5
+              multiple_of: 1
+          - name: Target
+            lang_type: string
+            reference: true
+            mapstructure_tag: target
+            description: Optional target identifier.
+            constraints:
+              nullable: true
+              not_empty: true
+              prefix: cmsis-
   global_configuration:
     - name: mode
       lang_type: string
@@ -137,3 +213,46 @@ specification:
           - output
         conflicts_with:
           - manifest
+    - name: tags
+      lang_type: string
+      list: true
+      mapstructure_tag: tags
+      description: Verification tags.
+      constraints:
+        min_items: 1
+        unique_items: true
+        at_least_one: true
+    - name: report_file
+      lang_type: string
+      mapstructure_tag: report_file
+      description: Report output file.
+      constraints:
+        extension:
+          - .json
+          - .yaml
+        suffix: .json
+    - name: summary
+      lang_type: string
+      mapstructure_tag: summary
+      description: Verification summary.
+      constraints:
+        not_empty: true
+        contains: cmsis
+        not_contains: draft
+    - name: retries
+      lang_type: int
+      mapstructure_tag: retries
+      description: Retry count.
+      constraints:
+        minimum: 1
+        maximum: 5
+        multiple_of: 1
+    - name: target
+      lang_type: string
+      reference: true
+      mapstructure_tag: target
+      description: Optional target identifier.
+      constraints:
+        nullable: true
+        not_empty: true
+        prefix: cmsis-

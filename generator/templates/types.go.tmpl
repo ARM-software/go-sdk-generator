@@ -6,12 +6,12 @@ import (
 	{{ if .CurrentAdditionalTypes -}}{{ range .CurrentAdditionalTypes }}{{ if .UsesCollectionInConstraintValidationRules -}}
 	"github.com/ARM-software/golang-utils/utils/collection"
 	{{ break }}{{ end }}{{ end }}{{ end -}}
-	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	{{ if .CurrentAdditionalTypes.UsesFilesystemValidationAlias -}}
-	"github.com/ARM-software/golang-utils/utils/filesystem"
+	{{ if .CurrentAdditionalTypes.UsesFmtInConstraintValidationRules -}}
+	"fmt"
 	{{ end -}}
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	{{ if .CurrentAdditionalTypes.UsesJSONValidationAlias -}}
-	jsonutils "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
+	{{ renderImport "jsonutils" "github.com/ARM-software/golang-utils/utils/serialization/json" true }}
 	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	{{ if .CurrentAdditionalTypes -}}{{ range .CurrentAdditionalTypes }}{{ if .UsesReflectInConstraintValidationRules -}}
@@ -22,10 +22,10 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	{{ range additionalTypeImports .Specification .CurrentTypePackage -}}
-	{{ .Alias }} "{{ .Path }}"
+	{{ renderImport .Alias .Path false }}
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
-	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}
 )
 
@@ -57,6 +57,7 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ range .Fields -}}
 	{{ $validation := .LangType | validationLangType -}}
 	{{ $enumValidation := enumValidationRule $structName .Name .LangType .Reference .Enum -}}
+	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "additional-type" $structName .Name -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
@@ -66,11 +67,11 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ end }}
 	{{ else }}
 	{{ if .Required }}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
 	{{ else if .Condition -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
-	{{ else if or $validation $enumValidation -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
+	{{ else if or $validation $enumValidation $constraintValidation .Pattern -}}
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
 	{{ end }}
 	{{ end }}
 	{{ end }}

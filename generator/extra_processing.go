@@ -395,6 +395,19 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 	return
 }
 
+func ProcessConstraintMirrors(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+	sdk.Specification.ApplyConstraintMirrors()
+	return
+}
+
 func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
 	args := map[string]FunctionConfigFields{
 		noKeyringArgument: {
@@ -609,7 +622,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 	if reflection.IsNotEmpty(binding.Examples) {
 		examples = binding.Examples
 	}
-	desc = descriptionWithMetadata(desc, cfg.Enum, example, examples)
+	desc = descriptionWithMetadata(desc, cfg.EffectiveEnum(), example, examples)
 
 	argShort := field.Optional(binding.ArgShort, "")
 
@@ -643,7 +656,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 	if err != nil {
 		return
 	}
-	desc = descriptionWithMetadata(desc, cfg.Enum, cfg.Example, cfg.Examples)
+	desc = descriptionWithMetadata(desc, cfg.EffectiveEnum(), cfg.Example, cfg.Examples)
 
 	argShort := ""
 	if cfg.ArgShort != nil {

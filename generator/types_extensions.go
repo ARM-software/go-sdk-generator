@@ -83,6 +83,9 @@ func Validate(ctx context.Context, path string) (validationErr, err error) {
 	if err = ProcessArguments(ctx, &sdk); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate manifest preprocessing for arguments"), nil
 	}
+	if err = ProcessConstraintMirrors(ctx, &sdk); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate manifest preprocessing for constraint mirrors"), nil
+	}
 
 	return nil, nil
 }

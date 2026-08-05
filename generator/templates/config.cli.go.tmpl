@@ -6,15 +6,15 @@ import (
 	{{ if .Specification.CommandLineCommands.UsesCollectionInConstraintValidationRules -}}
 	"github.com/ARM-software/golang-utils/utils/collection"
 	{{ end -}}
-	{{ if .Specification.CommandLineCommands.UsesFilesystemValidationAlias -}}
-	"github.com/ARM-software/golang-utils/utils/filesystem"
+	{{ if .Specification.CommandLineCommands.UsesFmtInConstraintValidationRules -}}
+	"fmt"
 	{{ end -}}
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	{{ if hasReferenceLikeSecretStringParameters .Specification.CommandLineCommands -}}
 	"github.com/ARM-software/golang-utils/utils/field"
 	{{ end -}}
 	{{ if .Specification.CommandLineCommands.UsesJSONValidationAlias -}}
-	jsonutils "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
+	{{ renderImport "jsonutils" "github.com/ARM-software/golang-utils/utils/serialization/json" true }}
 	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	{{ if .Specification.CommandLineCommands.UsesReflectInConstraintValidationRules -}}
@@ -28,10 +28,10 @@ import (
 	"{{ cliModuleRoot .Specification }}/internal/secretutil"
 	{{ end -}}
 	{{ range additionalTypeImports .Specification "" -}}
-	{{ .Alias }} "{{ .Path }}"
+	{{ renderImport .Alias .Path false }}
 	{{ end -}}
 	{{ range .Specification.ExtraImports -}}
-	{{ .ImportRef }} "{{ .ImportUrl }}"
+	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}
 )
 
@@ -72,6 +72,7 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	{{ if not .Bindings -}}
 	{{ $validation := .LangType | validationLangType -}}
 	{{ $enumValidation := enumValidationRule $configName .Name .LangType .Reference .Enum -}}
+	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "cli-configuration" $configName .Name -}}
 	{{ if eq .LangType "bool" -}}
 	{{ if .Condition -}}
@@ -81,11 +82,11 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	{{ end -}}
 	{{ else -}}
 	{{ if .Required -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }})),
-	{{ else if or $validation $enumValidation -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
+	{{ else if or $validation $enumValidation $constraintValidation .Pattern -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}

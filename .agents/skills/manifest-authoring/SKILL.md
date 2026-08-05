@@ -89,6 +89,17 @@ Use `constraints` for cases such as:
 
 Prefer `condition` only for the older single-expression required logic when there is a concrete reason to stay with that shape.
 
+When a value has additional validation semantics beyond its base `lang_type`, prefer expressing them directly in the manifest with `constraints` rather than leaving them implicit in prose or expecting downstream runtime code to catch them later.
+
+Recommended mindset:
+
+- use as many clear constraint rules as the contract genuinely supports
+- prefer early manifest validation over deferring invalid combinations to generated runtime behaviour
+- use `enum`, `pattern`, length, numeric, collection, and string-shape constraints whenever they make the allowed input space clearer
+- prefer precise validation at authoring time so generated SDKs, CLIs, docs, and actions all inherit the same contract
+
+These rules are intended to stay roughly aligned with JSON Schema and OpenAPI-style constraint vocabulary where practical, while still fitting the generator's parameter model and CLI-oriented behaviour.
+
 Example:
 
 ```yaml

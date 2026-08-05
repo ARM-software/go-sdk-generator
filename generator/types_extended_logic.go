@@ -33,6 +33,38 @@ func usesJSONValidationAlias(langType string) bool {
 	return strings.TrimSpace(langType) == "validJSON"
 }
 
+func effectiveParameterEnum(enum []string, constraints *ParameterConstraints) []string {
+	if hasEnum(enum) {
+		return enum
+	}
+	if constraints == nil {
+		return nil
+	}
+	return constraints.Enum
+}
+
+func effectiveParameterPattern(pattern *string, constraints *ParameterConstraints) *string {
+	if pattern != nil && strings.TrimSpace(*pattern) != "" {
+		return pattern
+	}
+	if constraints == nil || constraints.Pattern == nil || strings.TrimSpace(*constraints.Pattern) == "" {
+		return nil
+	}
+	return constraints.Pattern
+}
+
+func effectiveParameterRequired(required bool, constraints *ParameterConstraints) bool {
+	return required || (constraints != nil && constraints.Required)
+}
+
+func usesFilesystemConstraintRule(constraints *ParameterConstraints) bool {
+	return constraints != nil && reflection.IsNotEmpty(constraints.Extension)
+}
+
+func usesFmtConstraintRule(constraints *ParameterConstraints) bool {
+	return constraints != nil && constraints.UniqueItems
+}
+
 func (b *Binding) HasEnum() bool {
 	return false
 }
@@ -41,21 +73,129 @@ func (arg *CommandArgument) HasEnum() bool {
 	if arg == nil {
 		return false
 	}
-	return hasEnum(arg.Enum)
+	return hasEnum(arg.EffectiveEnum())
+}
+
+func (arg *CommandArgument) EffectiveEnum() []string {
+	if arg == nil {
+		return nil
+	}
+	return effectiveParameterEnum(arg.Enum, arg.Constraints)
+}
+
+func (arg *CommandArgument) EffectivePattern() *string {
+	if arg == nil {
+		return nil
+	}
+	return effectiveParameterPattern(arg.Pattern, arg.Constraints)
+}
+
+func (arg *CommandArgument) IsRequired() bool {
+	if arg == nil {
+		return false
+	}
+	return effectiveParameterRequired(arg.Required, arg.Constraints)
+}
+
+func (arg *CommandArgument) ApplyConstraintMirrors() {
+	if arg == nil || arg.Constraints == nil {
+		return
+	}
+	if reflection.IsEmpty(arg.Enum) && reflection.IsNotEmpty(arg.Constraints.Enum) {
+		arg.Enum = append([]string(nil), arg.Constraints.Enum...)
+	}
+	if reflection.IsEmpty(arg.Pattern) && reflection.IsNotEmpty(arg.Constraints.Pattern) {
+		arg.Pattern = field.ToOptionalString(field.OptionalString(arg.Constraints.Pattern, ""))
+	}
+	if !arg.Required && arg.Constraints.Required {
+		arg.Required = true
+	}
 }
 
 func (fieldDef *EntityField) HasEnum() bool {
 	if fieldDef == nil {
 		return false
 	}
-	return hasEnum(fieldDef.Enum)
+	return hasEnum(fieldDef.EffectiveEnum())
+}
+
+func (fieldDef *EntityField) EffectiveEnum() []string {
+	if fieldDef == nil {
+		return nil
+	}
+	return effectiveParameterEnum(fieldDef.Enum, fieldDef.Constraints)
+}
+
+func (fieldDef *EntityField) EffectivePattern() *string {
+	if fieldDef == nil {
+		return nil
+	}
+	return effectiveParameterPattern(fieldDef.Pattern, fieldDef.Constraints)
+}
+
+func (fieldDef *EntityField) IsRequired() bool {
+	if fieldDef == nil {
+		return false
+	}
+	return effectiveParameterRequired(fieldDef.Required, fieldDef.Constraints)
+}
+
+func (fieldDef *EntityField) ApplyConstraintMirrors() {
+	if fieldDef == nil || fieldDef.Constraints == nil {
+		return
+	}
+	if reflection.IsEmpty(fieldDef.Enum) && reflection.IsNotEmpty(fieldDef.Constraints.Enum) {
+		fieldDef.Enum = append([]string(nil), fieldDef.Constraints.Enum...)
+	}
+	if reflection.IsEmpty(fieldDef.Pattern) && reflection.IsNotEmpty(fieldDef.Constraints.Pattern) {
+		fieldDef.Pattern = field.ToOptionalString(field.OptionalString(fieldDef.Constraints.Pattern, ""))
+	}
+	if !fieldDef.Required && fieldDef.Constraints.Required {
+		fieldDef.Required = true
+	}
 }
 
 func (cfg *ConfigurationOption) HasEnum() bool {
 	if cfg == nil {
 		return false
 	}
-	return hasEnum(cfg.Enum)
+	return hasEnum(cfg.EffectiveEnum())
+}
+
+func (cfg *ConfigurationOption) EffectiveEnum() []string {
+	if cfg == nil {
+		return nil
+	}
+	return effectiveParameterEnum(cfg.Enum, cfg.Constraints)
+}
+
+func (cfg *ConfigurationOption) EffectivePattern() *string {
+	if cfg == nil {
+		return nil
+	}
+	return effectiveParameterPattern(cfg.Pattern, cfg.Constraints)
+}
+
+func (cfg *ConfigurationOption) IsRequired() bool {
+	if cfg == nil {
+		return false
+	}
+	return effectiveParameterRequired(cfg.Required, cfg.Constraints)
+}
+
+func (cfg *ConfigurationOption) ApplyConstraintMirrors() {
+	if cfg == nil || cfg.Constraints == nil {
+		return
+	}
+	if reflection.IsEmpty(cfg.Enum) && reflection.IsNotEmpty(cfg.Constraints.Enum) {
+		cfg.Enum = append([]string(nil), cfg.Constraints.Enum...)
+	}
+	if reflection.IsEmpty(cfg.Pattern) && reflection.IsNotEmpty(cfg.Constraints.Pattern) {
+		cfg.Pattern = field.ToOptionalString(field.OptionalString(cfg.Constraints.Pattern, ""))
+	}
+	if !cfg.Required && cfg.Constraints.Required {
+		cfg.Required = true
+	}
 }
 
 func (cfg *ConfigurationOption) SuppressesRequiredValidation() bool {
@@ -66,7 +206,7 @@ func (cfg *ConfigurationOption) SuppressesRequiredValidation() bool {
 }
 
 func (cfg *ConfigurationOption) UsesFilesystemValidationAlias() bool {
-	return cfg != nil && usesFilesystemValidationAlias(cfg.LangType)
+	return cfg != nil && (usesFilesystemValidationAlias(cfg.LangType) || usesFilesystemConstraintRule(cfg.Constraints))
 }
 
 func (cfg *ConfigurationOption) UsesJSONValidationAlias() bool {
@@ -77,7 +217,43 @@ func (cfg *FunctionConfigFields) HasEnum() bool {
 	if cfg == nil {
 		return false
 	}
-	return hasEnum(cfg.Enum)
+	return hasEnum(cfg.EffectiveEnum())
+}
+
+func (cfg *FunctionConfigFields) EffectiveEnum() []string {
+	if cfg == nil {
+		return nil
+	}
+	return effectiveParameterEnum(cfg.Enum, cfg.Constraints)
+}
+
+func (cfg *FunctionConfigFields) EffectivePattern() *string {
+	if cfg == nil {
+		return nil
+	}
+	return effectiveParameterPattern(cfg.Pattern, cfg.Constraints)
+}
+
+func (cfg *FunctionConfigFields) IsRequired() bool {
+	if cfg == nil {
+		return false
+	}
+	return effectiveParameterRequired(cfg.Required, cfg.Constraints)
+}
+
+func (cfg *FunctionConfigFields) ApplyConstraintMirrors() {
+	if cfg == nil || cfg.Constraints == nil {
+		return
+	}
+	if reflection.IsEmpty(cfg.Enum) && reflection.IsNotEmpty(cfg.Constraints.Enum) {
+		cfg.Enum = append([]string(nil), cfg.Constraints.Enum...)
+	}
+	if reflection.IsEmpty(cfg.Pattern) && reflection.IsNotEmpty(cfg.Constraints.Pattern) {
+		cfg.Pattern = field.ToOptionalString(field.OptionalString(cfg.Constraints.Pattern, ""))
+	}
+	if !cfg.Required && cfg.Constraints.Required {
+		cfg.Required = true
+	}
 }
 
 func (arg *CommandArgument) GetName() string {
@@ -144,7 +320,7 @@ func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {
 }
 
 func (cfg *FunctionConfigFields) UsesFilesystemValidationAlias() bool {
-	return cfg != nil && usesFilesystemValidationAlias(cfg.LangType)
+	return cfg != nil && (usesFilesystemValidationAlias(cfg.LangType) || usesFilesystemConstraintRule(cfg.Constraints))
 }
 
 func (cfg *FunctionConfigFields) UsesJSONValidationAlias() bool {
@@ -178,6 +354,15 @@ func (typ *Type) UsesJSONValidationAlias() bool {
 	})
 }
 
+func (typ *Type) ApplyConstraintMirrors() {
+	if typ == nil {
+		return
+	}
+	for i := range typ.Fields {
+		typ.Fields[i].ApplyConstraintMirrors()
+	}
+}
+
 func (fieldDef *EntityField) SuppressesRequiredValidation() bool {
 	if fieldDef == nil {
 		return false
@@ -186,7 +371,19 @@ func (fieldDef *EntityField) SuppressesRequiredValidation() bool {
 }
 
 func (fieldDef *EntityField) UsesFilesystemValidationAlias() bool {
-	return fieldDef != nil && usesFilesystemValidationAlias(fieldDef.LangType)
+	return fieldDef != nil && (usesFilesystemValidationAlias(fieldDef.LangType) || usesFilesystemConstraintRule(fieldDef.Constraints))
+}
+
+func (fieldDef *EntityField) UsesFmtInConstraintValidationRules() bool {
+	return fieldDef != nil && usesFmtConstraintRule(fieldDef.Constraints)
+}
+
+func (cfg *ConfigurationOption) UsesFmtInConstraintValidationRules() bool {
+	return cfg != nil && usesFmtConstraintRule(cfg.Constraints)
+}
+
+func (cfg *FunctionConfigFields) UsesFmtInConstraintValidationRules() bool {
+	return cfg != nil && usesFmtConstraintRule(cfg.Constraints)
 }
 
 func (fieldDef *EntityField) UsesJSONValidationAlias() bool {
@@ -211,6 +408,27 @@ func (types Types) UsesJSONValidationAlias() bool {
 	})
 }
 
+func (typ *Type) UsesFmtInConstraintValidationRules() bool {
+	if typ == nil {
+		return false
+	}
+	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool {
+		return fieldDef.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (types Types) UsesFmtInConstraintValidationRules() bool {
+	return collection.AnyRefFunc(types, func(typ *Type) bool {
+		return typ.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (types Types) ApplyConstraintMirrors() {
+	for i := range types {
+		types[i].ApplyConstraintMirrors()
+	}
+}
+
 func (cfgs Configuration) HasEnum() bool {
 	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
 		return cfg.HasEnum()
@@ -229,6 +447,12 @@ func (cfgs Configuration) UsesJSONValidationAlias() bool {
 	})
 }
 
+func (cfgs Configuration) UsesFmtInConstraintValidationRules() bool {
+	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
+		return cfg.UsesFmtInConstraintValidationRules()
+	})
+}
+
 func (cfgs Configuration) SuppressedRequiredValidationMap() map[string]bool {
 	result := map[string]bool{}
 	collection.ForEachRef(cfgs, func(cfg *ConfigurationOption) {
@@ -237,6 +461,12 @@ func (cfgs Configuration) SuppressedRequiredValidationMap() map[string]bool {
 		}
 	})
 	return result
+}
+
+func (cfgs Configuration) ApplyConstraintMirrors() {
+	for i := range cfgs {
+		cfgs[i].ApplyConstraintMirrors()
+	}
 }
 
 func (method *InterfaceMethod) HasEnum() bool {
@@ -250,6 +480,18 @@ func (method *InterfaceMethod) HasEnum() bool {
 	})
 }
 
+func (method *InterfaceMethod) ApplyConstraintMirrors() {
+	if method == nil {
+		return
+	}
+	for i := range method.Args {
+		method.Args[i].ApplyConstraintMirrors()
+	}
+	for i := range method.Returns {
+		method.Returns[i].ApplyConstraintMirrors()
+	}
+}
+
 func (iface *Interface) HasEnum() bool {
 	if iface == nil {
 		return false
@@ -257,6 +499,15 @@ func (iface *Interface) HasEnum() bool {
 	return collection.AnyRefFunc(iface.Methods, func(method *InterfaceMethod) bool {
 		return method.HasEnum()
 	})
+}
+
+func (iface *Interface) ApplyConstraintMirrors() {
+	if iface == nil {
+		return
+	}
+	for i := range iface.Methods {
+		iface.Methods[i].ApplyConstraintMirrors()
+	}
 }
 
 func (fct *CliFunction) HasEnum() bool {
@@ -286,6 +537,15 @@ func (fct *CliFunction) UsesJSONValidationAlias() bool {
 	})
 }
 
+func (fct *CliFunction) UsesFmtInConstraintValidationRules() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesFmtInConstraintValidationRules()
+	})
+}
+
 func (fct *CliFunction) SuppressedRequiredValidationMap() map[string]bool {
 	if fct == nil {
 		return nil
@@ -297,6 +557,15 @@ func (fct *CliFunction) SuppressedRequiredValidationMap() map[string]bool {
 		}
 	})
 	return result
+}
+
+func (fct *CliFunction) ApplyConstraintMirrors() {
+	if fct == nil {
+		return
+	}
+	for i := range fct.Configuration {
+		fct.Configuration[i].ApplyConstraintMirrors()
+	}
 }
 
 func (cmds *CommandLineCommands) HasConfigEnums() bool {
@@ -326,6 +595,15 @@ func (cmds *CommandLineCommands) UsesJSONValidationAlias() bool {
 	})
 }
 
+func (cmds *CommandLineCommands) UsesFmtInConstraintValidationRules() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.UsesFmtInConstraintValidationRules()
+	})
+}
+
 func (cmds *CommandLineCommands) SuppressedRequiredValidationMap() map[string]bool {
 	if cmds == nil {
 		return nil
@@ -337,6 +615,15 @@ func (cmds *CommandLineCommands) SuppressedRequiredValidationMap() map[string]bo
 		}
 	})
 	return result
+}
+
+func (cmds *CommandLineCommands) ApplyConstraintMirrors() {
+	if cmds == nil {
+		return
+	}
+	for i := range cmds.Functions {
+		cmds.Functions[i].ApplyConstraintMirrors()
+	}
 }
 
 func (cmds *CommandLineCommands) HasSecretStringParameters() bool {
@@ -399,6 +686,10 @@ func (spec *SDKSpecification) UsesJSONValidationAlias() bool {
 	return spec != nil && (spec.GlobalConfiguration.UsesJSONValidationAlias() || spec.AdditionalTypes.UsesJSONValidationAlias())
 }
 
+func (spec *SDKSpecification) UsesFmtInConstraintValidationRules() bool {
+	return spec != nil && (spec.GlobalConfiguration.UsesFmtInConstraintValidationRules() || spec.AdditionalTypes.UsesFmtInConstraintValidationRules())
+}
+
 func (typ *Type) SuppressedRequiredValidationMap() map[string]bool {
 	if typ == nil {
 		return nil
@@ -434,6 +725,18 @@ func (spec *SDKSpecification) SuppressedRequiredValidationMap() map[string]bool 
 		result[key] = true
 	}
 	return result
+}
+
+func (spec *SDKSpecification) ApplyConstraintMirrors() {
+	if spec == nil {
+		return
+	}
+	spec.GlobalConfiguration.ApplyConstraintMirrors()
+	spec.AdditionalTypes.ApplyConstraintMirrors()
+	(&spec.Interface).ApplyConstraintMirrors()
+	if spec.CommandLineCommands != nil {
+		spec.CommandLineCommands.ApplyConstraintMirrors()
+	}
 }
 
 func (b *Binding) RewriteAdditionalTypeReferences(currentPackage string, additionalTypesPackages map[string]string) {

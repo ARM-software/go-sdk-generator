@@ -328,6 +328,11 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	if err != nil {
 		return
 	}
+	err = ProcessConstraintMirrors(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for constraint mirrors")
+		return
+	}
 
 	requestedGoVersion, err := semver.Canonical(cfg.TargetedGoVersion)
 	if err != nil {

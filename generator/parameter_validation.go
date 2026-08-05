@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -52,6 +53,187 @@ func validateStringEnumDefaultValue(name string, enum []string, defaultValue *st
 	value := field.OptionalString(defaultValue, "")
 	if !collection.In(enum, value, collection.StringCleanCaseInsensitiveMatch) {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s default value %q must be one of %v", name, value, enum)
+	}
+	return nil
+}
+
+func normalisedStringValues(values []string) []string {
+	normalised := collection.Filter(collection.Map(values, strings.TrimSpace), func(value string) bool {
+		return value != ""
+	})
+	normalised = collection.UniqueBy(normalised, func(value string) string { return value })
+	slices.Sort(normalised)
+	return normalised
+}
+
+func sameStringValues(left []string, right []string) bool {
+	return slices.Equal(normalisedStringValues(left), normalisedStringValues(right))
+}
+
+func isStringConstraintCompatibleLangType(langType string) bool {
+	return strings.TrimSpace(convertLangType(baseLangType(langType))) == stringLangType
+}
+
+func isNumericConstraintCompatibleLangType(langType string) bool {
+	switch strings.TrimSpace(baseLangType(langType)) {
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "float32", "float64", "decimal", "port":
+		return true
+	default:
+		return false
+	}
+}
+
+func validatePatternDefinition(name string, langType string, list bool, iterator bool, pattern *string) error {
+	if reflection.IsEmpty(pattern) {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define pattern for scalar string-compatible values", name)
+	}
+	if !isStringConstraintCompatibleLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define pattern for string-compatible values", name)
+	}
+	if _, err := regexp.Compile(field.OptionalString(pattern, "")); err != nil {
+		return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "%s pattern must be a valid regular expression", name)
+	}
+	return nil
+}
+
+func validateStringSubstringConstraintDefinition(name string, langType string, list bool, iterator bool, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	definesStringSubstringConstraint := strings.TrimSpace(field.OptionalString(constraints.Contains, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.NotContains, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.Prefix, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.Suffix, "")) != ""
+	if !definesStringSubstringConstraint {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define contains, not_contains, prefix, and suffix for scalar string-compatible values", name)
+	}
+	if !isStringConstraintCompatibleLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define contains, not_contains, prefix, and suffix for string-compatible values", name)
+	}
+	return nil
+}
+
+func validateMirroredConstraintDefinitions(name string, directEnum []string, directPattern *string, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	if hasEnum(directEnum) && hasEnum(constraints.Enum) && !sameStringValues(directEnum, constraints.Enum) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot define conflicting enum values at both the top level and under constraints", name)
+	}
+	topLevelPattern := strings.TrimSpace(field.OptionalString(directPattern, ""))
+	constraintPattern := strings.TrimSpace(field.OptionalString(constraints.Pattern, ""))
+	if topLevelPattern != "" && constraintPattern != "" && topLevelPattern != constraintPattern {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot define conflicting patterns at both the top level and under constraints", name)
+	}
+	return nil
+}
+
+func validateStringConstraintDefinition(name string, langType string, list bool, iterator bool, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	if constraints.MinLength == nil && constraints.MaxLength == nil {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define min_length and max_length for scalar string-compatible values", name)
+	}
+	if !isStringConstraintCompatibleLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define min_length and max_length for string-compatible values", name)
+	}
+	if constraints.MinLength != nil && constraints.MaxLength != nil && *constraints.MinLength > *constraints.MaxLength {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s min_length must be less than or equal to max_length", name)
+	}
+	return nil
+}
+
+func numericConstraintValue(value *float64) (float64, bool) {
+	if value == nil {
+		return 0, false
+	}
+	return *value, true
+}
+
+func validateNumericConstraintDefinition(name string, langType string, list bool, iterator bool, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	definesNumericConstraint := constraints.Minimum != nil || constraints.Maximum != nil || constraints.ExclusiveMinimum != nil || constraints.ExclusiveMaximum != nil || constraints.MultipleOf != nil
+	if !definesNumericConstraint {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define numeric constraints for scalar numeric values", name)
+	}
+	if !isNumericConstraintCompatibleLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define numeric constraints for numeric values", name)
+	}
+	minimum, hasMinimum := numericConstraintValue(constraints.Minimum)
+	maximum, hasMaximum := numericConstraintValue(constraints.Maximum)
+	exclusiveMinimum, hasExclusiveMinimum := numericConstraintValue(constraints.ExclusiveMinimum)
+	exclusiveMaximum, hasExclusiveMaximum := numericConstraintValue(constraints.ExclusiveMaximum)
+	if hasMinimum && hasMaximum && minimum > maximum {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s minimum must be less than or equal to maximum", name)
+	}
+	if hasExclusiveMinimum && hasExclusiveMaximum && exclusiveMinimum >= exclusiveMaximum {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s exclusive_minimum must be less than exclusive_maximum", name)
+	}
+	if hasMinimum && hasExclusiveMaximum && minimum >= exclusiveMaximum {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s minimum must be less than exclusive_maximum", name)
+	}
+	if hasExclusiveMinimum && hasMaximum && exclusiveMinimum >= maximum {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s exclusive_minimum must be less than maximum", name)
+	}
+	if constraints.MultipleOf != nil && *constraints.MultipleOf <= 0 {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s multiple_of must be strictly positive", name)
+	}
+	return nil
+}
+
+func validateCollectionConstraintDefinition(name string, list bool, iterator bool, constraints *ParameterConstraints) error {
+	if constraints == nil {
+		return nil
+	}
+	definesCollectionConstraint := constraints.MinItems != nil || constraints.MaxItems != nil || constraints.UniqueItems || constraints.AtLeastOne || constraints.ExactlyOne
+	if !definesCollectionConstraint {
+		return nil
+	}
+	if !list && !iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define min_items, max_items, unique_items, at_least_one, or exactly_one for list or iterator values", name)
+	}
+	if constraints.MinItems != nil && constraints.MaxItems != nil && *constraints.MinItems > *constraints.MaxItems {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s min_items must be less than or equal to max_items", name)
+	}
+	if constraints.AtLeastOne && constraints.MaxItems != nil && *constraints.MaxItems < 1 {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s at_least_one conflicts with max_items less than 1", name)
+	}
+	if constraints.ExactlyOne {
+		if constraints.MinItems != nil && *constraints.MinItems > 1 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s exactly_one conflicts with min_items greater than 1", name)
+		}
+		if constraints.MaxItems != nil && *constraints.MaxItems < 1 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s exactly_one conflicts with max_items less than 1", name)
+		}
+	}
+	return nil
+}
+
+func validateExtensionConstraintDefinition(name string, langType string, list bool, iterator bool, constraints *ParameterConstraints) error {
+	if constraints == nil || reflection.IsEmpty(constraints.Extension) {
+		return nil
+	}
+	if list || iterator {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define extension for scalar string-compatible path values", name)
+	}
+	if !isStringConstraintCompatibleLangType(langType) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s can only define extension for string-compatible path values", name)
+	}
+	normalised := normalisedStringValues(constraints.Extension)
+	if len(normalised) == 0 {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s extension must define at least one non-empty extension", name)
 	}
 	return nil
 }
@@ -211,13 +393,13 @@ func (arg *CommandArgument) Validate() error {
 			return arg.DeprecationNotice.Validate()
 		})),
 		validation.Field(&arg.Example, validation.By(func(value any) error {
-			return validateExamplesDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.List, arg.Iterator, arg.Enum, arg.Example, arg.Examples)
+			return validateExamplesDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.List, arg.Iterator, arg.EffectiveEnum(), arg.Example, arg.Examples)
 		})),
 		validation.Field(&arg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.Reference, arg.List, arg.Iterator, arg.Enum)
 		})),
 		validation.Field(&arg.DefaultValue, validation.By(func(value any) error {
-			return validateStringEnumDefaultValue(fmt.Sprintf("command argument %q", arg.Name), arg.Enum, arg.DefaultValue)
+			return validateStringEnumDefaultValue(fmt.Sprintf("command argument %q", arg.Name), arg.EffectiveEnum(), arg.DefaultValue)
 		})),
 		validation.Field(&arg.Bindings, validation.By(func(value any) error {
 			return collection.ForAll(arg.Bindings, func(binding Binding) error {
@@ -227,6 +409,9 @@ func (arg *CommandArgument) Validate() error {
 	)
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate command argument")
+	}
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.Reference, arg.List, arg.Iterator, arg.Enum, arg.Pattern, arg.Constraints); err != nil {
+		return err
 	}
 	return nil
 }
@@ -247,13 +432,13 @@ func (cfg *ConfigurationOption) Validate() error {
 			return cfg.DeprecationNotice.Validate()
 		})),
 		validation.Field(&cfg.Example, validation.By(func(value any) error {
-			return validateExamplesDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
+			return validateExamplesDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.EffectiveEnum(), cfg.Example, cfg.Examples)
 		})),
 		validation.Field(&cfg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
 		})),
 		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
-			return validateStringEnumDefaultValue(fmt.Sprintf("global configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
+			return validateStringEnumDefaultValue(fmt.Sprintf("global configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
 			return collection.ForAll(cfg.Bindings, func(binding Binding) error {
@@ -264,7 +449,7 @@ func (cfg *ConfigurationOption) Validate() error {
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate configuration option")
 	}
-	if err := validateParameterConstraintsDefinition(fmt.Sprintf("configuration option %q", cfg.Name), cfg.Constraints); err != nil {
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("configuration option %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum, cfg.Pattern, cfg.Constraints); err != nil {
 		return err
 	}
 	return nil
@@ -286,13 +471,13 @@ func (fieldDef *EntityField) Validate() error {
 			return fieldDef.DeprecationNotice.Validate()
 		})),
 		validation.Field(&fieldDef.Example, validation.By(func(value any) error {
-			return validateExamplesDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.List, fieldDef.Iterator, fieldDef.Enum, fieldDef.Example, fieldDef.Examples)
+			return validateExamplesDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.List, fieldDef.Iterator, fieldDef.EffectiveEnum(), fieldDef.Example, fieldDef.Examples)
 		})),
 		validation.Field(&fieldDef.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.Enum)
 		})),
 		validation.Field(&fieldDef.DefaultValue, validation.By(func(value any) error {
-			return validateStringEnumDefaultValue(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.Enum, fieldDef.DefaultValue)
+			return validateStringEnumDefaultValue(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.EffectiveEnum(), fieldDef.DefaultValue)
 		})),
 		validation.Field(&fieldDef.Bindings, validation.By(func(value any) error {
 			return collection.ForAll(fieldDef.Bindings, func(binding Binding) error {
@@ -303,7 +488,7 @@ func (fieldDef *EntityField) Validate() error {
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate entity field")
 	}
-	if err := validateParameterConstraintsDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.Constraints); err != nil {
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.Enum, fieldDef.Pattern, fieldDef.Constraints); err != nil {
 		return err
 	}
 	return nil
@@ -325,13 +510,13 @@ func (cfg *FunctionConfigFields) Validate() error {
 			return cfg.DeprecationNotice.Validate()
 		})),
 		validation.Field(&cfg.Example, validation.By(func(value any) error {
-			return validateExamplesDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.Enum, cfg.Example, cfg.Examples)
+			return validateExamplesDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.List, cfg.Iterator, cfg.EffectiveEnum(), cfg.Example, cfg.Examples)
 		})),
 		validation.Field(&cfg.Enum, validation.By(func(value any) error {
 			return validateStringEnumDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
 		})),
 		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
-			return validateStringEnumDefaultValue(fmt.Sprintf("function configuration %q", cfg.Name), cfg.Enum, cfg.DefaultValue)
+			return validateStringEnumDefaultValue(fmt.Sprintf("function configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
 			return collection.ForAll(cfg.Bindings, func(binding Binding) error {
@@ -342,7 +527,7 @@ func (cfg *FunctionConfigFields) Validate() error {
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate function configuration field")
 	}
-	if err := validateParameterConstraintsDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.Constraints); err != nil {
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum, cfg.Pattern, cfg.Constraints); err != nil {
 		return err
 	}
 	return nil
@@ -553,7 +738,33 @@ func validateParameterValueConstraintDefinition(name string, condition *Paramete
 	return nil
 }
 
-func validateParameterConstraintsDefinition(name string, constraints *ParameterConstraints) error {
+func validateParameterConstraintsDefinition(name string, langType string, reference bool, list bool, iterator bool, directEnum []string, directPattern *string, constraints *ParameterConstraints) error {
+	effectiveEnum := effectiveParameterEnum(directEnum, constraints)
+	effectivePattern := effectiveParameterPattern(directPattern, constraints)
+	if err := validateStringEnumDefinition(name, langType, reference, list, iterator, effectiveEnum); err != nil {
+		return err
+	}
+	if err := validatePatternDefinition(name, langType, list, iterator, effectivePattern); err != nil {
+		return err
+	}
+	if err := validateMirroredConstraintDefinitions(name, directEnum, directPattern, constraints); err != nil {
+		return err
+	}
+	if err := validateStringConstraintDefinition(name, langType, list, iterator, constraints); err != nil {
+		return err
+	}
+	if err := validateStringSubstringConstraintDefinition(name, langType, list, iterator, constraints); err != nil {
+		return err
+	}
+	if err := validateNumericConstraintDefinition(name, langType, list, iterator, constraints); err != nil {
+		return err
+	}
+	if err := validateCollectionConstraintDefinition(name, list, iterator, constraints); err != nil {
+		return err
+	}
+	if err := validateExtensionConstraintDefinition(name, langType, list, iterator, constraints); err != nil {
+		return err
+	}
 	if constraints == nil {
 		return nil
 	}

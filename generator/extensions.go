@@ -106,6 +106,11 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"enumTypeName":                 enumTypeName,
 	"enumConstName":                enumConstName,
 	"enumValidationRule":           enumValidationRule,
+	"constraintValidationRule":     constraintValidationRule,
+	"effectiveEnum":                effectiveEnumTemplateValue,
+	"effectivePattern":             effectivePatternTemplateValue,
+	"effectivePatternString":       effectivePatternStringTemplateValue,
+	"isRequired":                   isRequiredTemplateValue,
 	"descriptionWithEnum":          descriptionWithEnum,
 	"descriptionWithExamples":      descriptionWithExamples,
 	"descriptionWithMetadata":      descriptionWithMetadata,
@@ -133,6 +138,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"toPascal":                           toPascalCase,
 	"quote":                              withQuote,
 	"quoteDescription":                   quoteDescription,
+	"renderImport":                       renderImport,
 	"toPackageName":                      toPackageName,
 	"additionalTypeImports":              additionalTypeImports,
 	"additionalTypePackageName":          additionalTypePackageName,
@@ -399,14 +405,6 @@ func enumConstRefs(ownerName, fieldName, langType string, enum []string) string 
 	return strings.Join(constRefs, ", ")
 }
 
-func enumValidationRule(ownerName, fieldName, langType string, reference bool, enum []string) string {
-	if !hasEnum(enum) {
-		return ""
-	}
-	constRefs := enumConstRefs(ownerName, fieldName, langType, enum)
-	return fmt.Sprintf(", validationUtils.Enum(%s)", constRefs)
-}
-
 func descriptionWithEnum(description string, enum []string) string {
 	if !hasEnum(enum) {
 		return description
@@ -621,6 +619,22 @@ func isFunc(s any) bool {
 func replaceUnderscores(value string) string {
 	return strings.ReplaceAll(value, "_", "-")
 }
+
+func renderImport(alias, importPath string, applyMisspellException bool) string {
+	alias = strings.TrimSpace(alias)
+	importPath = strings.TrimSpace(importPath)
+	if importPath == "" {
+		return ""
+	}
+	comment := ""
+	if applyMisspellException {
+		comment = " //nolint:misspell"
+	}
+	if alias == "" || alias == path.Base(importPath) {
+		return fmt.Sprintf("%q%s", importPath, comment)
+	}
+	return fmt.Sprintf("%s %q%s", alias, importPath, comment)
+}
 func defaultValue(s string, dValue any) string {
 	dValueStr := fmt.Sprintf("%v", dValue)
 	dValueStr = strings.TrimSpace(dValueStr)
@@ -786,42 +800,4 @@ func normaliseCustomLangType(st string) string {
 	default:
 		return toPascalCase(st)
 	}
-}
-
-func argValidationRule(s string) string {
-	return field.OptionalString(func(st string) *string {
-		switch st {
-		case "[]byte{}", "hex":
-			return field.ToOptionalString(", is.Hexadecimal")
-		case "base64", "byte":
-			return field.ToOptionalString(", is.Base64")
-		case "host", "url":
-			return field.ToOptionalString(", is.URL")
-		case "uri":
-			return field.ToOptionalString(", validationUtils.IsURI")
-		case "version", "semver":
-			return field.ToOptionalString(", is.Semver")
-		case "uuid":
-			return field.ToOptionalString(", is.UUID")
-		case "email":
-			return field.ToOptionalString(", is.Email")
-		case "json":
-			return field.ToOptionalString(", is.JSON")
-		case "validJSON":
-			return field.ToOptionalString(", jsonutils.IsValidJSON")
-		case "ip":
-			return field.ToOptionalString(", is.IP")
-		case "datetime":
-			return field.ToOptionalString(", validationUtils.IsRFC3339Timestamp")
-		case "filepath":
-			return field.ToOptionalString(", filesystem.NewOSPathValidationRule(true)")
-		case "existingFilepath":
-			return field.ToOptionalString(", filesystem.NewOSPathExistRule(true)")
-		case "pathParameter":
-			return field.ToOptionalString(", validationUtils.IsPathParameter")
-		case "port":
-			return field.ToOptionalString(", validationUtils.IsPort")
-		}
-		return nil
-	}(strings.TrimSpace(s)), "")
 }

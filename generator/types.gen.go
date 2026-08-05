@@ -965,16 +965,139 @@ type OciMapStringString map[string]interface{}
 // replacing it. Use `condition` for the current expression-style required
 // logic, and `constraints` for explicit cross-parameter relationships.
 type ParameterConstraints struct {
+	// Require a list or iterator value to contain at least one item.
+	// This is a convenience alias for `min_items: 1`.
+	//
+	AtLeastOne bool `json:"at_least_one,omitempty" yaml:"at_least_one,omitempty" mapstructure:"at_least_one,omitempty"`
+
 	// Parameters that must not be provided when this parameter is provided.
 	//
 	ConflictsWith []string `json:"conflicts_with,omitempty" yaml:"conflicts_with,omitempty" mapstructure:"conflicts_with,omitempty"`
+
+	// Require a scalar string-compatible value to contain the given
+	// substring.
+	//
+	Contains *string `json:"contains,omitempty" yaml:"contains,omitempty" mapstructure:"contains,omitempty"`
 
 	// Parameters that must be provided when this parameter is provided.
 	//
 	DependentRequired []string `json:"dependent_required,omitempty" yaml:"dependent_required,omitempty" mapstructure:"dependent_required,omitempty"`
 
+	// Validation-oriented equivalent of the top-level `enum` field.
+	// When the top-level `enum` is omitted, this can also drive generated
+	// enum-backed parameter types.
+	// This follows the JSON Schema `enum` keyword.
+	// Reference: https://json-schema.org/understanding-json-schema/reference/enum
+	//
+	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
+	// Require a list or iterator value to contain exactly one item.
+	// This is a convenience alias for `min_items: 1` together with
+	// `max_items: 1`.
+	//
+	ExactlyOne bool `json:"exactly_one,omitempty" yaml:"exactly_one,omitempty" mapstructure:"exactly_one,omitempty"`
+
+	// Exclusive upper bound for a scalar numeric value.
+	// This follows the JSON Schema `exclusiveMaximum` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/numeric#range
+	//
+	ExclusiveMaximum *float64 `json:"exclusive_maximum,omitempty" yaml:"exclusive_maximum,omitempty" mapstructure:"exclusive_maximum,omitempty"`
+
+	// Exclusive lower bound for a scalar numeric value.
+	// This follows the JSON Schema `exclusiveMinimum` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/numeric#range
+	//
+	ExclusiveMinimum *float64 `json:"exclusive_minimum,omitempty" yaml:"exclusive_minimum,omitempty" mapstructure:"exclusive_minimum,omitempty"`
+
+	// Allowed filename extensions for a scalar string-compatible path value,
+	// for example `.json` or `.yaml`.
+	//
+	Extension []string `json:"extension,omitempty" yaml:"extension,omitempty" mapstructure:"extension,omitempty"`
+
 	// ForbiddenWhen corresponds to the JSON schema field "forbidden_when".
 	ForbiddenWhen *ParameterValueConstraint `json:"forbidden_when,omitempty" yaml:"forbidden_when,omitempty" mapstructure:"forbidden_when,omitempty"`
+
+	// Maximum number of items allowed in a list or iterator value.
+	// This follows the JSON Schema `maxItems` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/array#length
+	//
+	MaxItems *int `json:"max_items,omitempty" yaml:"max_items,omitempty" mapstructure:"max_items,omitempty"`
+
+	// Maximum number of Unicode code points allowed for a scalar
+	// string-compatible value.
+	// This follows the JSON Schema `maxLength` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/string#length
+	//
+	MaxLength *int `json:"max_length,omitempty" yaml:"max_length,omitempty" mapstructure:"max_length,omitempty"`
+
+	// Inclusive upper bound for a scalar numeric value.
+	// This follows the JSON Schema `maximum` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/numeric#range
+	//
+	Maximum *float64 `json:"maximum,omitempty" yaml:"maximum,omitempty" mapstructure:"maximum,omitempty"`
+
+	// Minimum number of items allowed in a list or iterator value.
+	// This follows the JSON Schema `minItems` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/array#length
+	//
+	MinItems *int `json:"min_items,omitempty" yaml:"min_items,omitempty" mapstructure:"min_items,omitempty"`
+
+	// Minimum number of Unicode code points allowed for a scalar
+	// string-compatible value.
+	// This follows the JSON Schema `minLength` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/string#length
+	//
+	MinLength *int `json:"min_length,omitempty" yaml:"min_length,omitempty" mapstructure:"min_length,omitempty"`
+
+	// Inclusive lower bound for a scalar numeric value.
+	// This follows the JSON Schema `minimum` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/numeric#range
+	//
+	Minimum *float64 `json:"minimum,omitempty" yaml:"minimum,omitempty" mapstructure:"minimum,omitempty"`
+
+	// Require a scalar numeric value to be an exact multiple of the given
+	// positive number.
+	// This follows the JSON Schema `multipleOf` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/numeric#multiples
+	//
+	MultipleOf *float64 `json:"multiple_of,omitempty" yaml:"multiple_of,omitempty" mapstructure:"multiple_of,omitempty"`
+
+	// Require a scalar string-compatible value not to contain the given
+	// substring.
+	//
+	NotContains *string `json:"not_contains,omitempty" yaml:"not_contains,omitempty" mapstructure:"not_contains,omitempty"`
+
+	// Require the value to be non-empty according to the generator's normal
+	// validation semantics.
+	//
+	NotEmpty bool `json:"not_empty,omitempty" yaml:"not_empty,omitempty" mapstructure:"not_empty,omitempty"`
+
+	// Allow the value to be omitted or null while still validating the
+	// nested constraints whenever a value is provided.
+	//
+	Nullable bool `json:"nullable,omitempty" yaml:"nullable,omitempty" mapstructure:"nullable,omitempty"`
+
+	// Validation-oriented equivalent of the top-level `pattern` field.
+	// This is only valid for scalar string-compatible values.
+	// This follows the JSON Schema `pattern` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/string#regular-expressions
+	//
+	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Require a scalar string-compatible value to start with the given
+	// prefix.
+	//
+	Prefix *string `json:"prefix,omitempty" yaml:"prefix,omitempty" mapstructure:"prefix,omitempty"`
 
 	// Whether `dependent_required` should also require the related values
 	// to be passed together as CLI arguments when all referenced parameters
@@ -984,8 +1107,30 @@ type ParameterConstraints struct {
 	//
 	RequireTogetherAsCliFlags bool `json:"require_together_as_cli_flags,omitempty" yaml:"require_together_as_cli_flags,omitempty" mapstructure:"require_together_as_cli_flags,omitempty"`
 
+	// Validation-oriented equivalent of the top-level `required` field.
+	// This marks the parameter as required in the generated configuration
+	// validation and documentation.
+	// This is analogous to listing the containing property under JSON Schema
+	// `required`.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/object#required
+	//
+	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
 	// RequiredWhen corresponds to the JSON schema field "required_when".
 	RequiredWhen *ParameterValueConstraint `json:"required_when,omitempty" yaml:"required_when,omitempty" mapstructure:"required_when,omitempty"`
+
+	// Require a scalar string-compatible value to end with the given
+	// suffix.
+	//
+	Suffix *string `json:"suffix,omitempty" yaml:"suffix,omitempty" mapstructure:"suffix,omitempty"`
+
+	// Require all items in a list or iterator value to be unique.
+	// This follows the JSON Schema `uniqueItems` keyword.
+	// Reference:
+	// https://json-schema.org/understanding-json-schema/reference/array#uniqueness
+	//
+	UniqueItems bool `json:"unique_items,omitempty" yaml:"unique_items,omitempty" mapstructure:"unique_items,omitempty"`
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
@@ -1001,8 +1146,26 @@ func (j *ParameterConstraints) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
+	if v, ok := raw["at_least_one"]; !ok || v == nil {
+		plain.AtLeastOne = false
+	}
+	if v, ok := raw["exactly_one"]; !ok || v == nil {
+		plain.ExactlyOne = false
+	}
+	if v, ok := raw["not_empty"]; !ok || v == nil {
+		plain.NotEmpty = false
+	}
+	if v, ok := raw["nullable"]; !ok || v == nil {
+		plain.Nullable = false
+	}
 	if v, ok := raw["require_together_as_cli_flags"]; !ok || v == nil {
 		plain.RequireTogetherAsCliFlags = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	if v, ok := raw["unique_items"]; !ok || v == nil {
+		plain.UniqueItems = false
 	}
 	st := reflect.TypeOf(Plain{})
 	for i := range st.NumField() {

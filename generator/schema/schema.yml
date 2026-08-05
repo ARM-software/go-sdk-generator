@@ -326,6 +326,149 @@ $defs:
       logic, and `constraints` for explicit cross-parameter relationships.
     additionalProperties: true
     properties:
+      enum:
+        type: array
+        description: |
+          Validation-oriented equivalent of the top-level `enum` field.
+          When the top-level `enum` is omitted, this can also drive generated
+          enum-backed parameter types.
+          This follows the JSON Schema `enum` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/enum
+        items:
+          type: string
+      pattern:
+        type: string
+        description: |
+          Validation-oriented equivalent of the top-level `pattern` field.
+          This is only valid for scalar string-compatible values.
+          This follows the JSON Schema `pattern` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/string#regular-expressions
+      required:
+        type: boolean
+        default: false
+        description: |
+          Validation-oriented equivalent of the top-level `required` field.
+          This marks the parameter as required in the generated configuration
+          validation and documentation.
+          This is analogous to listing the containing property under JSON Schema
+          `required`.
+          Reference: https://json-schema.org/understanding-json-schema/reference/object#required
+      nullable:
+        type: boolean
+        default: false
+        description: |
+          Allow the value to be omitted or null while still validating the
+          nested constraints whenever a value is provided.
+      not_empty:
+        type: boolean
+        default: false
+        description: |
+          Require the value to be non-empty according to the generator's normal
+          validation semantics.
+      contains:
+        type: string
+        description: |
+          Require a scalar string-compatible value to contain the given
+          substring.
+      not_contains:
+        type: string
+        description: |
+          Require a scalar string-compatible value not to contain the given
+          substring.
+      prefix:
+        type: string
+        description: |
+          Require a scalar string-compatible value to start with the given
+          prefix.
+      suffix:
+        type: string
+        description: |
+          Require a scalar string-compatible value to end with the given
+          suffix.
+      min_length:
+        type: integer
+        description: |
+          Minimum number of Unicode code points allowed for a scalar
+          string-compatible value.
+          This follows the JSON Schema `minLength` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/string#length
+      max_length:
+        type: integer
+        description: |
+          Maximum number of Unicode code points allowed for a scalar
+          string-compatible value.
+          This follows the JSON Schema `maxLength` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/string#length
+      minimum:
+        type: number
+        description: |
+          Inclusive lower bound for a scalar numeric value.
+          This follows the JSON Schema `minimum` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/numeric#range
+      maximum:
+        type: number
+        description: |
+          Inclusive upper bound for a scalar numeric value.
+          This follows the JSON Schema `maximum` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/numeric#range
+      exclusive_minimum:
+        type: number
+        description: |
+          Exclusive lower bound for a scalar numeric value.
+          This follows the JSON Schema `exclusiveMinimum` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/numeric#range
+      exclusive_maximum:
+        type: number
+        description: |
+          Exclusive upper bound for a scalar numeric value.
+          This follows the JSON Schema `exclusiveMaximum` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/numeric#range
+      multiple_of:
+        type: number
+        description: |
+          Require a scalar numeric value to be an exact multiple of the given
+          positive number.
+          This follows the JSON Schema `multipleOf` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/numeric#multiples
+      min_items:
+        type: integer
+        description: |
+          Minimum number of items allowed in a list or iterator value.
+          This follows the JSON Schema `minItems` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/array#length
+      max_items:
+        type: integer
+        description: |
+          Maximum number of items allowed in a list or iterator value.
+          This follows the JSON Schema `maxItems` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/array#length
+      unique_items:
+        type: boolean
+        default: false
+        description: |
+          Require all items in a list or iterator value to be unique.
+          This follows the JSON Schema `uniqueItems` keyword.
+          Reference: https://json-schema.org/understanding-json-schema/reference/array#uniqueness
+      extension:
+        type: array
+        description: |
+          Allowed filename extensions for a scalar string-compatible path value,
+          for example `.json` or `.yaml`.
+        items:
+          type: string
+      at_least_one:
+        type: boolean
+        default: false
+        description: |
+          Require a list or iterator value to contain at least one item.
+          This is a convenience alias for `min_items: 1`.
+      exactly_one:
+        type: boolean
+        default: false
+        description: |
+          Require a list or iterator value to contain exactly one item.
+          This is a convenience alias for `min_items: 1` together with
+          `max_items: 1`.
       dependent_required:
         type: array
         description: |

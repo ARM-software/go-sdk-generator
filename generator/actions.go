@@ -204,7 +204,7 @@ func mergeActionInputs(bases []GeneratedActionInput, extras []GeneratedActionInp
 }
 
 func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedActionInput, err error) {
-	required := cfg.Required && cfg.DefaultValue == nil && cfg.Condition == ""
+	required := cfg.IsRequired() && cfg.DefaultValue == nil && cfg.Condition == ""
 
 	if len(cfg.Bindings) == 0 {
 		flagName, subErr := determineActionInputFlagName(cfg, nil)
@@ -217,7 +217,7 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			Name:        flagName,
 			EnvName:     toActionInputEnvName(flagName),
 			FlagName:    flagName,
-			Description: describeActionInput(descriptionWithDeprecation(descriptionWithMetadata(cfg.Description, cfg.Enum, cfg.Example, cfg.Examples), cfg.DeprecationNotice), cfg.Condition),
+			Description: describeActionInput(descriptionWithDeprecation(descriptionWithMetadata(cfg.Description, cfg.EffectiveEnum(), cfg.Example, cfg.Examples), cfg.DeprecationNotice), cfg.Condition),
 			Required:    required,
 			IsBoolean:   isBoolean(cfg.LangType),
 			Default:     defaultActionInputValue(flagName),
@@ -256,7 +256,7 @@ func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedAc
 			Name:        flagName,
 			EnvName:     toActionInputEnvName(flagName),
 			FlagName:    flagName,
-			Description: describeActionInput(descriptionWithDeprecation(descriptionWithMetadata(description, cfg.Enum, example, examples), cfg.DeprecationNotice), cfg.Condition),
+			Description: describeActionInput(descriptionWithDeprecation(descriptionWithMetadata(description, cfg.EffectiveEnum(), example, examples), cfg.DeprecationNotice), cfg.Condition),
 			Required:    required,
 			IsBoolean:   isBoolean(langType),
 			Default:     defaultActionInputValue(flagName),

@@ -301,6 +301,7 @@ At the field and parameter level, a few flags are especially important:
 
 - `lang_type`: the base type or built-in alias to generate from. See [Built-in Types](#formats).
 - `enum`: for string or `*string` shaped values, define a closed set of allowed manifest values that generate Go enums, validation, and clearer CLI help text
+- `constraints`: add explicit validation rules for string shape, numeric range, collection size, path-like values, conditional requirements, and other parameter semantics so invalid values are rejected as early as possible
 - `example` / `examples`: provide representative values for generated documentation, CLI help, GitHub Action input descriptions, and agent-facing skills. For `list` or `iterator` shapes, each example represents one item value.
 - `reference: true`: generate the value as a pointer to that type
 - `list: true`: generate the value as a list of that type, usually `[]T`
@@ -312,6 +313,18 @@ Rules:
 - `enum` is intended for string-like values and should not be combined with unrelated non-string shapes
 - if a method argument is the last argument and `list: true`, the generated method signature uses a variadic form `...T`
 - `reference`, `list`, and `iterator` shape the generated Go type on top of the base `lang_type`
+
+For validation-oriented manifests, prefer using as many meaningful `constraints` rules as the contract genuinely supports rather than leaving requirements implicit in descriptions or downstream runtime logic. The available constraint vocabulary is intended to stay roughly aligned with JSON Schema and OpenAPI-style rules where practical, while still fitting this generator's SDK and CLI model.
+
+Typical examples include:
+
+- string-like rules such as `pattern`, `min_length`, `max_length`, `contains`, `not_contains`, `prefix`, `suffix`, and `not_empty`
+- numeric rules such as `minimum`, `maximum`, `exclusive_minimum`, `exclusive_maximum`, and `multiple_of`
+- collection rules such as `min_items`, `max_items`, `unique_items`, `at_least_one`, and `exactly_one`
+- path-like rules such as `extension`
+- conditional or cross-parameter rules such as `dependent_required`, `conflicts_with`, `required_when`, and `forbidden_when`
+
+Using these rules keeps validation early and consistent across generated Go types, CLI configuration, documentation, and GitHub Actions.
 
 ## Breaking Changes And Deprecation
 

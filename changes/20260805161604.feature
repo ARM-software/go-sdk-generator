@@ -1,0 +1,1 @@
+:sparkles: Add many more manifest parameter constraint rules so manifests can describe parameters as precisely as possible, with validation that roughly aligns with JSON Schema and OpenAPI-style constraints.

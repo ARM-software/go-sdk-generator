@@ -218,6 +218,18 @@ func Test_ignoreLintingError(t *testing.T) {
 	assert.False(t, ignoreLintingError(faker.Password()))
 }
 
+func TestRenderImport(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, `"github.com/ARM-software/golang-utils/utils/filesystem"`, renderImport("filesystem", "github.com/ARM-software/golang-utils/utils/filesystem", false))
+	//nolint:misspell
+	assert.Equal(t, `jsonutils "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell`, renderImport("jsonutils", "github.com/ARM-software/golang-utils/utils/serialization/json", true))
+	//nolint:misspell
+	assert.Equal(t, `"github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell`, renderImport("yaml", "github.com/ARM-software/golang-utils/utils/serialization/yaml", true))
+	//nolint:misspell
+	assert.Equal(t, `"github.com/ARM-software/golang-utils/utils/serialization/yaml"`, renderImport("yaml", "github.com/ARM-software/golang-utils/utils/serialization/yaml", false))
+}
+
 func Test_packageName(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

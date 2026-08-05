@@ -11,15 +11,15 @@ func configFieldType(cfg FunctionConfigFields) string {
 	if cfg.Secret && langType == stringLangType {
 		langType = secretProtectedStringType
 	}
-	if hasEnum(cfg.Enum) && !cfg.Secret {
-		langType = enumTypeName("", cfg.Name, baseLangType(cfg.LangType), cfg.Enum)
+	if hasEnum(cfg.EffectiveEnum()) && !cfg.Secret {
+		langType = enumTypeName("", cfg.Name, baseLangType(cfg.LangType), cfg.EffectiveEnum())
 	}
 	return parameterTypeFromBase(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
 }
 
 func configFieldDefaultValue(additionalTypesPackages map[string]string, currentPackage, toolName, toolVersion string, cfg FunctionConfigFields) string {
 	baseType := baseLangType(cfg.LangType)
-	value := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, "", cfg.Name, baseType, cfg.Enum, field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
+	value := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, "", cfg.Name, baseType, cfg.EffectiveEnum(), field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
 	if cfg.Secret && convertLangType(baseType) == stringLangType {
 		protectedValue := fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
 		if isReferenceLikeSecretField(cfg) {

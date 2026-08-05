@@ -129,8 +129,8 @@ func documentedAdditionalTypeFieldType(typeName string, fieldDef *EntityField) s
 	if fieldDef == nil {
 		return ""
 	}
-	if hasEnum(fieldDef.Enum) {
-		return parameterTypeFromBase(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, enumTypeName(typeName, fieldDef.Name, fieldDef.LangType, fieldDef.Enum))
+	if hasEnum(fieldDef.EffectiveEnum()) {
+		return parameterTypeFromBase(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, enumTypeName(typeName, fieldDef.Name, fieldDef.LangType, fieldDef.EffectiveEnum()))
 	}
 	return parameterType(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.LangType)
 }
@@ -139,8 +139,8 @@ func documentedConfigFieldType(specName string, cfg *ConfigurationOption) string
 	if cfg == nil {
 		return ""
 	}
-	if hasEnum(cfg.Enum) {
-		return parameterTypeFromBase(cfg.Reference, cfg.List, cfg.Iterator, enumTypeName(specName, cfg.Name, cfg.LangType, cfg.Enum))
+	if hasEnum(cfg.EffectiveEnum()) {
+		return parameterTypeFromBase(cfg.Reference, cfg.List, cfg.Iterator, enumTypeName(specName, cfg.Name, cfg.LangType, cfg.EffectiveEnum()))
 	}
 	return parameterType(cfg.Reference, cfg.List, cfg.Iterator, cfg.LangType)
 }
@@ -149,16 +149,16 @@ func documentedInterfaceMethodSignature(method InterfaceMethod) string {
 	functionName := toPascalCase(method.Name)
 	arguments := append([]string{"ctx context.Context"}, collection.Map(method.Args, func(arg CommandArgument) string {
 		argType := parameterType(arg.Reference, arg.List, arg.Iterator, arg.LangType)
-		if hasEnum(arg.Enum) {
-			argType = parameterTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumTypeName(functionName, arg.Name, arg.LangType, arg.Enum))
+		if hasEnum(arg.EffectiveEnum()) {
+			argType = parameterTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumTypeName(functionName, arg.Name, arg.LangType, arg.EffectiveEnum()))
 		}
 		return fmt.Sprintf("%s %s", toCamelCase(arg.Name), argType)
 	})...)
 
 	returns := collection.Map(method.Returns, func(ret CommandArgument) string {
 		retType := parameterType(ret.Reference, ret.List, ret.Iterator, ret.LangType)
-		if hasEnum(ret.Enum) {
-			retType = parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumTypeName(functionName, ret.Name, ret.LangType, ret.Enum))
+		if hasEnum(ret.EffectiveEnum()) {
+			retType = parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumTypeName(functionName, ret.Name, ret.LangType, ret.EffectiveEnum()))
 		}
 		return fmt.Sprintf("%s %s", toCamelCase(ret.Name), retType)
 	})
@@ -231,8 +231,8 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			FlagName:     normalisedCLIArgumentName(cfg, nil),
 			ShortFlag:    field.OptionalString(cfg.ArgShort, ""),
 			EnvVar:       documentedCLIEnvVar(rootPrefix, documentedCLIEnvSuffix(cfg, nil)),
-			Description:  documentedCLIOptionDescription(cfg.Description, cfg.Condition, cfg.Enum, cfg.Example, cfg.Examples, cfg.DeprecationNotice),
-			Required:     cfg.Required,
+			Description:  documentedCLIOptionDescription(cfg.Description, cfg.Condition, cfg.EffectiveEnum(), cfg.Example, cfg.Examples, cfg.DeprecationNotice),
+			Required:     cfg.IsRequired(),
 			Condition:    cfg.Condition,
 			SharedAcross: shared,
 		}}
@@ -264,8 +264,8 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			FlagName:     normalisedCLIArgumentName(cfg, &binding),
 			ShortFlag:    field.OptionalString(binding.ArgShort, field.OptionalString(cfg.ArgShort, "")),
 			EnvVar:       documentedCLIEnvVar(rootPrefix, documentedCLIEnvSuffix(cfg, &binding)),
-			Description:  documentedCLIOptionDescription(description, cfg.Condition, cfg.Enum, example, examples, cfg.DeprecationNotice),
-			Required:     cfg.Required,
+			Description:  documentedCLIOptionDescription(description, cfg.Condition, cfg.EffectiveEnum(), example, examples, cfg.DeprecationNotice),
+			Required:     cfg.IsRequired(),
 			Condition:    cfg.Condition,
 			SharedAcross: shared,
 		})
