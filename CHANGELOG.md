@@ -2,6 +2,29 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.45.0" (2026-08-05)
+=====================
+
+Features
+--------
+
+- :sparkles: Add explicit manifest parameter constraints, including CLI-only required-together flag relationships, and generate clearer constraint validation output. (#20260805114500)
+- :sparkles: Add many more manifest parameter constraint rules so manifests can describe parameters as precisely as possible, with validation that roughly aligns with JSON Schema and OpenAPI-style constraints. (#20260805161604)
+
+
+Bugfixes
+--------
+
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.44.1. (#20260805072119, #20260805072226, #20260805072329)
+- Dependency upgrade: setup-go-7 (#20260805072235)
+- Dependency upgrade: alpine-3.24.1 (#20260805072247)
+- Dependency upgrade: generator-0.43.4 (#20260805074655)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.44.1" (2026-08-05)
 =====================
 
