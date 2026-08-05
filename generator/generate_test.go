@@ -374,6 +374,35 @@ func TestGenerate(t *testing.T) {
 
 }
 
+func TestCompareGoVersions(t *testing.T) {
+	assert.Equal(t, 0, compareGoVersions("1.24.6", "1.24.6"))
+	assert.Equal(t, 1, compareGoVersions("1.24.6", "1.24.5"))
+	assert.Equal(t, -1, compareGoVersions("1.24.6", "1.26.5"))
+	assert.Equal(t, 0, compareGoVersions("v1.24.6", "1.24.6"))
+}
+
+func TestShouldRegenerateVersionSensitiveStateFile(t *testing.T) {
+	assert.False(t, shouldRegenerateVersionSensitiveStateFile(false, "1.24.6", "1.26.5"))
+	assert.True(t, shouldRegenerateVersionSensitiveStateFile(false, "1.24.6", "1.24.5"))
+	assert.True(t, shouldRegenerateVersionSensitiveStateFile(true, "1.24.6", "1.26.5"))
+}
+
+func TestAddStateFileFollowsOverwriteFlag(t *testing.T) {
+	tmpls := &templates{}
+	existingFile := filesystem.FilePathJoin(filesystem.NewStandardFileSystem(), t.TempDir(), "state.yml")
+	require.NoError(t, filesystem.WriteFile(existingFile, []byte("keep"), 0644))
+
+	tmpls.addStateFile("template", existingFile, false, true)
+	assert.Empty(t, tmpls.toGenerate)
+	assert.Equal(t, []string{existingFile}, tmpls.toTrack)
+
+	tmpls = &templates{}
+	tmpls.addStateFile("template", existingFile, true, true)
+	require.Len(t, tmpls.toGenerate, 1)
+	assert.Equal(t, existingFile, tmpls.toGenerate[0].output)
+	assert.Equal(t, []string{existingFile}, tmpls.toTrack)
+}
+
 func TestValidateManifest(t *testing.T) {
 	localFs := filesystem.NewStandardFileSystem()
 

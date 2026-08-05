@@ -16,6 +16,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/semver"
+	modsemver "golang.org/x/mod/semver"
 	"golang.org/x/tools/imports"
 
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
@@ -366,11 +367,11 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
 
-	updateGoVersion := cfg.Overwrite || requestedGoVersion != defaultGoVersion
+	updateGoVersion := shouldRegenerateVersionSensitiveStateFile(cfg.Overwrite, defaultGoVersion, requestedGoVersion)
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
 	if sdk.Specification.CommandLineCommands != nil && sdk.Specification.DistributeOci != nil {
-		templatesToPopulate.addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(ociDockerfileUbuntuFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.ubuntu"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(ociDockerfileUbuntuFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.ubuntu"), updateGoVersion, true)
 	}
 
 	selectedDependabotFile := dependabotFile
@@ -390,10 +391,10 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		if !sdk.Specification.Public {
 			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
 		}
-		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), updateGoVersion, true)
-		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), updateGoVersion, true)
+		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), cfg.Overwrite, true)
 	}
 
 	var generatedActions []GeneratedAction
@@ -580,6 +581,16 @@ func resolveManifestFileName(localFs filesystem.FS, inputPath string) string {
 	}
 
 	return fileName
+}
+
+func compareGoVersions(a, b string) int {
+	canonicalA := modsemver.Canonical(fmt.Sprintf("v%s", semver.TrimGoPrefix(a)))
+	canonicalB := modsemver.Canonical(fmt.Sprintf("v%s", semver.TrimGoPrefix(b)))
+	return modsemver.Compare(canonicalA, canonicalB)
+}
+
+func shouldRegenerateVersionSensitiveStateFile(overwrite bool, defaultGoVersion, requestedGoVersion string) bool {
+	return overwrite || compareGoVersions(defaultGoVersion, requestedGoVersion) > 0
 }
 
 func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
