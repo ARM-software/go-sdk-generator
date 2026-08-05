@@ -1,1 +1,0 @@
-:bug: Fix Dependabot generation so GitHub Actions updates are included and private registries are only used for non-public projects.

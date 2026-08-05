@@ -2,6 +2,27 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.44.1" (2026-08-05)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Fix Dependabot generation so GitHub Actions updates are included and private registries are only used for non-public projects. (#20260804223000)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.43.4. (#20260804230724, #20260804232538, #20260804232554, #20260804232718)
+- Dependency upgrade: go-sdk-generator-0.43.4 (#20260804230731)
+- Dependency upgrade: setup-go-7 (#20260804232548)
+- Dependency upgrade: checkout-7 (#20260804232607)
+- Dependency upgrade: create-pull-request-8 (#20260804232610)
+- Dependency upgrade: ubuntu-26.04 (#20260804232624)
+- Dependency upgrade: alpine-3.24.1 (#20260804232635)
+- :bug: Preserve generated workflow files unless overwrite is requested, and only regenerate generated Dockerfiles automatically when the generator default Go version is newer than the targeted version. (#20260805001000)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.44.0" (2026-08-04)
 =====================
 
