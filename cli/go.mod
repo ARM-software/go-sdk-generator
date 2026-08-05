@@ -6,7 +6,7 @@ go 1.26.0
 
 require (
 	github.com/ARM-software/golang-utils/utils v1.168.1
-	github.com/Arm-Debug/go-sdk-generator/generator v0.41.0
+	github.com/Arm-Debug/go-sdk-generator/generator v0.43.4
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/spf13/cobra v1.10.2
@@ -72,6 +72,8 @@ require (
 	github.com/muesli/mango-cobra v1.2.0 // indirect
 	github.com/muesli/mango-pflag v0.1.0 // indirect
 	github.com/muesli/roff v0.1.0 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/petermattis/goid v0.0.0-20250813065127-a731cc31b4fe // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
