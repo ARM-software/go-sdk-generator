@@ -35,7 +35,7 @@ jobs:
 
       - name: Run go-sdk-generator generate action
         id: generate-action
-        uses: Arm-Debug/go-sdk-generator/actions/generate@v0.43.4
+        uses: Arm-Debug/go-sdk-generator/actions/generate@v0.44.1
         with:
           input: generate.yml
           output: .
