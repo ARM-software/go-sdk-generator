@@ -6,7 +6,7 @@ go 1.26.0
 
 require (
 	github.com/ARM-software/golang-utils/utils v1.168.1
-	github.com/Arm-Debug/go-sdk-generator/generator v0.43.4
+	github.com/Arm-Debug/go-sdk-generator/generator v0.45.0
 	github.com/charmbracelet/fang v1.0.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/spf13/cobra v1.10.2
@@ -109,6 +109,7 @@ require (
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.38.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
