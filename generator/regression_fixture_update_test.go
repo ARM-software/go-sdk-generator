@@ -54,6 +54,7 @@ func TestUpdateRegressionFixtures(t *testing.T) {
 		{recipe: "agent.yml", zip: "agent.zip"},
 		{recipe: "casing-types.yml", zip: "casing-types.zip"},
 		{recipe: "list-iterator.yml", zip: "list-iterator.zip"},
+		{recipe: "variadic.yml", zip: "variadic.zip"},
 		{recipe: "enum.yml", zip: "enum.zip"},
 		{recipe: "packaged-types.yml", zip: "packaged-types.zip"},
 		{recipe: "cli-package.yml", zip: "cli-package.zip"},

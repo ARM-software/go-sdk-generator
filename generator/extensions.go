@@ -95,8 +95,8 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		validArgTypes = append(validArgTypes, extraType)
 		return "" // a return value is required
 	},
-	"isVariadicArg":                isVariadicLangType, // FIXME: This template helper does not seem to be used and should be removed.
-	"convertLangType":              convertLangType,    // FIXME: This template helper does not seem to be used and should be removed.
+	"isVariadicArg":                isVariadicLangType,
+	"convertLangType":              convertLangType, // FIXME: This template helper does not seem to be used and should be removed.
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
 	"defaultFieldValue":            defaultFieldValue,

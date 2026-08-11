@@ -62,7 +62,7 @@ func (imp *{{ $sdkInterfaceName }}Manager){{ $functionName }}(ctx context.Contex
 		return
 	}
 
-	return imp.Delegate.{{ $functionName }}(ctx, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }}{{ if isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args)) }}...{{ end }}{{ end }})
+	return imp.Delegate.{{ $functionName }}(ctx, {{ range $i, $arg := $args }}{{ if $i }}, {{ end }}{{ $arg.Name | toCamel }}{{ if or (isVariadicArg $arg.LangType) (isVariadicParameter $arg.Reference $arg.List $arg.Iterator (isLastIndex $i (len $args))) }}...{{ end }}{{ end }})
 }
 
 {{ end -}}

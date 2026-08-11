@@ -1,0 +1,31 @@
+specification:
+  package_name: variadic-sdk
+  main_module: variadic
+  name: VariadicSDK
+  description: Test manifest ensuring explicit variadic lang_type values forward correctly through delegate calls.
+
+  interface:
+    methods:
+      - name: Run
+        description: Run a job with explicit variadic arguments.
+        args:
+          - name: projectDefinition
+            lang_type: string
+            description: Relative path to the project definition file.
+          - name: extraArgs
+            lang_type: ...string
+            description: Extra arguments forwarded to the delegate.
+        returns:
+          - name: ok
+            lang_type: bool
+            description: Whether the run was successful.
+          - name: err
+            lang_type: error
+            description: Whether the run failed.
+
+  global_configuration:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      description: Whether the generated manager is enabled.
+      default_value: "true"

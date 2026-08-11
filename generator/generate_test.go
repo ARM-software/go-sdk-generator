@@ -409,6 +409,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "No CLI (explicit variadic lang_type forwards delegate calls with spread syntax)",
+			recipe:        "variadic.yml",
+			regressionSrc: "variadic.zip",
+			err:           nil,
+		},
+		{
 			title:         "Yes CLI (string enums generate constants validation and cli help text)",
 			recipe:        "enum.yml",
 			regressionSrc: "enum.zip",
