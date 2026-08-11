@@ -571,6 +571,99 @@ $defs:
         type: string
         description: An optional replacement to recommend to consumers.
     additionalProperties: false
+  summary_destination:
+    title: SummaryDestination
+    description: Built-in destinations supported by generated CLI summaries.
+    type: string
+    enum:
+      - file
+      - github
+      - output
+  built_in_lang_type:
+    title: BuiltInLangType
+    description: |
+      Built-in `lang_type` strings recognised by the generator.
+      `lang_type` fields may still use arbitrary strings for custom or generated
+      types, but these built-ins are provided as an authoritative generated list.
+    type: string
+    enum:
+      - time.Duration
+      - duration
+      - '[]byte'
+      - string
+      - int
+      - int8
+      - int16
+      - int32
+      - int64
+      - uint
+      - uint8
+      - uint16
+      - uint32
+      - uint64
+      - decimal
+      - float32
+      - float64
+      - bool
+      - hex
+      - binary
+      - byte
+      - base64
+      - url
+      - uri
+      - host
+      - port
+      - version
+      - semver
+      - uuid
+      - email
+      - json
+      - validJSON
+      - ip
+      - datetime
+      - regex
+      - '[]string'
+      - filepath
+      - existingFilepath
+      - pathParameter
+      - connection
+      - onlineTarget
+      - protectedConnection
+      - service
+      - server
+      - protectedService
+      - protectedServer
+      - behindAuthConnection
+      - behindAuthService
+      - behindAuthServer
+      - serviceBehindAuth
+      - serverBehindAuth
+  semantic_default_value:
+    title: SemanticDefaultValue
+    description: |
+      Built-in symbolic `default_value` strings recognised specially by the generator.
+      `default_value` fields may still use arbitrary strings or expressions, but
+      these tokens are provided as an authoritative generated list for the built-ins.
+    type: string
+    enum:
+      - hostname
+      - uuid
+      - temp
+      - tempdir
+      - temporary
+      - bin
+      - bindir
+      - cache
+      - cachedir
+      - config
+      - configdir
+      - conf
+      - configuration
+      - here
+      - cwd
+      - home
+      - random
+      - now
   cli_function:
     description: An CLI function
     type: object
@@ -598,6 +691,16 @@ $defs:
           Whether the function needs to call the Arm Cloud hosted online services.
           When enabled, default API key and host arguments are injected only if they are not explicitly defined.
         default: false
+      with_summary:
+        type: boolean
+        description: |
+          Whether the command should support writing a human-readable execution summary.
+          When enabled, the generated CLI injects `--summary` and `--summary-file` flags,
+          the generated wrapper exposes a summary-aware implementation binding, and the
+          default wrapper implementation creates the requested summary logger before
+          calling that summary-aware implementation.
+          When omitted, this defaults to `true` for commands that have a generated GitHub
+          Action and `false` otherwise.
       silenceUsage:
         type: boolean
         description: |

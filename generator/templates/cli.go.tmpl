@@ -117,7 +117,7 @@ var {{ $nameLower }}Cmd = &cobra.Command{
         }
         {{ end -}}
 
-		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name }}ImplFunc)
+		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name | toPascal }}ImplFunc)
 		if err != nil {
 			cancel(nil)
 			return

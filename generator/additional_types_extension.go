@@ -16,6 +16,8 @@ import (
 const (
 	defaultAdditionalTypePackage = "types"
 	defaultCLIPackage            = "cli"
+	filesystemImportPath         = "github.com/ARM-software/golang-utils/utils/filesystem"
+	jsonUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell // canonical import path
 )
 
 type additionalTypeImport struct {
@@ -161,6 +163,72 @@ func additionalTypeImports(spec *SDKSpecification, currentPackage string) []addi
 			Path:  fmt.Sprintf("%s/%s", sdkModuleRoot(spec), pkg),
 		}
 	}), func(i *additionalTypeImport) bool { return i.Alias != currentPackage })
+}
+
+// filterExtraImportsByPath removes explicit import paths that a template already
+// emits directly, so generated files do not end up with duplicate imports.
+func filterExtraImportsByPath(extraImports ExtraImports, excludedPaths ...string) ExtraImports {
+	excluded := collection.Filter(collection.Map(excludedPaths, strings.TrimSpace), func(path string) bool {
+		return path != ""
+	})
+	if len(excluded) == 0 {
+		return extraImports
+	}
+	return collection.FilterRef(extraImports, func(extraImport *ExtraImport) bool {
+		if extraImport == nil {
+			return false
+		}
+		importPath := strings.TrimSpace(field.OptionalString(extraImport.ImportUrl, ""))
+		return !slices.Contains(excluded, importPath)
+	})
+}
+
+// configExtraImports returns extra imports for manager configuration templates
+// after removing paths that the template already imports explicitly.
+func configExtraImports(spec *SDKSpecification) ExtraImports {
+	if spec == nil {
+		return nil
+	}
+	excluded := []string{}
+	if spec.GlobalConfiguration.UsesFilesystemValidationAlias() {
+		excluded = append(excluded, filesystemImportPath)
+	}
+	if spec.GlobalConfiguration.UsesJSONValidationAlias() {
+		excluded = append(excluded, jsonUtilsImportPath)
+	}
+	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
+}
+
+// cliConfigExtraImports returns extra imports for CLI configuration templates
+// after removing paths that the template already imports explicitly.
+func cliConfigExtraImports(spec *SDKSpecification) ExtraImports {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return nil
+	}
+	excluded := []string{}
+	if spec.CommandLineCommands.UsesFilesystemValidationAlias() {
+		excluded = append(excluded, filesystemImportPath)
+	}
+	if spec.CommandLineCommands.UsesJSONValidationAlias() {
+		excluded = append(excluded, jsonUtilsImportPath)
+	}
+	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
+}
+
+// typesExtraImports returns extra imports for generated additional-type Go files
+// after removing paths that the template already imports explicitly.
+func typesExtraImports(spec *SDKSpecification) ExtraImports {
+	if spec == nil {
+		return nil
+	}
+	excluded := []string{}
+	if spec.AdditionalTypes.UsesFilesystemValidationAlias() {
+		excluded = append(excluded, filesystemImportPath)
+	}
+	if spec.AdditionalTypes.UsesJSONValidationAlias() {
+		excluded = append(excluded, jsonUtilsImportPath)
+	}
+	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
 }
 
 func rewriteGeneratedAdditionalTypeReference(value string, currentPackage string, additionalTypesPackages map[string]string) string {

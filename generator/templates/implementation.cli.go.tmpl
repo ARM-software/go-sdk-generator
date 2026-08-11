@@ -11,6 +11,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/logs/summary"
 
 	"{{ cliModuleRoot .Specification }}/cmd/config"
 	{{ range additionalTypeImports .Specification "" -}}
@@ -30,6 +31,19 @@ Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
 {{ end }}
 */
 {{ $functionName:= .Name  | toPascal -}}
+{{ if usesSummary . $.Specification.CommandLineCommands -}}
+func {{ $functionName }}WithSummary(ctx context.Context, logger logs.Loggers, summaryLogger summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+{{ if .StoreToKeyring -}}
+	return nil
+{{ else }}
+	_, _, _ = ctx, logger, summaryLogger
+	// TODO implement me
+	// Note: this function code was generated to help setting up the project. It can be moved to separate files
+	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithSummary()` implementation")
+{{ end -}}
+}
+{{ else -}}
 func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {
 {{ if .StoreToKeyring -}}
 	return nil
@@ -40,6 +54,7 @@ func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{
 	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}()` implementation")
 {{ end -}}
 }
+{{ end }}
 
 
 
@@ -53,9 +68,22 @@ func init() {
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $functionName:= .Name  | toPascal -}}
 {{ if .StoreToKeyring -}}
+	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	{{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
+	{{ end -}}
+	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	{{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ else -}}
 	{{ $functionName }}ImplFunc = {{ $functionName }}
+	{{ end -}}
 {{ else }}
+	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	// {{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
+	// {{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ end -}}
+	{{ if not (usesSummary . $.Specification.CommandLineCommands) -}}
 	// {{ $functionName }}ImplFunc = {{ $functionName }}
+	{{ end -}}
 {{ end -}}
 {{ end -}}
 }

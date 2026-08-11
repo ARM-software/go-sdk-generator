@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ "{{" }} github.head_ref || github.ref_name }}
@@ -37,6 +37,7 @@ jobs:
         id: generate-action
         uses: Arm-Debug/go-sdk-generator/actions/generate@v{{ .ToolVersion }}
         with:
+          github-token: ${{ "{{" }} secrets.GIT_SECRET || github.token }}
           input: {{ .ManifestFileName }}
           output: .
           overwrite: ${{ "{{" }} github.event.inputs.overwrite || 'false' }}

@@ -144,6 +144,7 @@ func TestDefaultValueForStrings(t *testing.T) {
 	assert.Contains(t, defaultValueForStrings("hostname"), "os.Hostname()")
 	assert.Contains(t, defaultValueForStrings("uuid"), "idgen.GenerateUUID4()")
 	assert.Contains(t, defaultValueForStrings("here"), "filesystem.CurrentDirectory()")
+	assert.Contains(t, defaultValueForStrings("cwd"), "filesystem.CurrentDirectory()")
 	assert.Contains(t, defaultValueForStrings("home"), "os.UserHomeDir()")
 	assert.Contains(t, defaultValueForStrings("      Maddy      's home"), `platform.GetHomeDirectory("Maddy")`)
 }
@@ -170,6 +171,59 @@ func TestDefaultFieldValueForLocalAdditionalTypes(t *testing.T) {
 	assert.Equal(t, "models.DefaultDirectoryEntry()", defaultFieldValue(additionalTypesPackages, "", "example-tool", "0.0.0", "", "Seed", "models.DirectoryEntry", nil, "", true))
 	assert.Equal(t, "*results.DefaultPage()", defaultFieldValue(additionalTypesPackages, "", "example-tool", "0.0.0", "", "Page", "results.Page", nil, "", false))
 	assert.Equal(t, "DefaultPage()", defaultFieldValue(additionalTypesPackages, "results", "example-tool", "0.0.0", "", "Page", "Page", nil, "", true))
+}
+
+func TestConfigFieldTestValueForBindingsBuildsCompositeLiteral(t *testing.T) {
+	cfg := FunctionConfigFields{
+		Name:     "OverrideBoard",
+		LangType: "types.BoardID",
+		Bindings: []Binding{
+			{Name: field.ToOptionalString("Name"), LangType: field.ToOptionalString("string")},
+			{Name: field.ToOptionalString("Vendor"), LangType: field.ToOptionalString("string")},
+			{Name: field.ToOptionalString("Revision"), LangType: field.ToOptionalString("string")},
+		},
+	}
+
+	assert.Equal(t, `types.BoardID{Name: "value", Vendor: "value", Revision: "value"}`,
+		configFieldTestValue(nil, "", "example-tool", "0.0.0", "Verify", cfg))
+
+	cfg.Reference = true
+	assert.Equal(t, "func() *types.BoardID {\nvalue := types.BoardID{Name: \"value\", Vendor: \"value\", Revision: \"value\"}\nreturn &value\n}()",
+		configFieldTestValue(nil, "", "example-tool", "0.0.0", "Verify", cfg))
+}
+
+func TestIsBuiltInManifestLangType(t *testing.T) {
+	assert.True(t, isBuiltInManifestLangType("string"))
+	assert.True(t, isBuiltInManifestLangType("*duration"))
+	assert.True(t, isBuiltInManifestLangType("[]string"))
+	assert.False(t, isBuiltInManifestLangType("types.Project"))
+}
+
+func TestCanGenerateSummaryValidationTestRejectsBoundCustomTypes(t *testing.T) {
+	cmds := &CommandLineCommands{Functions: []CliFunction{{
+		Name: "Verify",
+		Configuration: []FunctionConfigFields{
+			{
+				Name:            summaryArgument,
+				LangType:        stringLangType,
+				MapstructureTag: summaryMapstructureTag,
+				Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
+				DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
+			},
+			{
+				Name:            summaryFileArg,
+				LangType:        string(BuiltInLangTypeFilepath),
+				MapstructureTag: summaryFileMapstructureTag,
+			},
+			{
+				Name:     "Project",
+				LangType: "types.Project",
+				Bindings: []Binding{{Name: field.ToOptionalString("Path"), LangType: field.ToOptionalString("string")}},
+			},
+		},
+	}}}
+
+	assert.False(t, (&cmds.Functions[0]).CanGenerateSummaryValidationTest(cmds))
 }
 
 func Test_toCase(t *testing.T) {
@@ -199,11 +253,6 @@ func Test_toCase(t *testing.T) {
 	assert.Equal(t, "port", toSnakeCase("port"))
 	assert.Equal(t, "no_keyring", toSnakeCase("NoKeyring"))
 	assert.Equal(t, "this_is_one_messed_up_string_can_we_really_snake_case_it_test", toSnakeCase("ThisIsOne___messed up string. Can we Really Snake Case It,test"))
-}
-
-func TestEnumConstNameCapitalisesLowercaseValues(t *testing.T) {
-	assert.Equal(t, "PageStatusDraft", enumConstName("PageStatus", "draft"))
-	assert.Equal(t, "PageStatusPublished", enumConstName("PageStatus", "published"))
 }
 
 func Test_ignoreLintingError(t *testing.T) {

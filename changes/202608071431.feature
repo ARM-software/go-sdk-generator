@@ -1,0 +1,1 @@
+:sparkles: The generator schema now defines built-in summary destinations, built-in `lang_type` values, and semantic `default_value` tokens so generator logic can use generated schema constants instead of hard-coded strings.

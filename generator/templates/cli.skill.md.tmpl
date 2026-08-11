@@ -156,6 +156,15 @@ Optional:
 - none
 {{- end }}
 
+{{- if $fn.UsesSummary $cli }}
+
+Summary support:
+- `summary=output` writes the human-readable summary to normal command output
+- `summary=github` writes the summary to the GitHub Actions step summary when available
+- `summary=file` requires `summary_file` and writes the summary to that path
+
+{{- end }}
+
 {{- else }}
 
 No command-specific options.
@@ -204,6 +213,7 @@ Defaults:
 - Use `{{ $cli.Binary }} credentials` to manage secrets
 - Use `{{ $cli.Binary }} -h` for command help
 - Use `{{ $cli.Binary }} -v` to check version
+- When a command supports summaries, prefer `summary=output` for local runs and `summary=github` in GitHub Actions
 - Do not assume prior state unless explicitly stated
 - Do not pass parameters that match their default values unless explicitly required or improves clarity
 - Prefer relying on implicit defaults over explicitly setting values

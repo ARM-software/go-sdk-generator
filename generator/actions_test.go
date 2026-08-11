@@ -198,6 +198,70 @@ func TestBuildGeneratedActions(t *testing.T) {
 		assert.True(t, match)
 		assert.Equal(t, "true", verifyAction.Inputs[0].Default)
 	})
+
+	t.Run("defaults summary action input to github for summary-aware commands", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName: "example-tool",
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Generate",
+						Description: "generate output",
+						Configuration: []FunctionConfigFields{
+							{
+								Name:            summaryArgument,
+								LangType:        "string",
+								MapstructureTag: "summary",
+								Description:     "summary destination",
+							},
+							{
+								Name:            summaryFileArg,
+								LangType:        "string",
+								MapstructureTag: "summary_file",
+								Description:     "summary file",
+							},
+						},
+					}},
+				},
+			},
+		}
+
+		actions, err := BuildGeneratedActions(sdk)
+		require.NoError(t, err)
+		require.Len(t, actions, 2)
+
+		action := requireAction(t, actions, "generate")
+		require.Len(t, action.Inputs, 2)
+		assert.Equal(t, summaryMapstructureTag, action.Inputs[0].FlagName)
+		assert.Equal(t, string(SummaryDestinationGithub), action.Inputs[0].Default)
+	})
+
+	t.Run("explicitly disabling summary keeps action input unset", func(t *testing.T) {
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				PackageName: "example-tool",
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Generate",
+						Description: "generate output",
+						WithSummary: field.ToOptionalBool(false),
+						Configuration: []FunctionConfigFields{{
+							Name:            "Input",
+							LangType:        "string",
+							MapstructureTag: "input",
+							Description:     "input",
+						}},
+					}},
+				},
+			},
+		}
+
+		actions, err := BuildGeneratedActions(sdk)
+		require.NoError(t, err)
+		action := requireAction(t, actions, "generate")
+		require.Len(t, action.Inputs, 1)
+		assert.Equal(t, "input", action.Inputs[0].FlagName)
+	})
 }
 
 func requireAction(t *testing.T, actions []GeneratedAction, directoryName string) GeneratedAction {

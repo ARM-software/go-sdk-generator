@@ -12,46 +12,46 @@ import "time"
 // A variable binding to a parameter
 type Binding struct {
 	// The argument to bind to
-	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The optional short version of the argument
-	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// The description of the field
-	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// A single example value for the field.
 	// For list or iterator shapes, the example represents one item value.
 	//
-	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
 
 	// Example values for the field.
 	// For list or iterator shapes, each example represents one item value.
 	//
-	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the value should be represented as an iterator over the language type
 	// using iter.Seq
-	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
 
 	// The type for the field
-	LangType *string `json:"lang_type,omitempty" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
+	LangType *string `json:"lang_type,omitempty,omitzero" yaml:"lang_type,omitempty" mapstructure:"lang_type,omitempty"`
 
 	// Whether the value should be represented as a list of the language type
-	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The tag fragment used when building the environment variable key
-	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+	MapstructureTag *string `json:"mapstructure_tag,omitempty,omitzero" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
 
 	// The name of the field
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+	Name *string `json:"name,omitempty,omitzero" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// Whether the binding contains secret material and should be included in
 	// credentials storage
-	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -81,6 +81,132 @@ func (j *Binding) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+type BuiltInLangType string
+
+const BuiltInLangTypeBase64 BuiltInLangType = "base64"
+const BuiltInLangTypeBehindAuthConnection BuiltInLangType = "behindAuthConnection"
+const BuiltInLangTypeBehindAuthServer BuiltInLangType = "behindAuthServer"
+const BuiltInLangTypeBehindAuthService BuiltInLangType = "behindAuthService"
+const BuiltInLangTypeBinary BuiltInLangType = "binary"
+const BuiltInLangTypeBool BuiltInLangType = "bool"
+const BuiltInLangTypeByte BuiltInLangType = "[]byte"
+const BuiltInLangTypeConnection BuiltInLangType = "connection"
+const BuiltInLangTypeDatetime BuiltInLangType = "datetime"
+const BuiltInLangTypeDecimal BuiltInLangType = "decimal"
+const BuiltInLangTypeDuration BuiltInLangType = "duration"
+const BuiltInLangTypeEmail BuiltInLangType = "email"
+const BuiltInLangTypeExistingFilepath BuiltInLangType = "existingFilepath"
+const BuiltInLangTypeFilepath BuiltInLangType = "filepath"
+const BuiltInLangTypeFloat32 BuiltInLangType = "float32"
+const BuiltInLangTypeFloat64 BuiltInLangType = "float64"
+const BuiltInLangTypeHex BuiltInLangType = "hex"
+const BuiltInLangTypeHost BuiltInLangType = "host"
+const BuiltInLangTypeInt BuiltInLangType = "int"
+const BuiltInLangTypeInt16 BuiltInLangType = "int16"
+const BuiltInLangTypeInt32 BuiltInLangType = "int32"
+const BuiltInLangTypeInt64 BuiltInLangType = "int64"
+const BuiltInLangTypeInt8 BuiltInLangType = "int8"
+const BuiltInLangTypeIp BuiltInLangType = "ip"
+const BuiltInLangTypeJson BuiltInLangType = "json"
+const BuiltInLangTypeOnlineTarget BuiltInLangType = "onlineTarget"
+const BuiltInLangTypePathParameter BuiltInLangType = "pathParameter"
+const BuiltInLangTypePort BuiltInLangType = "port"
+const BuiltInLangTypeProtectedConnection BuiltInLangType = "protectedConnection"
+const BuiltInLangTypeProtectedServer BuiltInLangType = "protectedServer"
+const BuiltInLangTypeProtectedService BuiltInLangType = "protectedService"
+const BuiltInLangTypeRegex BuiltInLangType = "regex"
+const BuiltInLangTypeSemver BuiltInLangType = "semver"
+const BuiltInLangTypeServer BuiltInLangType = "server"
+const BuiltInLangTypeServerBehindAuth BuiltInLangType = "serverBehindAuth"
+const BuiltInLangTypeService BuiltInLangType = "service"
+const BuiltInLangTypeServiceBehindAuth BuiltInLangType = "serviceBehindAuth"
+const BuiltInLangTypeString BuiltInLangType = "string"
+const BuiltInLangTypeTimeDuration BuiltInLangType = "time.Duration"
+const BuiltInLangTypeUint BuiltInLangType = "uint"
+const BuiltInLangTypeUint16 BuiltInLangType = "uint16"
+const BuiltInLangTypeUint32 BuiltInLangType = "uint32"
+const BuiltInLangTypeUint64 BuiltInLangType = "uint64"
+const BuiltInLangTypeUint8 BuiltInLangType = "uint8"
+const BuiltInLangTypeUri BuiltInLangType = "uri"
+const BuiltInLangTypeUrl BuiltInLangType = "url"
+const BuiltInLangTypeUuid BuiltInLangType = "uuid"
+const BuiltInLangTypeValidJSON BuiltInLangType = "validJSON"
+const BuiltInLangTypeVersion BuiltInLangType = "version"
+
+var enumValues_BuiltInLangType = []interface{}{
+	"time.Duration",
+	"duration",
+	"[]byte",
+	"string",
+	"int",
+	"int8",
+	"int16",
+	"int32",
+	"int64",
+	"uint",
+	"uint8",
+	"uint16",
+	"uint32",
+	"uint64",
+	"decimal",
+	"float32",
+	"float64",
+	"bool",
+	"hex",
+	"binary",
+	"byte",
+	"base64",
+	"url",
+	"uri",
+	"host",
+	"port",
+	"version",
+	"semver",
+	"uuid",
+	"email",
+	"json",
+	"validJSON",
+	"ip",
+	"datetime",
+	"regex",
+	"[]string",
+	"filepath",
+	"existingFilepath",
+	"pathParameter",
+	"connection",
+	"onlineTarget",
+	"protectedConnection",
+	"service",
+	"server",
+	"protectedService",
+	"protectedServer",
+	"behindAuthConnection",
+	"behindAuthService",
+	"behindAuthServer",
+	"serviceBehindAuth",
+	"serverBehindAuth",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *BuiltInLangType) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_BuiltInLangType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_BuiltInLangType, v)
+	}
+	*j = BuiltInLangType(v)
+	return nil
+}
+
 type CiExtraPackages []string
 
 // An CLI function
@@ -89,13 +215,13 @@ type CliFunction struct {
 	// When enabled, default API key and host arguments are injected only if they are
 	// not explicitly defined.
 	//
-	CallCloud bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
+	CallCloud bool `json:"callCloud,omitempty,omitzero" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
 
 	// Configuration corresponds to the JSON schema field "configuration".
 	Configuration []FunctionConfigFields `json:"configuration" yaml:"configuration" mapstructure:"configuration"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -105,26 +231,36 @@ type CliFunction struct {
 	// Whether this function is hidden and should NOT show up in the list of available
 	// commands.
 	//
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether to load some configuration input from system's keyring service
-	LoadFromKeyring bool `json:"loadFromKeyring,omitempty" yaml:"loadFromKeyring,omitempty" mapstructure:"loadFromKeyring,omitempty"`
+	LoadFromKeyring bool `json:"loadFromKeyring,omitempty,omitzero" yaml:"loadFromKeyring,omitempty" mapstructure:"loadFromKeyring,omitempty"`
 
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// Whether to skip generating the GitHub Action wrapper for this command
-	NoAction bool `json:"no_action,omitempty" yaml:"no_action,omitempty" mapstructure:"no_action,omitempty"`
+	NoAction bool `json:"no_action,omitempty,omitzero" yaml:"no_action,omitempty" mapstructure:"no_action,omitempty"`
 
 	// Allow the use of positional operands specified after '--' in a POSIX fashion
-	Operands bool `json:"operands,omitempty" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
+	Operands bool `json:"operands,omitempty,omitzero" yaml:"operands,omitempty" mapstructure:"operands,omitempty"`
 
 	// Whether to silence usage when an error occurs.
 	//
-	SilenceUsage bool `json:"silenceUsage,omitempty" yaml:"silenceUsage,omitempty" mapstructure:"silenceUsage,omitempty"`
+	SilenceUsage bool `json:"silenceUsage,omitempty,omitzero" yaml:"silenceUsage,omitempty" mapstructure:"silenceUsage,omitempty"`
 
 	// Whether to store the configuration to system's keyring service
-	StoreToKeyring bool `json:"storeToKeyring,omitempty" yaml:"storeToKeyring,omitempty" mapstructure:"storeToKeyring,omitempty"`
+	StoreToKeyring bool `json:"storeToKeyring,omitempty,omitzero" yaml:"storeToKeyring,omitempty" mapstructure:"storeToKeyring,omitempty"`
+
+	// Whether the command should support writing a human-readable execution summary.
+	// When enabled, the generated CLI injects `--summary` and `--summary-file` flags,
+	// the generated wrapper exposes a summary-aware implementation binding, and the
+	// default wrapper implementation creates the requested summary logger before
+	// calling that summary-aware implementation.
+	// When omitted, this defaults to `true` for commands that have a generated GitHub
+	// Action and `false` otherwise.
+	//
+	WithSummary *bool `json:"with_summary,omitempty,omitzero" yaml:"with_summary,omitempty" mapstructure:"with_summary,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -175,28 +311,28 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 // A command argument or code parameter
 type CommandArgument struct {
 	// The argument to bind to
-	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The short version of the argument to bind to
-	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind configuration options to variables
-	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
-	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+	Condition string `json:"condition,omitempty,omitzero" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
 	// Constraints corresponds to the JSON schema field "constraints".
-	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+	Constraints *ParameterConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
-	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+	DefaultValue *string `json:"default_value,omitempty,omitzero" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -205,56 +341,56 @@ type CommandArgument struct {
 
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
-	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// A single example value for the field.
 	// For list or iterator shapes, the example represents one item value.
 	//
-	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
 
 	// Example values for the field.
 	// For list or iterator shapes, each example represents one item value.
 	//
-	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
-	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+	IsRoot bool `json:"is_root,omitempty,omitzero" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
 	// Whether the value should be represented as an iterator over the language type
 	// using iter.Seq
-	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
 
 	// The JSON tag of the field
-	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+	JsonTag *string `json:"json_tag,omitempty,omitzero" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
 
 	// Whether the value should be represented as a list of the language type
-	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
-	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+	MapstructureTag *string `json:"mapstructure_tag,omitempty,omitzero" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
 
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// The pattern that the field should follow if it is a string
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
 
 	// Whether the value is a pointer
-	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+	Reference bool `json:"reference,omitempty,omitzero" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
 
 	// Whether the configuration value is required
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 
 	// Whether the parameter contains secret material and should be included in
 	// credentials storage
-	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -308,38 +444,38 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 // A CLI command
 type CommandLineCommands struct {
 	// Name of the executable
-	Binary *string `json:"binary,omitempty" yaml:"binary,omitempty" mapstructure:"binary,omitempty"`
+	Binary *string `json:"binary,omitempty,omitzero" yaml:"binary,omitempty" mapstructure:"binary,omitempty"`
 
 	// Whether all functions need to call the Arm Cloud hosted online services.
 	// When enabled, default API key and host arguments are injected only if they are
 	// not explicitly defined. They will also be defined as root arguments, required
 	// by all functions.
 	//
-	CallCloud *bool `json:"callCloud,omitempty" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
+	CallCloud *bool `json:"callCloud,omitempty,omitzero" yaml:"callCloud,omitempty" mapstructure:"callCloud,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//
-	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// Functions corresponds to the JSON schema field "functions".
 	Functions []CliFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
 
 	// The exit code to return when an interrupt signal (SIGINT or SIGTERM) is
 	// received
-	InterruptExitCode *int `json:"interrupt_exit_code,omitempty" yaml:"interrupt_exit_code,omitempty" mapstructure:"interrupt_exit_code,omitempty"`
+	InterruptExitCode *int `json:"interrupt_exit_code,omitempty,omitzero" yaml:"interrupt_exit_code,omitempty" mapstructure:"interrupt_exit_code,omitempty"`
 
 	// Whether to skip generating GitHub Actions for the CLI
-	NoActions bool `json:"no_actions,omitempty" yaml:"no_actions,omitempty" mapstructure:"no_actions,omitempty"`
+	NoActions bool `json:"no_actions,omitempty,omitzero" yaml:"no_actions,omitempty" mapstructure:"no_actions,omitempty"`
 
 	// The package the generated CLI project is defined in.
 	// Defaults to `cli`.
 	// This must resolve to a single package segment, not a nested path.
 	//
-	Package string `json:"package,omitempty" yaml:"package,omitempty" mapstructure:"package,omitempty"`
+	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 
 	// Environment variable prefix
-	RootEnvironmentVar *string `json:"root_environment_var,omitempty" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
+	RootEnvironmentVar *string `json:"root_environment_var,omitempty,omitzero" yaml:"root_environment_var,omitempty" mapstructure:"root_environment_var,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -372,28 +508,28 @@ type Configuration []ConfigurationOption
 // A command argument or code parameter
 type ConfigurationOption struct {
 	// The argument to bind to
-	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The short version of the argument to bind to
-	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind configuration options to variables
-	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
-	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+	Condition string `json:"condition,omitempty,omitzero" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
 	// Constraints corresponds to the JSON schema field "constraints".
-	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+	Constraints *ParameterConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
-	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+	DefaultValue *string `json:"default_value,omitempty,omitzero" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -402,37 +538,37 @@ type ConfigurationOption struct {
 
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
-	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// A single example value for the field.
 	// For list or iterator shapes, the example represents one item value.
 	//
-	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
 
 	// Example values for the field.
 	// For list or iterator shapes, each example represents one item value.
 	//
-	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
-	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+	IsRoot bool `json:"is_root,omitempty,omitzero" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
 	// Whether the value should be represented as an iterator over the language type
 	// using iter.Seq
-	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
 
 	// The JSON tag of the field
-	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+	JsonTag *string `json:"json_tag,omitempty,omitzero" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
 
 	// Whether the value should be represented as a list of the language type
-	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
@@ -441,17 +577,17 @@ type ConfigurationOption struct {
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// The pattern that the field should follow if it is a string
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
 
 	// Whether the value is a pointer
-	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+	Reference bool `json:"reference,omitempty,omitzero" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
 
 	// Whether the configuration value is required
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 
 	// Whether the parameter contains secret material and should be included in
 	// credentials storage
-	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -511,7 +647,7 @@ type DeprecationNotice struct {
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//
-	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// The date-time when the deprecation was first issued.
 	IssueDate time.Time `json:"issue_date" yaml:"issue_date" mapstructure:"issue_date"`
@@ -519,10 +655,10 @@ type DeprecationNotice struct {
 	// The optional date-time when the deprecated item is expected to be removed.
 	// When provided, it must not be earlier than `issue_date`.
 	//
-	RemovalDate *time.Time `json:"removal_date,omitempty" yaml:"removal_date,omitempty" mapstructure:"removal_date,omitempty"`
+	RemovalDate *time.Time `json:"removal_date,omitempty,omitzero" yaml:"removal_date,omitempty" mapstructure:"removal_date,omitempty"`
 
 	// An optional replacement to recommend to consumers.
-	Replacement *string `json:"replacement,omitempty" yaml:"replacement,omitempty" mapstructure:"replacement,omitempty"`
+	Replacement *string `json:"replacement,omitempty,omitzero" yaml:"replacement,omitempty" mapstructure:"replacement,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -555,7 +691,7 @@ type DistributeOci struct {
 	// These complement the default OCI annotations generated from the tool
 	// documentation and repository metadata.
 	//
-	Attributes OciMapStringString `json:"attributes,omitempty" yaml:"attributes,omitempty" mapstructure:"attributes,omitempty"`
+	Attributes OciMapStringString `json:"attributes,omitempty,omitzero" yaml:"attributes,omitempty" mapstructure:"attributes,omitempty"`
 
 	// Text description applied to the OCI image metadata and registry page.
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
@@ -564,7 +700,7 @@ type DistributeOci struct {
 	// These complement the default labels generated from the tool documentation
 	// and repository metadata.
 	//
-	Labels OciMapStringString `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels OciMapStringString `json:"labels,omitempty,omitzero" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -588,28 +724,28 @@ func (j *DistributeOci) UnmarshalJSON(value []byte) error {
 // A command argument or code parameter
 type EntityField struct {
 	// The argument to bind to
-	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The short version of the argument to bind to
-	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind configuration options to variables
-	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
-	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+	Condition string `json:"condition,omitempty,omitzero" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
 	// Constraints corresponds to the JSON schema field "constraints".
-	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+	Constraints *ParameterConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
-	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+	DefaultValue *string `json:"default_value,omitempty,omitzero" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -618,28 +754,28 @@ type EntityField struct {
 
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
-	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// A single example value for the field.
 	// For list or iterator shapes, the example represents one item value.
 	//
-	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
 
 	// Example values for the field.
 	// For list or iterator shapes, each example represents one item value.
 	//
-	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
-	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+	IsRoot bool `json:"is_root,omitempty,omitzero" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
 	// Whether the value should be represented as an iterator over the language type
 	// using iter.Seq
-	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
 
 	// The JSON tag of the field
 	JsonTag string `json:"json_tag" yaml:"json_tag" mapstructure:"json_tag"`
@@ -648,26 +784,26 @@ type EntityField struct {
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
 
 	// Whether the value should be represented as a list of the language type
-	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
-	MapstructureTag *string `json:"mapstructure_tag,omitempty" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+	MapstructureTag *string `json:"mapstructure_tag,omitempty,omitzero" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
 
 	// The name of the field
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// The pattern that the field should follow if it is a string
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
 
 	// Whether the value is a pointer
-	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+	Reference bool `json:"reference,omitempty,omitzero" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
 
 	// Whether the configuration value is required
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 
 	// Whether the parameter contains secret material and should be included in
 	// credentials storage
-	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -724,10 +860,10 @@ func (j *EntityField) UnmarshalJSON(value []byte) error {
 // An extra import
 type ExtraImport struct {
 	// The reference to use when referencing the import
-	ImportRef *string `json:"import_ref,omitempty" yaml:"import_ref,omitempty" mapstructure:"import_ref,omitempty"`
+	ImportRef *string `json:"import_ref,omitempty,omitzero" yaml:"import_ref,omitempty" mapstructure:"import_ref,omitempty"`
 
 	// The import URL
-	ImportUrl *string `json:"import_url,omitempty" yaml:"import_url,omitempty" mapstructure:"import_url,omitempty"`
+	ImportUrl *string `json:"import_url,omitempty,omitzero" yaml:"import_url,omitempty" mapstructure:"import_url,omitempty"`
 }
 
 type ExtraImports []ExtraImport
@@ -737,28 +873,28 @@ type ExtraValidTypes []string
 // A command argument or code parameter
 type FunctionConfigFields struct {
 	// The argument to bind to
-	Arg *string `json:"arg,omitempty" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The short version of the argument to bind to
-	ArgShort *string `json:"arg_short,omitempty" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
 
 	// Bind configuration options to variables
-	Bindings []Binding `json:"bindings,omitempty" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
 	// only) other configuration variable. Condition MUST start with the name of the
 	// variable and only mention it once
-	Condition string `json:"condition,omitempty" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+	Condition string `json:"condition,omitempty,omitzero" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
 
 	// Constraints corresponds to the JSON schema field "constraints".
-	Constraints *ParameterConstraints `json:"constraints,omitempty" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+	Constraints *ParameterConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
 
 	// An optional default value for use when creating a new instance of the
 	// configuration
-	DefaultValue *string `json:"default_value,omitempty" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+	DefaultValue *string `json:"default_value,omitempty,omitzero" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -767,37 +903,37 @@ type FunctionConfigFields struct {
 
 	// Allowed string values for the field. This is only supported for
 	// string-compatible values.
-	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// A single example value for the field.
 	// For list or iterator shapes, the example represents one item value.
 	//
-	Example *string `json:"example,omitempty" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
 
 	// Example values for the field.
 	// For list or iterator shapes, each example represents one item value.
 	//
-	Examples []string `json:"examples,omitempty" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
 
 	// Whether to mark the flag as hidden in the command line
-	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// Whether the variable should be in the root command so it can be shared between
 	// sub commands
-	IsRoot bool `json:"is_root,omitempty" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+	IsRoot bool `json:"is_root,omitempty,omitzero" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
 
 	// Whether the value should be represented as an iterator over the language type
 	// using iter.Seq
-	Iterator bool `json:"iterator,omitempty" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
 
 	// The JSON tag of the field
-	JsonTag *string `json:"json_tag,omitempty" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+	JsonTag *string `json:"json_tag,omitempty,omitzero" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
 
 	// The language type for the field
 	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
 
 	// Whether the value should be represented as a list of the language type
-	List bool `json:"list,omitempty" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
 
 	// The mapstructure tag of the field
 	MapstructureTag string `json:"mapstructure_tag" yaml:"mapstructure_tag" mapstructure:"mapstructure_tag"`
@@ -806,17 +942,17 @@ type FunctionConfigFields struct {
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// The pattern that the field should follow if it is a string
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
 
 	// Whether the value is a pointer
-	Reference bool `json:"reference,omitempty" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+	Reference bool `json:"reference,omitempty,omitzero" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
 
 	// Whether the configuration value is required
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 
 	// Whether the parameter contains secret material and should be included in
 	// credentials storage
-	Secret bool `json:"secret,omitempty" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -873,7 +1009,7 @@ func (j *FunctionConfigFields) UnmarshalJSON(value []byte) error {
 // An interface
 type Interface struct {
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// Methods corresponds to the JSON schema field "methods".
 	Methods []InterfaceMethod `json:"methods" yaml:"methods" mapstructure:"methods"`
@@ -884,20 +1020,20 @@ type Interface struct {
 	// It may differ from repository_url when the hosted project location and the SDK
 	// import namespace are intentionally separate.
 	//
-	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+	Namespace string `json:"namespace,omitempty,omitzero" yaml:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// Whether the manager should be Closeable (i.e. has a Close() method to call
 	// whilst closing) or not.
-	NotCloseable bool `json:"notCloseable,omitempty" yaml:"notCloseable,omitempty" mapstructure:"notCloseable,omitempty"`
+	NotCloseable bool `json:"notCloseable,omitempty,omitzero" yaml:"notCloseable,omitempty" mapstructure:"notCloseable,omitempty"`
 }
 
 // An interface method
 type InterfaceMethod struct {
 	// Args corresponds to the JSON schema field "args".
-	Args []CommandArgument `json:"args,omitempty" yaml:"args,omitempty" mapstructure:"args,omitempty"`
+	Args []CommandArgument `json:"args,omitempty,omitzero" yaml:"args,omitempty" mapstructure:"args,omitempty"`
 
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -908,7 +1044,7 @@ type InterfaceMethod struct {
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 
 	// Returns corresponds to the JSON schema field "returns".
-	Returns []CommandArgument `json:"returns,omitempty" yaml:"returns,omitempty" mapstructure:"returns,omitempty"`
+	Returns []CommandArgument `json:"returns,omitempty,omitzero" yaml:"returns,omitempty" mapstructure:"returns,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -968,20 +1104,20 @@ type ParameterConstraints struct {
 	// Require a list or iterator value to contain at least one item.
 	// This is a convenience alias for `min_items: 1`.
 	//
-	AtLeastOne bool `json:"at_least_one,omitempty" yaml:"at_least_one,omitempty" mapstructure:"at_least_one,omitempty"`
+	AtLeastOne bool `json:"at_least_one,omitempty,omitzero" yaml:"at_least_one,omitempty" mapstructure:"at_least_one,omitempty"`
 
 	// Parameters that must not be provided when this parameter is provided.
 	//
-	ConflictsWith []string `json:"conflicts_with,omitempty" yaml:"conflicts_with,omitempty" mapstructure:"conflicts_with,omitempty"`
+	ConflictsWith []string `json:"conflicts_with,omitempty,omitzero" yaml:"conflicts_with,omitempty" mapstructure:"conflicts_with,omitempty"`
 
 	// Require a scalar string-compatible value to contain the given
 	// substring.
 	//
-	Contains *string `json:"contains,omitempty" yaml:"contains,omitempty" mapstructure:"contains,omitempty"`
+	Contains *string `json:"contains,omitempty,omitzero" yaml:"contains,omitempty" mapstructure:"contains,omitempty"`
 
 	// Parameters that must be provided when this parameter is provided.
 	//
-	DependentRequired []string `json:"dependent_required,omitempty" yaml:"dependent_required,omitempty" mapstructure:"dependent_required,omitempty"`
+	DependentRequired []string `json:"dependent_required,omitempty,omitzero" yaml:"dependent_required,omitempty" mapstructure:"dependent_required,omitempty"`
 
 	// Validation-oriented equivalent of the top-level `enum` field.
 	// When the top-level `enum` is omitted, this can also drive generated
@@ -989,42 +1125,42 @@ type ParameterConstraints struct {
 	// This follows the JSON Schema `enum` keyword.
 	// Reference: https://json-schema.org/understanding-json-schema/reference/enum
 	//
-	Enum []string `json:"enum,omitempty" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
 
 	// Require a list or iterator value to contain exactly one item.
 	// This is a convenience alias for `min_items: 1` together with
 	// `max_items: 1`.
 	//
-	ExactlyOne bool `json:"exactly_one,omitempty" yaml:"exactly_one,omitempty" mapstructure:"exactly_one,omitempty"`
+	ExactlyOne bool `json:"exactly_one,omitempty,omitzero" yaml:"exactly_one,omitempty" mapstructure:"exactly_one,omitempty"`
 
 	// Exclusive upper bound for a scalar numeric value.
 	// This follows the JSON Schema `exclusiveMaximum` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/numeric#range
 	//
-	ExclusiveMaximum *float64 `json:"exclusive_maximum,omitempty" yaml:"exclusive_maximum,omitempty" mapstructure:"exclusive_maximum,omitempty"`
+	ExclusiveMaximum *float64 `json:"exclusive_maximum,omitempty,omitzero" yaml:"exclusive_maximum,omitempty" mapstructure:"exclusive_maximum,omitempty"`
 
 	// Exclusive lower bound for a scalar numeric value.
 	// This follows the JSON Schema `exclusiveMinimum` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/numeric#range
 	//
-	ExclusiveMinimum *float64 `json:"exclusive_minimum,omitempty" yaml:"exclusive_minimum,omitempty" mapstructure:"exclusive_minimum,omitempty"`
+	ExclusiveMinimum *float64 `json:"exclusive_minimum,omitempty,omitzero" yaml:"exclusive_minimum,omitempty" mapstructure:"exclusive_minimum,omitempty"`
 
 	// Allowed filename extensions for a scalar string-compatible path value,
 	// for example `.json` or `.yaml`.
 	//
-	Extension []string `json:"extension,omitempty" yaml:"extension,omitempty" mapstructure:"extension,omitempty"`
+	Extension []string `json:"extension,omitempty,omitzero" yaml:"extension,omitempty" mapstructure:"extension,omitempty"`
 
 	// ForbiddenWhen corresponds to the JSON schema field "forbidden_when".
-	ForbiddenWhen *ParameterValueConstraint `json:"forbidden_when,omitempty" yaml:"forbidden_when,omitempty" mapstructure:"forbidden_when,omitempty"`
+	ForbiddenWhen *ParameterValueConstraint `json:"forbidden_when,omitempty,omitzero" yaml:"forbidden_when,omitempty" mapstructure:"forbidden_when,omitempty"`
 
 	// Maximum number of items allowed in a list or iterator value.
 	// This follows the JSON Schema `maxItems` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/array#length
 	//
-	MaxItems *int `json:"max_items,omitempty" yaml:"max_items,omitempty" mapstructure:"max_items,omitempty"`
+	MaxItems *int `json:"max_items,omitempty,omitzero" yaml:"max_items,omitempty" mapstructure:"max_items,omitempty"`
 
 	// Maximum number of Unicode code points allowed for a scalar
 	// string-compatible value.
@@ -1032,21 +1168,21 @@ type ParameterConstraints struct {
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/string#length
 	//
-	MaxLength *int `json:"max_length,omitempty" yaml:"max_length,omitempty" mapstructure:"max_length,omitempty"`
+	MaxLength *int `json:"max_length,omitempty,omitzero" yaml:"max_length,omitempty" mapstructure:"max_length,omitempty"`
 
 	// Inclusive upper bound for a scalar numeric value.
 	// This follows the JSON Schema `maximum` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/numeric#range
 	//
-	Maximum *float64 `json:"maximum,omitempty" yaml:"maximum,omitempty" mapstructure:"maximum,omitempty"`
+	Maximum *float64 `json:"maximum,omitempty,omitzero" yaml:"maximum,omitempty" mapstructure:"maximum,omitempty"`
 
 	// Minimum number of items allowed in a list or iterator value.
 	// This follows the JSON Schema `minItems` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/array#length
 	//
-	MinItems *int `json:"min_items,omitempty" yaml:"min_items,omitempty" mapstructure:"min_items,omitempty"`
+	MinItems *int `json:"min_items,omitempty,omitzero" yaml:"min_items,omitempty" mapstructure:"min_items,omitempty"`
 
 	// Minimum number of Unicode code points allowed for a scalar
 	// string-compatible value.
@@ -1054,14 +1190,14 @@ type ParameterConstraints struct {
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/string#length
 	//
-	MinLength *int `json:"min_length,omitempty" yaml:"min_length,omitempty" mapstructure:"min_length,omitempty"`
+	MinLength *int `json:"min_length,omitempty,omitzero" yaml:"min_length,omitempty" mapstructure:"min_length,omitempty"`
 
 	// Inclusive lower bound for a scalar numeric value.
 	// This follows the JSON Schema `minimum` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/numeric#range
 	//
-	Minimum *float64 `json:"minimum,omitempty" yaml:"minimum,omitempty" mapstructure:"minimum,omitempty"`
+	Minimum *float64 `json:"minimum,omitempty,omitzero" yaml:"minimum,omitempty" mapstructure:"minimum,omitempty"`
 
 	// Require a scalar numeric value to be an exact multiple of the given
 	// positive number.
@@ -1069,22 +1205,22 @@ type ParameterConstraints struct {
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/numeric#multiples
 	//
-	MultipleOf *float64 `json:"multiple_of,omitempty" yaml:"multiple_of,omitempty" mapstructure:"multiple_of,omitempty"`
+	MultipleOf *float64 `json:"multiple_of,omitempty,omitzero" yaml:"multiple_of,omitempty" mapstructure:"multiple_of,omitempty"`
 
 	// Require a scalar string-compatible value not to contain the given
 	// substring.
 	//
-	NotContains *string `json:"not_contains,omitempty" yaml:"not_contains,omitempty" mapstructure:"not_contains,omitempty"`
+	NotContains *string `json:"not_contains,omitempty,omitzero" yaml:"not_contains,omitempty" mapstructure:"not_contains,omitempty"`
 
 	// Require the value to be non-empty according to the generator's normal
 	// validation semantics.
 	//
-	NotEmpty bool `json:"not_empty,omitempty" yaml:"not_empty,omitempty" mapstructure:"not_empty,omitempty"`
+	NotEmpty bool `json:"not_empty,omitempty,omitzero" yaml:"not_empty,omitempty" mapstructure:"not_empty,omitempty"`
 
 	// Allow the value to be omitted or null while still validating the
 	// nested constraints whenever a value is provided.
 	//
-	Nullable bool `json:"nullable,omitempty" yaml:"nullable,omitempty" mapstructure:"nullable,omitempty"`
+	Nullable bool `json:"nullable,omitempty,omitzero" yaml:"nullable,omitempty" mapstructure:"nullable,omitempty"`
 
 	// Validation-oriented equivalent of the top-level `pattern` field.
 	// This is only valid for scalar string-compatible values.
@@ -1092,12 +1228,12 @@ type ParameterConstraints struct {
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/string#regular-expressions
 	//
-	Pattern *string `json:"pattern,omitempty" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
 
 	// Require a scalar string-compatible value to start with the given
 	// prefix.
 	//
-	Prefix *string `json:"prefix,omitempty" yaml:"prefix,omitempty" mapstructure:"prefix,omitempty"`
+	Prefix *string `json:"prefix,omitempty,omitzero" yaml:"prefix,omitempty" mapstructure:"prefix,omitempty"`
 
 	// Whether `dependent_required` should also require the related values
 	// to be passed together as CLI arguments when all referenced parameters
@@ -1105,7 +1241,7 @@ type ParameterConstraints struct {
 	// This only affects CLI argument behaviour and does not change the
 	// runtime validation rules.
 	//
-	RequireTogetherAsCliFlags bool `json:"require_together_as_cli_flags,omitempty" yaml:"require_together_as_cli_flags,omitempty" mapstructure:"require_together_as_cli_flags,omitempty"`
+	RequireTogetherAsCliFlags bool `json:"require_together_as_cli_flags,omitempty,omitzero" yaml:"require_together_as_cli_flags,omitempty" mapstructure:"require_together_as_cli_flags,omitempty"`
 
 	// Validation-oriented equivalent of the top-level `required` field.
 	// This marks the parameter as required in the generated configuration
@@ -1115,22 +1251,22 @@ type ParameterConstraints struct {
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/object#required
 	//
-	Required bool `json:"required,omitempty" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
 
 	// RequiredWhen corresponds to the JSON schema field "required_when".
-	RequiredWhen *ParameterValueConstraint `json:"required_when,omitempty" yaml:"required_when,omitempty" mapstructure:"required_when,omitempty"`
+	RequiredWhen *ParameterValueConstraint `json:"required_when,omitempty,omitzero" yaml:"required_when,omitempty" mapstructure:"required_when,omitempty"`
 
 	// Require a scalar string-compatible value to end with the given
 	// suffix.
 	//
-	Suffix *string `json:"suffix,omitempty" yaml:"suffix,omitempty" mapstructure:"suffix,omitempty"`
+	Suffix *string `json:"suffix,omitempty,omitzero" yaml:"suffix,omitempty" mapstructure:"suffix,omitempty"`
 
 	// Require all items in a list or iterator value to be unique.
 	// This follows the JSON Schema `uniqueItems` keyword.
 	// Reference:
 	// https://json-schema.org/understanding-json-schema/reference/array#uniqueness
 	//
-	UniqueItems bool `json:"unique_items,omitempty" yaml:"unique_items,omitempty" mapstructure:"unique_items,omitempty"`
+	UniqueItems bool `json:"unique_items,omitempty,omitzero" yaml:"unique_items,omitempty" mapstructure:"unique_items,omitempty"`
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
@@ -1184,16 +1320,16 @@ func (j *ParameterConstraints) UnmarshalJSON(value []byte) error {
 // depend on another parameter's presence or value.
 type ParameterValueConstraint struct {
 	// The comparison performed against the parameter
-	Operator ParameterValueConstraintOperator `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+	Operator ParameterValueConstraintOperator `json:"operator,omitempty,omitzero" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
 
 	// The name of the parameter being evaluated
 	Parameter string `json:"parameter" yaml:"parameter" mapstructure:"parameter"`
 
 	// The value used by operators such as equals or not_equals
-	Value interface{} `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+	Value interface{} `json:"value,omitempty,omitzero" yaml:"value,omitempty" mapstructure:"value,omitempty"`
 
 	// Values used by operators such as in or not_in
-	Values []interface{} `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+	Values []interface{} `json:"values,omitempty,omitzero" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
@@ -1309,32 +1445,32 @@ type SDK struct {
 // The SDK root specification
 type SDKSpecification struct {
 	// AdditionalTypes corresponds to the JSON schema field "additional_types".
-	AdditionalTypes Types `json:"additional_types,omitempty" yaml:"additional_types,omitempty" mapstructure:"additional_types,omitempty"`
+	AdditionalTypes Types `json:"additional_types,omitempty,omitzero" yaml:"additional_types,omitempty" mapstructure:"additional_types,omitempty"`
 
 	// CiExtraPackages corresponds to the JSON schema field "ci_extra_packages".
-	CiExtraPackages CiExtraPackages `json:"ci_extra_packages,omitempty" yaml:"ci_extra_packages,omitempty" mapstructure:"ci_extra_packages,omitempty"`
+	CiExtraPackages CiExtraPackages `json:"ci_extra_packages,omitempty,omitzero" yaml:"ci_extra_packages,omitempty" mapstructure:"ci_extra_packages,omitempty"`
 
 	// CommandLineCommands corresponds to the JSON schema field
 	// "command_line_commands".
-	CommandLineCommands *CommandLineCommands `json:"command_line_commands,omitempty" yaml:"command_line_commands,omitempty" mapstructure:"command_line_commands,omitempty"`
+	CommandLineCommands *CommandLineCommands `json:"command_line_commands,omitempty,omitzero" yaml:"command_line_commands,omitempty" mapstructure:"command_line_commands,omitempty"`
 
 	// An optional configuration file that will be used to load values from (in
 	// addtion to cli args and env vars)
-	ConfFile *string `json:"conf_file,omitempty" yaml:"conf_file,omitempty" mapstructure:"conf_file,omitempty"`
+	ConfFile *string `json:"conf_file,omitempty,omitzero" yaml:"conf_file,omitempty" mapstructure:"conf_file,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
 	//
-	Description *string `json:"description,omitempty" yaml:"description,omitempty" mapstructure:"description,omitempty"`
+	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// DistributeOci corresponds to the JSON schema field "distribute_oci".
-	DistributeOci *DistributeOci `json:"distribute_oci,omitempty" yaml:"distribute_oci,omitempty" mapstructure:"distribute_oci,omitempty"`
+	DistributeOci *DistributeOci `json:"distribute_oci,omitempty,omitzero" yaml:"distribute_oci,omitempty" mapstructure:"distribute_oci,omitempty"`
 
 	// ExtraImports corresponds to the JSON schema field "extra_imports".
-	ExtraImports ExtraImports `json:"extra_imports,omitempty" yaml:"extra_imports,omitempty" mapstructure:"extra_imports,omitempty"`
+	ExtraImports ExtraImports `json:"extra_imports,omitempty,omitzero" yaml:"extra_imports,omitempty" mapstructure:"extra_imports,omitempty"`
 
 	// ExtraValidTypes corresponds to the JSON schema field "extra_valid_types".
-	ExtraValidTypes ExtraValidTypes `json:"extra_valid_types,omitempty" yaml:"extra_valid_types,omitempty" mapstructure:"extra_valid_types,omitempty"`
+	ExtraValidTypes ExtraValidTypes `json:"extra_valid_types,omitempty,omitzero" yaml:"extra_valid_types,omitempty" mapstructure:"extra_valid_types,omitempty"`
 
 	// Global configuration fields shared across the generated SDK and CLI.
 	//
@@ -1344,13 +1480,13 @@ type SDKSpecification struct {
 	Interface Interface `json:"interface" yaml:"interface" mapstructure:"interface"`
 
 	// The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
-	Licence string `json:"licence,omitempty" yaml:"licence,omitempty" mapstructure:"licence,omitempty"`
+	Licence string `json:"licence,omitempty,omitzero" yaml:"licence,omitempty" mapstructure:"licence,omitempty"`
 
 	// The module within the package
 	MainModule string `json:"main_module" yaml:"main_module" mapstructure:"main_module"`
 
 	// The name of the SDK to expose (used for the interface and its implementations)
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+	Name *string `json:"name,omitempty,omitzero" yaml:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The package name for the main SDK module
 	PackageName string `json:"package_name" yaml:"package_name" mapstructure:"package_name"`
@@ -1359,22 +1495,22 @@ type SDKSpecification struct {
 	// Public projects are expected not to rely on private dependencies or need access
 	// to private resources.
 	//
-	Public bool `json:"public,omitempty" yaml:"public,omitempty" mapstructure:"public,omitempty"`
+	Public bool `json:"public,omitempty,omitzero" yaml:"public,omitempty" mapstructure:"public,omitempty"`
 
 	// ReleaseToArtifactory corresponds to the JSON schema field
 	// "release_to_artifactory".
-	ReleaseToArtifactory *ReleaseToArtifactory `json:"release_to_artifactory,omitempty" yaml:"release_to_artifactory,omitempty" mapstructure:"release_to_artifactory,omitempty"`
+	ReleaseToArtifactory *ReleaseToArtifactory `json:"release_to_artifactory,omitempty,omitzero" yaml:"release_to_artifactory,omitempty" mapstructure:"release_to_artifactory,omitempty"`
 
 	// ReleaseToPublicArtifactory corresponds to the JSON schema field
 	// "release_to_public_artifactory".
-	ReleaseToPublicArtifactory *ReleaseToPublicArtifactory `json:"release_to_public_artifactory,omitempty" yaml:"release_to_public_artifactory,omitempty" mapstructure:"release_to_public_artifactory,omitempty"`
+	ReleaseToPublicArtifactory *ReleaseToPublicArtifactory `json:"release_to_public_artifactory,omitempty,omitzero" yaml:"release_to_public_artifactory,omitempty" mapstructure:"release_to_public_artifactory,omitempty"`
 
 	// The URL where the project's repository is hosted.
 	// Defaults to https://github.com/Arm-Debug/{package_name} when omitted.
 	// GitHub-specific links are generated only when this is a GitHub repository URL.
 	// Other forges are not currently supported for GitHub-specific outputs.
 	//
-	RepositoryUrl *string `json:"repository_url,omitempty" yaml:"repository_url,omitempty" mapstructure:"repository_url,omitempty"`
+	RepositoryUrl *string `json:"repository_url,omitempty,omitzero" yaml:"repository_url,omitempty" mapstructure:"repository_url,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1428,10 +1564,104 @@ func (j *SDK) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
+type SemanticDefaultValue string
+
+const SemanticDefaultValueBin SemanticDefaultValue = "bin"
+const SemanticDefaultValueBindir SemanticDefaultValue = "bindir"
+const SemanticDefaultValueCache SemanticDefaultValue = "cache"
+const SemanticDefaultValueCachedir SemanticDefaultValue = "cachedir"
+const SemanticDefaultValueConf SemanticDefaultValue = "conf"
+const SemanticDefaultValueConfig SemanticDefaultValue = "config"
+const SemanticDefaultValueConfigdir SemanticDefaultValue = "configdir"
+const SemanticDefaultValueConfiguration SemanticDefaultValue = "configuration"
+const SemanticDefaultValueCwd SemanticDefaultValue = "cwd"
+const SemanticDefaultValueHere SemanticDefaultValue = "here"
+const SemanticDefaultValueHome SemanticDefaultValue = "home"
+const SemanticDefaultValueHostname SemanticDefaultValue = "hostname"
+const SemanticDefaultValueNow SemanticDefaultValue = "now"
+const SemanticDefaultValueRandom SemanticDefaultValue = "random"
+const SemanticDefaultValueTemp SemanticDefaultValue = "temp"
+const SemanticDefaultValueTempdir SemanticDefaultValue = "tempdir"
+const SemanticDefaultValueTemporary SemanticDefaultValue = "temporary"
+const SemanticDefaultValueUuid SemanticDefaultValue = "uuid"
+
+var enumValues_SemanticDefaultValue = []interface{}{
+	"hostname",
+	"uuid",
+	"temp",
+	"tempdir",
+	"temporary",
+	"bin",
+	"bindir",
+	"cache",
+	"cachedir",
+	"config",
+	"configdir",
+	"conf",
+	"configuration",
+	"here",
+	"cwd",
+	"home",
+	"random",
+	"now",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *SemanticDefaultValue) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_SemanticDefaultValue {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SemanticDefaultValue, v)
+	}
+	*j = SemanticDefaultValue(v)
+	return nil
+}
+
+type SummaryDestination string
+
+const SummaryDestinationFile SummaryDestination = "file"
+const SummaryDestinationGithub SummaryDestination = "github"
+const SummaryDestinationOutput SummaryDestination = "output"
+
+var enumValues_SummaryDestination = []interface{}{
+	"file",
+	"github",
+	"output",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *SummaryDestination) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_SummaryDestination {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_SummaryDestination, v)
+	}
+	*j = SummaryDestination(v)
+	return nil
+}
+
 // A entity type
 type Type struct {
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
-	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
 
 	// A human-readable description.
 	// Multiline YAML descriptions using `|` are supported.
@@ -1448,7 +1678,7 @@ type Type struct {
 	// Defaults to `types`.
 	// This must resolve to a single package segment, not a nested path.
 	//
-	Package string `json:"package,omitempty" yaml:"package,omitempty" mapstructure:"package,omitempty"`
+	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.

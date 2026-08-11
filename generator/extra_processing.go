@@ -20,6 +20,11 @@ import (
 
 const (
 	noKeyringArgument = "NoKeyring"
+	summaryArgument   = "Summary"
+	summaryFileArg    = "SummaryFile"
+
+	summaryMapstructureTag     = "summary"
+	summaryFileMapstructureTag = "summary_file"
 )
 
 func usualExtraImports() map[string]string {
@@ -368,6 +373,12 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 			if fct.StoreToKeyring && fct.LoadFromKeyring {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
 			}
+			if fct.UsesSummary(sdk.Specification.CommandLineCommands) {
+				subErr := updateCliFunctionArgumentsToSupportSummary(&fct)
+				if subErr != nil {
+					return subErr
+				}
+			}
 			if fct.LoadFromKeyring {
 				subErr := updateCliFunctionArgumentsToLoadFromKeyring(&fct)
 				if subErr != nil {
@@ -420,6 +431,38 @@ func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
 			Pattern:         nil,
 			Reference:       false,
 			Required:        false,
+		},
+	}
+	return updateCliFunctionArguments(fct, args)
+}
+
+func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
+	args := map[string]FunctionConfigFields{
+		summaryArgument: {
+			Description:     "Write a human-readable summary to the selected destination. Allowed values: file, github, output.",
+			DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
+			Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
+			IsRoot:          false,
+			LangType:        string(BuiltInLangTypeString),
+			MapstructureTag: summaryMapstructureTag,
+			Name:            summaryArgument,
+			Required:        false,
+		},
+		summaryFileArg: {
+			Description:     "Path to the summary file when summary is set to file",
+			IsRoot:          false,
+			LangType:        string(BuiltInLangTypeFilepath),
+			MapstructureTag: summaryFileMapstructureTag,
+			Name:            summaryFileArg,
+			Required:        false,
+			Constraints: &ParameterConstraints{
+				DependentRequired: []string{summaryArgument},
+				RequiredWhen: &ParameterValueConstraint{
+					Operator:  ParameterValueConstraintOperatorEquals,
+					Parameter: summaryArgument,
+					Value:     string(SummaryDestinationFile),
+				},
+			},
 		},
 	}
 	return updateCliFunctionArguments(fct, args)
@@ -514,7 +557,7 @@ func (registration *FlagConstraintRegistration) Statement() string {
 	if reflection.IsEmpty(registration.CommandVar) || reflection.IsEmpty(registration.Method) || reflection.IsEmpty(registration.FlagArgs) {
 		return ""
 	}
-	return fmt.Sprintf("_ = %s.%s(%s)", registration.CommandVar, registration.Method, strings.Join(registration.FlagArgs, ", "))
+	return fmt.Sprintf("%s.%s(%s)", registration.CommandVar, registration.Method, strings.Join(registration.FlagArgs, ", "))
 }
 
 func getArgName(prefix, cfgName, bindingName string, isRoot bool) string {

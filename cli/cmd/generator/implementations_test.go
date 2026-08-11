@@ -5,11 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/logs/summary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -65,5 +68,55 @@ func TestAgent(t *testing.T) {
 
 		err := Agent(ctx, nil, &config.AgentConfiguration{Init: true})
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
+	})
+}
+
+func TestGenerateDefaultWrapperUsesSummaryBinding(t *testing.T) {
+	oldGenerateImplFunc := GenerateImplFunc
+	oldGenerateWithSummaryImplFunc := GenerateWithSummaryImplFunc
+	t.Cleanup(func() {
+		GenerateImplFunc = oldGenerateImplFunc
+		GenerateWithSummaryImplFunc = oldGenerateWithSummaryImplFunc
+	})
+
+	withSummaryCalled := false
+	GenerateWithSummaryImplFunc = func(ctx context.Context, logger logs.Loggers, summaryLogger summary.ISummaryLogger, cfg *config.GenerateConfiguration) error {
+		withSummaryCalled = true
+		require.NotNil(t, ctx)
+		assert.Nil(t, logger)
+		require.NotNil(t, summaryLogger)
+		assert.NotNil(t, cfg)
+		return nil
+	}
+
+	err := WrapGenerate(context.Background(), nil, config.DefaultGenerateConfiguration(), BaseGenerateImpl)
+	require.NoError(t, err)
+	assert.True(t, withSummaryCalled)
+}
+
+func TestSummaryLoggerFactory(t *testing.T) {
+	t.Run("defaults to noop summary logger", func(t *testing.T) {
+		logger := SummaryLoggerFactory("", "", nil)
+		require.NotNil(t, logger)
+		assert.NoError(t, logger.WriteString("ignored"))
+	})
+
+	t.Run("uses file logger when possible", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "summary.md")
+		logger := SummaryLoggerFactory(config.GenerateSummaryFile, path, nil)
+		require.NotNil(t, logger)
+		require.NoError(t, logger.WriteString("hello"))
+		data, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Contains(t, string(data), "hello")
+	})
+
+	t.Run("uses provided logger for output summaries", func(t *testing.T) {
+		baseLogger, err := summary.NewInMemorySummaryLogger("test")
+		require.NoError(t, err)
+		logger := SummaryLoggerFactory(config.GenerateSummaryOutput, "", baseLogger)
+		require.NotNil(t, logger)
+		require.NoError(t, logger.WriteString("hello"))
+		assert.Contains(t, baseLogger.GetSummary(), "hello")
 	})
 }

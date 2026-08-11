@@ -57,6 +57,16 @@ func validateStringEnumDefaultValue(name string, enum []string, defaultValue *st
 	return nil
 }
 
+func validateEnumDefaultValueRequired(name string, enum []string, defaultValue *string) error {
+	if len(enum) == 0 {
+		return nil
+	}
+	if reflection.IsEmpty(defaultValue) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s defines enum values, so it must define a default value", name)
+	}
+	return nil
+}
+
 func normalisedStringValues(values []string) []string {
 	normalised := collection.Filter(collection.Map(values, strings.TrimSpace), func(value string) bool {
 		return value != ""
@@ -399,6 +409,9 @@ func (arg *CommandArgument) Validate() error {
 			return validateStringEnumDefinition(fmt.Sprintf("command argument %q", arg.Name), arg.LangType, arg.Reference, arg.List, arg.Iterator, arg.Enum)
 		})),
 		validation.Field(&arg.DefaultValue, validation.By(func(value any) error {
+			if err := validateEnumDefaultValueRequired(fmt.Sprintf("command argument %q", arg.Name), arg.EffectiveEnum(), arg.DefaultValue); err != nil {
+				return err
+			}
 			return validateStringEnumDefaultValue(fmt.Sprintf("command argument %q", arg.Name), arg.EffectiveEnum(), arg.DefaultValue)
 		})),
 		validation.Field(&arg.Bindings, validation.By(func(value any) error {
@@ -438,6 +451,9 @@ func (cfg *ConfigurationOption) Validate() error {
 			return validateStringEnumDefinition(fmt.Sprintf("global configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
 		})),
 		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
+			if err := validateEnumDefaultValueRequired(fmt.Sprintf("global configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue); err != nil {
+				return err
+			}
 			return validateStringEnumDefaultValue(fmt.Sprintf("global configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {
@@ -477,6 +493,9 @@ func (fieldDef *EntityField) Validate() error {
 			return validateStringEnumDefinition(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.LangType, fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.Enum)
 		})),
 		validation.Field(&fieldDef.DefaultValue, validation.By(func(value any) error {
+			if err := validateEnumDefaultValueRequired(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.EffectiveEnum(), fieldDef.DefaultValue); err != nil {
+				return err
+			}
 			return validateStringEnumDefaultValue(fmt.Sprintf("entity field %q", fieldDef.Name), fieldDef.EffectiveEnum(), fieldDef.DefaultValue)
 		})),
 		validation.Field(&fieldDef.Bindings, validation.By(func(value any) error {
@@ -516,6 +535,9 @@ func (cfg *FunctionConfigFields) Validate() error {
 			return validateStringEnumDefinition(fmt.Sprintf("function configuration %q", cfg.Name), cfg.LangType, cfg.Reference, cfg.List, cfg.Iterator, cfg.Enum)
 		})),
 		validation.Field(&cfg.DefaultValue, validation.By(func(value any) error {
+			if err := validateEnumDefaultValueRequired(fmt.Sprintf("function configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue); err != nil {
+				return err
+			}
 			return validateStringEnumDefaultValue(fmt.Sprintf("function configuration %q", cfg.Name), cfg.EffectiveEnum(), cfg.DefaultValue)
 		})),
 		validation.Field(&cfg.Bindings, validation.By(func(value any) error {

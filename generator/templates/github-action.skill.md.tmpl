@@ -93,6 +93,8 @@ The install action exposes no CLI-specific inputs.
 
 Each command action also exposes one input per non-hidden CLI flag for its subcommand, including repeated root inputs shared across commands.
 
+For commands that support summaries, the generated action defaults the `summary` input to `github` so the command writes to the GitHub step summary automatically.
+
 Commands that support positional operands also expose an `operands` input, with one operand per line.
 
 ---
@@ -180,6 +182,7 @@ The action installs from the released archive.
 - Prefer exact tags when builds must be strictly reproducible
 - Use `actions/{{ $install.DirectoryName }}` when later steps need to call the binary directly
 - Keep `workdir` explicit when command inputs depend on relative paths
+- Keep the default `summary=github` input on summary-aware command actions unless the workflow needs a file or console summary instead
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
 {{ if .OCI.PublishesToGHCR -}}
 - Prefer OCI images from `{{ .OCI.ImageName }}` when the workflow wants containerised execution instead of installing the binary onto the runner

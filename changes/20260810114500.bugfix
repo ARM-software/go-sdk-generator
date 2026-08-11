@@ -1,0 +1,1 @@
+:recycle: Improved the generated constraint-validation and CLI enum implementation so the resulting code is easier to read and follow, while keeping enum-backed CLI values parsed through generated helpers instead of relying on implicit Viper conversion.

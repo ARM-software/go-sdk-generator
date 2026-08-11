@@ -95,30 +95,44 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		validArgTypes = append(validArgTypes, extraType)
 		return "" // a return value is required
 	},
-	"isVariadicArg":                isVariadicLangType,
-	"convertLangType":              convertLangType,
+	"isVariadicArg":                isVariadicLangType, // FIXME: This template helper does not seem to be used and should be removed.
+	"convertLangType":              convertLangType,    // FIXME: This template helper does not seem to be used and should be removed.
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
 	"defaultFieldValue":            defaultFieldValue,
-	"configFieldType":              configFieldType,
+	"cliConfigFieldDefaultValue":   cliConfigFieldDefaultValue,
+	"cliConfigEnumGetterValueExpr": cliConfigEnumGetterValueExpr,
+	"configFieldType":              configFieldType, // FIXME: This template helper does not seem to be used and should be removed.
+	"cliConfigFieldType":           cliConfigFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
-	"suppressesRequiredValidation": suppressesRequiredValidation,
-	"enumTypeName":                 enumTypeName,
-	"enumConstName":                enumConstName,
-	"enumValidationRule":           enumValidationRule,
-	"constraintValidationRule":     constraintValidationRule,
-	"effectiveEnum":                effectiveEnumTemplateValue,
-	"effectivePattern":             effectivePatternTemplateValue,
-	"effectivePatternString":       effectivePatternStringTemplateValue,
-	"isRequired":                   isRequiredTemplateValue,
-	"descriptionWithEnum":          descriptionWithEnum,
-	"descriptionWithExamples":      descriptionWithExamples,
-	"descriptionWithMetadata":      descriptionWithMetadata,
-	"descriptionWithDeprecation":   descriptionWithDeprecation,
-	"deprecationNoticeDetails":     deprecationNoticeDetails,
-	"cobraDeprecationMessage":      cobraDeprecationMessage,
-	"hasEnum":                      hasEnum,
-	"parameterType":                parameterType,
+	"configFieldTestValue":         configFieldTestValue,
+	"usesSummary": func(fct CliFunction, cmds *CommandLineCommands) bool {
+		return (&fct).UsesSummary(cmds)
+	},
+	"canGenerateSummaryValidationTest": func(fct CliFunction, cmds *CommandLineCommands) bool {
+		return (&fct).CanGenerateSummaryValidationTest(cmds)
+	},
+	"suppressesRequiredValidation":   suppressesRequiredValidation,
+	"enumTypeName":                   enumTypeName,
+	"enumConstName":                  enumConstName,
+	"enumValidationRule":             enumValidationRule,
+	"fieldEnumValidationRule":        fieldEnumValidationRule,
+	"enumStringValidationRule":       enumStringValidationRule,
+	"fieldEnumStringValidationRule":  fieldEnumStringValidationRule,
+	"constraintValidationRule":       constraintValidationRule,
+	"usesPresenceGuardForValidation": usesPresenceGuardForValidation,
+	"effectiveEnum":                  effectiveEnumTemplateValue,          // FIXME: This template helper does not seem to be used and should be removed.
+	"effectivePattern":               effectivePatternTemplateValue,       // FIXME: This template helper does not seem to be used and should be removed.
+	"effectivePatternString":         effectivePatternStringTemplateValue, // FIXME: This template helper does not seem to be used and should be removed.
+	"isRequired":                     isRequiredTemplateValue,             // FIXME: This template helper does not seem to be used and should be removed.
+	"descriptionWithEnum":            descriptionWithEnum,                 // FIXME: This template helper does not seem to be used and should be removed.
+	"descriptionWithExamples":        descriptionWithExamples,
+	"descriptionWithMetadata":        descriptionWithMetadata,
+	"descriptionWithDeprecation":     descriptionWithDeprecation,
+	"deprecationNoticeDetails":       deprecationNoticeDetails,
+	"cobraDeprecationMessage":        cobraDeprecationMessage,
+	"hasEnum":                        hasEnum,
+	"parameterType":                  parameterType,
 	"documentedAdditionalTypeFieldType": func(typeName string, fieldDef EntityField) string {
 		return documentedAdditionalTypeFieldType(typeName, &fieldDef)
 	},
@@ -141,21 +155,24 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"renderImport":                       renderImport,
 	"toPackageName":                      toPackageName,
 	"additionalTypeImports":              additionalTypeImports,
-	"additionalTypePackageName":          additionalTypePackageName,
+	"configExtraImports":                 configExtraImports,
+	"cliConfigExtraImports":              cliConfigExtraImports,
+	"typesExtraImports":                  typesExtraImports,
+	"additionalTypePackageName":          additionalTypePackageName, // FIXME: This template helper does not seem to be used and should be removed.
 	"groupAdditionalTypesByPackage":      groupAdditionalTypesByPackage,
 	"hasSingleDefaultTypesPackage":       hasSingleDefaultTypesPackage,
 	"sortedAdditionalTypePackages":       sortedAdditionalTypePackages,
 	"goComment":                          goComment,
-	"referenceType":                      referenceType,
-	"ignoreLinting":                      ignoreLintingError,
+	"referenceType":                      referenceType,      // FIXME: This template helper does not seem to be used and should be removed.
+	"ignoreLinting":                      ignoreLintingError, // FIXME: This template helper does not seem to be used and should be removed.
 	"nowYear":                            nowYear,
 	"toURIEncoded":                       toURIEncoded,
 	"linkToManifest":                     linkToManifest,
 	"runSkillName":                       runSkillName,
 	"installSkillName":                   installSkillName,
 	"githubActionSkillName":              githubActionSkillName,
-	"normaliseActionDirectoryName":       normaliseActionDirectoryName,
-	"normaliseActionName":                normaliseActionName,
+	"normaliseActionDirectoryName":       normaliseActionDirectoryName, // FIXME: This template helper does not seem to be used and should be removed.
+	"normaliseActionName":                normaliseActionName,          // FIXME: This template helper does not seem to be used and should be removed.
 	"hasCloudCommands":                   isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
@@ -377,39 +394,6 @@ func goComment(linePrefix, s string) string {
 
 func isVariadicLangType(s string) bool {
 	return strings.HasPrefix(strings.TrimSpace(s), "...")
-}
-
-func hasEnum(enum []string) bool {
-	return reflection.IsNotEmpty(enum)
-}
-
-func enumTypeName(ownerName, fieldName, langType string, enum []string) string {
-	if !hasEnum(enum) {
-		return convertLangType(langType)
-	}
-	return fmt.Sprintf("%s%s", toPascalCase(ownerName), toPascalCase(fieldName))
-}
-
-func enumConstName(typeName, value string) string {
-	return fmt.Sprintf("%s%s", typeName, toPascalCase(value))
-}
-
-func enumConstRefs(ownerName, fieldName, langType string, enum []string) string {
-	if !hasEnum(enum) {
-		return ""
-	}
-	typeName := enumTypeName(ownerName, fieldName, langType, enum)
-	constRefs := collection.Map(enum, func(value string) string {
-		return enumConstName(typeName, value)
-	})
-	return strings.Join(constRefs, ", ")
-}
-
-func descriptionWithEnum(description string, enum []string) string {
-	if !hasEnum(enum) {
-		return description
-	}
-	return fmt.Sprintf("%s Allowed values: %s.", strings.TrimSpace(description), strings.Join(enum, ", "))
 }
 
 func descriptionWithExamples(description string, example *string, examples []string) string {
@@ -709,33 +693,33 @@ func defaultValueForStrings(dValueStr string) string {
 	switch {
 	case isFunc(dValueStr):
 		return dValueStr
-	case strings.EqualFold(dValueStr, "hostname"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueHostname)):
 		return `
 		func() string {
 			hostname, _ := os.Hostname()
 			return hostname
 		}()`
-	case strings.EqualFold(dValueStr, "uuid"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueUuid)):
 		return `
 		func() string {
 			uuid, _ := idgen.GenerateUUID4()
 			return uuid
 		}()`
-	case collection.In([]string{"temp", "tempdir", "temporary"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+	case collection.In([]string{string(SemanticDefaultValueTemp), string(SemanticDefaultValueTempdir), string(SemanticDefaultValueTemporary)}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
 		return "filesystem.TempDirectory()"
-	case collection.In([]string{"bin", "bindir"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+	case collection.In([]string{string(SemanticDefaultValueBin), string(SemanticDefaultValueBindir)}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
 		return "xdg.BinHome"
-	case collection.In([]string{"cache", "cachedir"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+	case collection.In([]string{string(SemanticDefaultValueCache), string(SemanticDefaultValueCachedir)}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
 		return "xdg.CacheHome"
-	case collection.In([]string{"config", "configdir", "conf", "configuration"}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
+	case collection.In([]string{string(SemanticDefaultValueConfig), string(SemanticDefaultValueConfigdir), string(SemanticDefaultValueConf), string(SemanticDefaultValueConfiguration)}, dValueStr, collection.StringCleanCaseInsensitiveMatch):
 		return "xdg.ConfigHome"
-	case strings.EqualFold(dValueStr, "here"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueHere)), strings.EqualFold(dValueStr, string(SemanticDefaultValueCwd)):
 		return `
 		func() string {
 			pwd, _ := filesystem.CurrentDirectory()
 			return pwd
 		}()`
-	case strings.EqualFold(dValueStr, "home"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueHome)):
 		return `
 		func() string {
 			home, _ := os.UserHomeDir()
@@ -751,9 +735,9 @@ func defaultValueForStrings(dValueStr string) string {
 			home, _ := platform.GetHomeDirectory("%v")
 			return home
 		}()`, m[1])
-	case strings.EqualFold(dValueStr, "random"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueRandom)):
 		return "rand.Text()"
-	case strings.EqualFold(dValueStr, "now"):
+	case strings.EqualFold(dValueStr, string(SemanticDefaultValueNow)):
 		return "time.Now().UTC().Format(time.RFC3339)"
 
 	default:
@@ -778,7 +762,7 @@ func convertLangType(s string) string {
 		return "time.Duration"
 	case "[]byte", "hex":
 		return "[]byte"
-	case "base64", "byte", "host", "url", "uri", "version", "semver", "uuid", "email", "json", "ip", "datetime", "binary", "regex":
+	case "base64", "byte", "host", "url", "uri", "version", "semver", "uuid", "email", "json", "validJSON", "ip", "datetime", "binary", "regex", "filepath", "existingFilepath", "pathParameter":
 		return "string"
 	case "port":
 		return "uint32"

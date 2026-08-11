@@ -10,12 +10,18 @@ import (
 	"fmt"
 	{{ end -}}
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	{{ if .Specification.GlobalConfiguration.UsesFilesystemValidationAlias -}}
+	"github.com/ARM-software/golang-utils/utils/filesystem"
+	{{ end -}}
 	{{ if .Specification.GlobalConfiguration.UsesJSONValidationAlias -}}
 	{{ renderImport "jsonutils" "github.com/ARM-software/golang-utils/utils/serialization/json" true }}
 	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	{{ if .Specification.GlobalConfiguration.UsesReflectInConstraintValidationRules -}}
 	"reflect"
+	{{ end -}}
+	{{ if .Specification.GlobalConfiguration.UsesPresenceGuardForValidation -}}
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	{{ end -}}
 	"regexp"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -24,7 +30,7 @@ import (
 	{{ range additionalTypeImports .Specification "" -}}
 	{{ renderImport .Alias .Path false }}
 	{{ end -}}
-	{{ range .Specification.ExtraImports -}}
+	{{ range configExtraImports .Specification -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}
 )
@@ -59,23 +65,17 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $fieldName := .Name | toPascal | title -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := enumValidationRule $configName .Name .LangType .Reference .Enum -}}
+	{{ $enumValidation := fieldEnumValidationRule $configName .Name .LangType .Reference .Required .Enum (printf "cfg.%s" $fieldName) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "global-configuration" "" .Name -}}
-	{{ if eq .LangType "bool" -}}
-	{{ if .Condition -}}
-	    validation.Field(&cfg.{{ $fieldName }}, validation.When(cfg.{{ .Condition }}{{ $validation }})),
-	{{ else -}}
-	    validation.Field(&cfg.{{ $fieldName }}{{ $validation }}),
-	{{ end -}}
-	{{ else -}}
-	{{ if .Required -}}
-		validation.Field(&cfg.{{ $fieldName }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
+	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) -}}
+		validation.Field(&cfg.{{ $fieldName }}, validation.When(reflection.IsNotEmpty(cfg.{{ $fieldName }}), filesystem.NewOSPathValidationRule(true))),
+	{{ else if .Required -}}
+		validation.Field(&cfg.{{ $fieldName }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ $fieldName }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validation.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
+		validation.Field(&cfg.{{ $fieldName }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
 	{{ else if or $validation $enumValidation $constraintValidation .Pattern -}}
 		validation.Field(&cfg.{{ $fieldName }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
-	{{ end -}}
 	{{ end -}}
 	{{ end -}}
 	)
@@ -84,11 +84,11 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 	if err != nil {
 		return err
 	}
-	return validation.Validate(cfg,
+	return validationUtils.NewAllRule(
 	{{- range .Specification.GlobalConfiguration.ConstraintValidationRules }}
 		{{ . }},
 	{{- end }}
-	)
+	).Validate(cfg)
 	{{ else }}
 
 	{{ end }}

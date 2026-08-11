@@ -104,7 +104,7 @@ runs:
 
     - name: Check out source to build the unpublished binary
       if: steps.installation-mode.outputs.source-build == 'true'
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: ${{ "{{" }} steps.action-source.outputs.repository }}
         ref: ${{ "{{" }} steps.action-source.outputs.fetch-ref }}
@@ -113,14 +113,14 @@ runs:
 
     - name: Set up Go to build the action from source
       if: steps.installation-mode.outputs.source-build == 'true'
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v7
       with:
         go-version-file: ${{ "{{" }} github.workspace }}/.action-source/{{ .Specification.CommandLineCommands.Package }}/go.mod
 
 {{- if not .GeneratedAction.InstallOnly }}
     - name: Set up Go to run the CLI
       if: steps.installation-mode.outputs.source-build != 'true'
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v7
       with:
         go-version: {{ .TargetedGoVersion }}
 

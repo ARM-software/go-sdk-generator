@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/stretchr/testify/require"
@@ -175,4 +177,37 @@ func TestConfigurationOptionValidateAcceptsNullableStringConstraints(t *testing.
 	}
 
 	require.NoError(t, cfg.Validate())
+}
+
+func TestFunctionConfigFieldsValidateRejectsOptionalEnumWithoutDefault(t *testing.T) {
+	t.Parallel()
+
+	cfg := &FunctionConfigFields{
+		Name:            "Mode",
+		LangType:        "string",
+		MapstructureTag: "mode",
+		Description:     "Mode.",
+		Enum:            []string{"fast", "safe"},
+	}
+
+	err := cfg.Validate()
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "must define a default value")
+}
+
+func TestFunctionConfigFieldsValidateRejectsRequiredEnumWithoutDefault(t *testing.T) {
+	t.Parallel()
+
+	cfg := &FunctionConfigFields{
+		Name:            "Mode",
+		LangType:        "string",
+		MapstructureTag: "mode",
+		Description:     "Mode.",
+		Enum:            []string{"fast", "safe"},
+		Required:        true,
+	}
+
+	err := cfg.Validate()
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "must define a default value")
 }

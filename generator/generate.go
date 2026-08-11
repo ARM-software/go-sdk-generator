@@ -41,6 +41,7 @@ const (
 	interfaceFile                = "templates/interface.go.tmpl"
 	interfaceEnumFile            = "templates/interface.enums.go.tmpl"
 	configCLIFile                = "templates/config.cli.go.tmpl"
+	configCLITestFile            = "templates/config.cli_test.go.tmpl"
 	configCLIEnumFile            = "templates/config.cli.enums.go.tmpl"
 	configFile                   = "templates/config.go.tmpl"
 	configEnumFile               = "templates/config.enums.go.tmpl"
@@ -435,6 +436,9 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
 		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
 		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		if sdk.Specification.CommandLineCommands.HasSummaryValidationTests() {
+			templatesToPopulate.addStateFile(configCLITestFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v_test.go", sdk.Specification.MainModule)), true, true)
+		}
 		if hasCLIConfigEnums(sdk.Specification.CommandLineCommands) {
 			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", "enums.go"), true, true)
 		}

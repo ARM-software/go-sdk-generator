@@ -9,6 +9,7 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/logs/summary"
 
 	"{{ cliModuleRoot .Specification }}/cmd/config"
 	{{ range additionalTypeImports .Specification "" -}}
@@ -20,10 +21,71 @@ import (
 	{{ end -}}
 )
 
+
+{{ if .Specification.CommandLineCommands.UsesSummary -}}
+// SummaryLoggerFactory creates a summary logger for any summary-enabled command.
+// The option is typed as `any` because each generated command has its own enum type,
+// and this shared factory needs to accept all of them. This relies on every generated
+// summary enum having the same definition and order (`file`, `github`, `output`), so
+// corresponding enum values remain interchangeable across summary enum types.
+func SummaryLoggerFactory(option any, filepath string, logger logs.Loggers) summary.ISummaryLogger {
+	noopLogger, _ := logs.NewNoopLogger("summary")
+	var summaryLogger summary.ISummaryLogger = summary.NewSummaryLogger(noopLogger)
+	// Each summary-capable command has its own generated enum type, but they all share
+	// the same ordered values, so this switch can match whichever typed enum the wrapper
+	// already parsed.
+	switch option {
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ $functionName:= .Name  | toPascal -}}
+	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	case config.{{ $functionName }}SummaryOutput:
+		summaryLogger = summary.NewSummaryLogger(logger)
+	case config.{{ $functionName }}SummaryGithub:
+		if githubSummaryLogger, err := summary.NewGitHubSummaryLogger("summary"); err == nil {
+			summaryLogger = githubSummaryLogger
+		}
+	case config.{{ $functionName }}SummaryFile:
+		if fileSummaryLogger, err := summary.NewFileSummaryLogger(filepath, "summary"); err == nil {
+			summaryLogger = fileSummaryLogger
+		}
+	{{ end -}}
+	{{ end -}}
+	}
+
+	return summaryLogger
+}
+
+{{ end -}}
+
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $functionName:= .Name  | toPascal -}}
+{{ if usesSummary . $.Specification.CommandLineCommands -}}
+
+// {{ $functionName }}WithSummaryImplFunc binds the summary-aware implementation function (i.e. {{ $functionName }}WithSummary()) when ready to the CLI definition
+var {{ $functionName }}WithSummaryImplFunc func(context.Context, logs.Loggers, summary.ISummaryLogger, *config.{{ $functionName }}Configuration) error = nil
+
+// {{ $functionName }}ImplFunc binds the implementation function (i.e. {{ $functionName }}()) when ready to the CLI definition
+var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error = Base{{ $functionName }}Impl
+
+func Base{{ $functionName }}Impl(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {
+	if {{ $functionName }}WithSummaryImplFunc == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}WithSummary", {{ $functionName }}WithSummaryImplFunc)
+		return
+	}
+
+	summaryOption, err := cfg.GetSummary()
+	if err != nil {
+		return
+	}
+
+	summaryLogger := SummaryLoggerFactory(summaryOption, cfg.SummaryFile, logger)
+
+	return {{ $functionName }}WithSummaryImplFunc(ctx, logger, summaryLogger, cfg)
+}
+{{ else -}}
 // {{ $functionName }}ImplFunc binds the implementation function (i.e. {{ $functionName }}()) when ready to the CLI definition
 var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error = nil
+{{ end }}
 
 // Wrap{{ $functionName }} wraps around {{ $functionName }}
 func Wrap{{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration, f func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error) (err error) {

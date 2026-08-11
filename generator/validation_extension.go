@@ -10,37 +10,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
-func enumValidationRule(ownerName, fieldName, langType string, reference bool, enum []string) string {
-	if !hasEnum(enum) {
-		return ""
-	}
-	constRefs := enumConstRefs(ownerName, fieldName, langType, enum)
-	return fmt.Sprintf(", validationUtils.Enum(%s)", constRefs)
-}
-
-func effectiveEnumTemplateValue(value any) []string {
-	switch typed := value.(type) {
-	case CommandArgument:
-		return (&typed).EffectiveEnum()
-	case *CommandArgument:
-		return typed.EffectiveEnum()
-	case EntityField:
-		return (&typed).EffectiveEnum()
-	case *EntityField:
-		return typed.EffectiveEnum()
-	case ConfigurationOption:
-		return (&typed).EffectiveEnum()
-	case *ConfigurationOption:
-		return typed.EffectiveEnum()
-	case FunctionConfigFields:
-		return (&typed).EffectiveEnum()
-	case *FunctionConfigFields:
-		return typed.EffectiveEnum()
-	default:
-		return nil
-	}
-}
-
 func effectivePatternTemplateValue(value any) *string {
 	switch typed := value.(type) {
 	case CommandArgument:
@@ -170,6 +139,15 @@ func constraintValidationRule(langType string, list bool, iterator bool, constra
 	return ", " + strings.Join(rules, ", ")
 }
 
+func usesPresenceGuardForValidation(langType string) bool {
+	switch strings.TrimSpace(baseLangType(langType)) {
+	case string(BuiltInLangTypeFilepath), string(BuiltInLangTypeExistingFilepath):
+		return true
+	default:
+		return false
+	}
+}
+
 func argValidationRule(s string) string {
 	return field.OptionalString(func(st string) *string {
 		switch st {
@@ -195,11 +173,11 @@ func argValidationRule(s string) string {
 			return field.ToOptionalString(", is.IP")
 		case "datetime":
 			return field.ToOptionalString(", validationUtils.IsRFC3339Timestamp")
-		case "filepath":
+		case string(BuiltInLangTypeFilepath):
 			return field.ToOptionalString(", filesystem.NewOSPathValidationRule(true)")
-		case "existingFilepath":
+		case string(BuiltInLangTypeExistingFilepath):
 			return field.ToOptionalString(", filesystem.NewOSPathExistRule(true)")
-		case "pathParameter":
+		case string(BuiltInLangTypePathParameter):
 			return field.ToOptionalString(", validationUtils.IsPathParameter")
 		case "port":
 			return field.ToOptionalString(", validationUtils.IsPort")

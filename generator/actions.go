@@ -74,7 +74,7 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 			continue
 		}
 
-		actionInputs, subErr := buildFunctionActionInputs(cliFunc)
+		actionInputs, subErr := buildFunctionActionInputs(cmds, cliFunc)
 		if subErr != nil {
 			err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, subErr, "subcommand %q action inputs", cliFunc.Name)
 			return
@@ -155,7 +155,7 @@ func buildRootActionInputs(cmds *CommandLineCommands) (inputs []GeneratedActionI
 	return
 }
 
-func buildFunctionActionInputs(cliFunc CliFunction) (inputs []GeneratedActionInput, err error) {
+func buildFunctionActionInputs(cmds *CommandLineCommands, cliFunc CliFunction) (inputs []GeneratedActionInput, err error) {
 	for _, cfg := range cliFunc.Configuration {
 		if cfg.IsRoot || cfg.Hidden {
 			continue
@@ -168,6 +168,15 @@ func buildFunctionActionInputs(cliFunc CliFunction) (inputs []GeneratedActionInp
 		}
 
 		inputs = append(inputs, cfgInputs...)
+	}
+
+	if cliFunc.UsesSummary(cmds) {
+		for i := range inputs {
+			if inputs[i].FlagName == summaryMapstructureTag {
+				inputs[i].Default = string(SummaryDestinationGithub)
+				break
+			}
+		}
 	}
 
 	if cliFunc.Operands {

@@ -320,6 +320,7 @@ func TestProcessArguments(t *testing.T) {
 			Configuration: []FunctionConfigFields{arg1, arg2},
 			Description:   faker.Sentence(),
 			Name:          faker.Name(),
+			WithSummary:   field.ToOptionalBool(false),
 		}
 		sdk := &SDK{
 			Specification: SDKSpecification{
@@ -356,6 +357,7 @@ func TestProcessArguments(t *testing.T) {
 			Configuration: []FunctionConfigFields{arg1, arg2},
 			Description:   faker.Sentence(),
 			Name:          faker.Name(),
+			WithSummary:   field.ToOptionalBool(false),
 		}
 		sdk := &SDK{
 			Specification: SDKSpecification{
@@ -443,25 +445,26 @@ func TestProcessArguments(t *testing.T) {
 
 	t.Run("happy path: all good", func(t *testing.T) {
 		arg1 := FunctionConfigFields{
-			Arg:             field.ToOptionalString(faker.Word()),
+			Arg:             field.ToOptionalString("first-flag"),
 			ArgShort:        field.ToOptional("a"),
 			Description:     faker.Sentence(),
-			LangType:        faker.Word(),
-			MapstructureTag: faker.Word(),
-			Name:            faker.FirstName(),
+			LangType:        "string",
+			MapstructureTag: "first_option",
+			Name:            "FirstOption",
 		}
 		arg2 := FunctionConfigFields{
-			Arg:             field.ToOptionalString(faker.Word()),
+			Arg:             field.ToOptionalString("second-flag"),
 			ArgShort:        field.ToOptional("b"),
 			Description:     faker.Sentence(),
-			LangType:        faker.Word(),
-			MapstructureTag: faker.Word(),
-			Name:            faker.FirstName(),
+			LangType:        "string",
+			MapstructureTag: "second_option",
+			Name:            "SecondOption",
 		}
 		cliFunc := CliFunction{
 			Configuration: []FunctionConfigFields{arg1, arg2},
 			Description:   faker.Sentence(),
-			Name:          faker.Name(),
+			Name:          "Example",
+			WithSummary:   field.ToOptionalBool(false),
 		}
 		sdk := &SDK{
 			Specification: SDKSpecification{
@@ -500,6 +503,7 @@ func TestProcessArguments(t *testing.T) {
 			Description:   faker.Sentence(),
 			Name:          "CloudCommand",
 			CallCloud:     true,
+			WithSummary:   field.ToOptionalBool(false),
 		}
 		sdk := &SDK{
 			Specification: SDKSpecification{
@@ -515,6 +519,112 @@ func TestProcessArguments(t *testing.T) {
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 5)
+	})
+
+	t.Run("injects summary arguments for summary-aware commands", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("input"),
+				Description:     "input file",
+				LangType:        "string",
+				MapstructureTag: "input",
+				Name:            "Input",
+			}},
+			Description: "generate output",
+			Name:        "Generate",
+			WithSummary: field.ToOptionalBool(true),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		configs := sdk.Specification.CommandLineCommands.Functions[0].Configuration
+		assert.Len(t, configs, 3)
+		assert.ElementsMatch(t, []string{"Input", summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name})
+
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, summaryArgument)
+		require.Contains(t, byName, summaryFileArg)
+		assert.Equal(t, "Write a human-readable summary to the selected destination. Allowed values: file, github, output.", byName[summaryArgument].Description)
+		assert.Equal(t, []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)}, byName[summaryArgument].Enum)
+		require.NotNil(t, byName[summaryArgument].DefaultValue)
+		assert.Equal(t, string(SummaryDestinationOutput), *byName[summaryArgument].DefaultValue)
+		require.NotNil(t, byName[summaryFileArg].Constraints)
+		assert.Equal(t, "filepath", byName[summaryFileArg].LangType)
+		assert.Equal(t, []string{summaryArgument}, byName[summaryFileArg].Constraints.DependentRequired)
+		require.NotNil(t, byName[summaryFileArg].Constraints.RequiredWhen)
+		assert.Equal(t, ParameterValueConstraintOperatorEquals, byName[summaryFileArg].Constraints.RequiredWhen.Operator)
+		assert.Equal(t, summaryArgument, byName[summaryFileArg].Constraints.RequiredWhen.Parameter)
+		assert.Equal(t, string(SummaryDestinationFile), byName[summaryFileArg].Constraints.RequiredWhen.Value)
+		assert.False(t, byName[summaryFileArg].Required)
+
+		rules := sdk.Specification.CommandLineCommands.Functions[0].ConstraintValidationRules()
+		assert.Contains(t, rules, `validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile))`)
+		assert.NotContains(t, rules, `validationUtils.WhenFieldEqualsValue(&cfg.Summary, "file", validationUtils.RequiredFieldsBy(&cfg.SummaryFile))`)
+	})
+
+	t.Run("defaults summary arguments when action is generated", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("input"),
+				Description:     "input file",
+				LangType:        "string",
+				MapstructureTag: "input",
+				Name:            "Input",
+			}},
+			Description: "generate output",
+			Name:        "Generate",
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, summaryArgument)
+		require.Contains(t, byName, summaryFileArg)
+	})
+
+	t.Run("does not default summary arguments when action is disabled", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("input"),
+				Description:     "input file",
+				LangType:        "string",
+				MapstructureTag: "input",
+				Name:            "Input",
+			}},
+			Description: "generate output",
+			Name:        "Generate",
+			NoAction:    true,
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		assert.NotContains(t, byName, summaryArgument)
+		assert.NotContains(t, byName, summaryFileArg)
 	})
 
 	t.Run("rejects parameters that set both list and iterator", func(t *testing.T) {
@@ -900,7 +1010,7 @@ func TestFlagConstraintRegistrationStatement(t *testing.T) {
 		Method:     "MarkFlagsRequiredTogether",
 		FlagArgs:   []string{"verifyProfileArg", "verifyOutputArg"},
 	}
-	assert.Equal(t, `_ = verifyCmd.MarkFlagsRequiredTogether(verifyProfileArg, verifyOutputArg)`, registration.Statement())
+	assert.Equal(t, `verifyCmd.MarkFlagsRequiredTogether(verifyProfileArg, verifyOutputArg)`, registration.Statement())
 }
 
 func TestConstraintValidationRuleLines(t *testing.T) {
@@ -946,10 +1056,10 @@ func TestConstraintValidationRuleLines(t *testing.T) {
 	}
 
 	rules := fct.ConstraintValidationRules()
-	assert.Contains(t, rules, `validationUtils.DependentRequiredBy(map[any]any{&cfg.Profile: []any{&cfg.Output}})`)
-	assert.Contains(t, rules, `validationUtils.MutuallyExclusiveWithBy(&cfg.Profile, &cfg.Manifest)`)
-	assert.Contains(t, rules, `validationUtils.WhenFieldEquals(&cfg.Mode, "strict", validationUtils.RequiredPropertiesBy(&cfg.Output))`)
-	assert.Contains(t, rules, `validationUtils.WhenFieldMatches(&cfg.Mode, []any{"relaxed", "archive"}, func(actual any, expected []any) (bool, error) { return collection.In(expected, actual, func(left any, right any) (bool, error) { return reflect.DeepEqual(left, right), nil }) }, validationUtils.ForbiddenPropertiesBy(&cfg.Manifest))`)
+	assert.Contains(t, rules, `validationUtils.FieldDependencyBy(map[any][]any{&cfg.Profile: []any{&cfg.Output}})`)
+	assert.Contains(t, rules, `validationUtils.MutuallyExclusiveFieldsBy(&cfg.Profile, &cfg.Manifest)`)
+	assert.Contains(t, rules, `validationUtils.WhenFieldEqualsValue(&cfg.Mode, "strict", validationUtils.RequiredFieldsBy(&cfg.Output))`)
+	assert.Contains(t, rules, `validationUtils.WhenFieldInValues(&cfg.Mode, []any{"relaxed", "archive"}, validationUtils.ForbiddenFieldsBy(&cfg.Manifest))`)
 }
 
 func TestBuildFlagLine(t *testing.T) {

@@ -1,14 +1,19 @@
 package generator
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	fSys "io/fs"
+	"os/exec"
 	"path"
 	"slices"
+	"sort"
 	"strings"
 	"testing"
 	"text/template"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -20,8 +25,163 @@ import (
 	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
+func generatedModuleDirectories(ctx context.Context, t *testing.T, localFs filesystem.FS, generatedDir string) []string {
+	t.Helper()
+
+	modules, err := filesystem.Glob(filesystem.FilePathJoin(localFs, generatedDir, "**", "go.mod"))
+	require.NoError(t, err)
+	modules = collection.Map(modules, func(path string) string {
+		return filesystem.FilePathDir(localFs, path)
+	})
+	modules = slices.Compact(modules)
+	sort.Strings(modules)
+	return modules
+}
+
+func isPrivateDependencyFailure(output string) bool {
+	trimmed := strings.TrimSpace(output)
+	lowerTrimmed := strings.ToLower(trimmed)
+	if trimmed == "" || !strings.Contains(lowerTrimmed, strings.ToLower("github.com/Arm-Debug/")) {
+		return false
+	}
+	return collection.AnyFunc([]string{
+		"could not read username",
+		"authentication required",
+		"repository not found",
+		"terminal prompts disabled",
+		"no secure protocol found",
+		"does not contain package",
+	}, func(marker string) bool {
+		return strings.Contains(lowerTrimmed, marker)
+	})
+}
+
+func TestIsPrivateDependencyFailure(t *testing.T) {
+	assert.True(t, isPrivateDependencyFailure(`go: github.com/Arm-Debug/example imports
+		github.com/Arm-Debug/missing/module: module github.com/Arm-Debug/missing/module@latest found (v1.0.0), but does not contain package github.com/Arm-Debug/missing/module/pkg`))
+	assert.False(t, isPrivateDependencyFailure(`go: finding module for package github.com/example/public`))
+}
+
+func normaliseGeneratedGoWork(ctx context.Context, t *testing.T, localFs filesystem.FS, verificationDir string) string {
+	t.Helper()
+
+	goWorkPath := filesystem.FilePathJoin(localFs, verificationDir, "go.work")
+	if filesystem.Exists(goWorkPath) {
+		require.NoError(t, filesystem.Rm(goWorkPath))
+	}
+
+	moduleDirs := generatedModuleDirectories(ctx, t, localFs, verificationDir)
+	if len(moduleDirs) == 0 {
+		return "off"
+	}
+
+	cmd := exec.CommandContext(ctx, "go", "work", "init")
+	cmd.Dir = verificationDir
+	cmd.Env = append(cmd.Environ(), "GOWORK=off")
+
+	var output bytes.Buffer
+	cmd.Stdout = &output
+	cmd.Stderr = &output
+
+	err := cmd.Run()
+	require.NoError(t, err, "go work init failed in %s\n%s", verificationDir, output.String())
+
+	relativeModuleDirs := collection.Map(moduleDirs, func(moduleDir string) string {
+		rel, err := filesystem.FilePathRel(localFs, verificationDir, moduleDir)
+		require.NoError(t, err)
+		return rel
+	})
+
+	goWorkUseArgs := append([]string{"work", "use"}, relativeModuleDirs...)
+	cmd = exec.CommandContext(ctx, "go", goWorkUseArgs...)
+	cmd.Dir = verificationDir
+	cmd.Env = append(cmd.Environ(), fmt.Sprintf("GOWORK=%s", goWorkPath))
+
+	output.Reset()
+	cmd.Stdout = &output
+	cmd.Stderr = &output
+
+	err = cmd.Run()
+	require.NoError(t, err, "go work use failed in %s\n%s", verificationDir, output.String())
+
+	return goWorkPath
+}
+
+func runGeneratedGoCommand(ctx context.Context, t *testing.T, workDir string, goWorkValue string, args ...string) (string, error) {
+	t.Helper()
+
+	cmd := exec.CommandContext(ctx, "go", args...)
+	cmd.Dir = workDir
+	cmd.Env = append(cmd.Environ(), fmt.Sprintf("GOWORK=%s", goWorkValue))
+
+	var output bytes.Buffer
+	cmd.Stdout = &output
+	cmd.Stderr = &output
+
+	err := cmd.Run()
+	return output.String(), err
+}
+
+func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generatedDir string, t *testing.T) {
+	t.Helper()
+
+	verificationDir := filesystem.FilePathJoin(localFs, t.TempDir(), "verification-copy")
+	require.NoError(t, localFs.CopyWithContext(ctx, generatedDir, verificationDir))
+	goWorkValue := normaliseGeneratedGoWork(ctx, t, localFs, verificationDir)
+
+	for _, moduleDir := range generatedModuleDirectories(ctx, t, localFs, verificationDir) {
+		moduleName, err := filesystem.FilePathRel(localFs, verificationDir, moduleDir)
+		require.NoError(t, err)
+		modulePattern := fmt.Sprintf("./%s/...", strings.ReplaceAll(moduleName, "\\", "/"))
+
+		t.Run(moduleName, func(t *testing.T) {
+			t.Helper()
+
+			skipModuleVerification := false
+			skipReason := ""
+
+			t.Run("go mod tidy", func(t *testing.T) {
+				output, err := runGeneratedGoCommand(ctx, t, moduleDir, "off", "mod", "tidy")
+				if err != nil && isPrivateDependencyFailure(output) {
+					skipModuleVerification = true
+					skipReason = output
+					t.Skipf("skipping generated module compilation/verification in %s because the generated project requires dependencies that are private or otherwise inaccessible in this environment while running 'go %s'\n%s", moduleDir, strings.Join([]string{"mod", "tidy"}, " "), output)
+				}
+				require.NoError(t, err, "go %s failed in %s\n%s", strings.Join([]string{"mod", "tidy"}, " "), moduleDir, output)
+			})
+
+			t.Run("go generate", func(t *testing.T) {
+				if skipModuleVerification {
+					t.Skipf("skipping generated module compilation/verification in %s because the generated project requires dependencies that are private or otherwise inaccessible in this environment\n%s", moduleDir, skipReason)
+				}
+				output, err := runGeneratedGoCommand(ctx, t, verificationDir, goWorkValue, "generate", modulePattern)
+				require.NoError(t, err, "go %s failed in %s\n%s", strings.Join([]string{"generate", modulePattern}, " "), moduleDir, output)
+			})
+
+			for _, command := range []struct {
+				name string
+				args []string
+			}{
+				{name: "go build", args: []string{"build", "./..."}},
+				{name: "go test", args: []string{"test", "./..."}},
+			} {
+				t.Run(command.name, func(t *testing.T) {
+					if skipModuleVerification {
+						t.Skipf("skipping generated module compilation/verification in %s because the generated project requires dependencies that are private or otherwise inaccessible in this environment\n%s", moduleDir, skipReason)
+					}
+					args := []string{command.args[0], modulePattern}
+					output, err := runGeneratedGoCommand(ctx, t, verificationDir, goWorkValue, args...)
+					require.NoError(t, err, "go %s failed in %s\n%s", strings.Join(args, " "), moduleDir, output)
+				})
+			}
+		})
+	}
+}
+
 func compareGeneratedOutputWithRegressionArchive(ctx context.Context, localFs filesystem.FS, generatedDir, baselineZip string, t *testing.T) {
 	t.Helper()
+
+	buildGeneratedModules(ctx, localFs, generatedDir, t)
 
 	generatedZip := filesystem.FilePathJoin(localFs, t.TempDir(), "generated.zip")
 	err := localFs.ZipWithContext(ctx, generatedDir, generatedZip)

@@ -163,6 +163,7 @@ func TestEmbeddedConfigTemplateOmitsRequiredForEnumFields(t *testing.T) {
 					Name:            "OutputFormat",
 					LangType:        "string",
 					Enum:            []string{"json", "yaml"},
+					DefaultValue:    field.ToOptionalString("json"),
 					MapstructureTag: "output_format",
 					Description:     "Output format.",
 					Required:        true,
@@ -256,7 +257,7 @@ func TestConfigTemplateIncludesConstraintValidationAliases(t *testing.T) {
 	var b strings.Builder
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
 	output := b.String()
-	assert.Contains(t, output, "validation.Field(&cfg.Format, validation.Required")
+	assert.Contains(t, output, "validation.Field(&cfg.Format, validationUtils.Required")
 	assert.Contains(t, output, "validationUtils.Enum(")
 	assert.Contains(t, output, "validationUtils.Pattern(regexp.MustCompile(`^(json|yaml)$`))")
 	assert.Contains(t, output, "validationUtils.Nullable(validationUtils.AllOf(")
@@ -269,4 +270,81 @@ func TestConfigTemplateIncludesConstraintValidationAliases(t *testing.T) {
 	assert.Contains(t, output, "validationUtils.MinItems(1)")
 	assert.Contains(t, output, `validationUtils.UniqueItems[any, string]`)
 	assert.Contains(t, output, `filesystem.NewOSPathExtensionRule(true, ".json", ".yaml")`)
+}
+
+func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.cli.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				PackageName: "summary-test-sdk",
+				MainModule:  "summarytest",
+				CommandLineCommands: &CommandLineCommands{
+					RootEnvironmentVar: field.ToOptionalString("SUMMARY_TEST"),
+					Functions: []CliFunction{{
+						Name:        "Generate",
+						Description: "Generate output",
+						WithSummary: field.ToOptionalBool(true),
+						Configuration: []FunctionConfigFields{
+							{
+								Name:            "Mode",
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString("fast"),
+								Enum:            []string{"fast", "slow"},
+								MapstructureTag: "mode",
+								Description:     "mode",
+							},
+							{
+								Name:            summaryArgument,
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
+								Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
+								MapstructureTag: summaryMapstructureTag,
+								Description:     "summary destination",
+							},
+							{
+								Name:            summaryFileArg,
+								LangType:        "filepath",
+								MapstructureTag: summaryFileMapstructureTag,
+								Description:     "summary file",
+								Constraints: &ParameterConstraints{
+									DependentRequired: []string{summaryArgument},
+									RequiredWhen: &ParameterValueConstraint{
+										Operator:  ParameterValueConstraintOperatorEquals,
+										Parameter: summaryArgument,
+										Value:     string(SummaryDestinationFile),
+									},
+								},
+							},
+						},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.cli.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "Mode string `mapstructure:\"mode\"`")
+	assert.Contains(t, output, "func (cfg *GenerateConfiguration) GetMode() (GenerateMode, error) {")
+	assert.Contains(t, output, "value, err := GenerateModeString(cfg.Mode)")
+	assert.Contains(t, output, "return 0, commonerrors.UndefinedVariable(\"Mode\")")
+	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.Enum(GenerateModeFast.String(), GenerateModeSlow.String()))")
+	assert.Contains(t, output, "Mode: GenerateModeFast.String(),")
+	assert.Contains(t, output, "validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true)))")
+	assert.NotContains(t, output, "func validateGenerateSummaryConfiguration(cfg *GenerateConfiguration) error {")
+	assert.Contains(t, output, "err = validationUtils.NewAllRule(")
+	assert.Contains(t, output, "validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}})")
+	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))")
+	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
+	assert.NotContains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, \"file\", validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
+	assert.Contains(t, output, "Summary: GenerateSummaryOutput.String(),")
+	assert.Contains(t, output, "func (cfg *GenerateConfiguration) GetSummary() (GenerateSummary, error) {")
+	assert.Contains(t, output, "value, err := GenerateSummaryString(cfg.Summary)")
+	assert.Equal(t, 1, strings.Count(output, `"github.com/ARM-software/golang-utils/utils/filesystem"`))
+	assert.Less(t, strings.Index(output, "err := configUtils.ValidateEmbedded(cfg)"), strings.Index(output, "err = validation.ValidateStruct(cfg,"))
 }

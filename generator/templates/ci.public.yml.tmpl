@@ -21,7 +21,7 @@ env:
 
 x-setup-go-step: &x-setup-go-step
   name: Set up Go
-  uses: actions/setup-go@v6
+  uses: actions/setup-go@v7
   with:
     go-version: ${{ "{{" }} env.go_version }}
 
@@ -42,7 +42,7 @@ jobs:
     name: Assert news files (See CONTRIBUTING.md)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v6
@@ -63,7 +63,7 @@ jobs:
     name: Check for secrets
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v6
@@ -85,7 +85,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ "{{" }} github.event.pull_request.head.ref }}
           token: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
@@ -129,7 +129,7 @@ jobs:
     name: Build and test
     runs-on: ${{ "{{" }} matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - *x-setup-go-step
       - <<: *x-go-mod-tidy-step
         if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') }}
@@ -169,9 +169,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ "{{" }} env.go_version }}
       - name: Detect whether published releases exist

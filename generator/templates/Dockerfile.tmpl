@@ -23,7 +23,7 @@ RUN --mount=type=secret,id=build-secrets . /run/secrets/build-secrets &&\
 {{ if .Specification.CommandLineCommands -}}
 RUN CGO_ENABLED=0 go build -o /output/{{ .Specification.MainModule }}
 
-FROM alpine:3.22.1
+FROM alpine:3.24.1
 
 RUN addgroup -S app && adduser -S -G app app
 

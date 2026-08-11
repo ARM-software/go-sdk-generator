@@ -6,11 +6,17 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+)
+
+var (
+	builtInManifestLangTypes     []string
+	builtInManifestLangTypesOnce sync.Once
 )
 
 // types_extended_logic centralises capability queries and small schema-model
@@ -519,6 +525,69 @@ func (fct *CliFunction) HasEnum() bool {
 	})
 }
 
+func (fct *CliFunction) HasGeneratedAction(cmds *CommandLineCommands) bool {
+	if fct == nil || cmds == nil {
+		return false
+	}
+	return !cmds.NoActions && !fct.Hidden && !fct.NoAction
+}
+
+func (fct *CliFunction) UsesSummary(cmds *CommandLineCommands) bool {
+	if fct == nil {
+		return false
+	}
+	if fct.WithSummary != nil {
+		return field.Optional(fct.WithSummary, false)
+	}
+	return fct.HasGeneratedAction(cmds)
+}
+
+func (cfg *FunctionConfigFields) CanGenerateValidationTestValue() bool {
+	if cfg == nil {
+		return false
+	}
+	return configFieldTestValue(nil, "", "tool", defaultGeneratedToolVersion, "", *cfg) != ""
+}
+
+func isBuiltInManifestLangType(langType string) bool {
+	builtInManifestLangTypesOnce.Do(func() {
+		builtInManifestLangTypes = collection.Map(enumValues_BuiltInLangType, func(value any) string {
+			return strings.TrimSpace(fmt.Sprintf("%v", value))
+		})
+	})
+
+	trimmed := strings.TrimSpace(baseLangType(langType))
+	return collection.In(builtInManifestLangTypes, trimmed, collection.StringMatch)
+}
+
+func (fct *CliFunction) CanGenerateSummaryValidationTest(cmds *CommandLineCommands) bool {
+	if fct == nil || !fct.UsesSummary(cmds) {
+		return false
+	}
+	err := collection.ForAll(fct.Configuration, func(cfg FunctionConfigFields) error {
+		if cfg.Name == summaryArgument || cfg.Name == summaryFileArg {
+			return nil
+		}
+		if len(cfg.Bindings) > 0 && !isBuiltInManifestLangType(cfg.LangType) {
+			return commonerrors.Newf(commonerrors.ErrUnsupported, "cannot generate validation test for bound custom type %s.%s", fct.Name, cfg.Name)
+		}
+		if !cfg.IsRequired() || cfg.DefaultValue != nil || (&cfg).CanGenerateValidationTestValue() {
+			return nil
+		}
+		return commonerrors.Newf(commonerrors.ErrUnsupported, "cannot generate validation test value for %s.%s", fct.Name, cfg.Name)
+	})
+	return err == nil
+}
+
+func (cmds *CommandLineCommands) HasSummaryValidationTests() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.CanGenerateSummaryValidationTest(cmds)
+	})
+}
+
 func (fct *CliFunction) UsesFilesystemValidationAlias() bool {
 	if fct == nil {
 		return false
@@ -526,6 +595,18 @@ func (fct *CliFunction) UsesFilesystemValidationAlias() bool {
 	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
 		return cfg.UsesFilesystemValidationAlias()
 	})
+}
+
+func (cfg *ConfigurationOption) UsesPresenceGuardForValidation() bool {
+	return cfg != nil && !cfg.IsRequired() && (usesPresenceGuardForValidation(cfg.LangType) || cfg.HasEnum())
+}
+
+func (cfg *FunctionConfigFields) UsesPresenceGuardForValidation() bool {
+	return cfg != nil && !cfg.IsRequired() && (usesPresenceGuardForValidation(cfg.LangType) || cfg.HasEnum())
+}
+
+func (fieldDef *EntityField) UsesPresenceGuardForValidation() bool {
+	return fieldDef != nil && !fieldDef.IsRequired() && (usesPresenceGuardForValidation(fieldDef.LangType) || fieldDef.HasEnum())
 }
 
 func (fct *CliFunction) UsesJSONValidationAlias() bool {
@@ -543,6 +624,23 @@ func (fct *CliFunction) UsesFmtInConstraintValidationRules() bool {
 	}
 	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
 		return cfg.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (cfg *FunctionConfigFields) UsesValidationUtilsAlias() bool {
+	if cfg == nil {
+		return false
+	}
+	validationRule := argValidationRule(cfg.LangType)
+	return cfg.IsRequired() || strings.Contains(validationRule, "validationUtils.") || hasEnum(cfg.EffectiveEnum()) || cfg.Pattern != nil || cfg.Constraints.HasAnyValidationRules()
+}
+
+func (fct *CliFunction) UsesValidationUtilsAlias() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesValidationUtilsAlias()
 	})
 }
 
@@ -577,6 +675,28 @@ func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	})
 }
 
+func (cfg *FunctionConfigFields) UsesFieldAliasInEnumGetter() bool {
+	return cfg != nil && cfg.HasEnum() && isReferenceLikeSecretField(*cfg)
+}
+
+func (fct *CliFunction) HasReferenceLikeEnumGetters() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesFieldAliasInEnumGetter()
+	})
+}
+
+func (cmds *CommandLineCommands) HasReferenceLikeEnumGetters() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.HasReferenceLikeEnumGetters()
+	})
+}
+
 func (cmds *CommandLineCommands) UsesFilesystemValidationAlias() bool {
 	if cmds == nil {
 		return false
@@ -601,6 +721,53 @@ func (cmds *CommandLineCommands) UsesFmtInConstraintValidationRules() bool {
 	}
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
 		return fct.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (cmds *CommandLineCommands) UsesValidationUtilsAlias() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.UsesValidationUtilsAlias()
+	})
+}
+
+func (cfgs Configuration) UsesPresenceGuardForValidation() bool {
+	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool { return cfg != nil && cfg.UsesPresenceGuardForValidation() })
+}
+
+func (fct *CliFunction) UsesPresenceGuardForValidation() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool { return cfg != nil && cfg.UsesPresenceGuardForValidation() })
+}
+
+func (cmds *CommandLineCommands) UsesPresenceGuardForValidation() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool { return fct != nil && fct.UsesPresenceGuardForValidation() })
+}
+
+func (typ *Type) UsesPresenceGuardForValidation() bool {
+	if typ == nil {
+		return false
+	}
+	return collection.AnyRefFunc(typ.Fields, func(fieldDef *EntityField) bool { return fieldDef != nil && fieldDef.UsesPresenceGuardForValidation() })
+}
+
+func (types Types) UsesPresenceGuardForValidation() bool {
+	return collection.AnyRefFunc(types, func(typ *Type) bool { return typ != nil && typ.UsesPresenceGuardForValidation() })
+}
+
+func (cmds *CommandLineCommands) UsesSummary() bool {
+	if cmds == nil {
+		return false
+	}
+	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
+		return fct.UsesSummary(cmds)
 	})
 }
 
@@ -1008,7 +1175,11 @@ func buildFlagConstraintRegistration(commandVar, sourceName string, targetNames 
 }
 
 type constrainedParameter struct {
+	OwnerName   string
 	Name        string
+	LangType    string
+	Reference   bool
+	Enum        []string
 	Constraints *ParameterConstraints
 }
 
@@ -1085,36 +1256,47 @@ func (condition *ParameterValueConstraint) fieldRef(refs map[string]string) stri
 	return refs[condition.Parameter]
 }
 
-func (condition *ParameterValueConstraint) expectedLiteral() string {
+func renderConstraintLiteral(parameter constrainedParameter, value any, enumValuesAsStrings bool) string {
+	if enumValuesAsStrings && hasEnum(parameter.Enum) {
+		enumType := enumTypeName(parameter.OwnerName, parameter.Name, parameter.LangType, parameter.Enum)
+		return fmt.Sprintf(`%s.String()`, enumConstName(enumType, fmt.Sprintf("%v", value)))
+	}
+	return goLiteral(value)
+}
+
+func (condition *ParameterValueConstraint) expectedLiteral(parameters map[string]constrainedParameter, enumValuesAsStrings bool) string {
 	if condition == nil {
 		return ""
 	}
+	parameter := parameters[condition.Parameter]
 	switch condition.operatorOrDefault() {
 	case ParameterValueConstraintOperatorIn, ParameterValueConstraintOperatorNotIn:
-		return goAnySliceLiteral(condition.Values)
+		return fmt.Sprintf("[]any{%s}", strings.Join(collection.Map(condition.Values, func(value any) string {
+			return renderConstraintLiteral(parameter, value, enumValuesAsStrings)
+		}), ", "))
 	default:
-		return goLiteral(condition.Value)
+		return renderConstraintLiteral(parameter, condition.Value, enumValuesAsStrings)
 	}
 }
 
-func (condition *ParameterValueConstraint) ValidationRuleLine(refs map[string]string, validatorExpr string) string {
+func (condition *ParameterValueConstraint) ValidationRuleLine(refs map[string]string, parameters map[string]constrainedParameter, validatorExpr string, enumValuesAsStrings bool) string {
 	conditionRef := condition.fieldRef(refs)
 	if reflection.IsEmpty(conditionRef) {
 		return ""
 	}
 	switch condition.operatorOrDefault() {
 	case ParameterValueConstraintOperatorPresent:
-		return fmt.Sprintf(`validationUtils.WhenFieldMatches(%s, false, func(actual any, expected bool) (bool, error) { return validation.IsEmpty(actual) == expected, nil }, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionRef, validatorExpr)
 	case ParameterValueConstraintOperatorAbsent:
-		return fmt.Sprintf(`validationUtils.WhenFieldMatches(%s, true, func(actual any, expected bool) (bool, error) { return validation.IsEmpty(actual) == expected, nil }, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionRef, validatorExpr)
 	case ParameterValueConstraintOperatorEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldEquals(%s, %s, %s)`, conditionRef, condition.expectedLiteral(), validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
 	case ParameterValueConstraintOperatorNotEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldMatches(%s, %s, func(actual any, expected any) (bool, error) { return !reflect.DeepEqual(actual, expected), nil }, %s)`, conditionRef, condition.expectedLiteral(), validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
 	case ParameterValueConstraintOperatorIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldMatches(%s, %s, func(actual any, expected []any) (bool, error) { return collection.In(expected, actual, func(left any, right any) (bool, error) { return reflect.DeepEqual(left, right), nil }) }, %s)`, conditionRef, condition.expectedLiteral(), validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
 	case ParameterValueConstraintOperatorNotIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldMatches(%s, %s, func(actual any, expected []any) (bool, error) { return !collection.In(expected, actual, func(left any, right any) (bool, error) { return reflect.DeepEqual(left, right), nil }) }, %s)`, conditionRef, condition.expectedLiteral(), validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
 	default:
 		return ""
 	}
@@ -1124,27 +1306,36 @@ func (cfg *ConfigurationOption) constrainedParameter() constrainedParameter {
 	if cfg == nil {
 		return constrainedParameter{}
 	}
-	return constrainedParameter{Name: cfg.Name, Constraints: cfg.Constraints}
+	return constrainedParameter{Name: cfg.Name, LangType: cfg.LangType, Reference: cfg.Reference, Enum: cfg.EffectiveEnum(), Constraints: cfg.Constraints}
 }
 
 func (cfg *FunctionConfigFields) constrainedParameter() constrainedParameter {
 	if cfg == nil {
 		return constrainedParameter{}
 	}
-	return constrainedParameter{Name: cfg.Name, Constraints: cfg.Constraints}
+	return constrainedParameter{Name: cfg.Name, LangType: cfg.LangType, Reference: cfg.Reference, Enum: cfg.EffectiveEnum(), Constraints: cfg.Constraints}
 }
 
 func (fieldDef *EntityField) constrainedParameter() constrainedParameter {
 	if fieldDef == nil {
 		return constrainedParameter{}
 	}
-	return constrainedParameter{Name: fieldDef.Name, Constraints: fieldDef.Constraints}
+	return constrainedParameter{Name: fieldDef.Name, LangType: fieldDef.LangType, Reference: fieldDef.Reference, Enum: fieldDef.EffectiveEnum(), Constraints: fieldDef.Constraints}
 }
 
 func parameterRefs(parameters []constrainedParameter) map[string]string {
 	return collection.Reduce(parameters, map[string]string{}, func(acc map[string]string, parameter constrainedParameter) map[string]string {
 		if reflection.IsNotEmpty(parameter.Name) {
 			acc[parameter.Name] = fmt.Sprintf("&cfg.%s", toPascalCase(parameter.Name))
+		}
+		return acc
+	})
+}
+
+func parameterByName(parameters []constrainedParameter) map[string]constrainedParameter {
+	return collection.Reduce(parameters, map[string]constrainedParameter{}, func(acc map[string]constrainedParameter, parameter constrainedParameter) map[string]constrainedParameter {
+		if reflection.IsNotEmpty(parameter.Name) {
+			acc[parameter.Name] = parameter
 		}
 		return acc
 	})
@@ -1179,12 +1370,9 @@ func goLiteral(value any) string {
 	}
 }
 
-func goAnySliceLiteral(values []interface{}) string {
-	return fmt.Sprintf("[]any{%s}", strings.Join(collection.Map(values, goLiteral), ", "))
-}
-
-func parameterConstraintValidationRuleLines(parameters []constrainedParameter) []string {
+func parameterConstraintValidationRuleLines(parameters []constrainedParameter, enumValuesAsStrings bool) []string {
 	refs := parameterRefs(parameters)
+	parametersByName := parameterByName(parameters)
 	result := make([]string, 0)
 	collection.ForEach(parameters, func(parameter constrainedParameter) {
 		if !parameter.Constraints.HasAnyValidationRules() {
@@ -1199,7 +1387,7 @@ func parameterConstraintValidationRuleLines(parameters []constrainedParameter) [
 				return refs[name]
 			}), func(ref string) bool { return reflection.IsNotEmpty(ref) })
 			if len(dependentRefs) > 0 {
-				result = append(result, fmt.Sprintf(`validationUtils.DependentRequiredBy(map[any]any{%s: []any{%s}})`, targetRef, strings.Join(dependentRefs, ", ")))
+				result = append(result, fmt.Sprintf(`validationUtils.FieldDependencyBy(map[any][]any{%s: []any{%s}})`, targetRef, strings.Join(dependentRefs, ", ")))
 			}
 		}
 		if reflection.IsNotEmpty(parameter.Constraints.ConflictsWith) {
@@ -1207,13 +1395,14 @@ func parameterConstraintValidationRuleLines(parameters []constrainedParameter) [
 				return refs[name]
 			}), func(ref string) bool { return reflection.IsNotEmpty(ref) })
 			if len(conflictRefs) > 0 {
-				result = append(result, fmt.Sprintf(`validationUtils.MutuallyExclusiveWithBy(%s, %s)`, targetRef, strings.Join(conflictRefs, ", ")))
+				refsWithSource := append([]string{targetRef}, conflictRefs...)
+				result = append(result, fmt.Sprintf(`validationUtils.MutuallyExclusiveFieldsBy(%s)`, strings.Join(refsWithSource, ", ")))
 			}
 		}
-		if line := parameter.Constraints.RequiredWhen.ValidationRuleLine(refs, fmt.Sprintf(`validationUtils.RequiredPropertiesBy(%s)`, targetRef)); reflection.IsNotEmpty(line) {
+		if line := parameter.Constraints.RequiredWhen.ValidationRuleLine(refs, parametersByName, fmt.Sprintf(`validationUtils.RequiredFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
 			result = append(result, line)
 		}
-		if line := parameter.Constraints.ForbiddenWhen.ValidationRuleLine(refs, fmt.Sprintf(`validationUtils.ForbiddenPropertiesBy(%s)`, targetRef)); reflection.IsNotEmpty(line) {
+		if line := parameter.Constraints.ForbiddenWhen.ValidationRuleLine(refs, parametersByName, fmt.Sprintf(`validationUtils.ForbiddenFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
 			result = append(result, line)
 		}
 	})
@@ -1237,7 +1426,7 @@ func (cfgs Configuration) UsesCollectionInConstraintValidationRules() bool {
 }
 
 func (cfgs Configuration) ConstraintValidationRules() []string {
-	return parameterConstraintValidationRuleLines(collection.Map(cfgs, func(cfg ConfigurationOption) constrainedParameter { return (&cfg).constrainedParameter() }))
+	return parameterConstraintValidationRuleLines(collection.Map(cfgs, func(cfg ConfigurationOption) constrainedParameter { return (&cfg).constrainedParameter() }), false)
 }
 
 func (fct *CliFunction) HasConstraintValidationRules() bool {
@@ -1260,7 +1449,11 @@ func (fct *CliFunction) ConstraintValidationRules() []string {
 	if fct == nil {
 		return nil
 	}
-	return parameterConstraintValidationRuleLines(collection.Map(fct.Configuration, func(cfg FunctionConfigFields) constrainedParameter { return (&cfg).constrainedParameter() }))
+	return parameterConstraintValidationRuleLines(collection.Map(fct.Configuration, func(cfg FunctionConfigFields) constrainedParameter {
+		parameter := (&cfg).constrainedParameter()
+		parameter.OwnerName = fct.Name
+		return parameter
+	}), true)
 }
 
 func (typ *Type) HasConstraintValidationRules() bool {
@@ -1285,7 +1478,7 @@ func (typ *Type) ConstraintValidationRules() []string {
 	if typ == nil {
 		return nil
 	}
-	return parameterConstraintValidationRuleLines(collection.Map(typ.Fields, func(fieldDef EntityField) constrainedParameter { return (&fieldDef).constrainedParameter() }))
+	return parameterConstraintValidationRuleLines(collection.Map(typ.Fields, func(fieldDef EntityField) constrainedParameter { return (&fieldDef).constrainedParameter() }), false)
 }
 
 func (cmds *CommandLineCommands) HasConstraintValidationRules() bool {

@@ -14,6 +14,7 @@ specification:
             lang_type: string
             mapstructure_tag: mode
             description: Execution mode.
+            default_value: strict
             enum:
               - strict
               - relaxed
@@ -97,6 +98,7 @@ specification:
             lang_type: string
             mapstructure_tag: mode
             description: Execution mode.
+            default_value: strict
             enum:
               - strict
               - relaxed
@@ -180,6 +182,7 @@ specification:
       lang_type: string
       mapstructure_tag: mode
       description: Execution mode.
+      default_value: strict
       enum:
         - strict
         - relaxed

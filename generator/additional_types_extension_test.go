@@ -113,7 +113,7 @@ func TestSuppressedRequiredValidationMapIncludesBoolAndEnum(t *testing.T) {
 		Name: field.ToOptionalString("Example"),
 		GlobalConfiguration: Configuration{
 			{Name: "Enabled", LangType: "bool", Required: true, Description: "enabled", MapstructureTag: "enabled"},
-			{Name: "Mode", LangType: "string", Required: true, Enum: []string{"fast", "safe"}, Description: "mode", MapstructureTag: "mode"},
+			{Name: "Mode", LangType: "string", Required: true, Enum: []string{"fast", "safe"}, DefaultValue: field.ToOptionalString("fast"), Description: "mode", MapstructureTag: "mode"},
 		},
 		CommandLineCommands: &CommandLineCommands{
 			Functions: []CliFunction{{
@@ -145,4 +145,108 @@ func TestCommandLineCommandsValidateRejectsNestedPackage(t *testing.T) {
 		Functions: []CliFunction{{Name: "Run", Description: "run", Configuration: []FunctionConfigFields{}}},
 	}
 	require.Error(t, cmds.Validate())
+}
+
+func TestFilterExtraImportsByPath(t *testing.T) {
+	t.Parallel()
+
+	extraImports := ExtraImports{
+		{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+		{ImportRef: field.ToOptionalString("jsonutils"), ImportUrl: field.ToOptionalString(jsonUtilsImportPath)},
+		{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+	}
+
+	filtered := filterExtraImportsByPath(extraImports, filesystemImportPath, "")
+	assert.Len(t, filtered, 2)
+	assert.Equal(t, jsonUtilsImportPath, field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[1].ImportUrl, ""))
+}
+
+func TestConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+	t.Parallel()
+
+	spec := &SDKSpecification{
+		ExtraImports: ExtraImports{
+			{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+			{ImportRef: field.ToOptionalString("jsonutils"), ImportUrl: field.ToOptionalString(jsonUtilsImportPath)},
+			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+		},
+		GlobalConfiguration: Configuration{{
+			Name:            "ReportFile",
+			LangType:        string(BuiltInLangTypeFilepath),
+			MapstructureTag: "report_file",
+			Description:     "Report file.",
+		}, {
+			Name:            "Payload",
+			LangType:        string(BuiltInLangTypeValidJSON),
+			MapstructureTag: "payload",
+			Description:     "Payload.",
+		}},
+	}
+
+	filtered := configExtraImports(spec)
+	assert.Len(t, filtered, 1)
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+}
+
+func TestCLIConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+	t.Parallel()
+
+	spec := &SDKSpecification{
+		ExtraImports: ExtraImports{
+			{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+			{ImportRef: field.ToOptionalString("jsonutils"), ImportUrl: field.ToOptionalString(jsonUtilsImportPath)},
+			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+		},
+		CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
+			Name:        "Generate",
+			Description: "Generate.",
+			Configuration: []FunctionConfigFields{{
+				Name:            "SummaryFile",
+				LangType:        string(BuiltInLangTypeFilepath),
+				MapstructureTag: "summary_file",
+				Description:     "Summary file.",
+			}, {
+				Name:            "Payload",
+				LangType:        string(BuiltInLangTypeValidJSON),
+				MapstructureTag: "payload",
+				Description:     "Payload.",
+			}},
+		}}},
+	}
+
+	filtered := cliConfigExtraImports(spec)
+	assert.Len(t, filtered, 1)
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+}
+
+func TestTypesExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+	t.Parallel()
+
+	spec := &SDKSpecification{
+		ExtraImports: ExtraImports{
+			{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+			{ImportRef: field.ToOptionalString("jsonutils"), ImportUrl: field.ToOptionalString(jsonUtilsImportPath)},
+			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+		},
+		AdditionalTypes: Types{{
+			Name:        "Artefact",
+			Description: "Artefact.",
+			Fields: []EntityField{{
+				Name:            "Path",
+				LangType:        string(BuiltInLangTypeFilepath),
+				MapstructureTag: field.ToOptionalString("path"),
+				Description:     "Path.",
+			}, {
+				Name:            "Payload",
+				LangType:        string(BuiltInLangTypeValidJSON),
+				MapstructureTag: field.ToOptionalString("payload"),
+				Description:     "Payload.",
+			}},
+		}},
+	}
+
+	filtered := typesExtraImports(spec)
+	assert.Len(t, filtered, 1)
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
 }

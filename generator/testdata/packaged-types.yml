@@ -68,6 +68,7 @@ specification:
       fields:
         - name: Status
           lang_type: string
+          default_value: draft
           enum:
             - draft
             - published
