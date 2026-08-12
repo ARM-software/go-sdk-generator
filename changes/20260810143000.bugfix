@@ -1,1 +1,0 @@
-:green_heart: Regression fixture tests now build every generated Go module with `go build ./...` before comparing output against fixtures or rewriting fixture archives, so non-compiling generated output is caught before snapshot updates can hide it.

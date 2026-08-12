@@ -1,1 +1,0 @@
-CLI enum-backed configuration fields now generate as strings while still emitting enum constants and `enumer` helpers for validation and runtime parsing. This avoids relying on Viper to decode string inputs like `"file"` into generated enum types, which it does not do automatically through the default mapstructure decode hooks.

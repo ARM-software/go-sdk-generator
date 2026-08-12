@@ -1,1 +1,0 @@
-:sparkles: Generated validation now uses the newer golang-utils field-oriented helpers and state-style `Required` semantics so required zero values such as `false` and `0` remain valid in generated SDK and CLI configuration.

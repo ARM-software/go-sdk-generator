@@ -1,1 +1,0 @@
-:bug: Fix generated delegate forwarding for interface arguments declared with explicit variadic `lang_type` values such as `...string`.

@@ -2,6 +2,42 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.46.0" (2026-08-12)
+=====================
+
+Features
+--------
+
+- :sparkles: Generated CLIs can now opt commands into summary-aware wrappers and GitHub Actions default those commands to `--summary=github`. (#202608061300)
+- :sparkles: Generated CLIs can now emit human-readable summaries, including GitHub step summaries and file summaries, with corresponding generated validation and GitHub Action defaults. (#202608071430)
+- :sparkles: The generator schema now defines built-in summary destinations, built-in `lang_type` values, and semantic `default_value` tokens so generator logic can use generated schema constants instead of hard-coded strings. (#202608071431)
+- :sparkles: Generated validation now uses the newer golang-utils field-oriented helpers and state-style `Required` semantics so required zero values such as `false` and `0` remain valid in generated SDK and CLI configuration. (#202608071432)
+- :recycle: Require explicit default values for enum-defined parameters to avoid ambiguity or accidental misinterpretation when generated configuration values are left unset. (#20260810123000)
+- :sparkles: Add a generated `--show-config` CLI flag that logs the effective per-command configuration before execution, with generated wrapper tests and redaction support for sensitive values. (#20260812000500)
+- :recycle: Move generated show-config CLI options to the shared root command path. (#20260812100355)
+
+
+Bugfixes
+--------
+
+- :bug: Fix generated delegate forwarding for interface arguments declared with explicit variadic `lang_type` values such as `...string`. (#202608111019)
+- Dependency upgrade: generator-0.45.0 (#20260810043555)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.45.0. (#20260810043810)
+- CLI enum-backed configuration fields now generate as strings while still emitting enum constants and `enumer` helpers for validation and runtime parsing. This avoids relying on Viper to decode string inputs like `"file"` into generated enum types, which it does not do automatically through the default mapstructure decode hooks. (#20260810101500)
+- :recycle: Improved the generated constraint-validation and CLI enum implementation so the resulting code is easier to read and follow, while keeping enum-backed CLI values parsed through generated helpers instead of relying on implicit Viper conversion. (#20260810114500)
+- :green_heart: Regression fixture tests now build every generated Go module with `go build ./...` before comparing output against fixtures or rewriting fixture archives, so non-compiling generated output is caught before snapshot updates can hide it. (#20260810143000)
+
+
+Improved Documentation
+----------------------
+
+- :book: Clarify the dogfooding skill guidance so contributors pass the repository's current Go version explicitly during self-generation instead of changing the manifest default value. (#20260812121500)
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.45.0" (2026-08-05)
 =====================
 
