@@ -550,6 +550,8 @@ func TestProcessArguments(t *testing.T) {
 		assert.ElementsMatch(t, []string{"Input", showConfigArgument, summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name, configs[3].Name})
 
 		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, showConfigArgument)
+		assert.True(t, byName[showConfigArgument].IsRoot)
 		require.Contains(t, byName, summaryArgument)
 		require.Contains(t, byName, summaryFileArg)
 		assert.Equal(t, "Write a human-readable summary to the selected destination. Allowed values: file, github, output.", byName[summaryArgument].Description)

@@ -447,7 +447,7 @@ func updateCliFunctionArgumentsToSupportShowConfig(fct *CliFunction) error {
 	args := map[string]FunctionConfigFields{
 		showConfigArgument: {
 			Description:     "Show the effective configuration used by this command before execution.",
-			IsRoot:          false,
+			IsRoot:          true,
 			LangType:        string(BuiltInLangTypeBool),
 			MapstructureTag: showConfigMapstructureTag,
 			Name:            showConfigArgument,

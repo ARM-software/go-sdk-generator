@@ -1,0 +1,1 @@
+:book: Clarify the dogfooding skill guidance so contributors pass the repository's current Go version explicitly during self-generation instead of changing the manifest default value.

@@ -43,8 +43,20 @@ Follow this workflow in order:
 After implementing the change:
 
 1. Build the generator CLI from this repository using `go build` in the `cli` project.
-2. Run the built generator against `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
+2. Run the built generator against `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release. When doing this in this repository, pass the repository's current Go version explicitly via `--go_version` instead of changing the manifest default value.
 3. Inspect the generated output for regressions in the generator's own SDK and CLI.
+4. Treat dogfooding as a validation step, not as permission to remove repository-local development wiring or handwritten logic that this repository still needs in order to build, test, or develop the generator itself.
+
+In particular, do not blindly accept dogfooded changes if they remove or break things such as:
+
+- `go.work` entries required for local multi-module development
+- `go.mod` requirements needed for the repository's current development and test workflow
+- targeted Go versions or dependency versions that were not meant to change as part of the work
+- the repository's own manifest content in `generate.yml` when the feature is about generator behaviour rather than a deliberate manifest edit
+- checked-in implementation logic in this repository that is intentionally not meant to be replaced by generated placeholders
+- any other repository-local bootstrap or development behaviour that the generated output does not yet preserve correctly
+
+If dogfooding removes required local logic, keep the dogfooding insight, but preserve the working repository state and fix the generator/templates rather than committing a broken self-generated result.
 
 ## Verification
 
@@ -60,3 +72,5 @@ Minimum verification expectations:
 - Use `CONTRIBUTING.md` for news-file expectations and wording.
 - Use `grill-me` to resolve terminology and design trade-offs before editing code.
 - Dogfooding is required for this skill, not optional.
+- Dogfooding should validate generator changes, but it must not leave the repository in a state where the generator can no longer be built, tested, or evolved locally.
+- Unless the user explicitly asked for a version or manifest-content change, treat Go version bumps, dependency version churn, and generated edits to `generate.yml` as suspect and review them critically before keeping them.
