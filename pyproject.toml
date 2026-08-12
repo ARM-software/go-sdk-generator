@@ -9,7 +9,7 @@
 # these tokens are used to identify path variables from other variable types.
 PROJECT_NAME = "SDK Generator"
 PACKAGE_NAME = "go-sdk-generator"
-PROJECT_UUID = '8a6b54aa-1909-47ce-8905-2968d9129a63'
+PROJECT_UUID = 'a066e87b-21f2-4071-a071-cc5ba3af0864'
 PROJECT_ROOT = "."
 NEWS_DIR = "changes/"
 SOURCE_DIR = "generator"
@@ -18,13 +18,11 @@ MODULE_TO_DOCUMENT = "generator"
 DOCUMENTATION_DEFAULT_OUTPUT_PATH = "./docs"
 DOCUMENTATION_PRODUCTION_OUTPUT_PATH = "./docs"
 VERSION_FILE_PATH = "cli/cmd/module.properties"
-
 CHANGELOG_FILE_PATH = "CHANGELOG.md"
 AWS_BUCKET=""
 PROGRAMMING_LANGUAGE = "Golang"
 MASTER_BRANCH = "main"
 FILE_LICENCE_IDENTIFIER = "Proprietary"
-COPYRIGHT_START_DATE  = "2026"
 
 [AutoVersionConfig]
 CONFIG_NAME = "JAVA"
@@ -88,4 +86,4 @@ showcontent = false
 [spdx]
 CreatorWebsite = "spdx.org"
 PathToSpdx = "spdx/spdxdocs"
-UUID="2b5ee2b7-1f21-485d-ac91-2edfab87348d"
+UUID="f321abed-a43c-416b-8141-aca8b7b46e11"
