@@ -5,12 +5,11 @@ package config
 import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-
-	"github.com/ARM-software/golang-utils/utils/filesystem"
-	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
 const (
@@ -25,7 +24,9 @@ type GenerateConfiguration struct {
 	Input string `mapstructure:"input"`
 	// Output is destination of the generated code
 	Output string `mapstructure:"output"`
-	// Summary is write a human-readable summary to the selected destination. Allowed values: file, github, output.
+	// ShowConfig is show the effective configuration used by this command before execution.
+	ShowConfig bool `mapstructure:"show_config"`
+	// Summary is write a human-readable summary to the selected destination. Allowed values: file, github, output. Allowed values: file, github, output.
 	Summary string `mapstructure:"summary"`
 	// SummaryFile is path to the summary file when summary is set to file
 	SummaryFile string `mapstructure:"summary_file"`
@@ -56,21 +57,26 @@ func (cfg *GenerateConfiguration) Validate() error {
 	}
 
 	err = validation.ValidateStruct(cfg,
-		validation.Field(&cfg.Generate, validationUtils.Required),
 		validation.Field(&cfg.Input, validationUtils.Required),
 		validation.Field(&cfg.Output, validationUtils.Required),
 		validation.Field(&cfg.Summary, validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))),
 		validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true))),
-		validation.Field(&cfg.TargetedGo, validationUtils.Required, is.Semver),
+		validation.Field(&cfg.TargetedGo, is.Semver),
 	)
 
 	if err != nil {
 		return err
 	}
-	return validationUtils.NewAllRule(
+
+	err = validationUtils.NewAllRule(
 		validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}}),
 		validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile)),
 	).Validate(cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -90,6 +96,8 @@ func DefaultGenerateConfiguration() *GenerateConfiguration {
 
 // SchemaConfiguration defines the configuration for Schema command
 type SchemaConfiguration struct {
+	// ShowConfig is show the effective configuration used by this command before execution.
+	ShowConfig bool `mapstructure:"show_config"`
 
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
@@ -119,6 +127,8 @@ func DefaultSchemaConfiguration() *SchemaConfiguration {
 type AgentConfiguration struct {
 	// Init is install the embedded skills into the current repository
 	Init bool `mapstructure:"init"`
+	// ShowConfig is show the effective configuration used by this command before execution.
+	ShowConfig bool `mapstructure:"show_config"`
 
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
@@ -130,9 +140,7 @@ func (cfg *AgentConfiguration) Validate() error {
 		return err
 	}
 
-	err = validation.ValidateStruct(cfg,
-		validation.Field(&cfg.Init),
-	)
+	err = validation.ValidateStruct(cfg)
 
 	if err != nil {
 		return err

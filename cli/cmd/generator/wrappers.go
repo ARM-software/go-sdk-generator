@@ -4,13 +4,100 @@ package generator
 
 import (
 	"context"
+	"fmt"
+	"maps"
+	"reflect"
+	"slices"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	environmentUtils "github.com/ARM-software/golang-utils/utils/environment"
+	"github.com/ARM-software/golang-utils/utils/hashing"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/logs/summary"
+	"github.com/ARM-software/golang-utils/utils/parallelisation"
+	valueUtils "github.com/ARM-software/golang-utils/utils/value"
 
 	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
 )
+
+func DetermineCommandConfigurationEnvironmentVariables(ctx context.Context, envVarPrefix string, cfg any) (envVars []environmentUtils.IEnvironmentVariable, err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+
+	serviceCfg, ok := cfg.(configUtils.IServiceConfiguration)
+	if !ok {
+		err = commonerrors.Newf(commonerrors.ErrInvalid, "expected configuration implementing config.IServiceConfiguration and got %T", cfg)
+		return
+	}
+
+	flattenedCfg, err := configUtils.DetermineConfigurationEnvironmentVariablesWithContext(ctx, envVarPrefix, serviceCfg, sensitiveDataRedacters()...)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed to prepare the command configuration for logging")
+		return
+	}
+
+	envVars = collection.Map(slices.Collect(maps.Keys(flattenedCfg)), func(key string) environmentUtils.IEnvironmentVariable {
+		return environmentUtils.NewEnvironmentVariable(key, fmt.Sprintf("%v", flattenedCfg[key]))
+	})
+	envVars = environmentUtils.UniqueEnvironmentVariables(false, envVars...)
+	environmentUtils.SortEnvironmentVariables(envVars)
+	return
+}
+
+func ShowCommandConfiguration(ctx context.Context, envVarPrefix string, cfg any, logger logs.Loggers, show bool) (err error) {
+	if !show || cfg == nil {
+		return nil
+	}
+
+	envVars, err := DetermineCommandConfigurationEnvironmentVariables(ctx, envVarPrefix, cfg)
+	if err != nil {
+		return
+	}
+
+	logger.Log("command configuration:")
+	collection.ForEach(envVars, func(envVar environmentUtils.IEnvironmentVariable) {
+		logger.Log(envVar.String())
+	})
+	return nil
+}
+
+func sensitiveDataRedacters() []valueUtils.IValueConverter {
+	return []valueUtils.IValueConverter{
+		configUtils.CommonFieldTagSecretConverter,
+		redactProtectedString(),
+		redactLikelyHexHash(),
+	}
+}
+
+func redactProtectedString() valueUtils.IValueConverter {
+	return configUtils.NewValueTypeConverter(func(from reflect.Type, _ reflect.Type, input any) (any, error) {
+		for from != nil && from.Kind() == reflect.Pointer {
+			from = from.Elem()
+		}
+		if from == nil || from.Name() != "ProtectedString" {
+			return input, nil
+		}
+		return configUtils.SecretConverter.ConvertValue(context.Background(), input)
+	})
+}
+
+func redactLikelyHexHash() valueUtils.IValueConverter {
+	return valueUtils.ValueConverterFunc(func(ctx context.Context, input any) (any, error) {
+		converted, err := valueUtils.StringConverter.ConvertValue(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+		text := fmt.Sprint(converted)
+		if !hashing.IsLikelyHexHashString(text) {
+			return input, nil
+		}
+		return configUtils.SecretConverter.ConvertValue(ctx, text)
+	})
+}
 
 // SummaryLoggerFactory creates a summary logger for any summary-enabled command.
 // The option is typed as `any` because each generated command has its own enum type,
@@ -68,6 +155,11 @@ func WrapGenerate(ctx context.Context, logger logs.Loggers, cfg *config.Generate
 		return
 	}
 
+	err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+	if err != nil {
+		return
+	}
+
 	return f(ctx, logger, cfg)
 }
 
@@ -81,6 +173,11 @@ func WrapSchema(ctx context.Context, logger logs.Loggers, cfg *config.SchemaConf
 		return
 	}
 
+	err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+	if err != nil {
+		return
+	}
+
 	return f(ctx, logger, cfg)
 }
 
@@ -91,6 +188,11 @@ var AgentImplFunc func(context.Context, logs.Loggers, *config.AgentConfiguration
 func WrapAgent(ctx context.Context, logger logs.Loggers, cfg *config.AgentConfiguration, f func(context.Context, logs.Loggers, *config.AgentConfiguration) error) (err error) {
 	if f == nil {
 		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to Agent", f)
+		return
+	}
+
+	err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+	if err != nil {
 		return
 	}
 

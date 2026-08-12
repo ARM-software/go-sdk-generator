@@ -36,8 +36,12 @@ inputs:
     description: "destination of the generated code"
     required: false
     default: ""
+  show-config:
+    description: "Show the effective configuration used by this command before execution."
+    required: false
+    default: ""
   summary:
-    description: "Write a human-readable summary to the selected destination. Allowed values: file, github, output."
+    description: "Write a human-readable summary to the selected destination. Allowed values: file, github, output. Allowed values: file, github, output."
     required: false
     default: "github"
   summary-file:
@@ -152,6 +156,7 @@ runs:
           ACTION_INPUT_OVERWRITE|overwrite|true|false
           ACTION_INPUT_INPUT|input|false|false
           ACTION_INPUT_OUTPUT|output|false|false
+          ACTION_INPUT_SHOW_CONFIG|show-config|true|false
           ACTION_INPUT_SUMMARY|summary|false|false
           ACTION_INPUT_SUMMARY_FILE|summary-file|false|false
           ACTION_INPUT_GO_VERSION|go-version|false|false
@@ -159,6 +164,7 @@ runs:
         ACTION_INPUT_OVERWRITE: ${{ inputs.overwrite }}
         ACTION_INPUT_INPUT: ${{ inputs.input }}
         ACTION_INPUT_OUTPUT: ${{ inputs.output }}
+        ACTION_INPUT_SHOW_CONFIG: ${{ inputs.show-config }}
         ACTION_INPUT_SUMMARY: ${{ inputs.summary }}
         ACTION_INPUT_SUMMARY_FILE: ${{ inputs.summary-file }}
         ACTION_INPUT_GO_VERSION: ${{ inputs.go-version }}

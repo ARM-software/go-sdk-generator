@@ -28,6 +28,7 @@ actions/_shared/install-and-run.sh linguist-generated=true
 actions/generate/action.yml linguist-generated=true
 actions/install-tool/action.yml linguist-generated=true
 agent.md linguist-generated=true
+cli/cmd/config/enums.go linguist-generated=true
 cli/cmd/config/generator.go linguist-generated=true
 cli/cmd/config/generator_test.go linguist-generated=true
 cli/cmd/generator.go linguist-generated=true

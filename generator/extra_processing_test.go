@@ -479,7 +479,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
-		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 3)
 	})
 	t.Run("happy path: with calls to Cloud", func(t *testing.T) {
 		arg1 := FunctionConfigFields{
@@ -518,7 +518,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
-		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 5)
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 6)
 	})
 
 	t.Run("injects summary arguments for summary-aware commands", func(t *testing.T) {
@@ -546,8 +546,8 @@ func TestProcessArguments(t *testing.T) {
 
 		require.NoError(t, ProcessArguments(context.Background(), sdk))
 		configs := sdk.Specification.CommandLineCommands.Functions[0].Configuration
-		assert.Len(t, configs, 3)
-		assert.ElementsMatch(t, []string{"Input", summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name})
+		assert.Len(t, configs, 4)
+		assert.ElementsMatch(t, []string{"Input", showConfigArgument, summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name, configs[3].Name})
 
 		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
 		require.Contains(t, byName, summaryArgument)
@@ -1276,9 +1276,10 @@ func TestCliRootLevelCallCloud(t *testing.T) {
 		credentials := sdk.Specification.CommandLineCommands.Functions[credentialsIndex]
 		assert.True(t, credentials.StoreToKeyring)
 		assert.True(t, credentials.NoAction)
-		require.Len(t, credentials.Configuration, 2)
+		require.Len(t, credentials.Configuration, 3)
 		assert.Equal(t, "APIKey", credentials.Configuration[0].Name)
 		assert.Equal(t, "ServiceCredentials", credentials.Configuration[1].Name)
+		assert.Equal(t, showConfigArgument, credentials.Configuration[2].Name)
 		require.Len(t, credentials.Configuration[1].Bindings, 1)
 		assert.Equal(t, "Token", field.OptionalString(credentials.Configuration[1].Bindings[0].Name, ""))
 	})

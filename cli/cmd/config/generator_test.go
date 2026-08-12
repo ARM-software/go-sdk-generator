@@ -5,6 +5,7 @@ package config
 import (
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,9 +13,19 @@ import (
 func validGenerateConfiguration() *GenerateConfiguration {
 	cfg := DefaultGenerateConfiguration()
 
+	cfg.Generate = false
+
 	cfg.Input = "value"
-	cfg.Output = "out"
-	cfg.TargetedGo = "1.24.6"
+
+	cfg.Output =
+		func() string {
+			pwd, _ := filesystem.CurrentDirectory()
+			return pwd
+		}()
+
+	cfg.ShowConfig = true
+
+	cfg.TargetedGo = "1.2.3"
 
 	return cfg
 }
@@ -36,7 +47,6 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 		err := cfg.Validate()
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "SummaryFile")
-		assert.Contains(t, err.Error(), "cannot be blank")
 	})
 
 	t.Run("summary defaults to output when unset", func(t *testing.T) {
@@ -58,35 +68,5 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 		cfg.SummaryFile = "summary.md"
 
 		require.NoError(t, cfg.Validate())
-	})
-}
-
-func TestGenerateConfigurationGetSummary(t *testing.T) {
-	t.Run("returns parsed enum value", func(t *testing.T) {
-		cfg := validGenerateConfiguration()
-		cfg.Summary = GenerateSummaryFile.String()
-
-		value, err := cfg.GetSummary()
-		require.NoError(t, err)
-		assert.Equal(t, GenerateSummaryFile, value)
-	})
-
-	t.Run("returns undefined error when empty", func(t *testing.T) {
-		cfg := validGenerateConfiguration()
-		cfg.Summary = ""
-
-		_, err := cfg.GetSummary()
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "Summary")
-	})
-
-	t.Run("wraps enum parse errors", func(t *testing.T) {
-		cfg := validGenerateConfiguration()
-		cfg.Summary = "not-a-summary"
-
-		_, err := cfg.GetSummary()
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "Summary")
-		assert.Contains(t, err.Error(), "GenerateSummary")
 	})
 }

@@ -192,6 +192,11 @@ func TestConfigFieldTestValueForBindingsBuildsCompositeLiteral(t *testing.T) {
 		configFieldTestValue(nil, "", "example-tool", "0.0.0", "Verify", cfg))
 }
 
+func TestConfigFieldMarkerTestValue(t *testing.T) {
+	cfg := FunctionConfigFields{Name: "APIKey", LangType: "string", Secret: true}
+	assert.Equal(t, `secretutil.ProtectedString("super-secret-value")`, configFieldMarkerTestValue(nil, "", "example-tool", "0.0.0", "Verify", "super-secret-value", cfg))
+}
+
 func TestIsBuiltInManifestLangType(t *testing.T) {
 	assert.True(t, isBuiltInManifestLangType("string"))
 	assert.True(t, isBuiltInManifestLangType("*duration"))

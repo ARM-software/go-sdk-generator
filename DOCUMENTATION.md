@@ -209,7 +209,9 @@ SDK_GENERATOR_OVERWRITE=<value> go-sdk-generator generate
 
 | `Output` | `--output` | `-o` | `SDK_GENERATOR_OUTPUT` | yes | destination of the generated code |
 
-| `Summary` | `--summary` | - | `SDK_GENERATOR_SUMMARY` | no | Write a human-readable summary to the selected destination. Allowed values: file, github, output. |
+| `ShowConfig` | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
+
+| `Summary` | `--summary` | - | `SDK_GENERATOR_SUMMARY` | no | Write a human-readable summary to the selected destination. Allowed values: file, github, output. Allowed values: file, github, output. |
 
 | `SummaryFile` | `--summary-file` | - | `SDK_GENERATOR_SUMMARY_FILE` | no | Path to the summary file when summary is set to file |
 
@@ -227,8 +229,9 @@ type GenerateConfiguration struct {
 	Generate bool `mapstructure:"overwrite"`
 	Input string `mapstructure:"input"`
 	Output string `mapstructure:"output"`
-	Summary string `mapstructure:"summary"`
-	SummaryFile Filepath `mapstructure:"summary_file"`
+	ShowConfig bool `mapstructure:"show_config"`
+	Summary GenerateSummary `mapstructure:"summary"`
+	SummaryFile string `mapstructure:"summary_file"`
 	TargetedGo string `mapstructure:"go_version"`
 }
 ```
@@ -242,9 +245,11 @@ Fields:
 
 - **`Output : string`** - destination of the generated code (required)
 
-- **`Summary : string`** - Write a human-readable summary to the selected destination. Allowed values: file, github, output. 
+- **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
 
-- **`SummaryFile : Filepath`** - Path to the summary file when summary is set to file 
+- **`Summary : GenerateSummary`** - Write a human-readable summary to the selected destination. Allowed values: file, github, output. Allowed values: file, github, output. 
+
+- **`SummaryFile : string`** - Path to the summary file when summary is set to file 
 
 - **`TargetedGo : string`** - targeted go version for the tool 
 
@@ -274,17 +279,17 @@ func DefaultGenerateConfiguration() *GenerateConfiguration
 Usage:
 
 ```sh
-go-sdk-generator schema
+go-sdk-generator schema [flags]
 ```
 
 OCI usage:
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine schema
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine schema [flags]
 ```
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema
+docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema [flags]
 ```
 
 
@@ -292,13 +297,61 @@ docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema
 
 
 
-This command does not define any flags or bound environment variables.
+Flags and environment bindings:
+
+You can pass values as flags on the command line or by setting the corresponding environment variables.
+
+Example flag usage:
+
+```sh
+go-sdk-generator schema --show-config <value>
+```
+
+
+Example environment usage:
+
+```sh
+SDK_GENERATOR_SHOW_CONFIG=<value> go-sdk-generator schema
+```
+
+
+| Configuration | Flag | Short | Environment | Required | Description |
+| --- | --- | --- | --- | --- | --- |
+
+| `ShowConfig` | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
 
 
 
 
 
-This command does not define any configuration fields.
+
+Configuration type:
+
+```go
+type SchemaConfiguration struct {
+	ShowConfig bool `mapstructure:"show_config"`
+}
+```
+
+Fields:
+
+
+- **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
+
+
+Helper methods:
+
+- `Validate()` validates the configuration.
+
+```go
+func (cfg *SchemaConfiguration) Validate() error
+```
+
+- `DefaultSchemaConfiguration()` returns the default values.
+
+```go
+func DefaultSchemaConfiguration() *SchemaConfiguration
+```
 
 
 
@@ -352,6 +405,8 @@ SDK_GENERATOR_INIT=<value> go-sdk-generator agent
 
 | `Init` | `--init` | - | `SDK_GENERATOR_INIT` | no | install the embedded skills into the current repository |
 
+| `ShowConfig` | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
+
 
 
 
@@ -362,6 +417,7 @@ Configuration type:
 ```go
 type AgentConfiguration struct {
 	Init bool `mapstructure:"init"`
+	ShowConfig bool `mapstructure:"show_config"`
 }
 ```
 
@@ -369,6 +425,8 @@ Fields:
 
 
 - **`Init : bool`** - install the embedded skills into the current repository 
+
+- **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
 
 
 Helper methods:

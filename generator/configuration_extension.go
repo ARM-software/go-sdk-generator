@@ -143,3 +143,19 @@ func configFieldTestValue(additionalTypesPackages map[string]string, currentPack
 
 	return defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, cfg.Name, baseType, cfg.EffectiveEnum(), valueSource, isReferenceLikeSecretField(cfg))
 }
+
+// configFieldMarkerTestValue renders a field assignment using a caller-supplied
+// marker value instead of inferred defaults/examples. This is used by generated
+// tests that need deterministic values, such as show-config redaction checks.
+func configFieldMarkerTestValue(additionalTypesPackages map[string]string, currentPackage, toolName, toolVersion, ownerName, marker string, cfg FunctionConfigFields) string {
+	baseType := strings.TrimSpace(baseLangType(cfg.LangType))
+	value := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, cfg.Name, baseType, cfg.EffectiveEnum(), marker, isReferenceLikeSecretField(cfg))
+	if cfg.Secret && convertLangType(baseType) == stringLangType {
+		protectedValue := fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
+		if isReferenceLikeSecretField(cfg) {
+			return fmt.Sprintf("field.ToOptional(%s)", protectedValue)
+		}
+		return protectedValue
+	}
+	return value
+}

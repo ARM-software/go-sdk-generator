@@ -106,6 +106,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"cliConfigFieldType":           cliConfigFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
 	"configFieldTestValue":         configFieldTestValue,
+	"configFieldMarkerTestValue":   configFieldMarkerTestValue,
 	"usesSummary": func(fct CliFunction, cmds *CommandLineCommands) bool {
 		return (&fct).UsesSummary(cmds)
 	},

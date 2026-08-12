@@ -11,6 +11,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
+	mapsUtils "github.com/ARM-software/golang-utils/utils/maps"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	mapset "github.com/deckarep/golang-set/v2"
@@ -19,10 +20,12 @@ import (
 )
 
 const (
-	noKeyringArgument = "NoKeyring"
-	summaryArgument   = "Summary"
-	summaryFileArg    = "SummaryFile"
+	noKeyringArgument  = "NoKeyring"
+	showConfigArgument = "ShowConfig"
+	summaryArgument    = "Summary"
+	summaryFileArg     = "SummaryFile"
 
+	showConfigMapstructureTag  = "show_config"
 	summaryMapstructureTag     = "summary"
 	summaryFileMapstructureTag = "summary_file"
 )
@@ -370,22 +373,26 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
+			subErr := updateCliFunctionArgumentsToSupportShowConfig(&fct)
+			if subErr != nil {
+				return subErr
+			}
 			if fct.StoreToKeyring && fct.LoadFromKeyring {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
 			}
 			if fct.UsesSummary(sdk.Specification.CommandLineCommands) {
-				subErr := updateCliFunctionArgumentsToSupportSummary(&fct)
+				subErr = updateCliFunctionArgumentsToSupportSummary(&fct)
 				if subErr != nil {
 					return subErr
 				}
 			}
 			if fct.LoadFromKeyring {
-				subErr := updateCliFunctionArgumentsToLoadFromKeyring(&fct)
+				subErr = updateCliFunctionArgumentsToLoadFromKeyring(&fct)
 				if subErr != nil {
 					return subErr
 				}
 			}
-			subErr := collection.ForAll(fct.Configuration, func(param FunctionConfigFields) error {
+			subErr = collection.ForAll(fct.Configuration, func(param FunctionConfigFields) error {
 				subErr := collection.ForAll(param.Bindings, func(binding Binding) error {
 					return processArguments(binding.Arg, binding.MapstructureTag)
 				})
@@ -430,6 +437,20 @@ func updateCliFunctionArgumentsToLoadFromKeyring(fct *CliFunction) error {
 			Name:            noKeyringArgument,
 			Pattern:         nil,
 			Reference:       false,
+			Required:        false,
+		},
+	}
+	return updateCliFunctionArguments(fct, args)
+}
+
+func updateCliFunctionArgumentsToSupportShowConfig(fct *CliFunction) error {
+	args := map[string]FunctionConfigFields{
+		showConfigArgument: {
+			Description:     "Show the effective configuration used by this command before execution.",
+			IsRoot:          false,
+			LangType:        string(BuiltInLangTypeBool),
+			MapstructureTag: showConfigMapstructureTag,
+			Name:            showConfigArgument,
 			Required:        false,
 		},
 	}
@@ -515,10 +536,12 @@ func updateCliFunctionArguments(fct *CliFunction, additionalArguments map[string
 		additionalArguments = make(map[string]FunctionConfigFields)
 	}
 
-	collection.ForEach(fct.Configuration, func(arg FunctionConfigFields) {
-		additionalArguments[arg.Name] = arg
+	existingArguments := collection.Reduce(fct.Configuration, map[string]FunctionConfigFields{}, func(acc map[string]FunctionConfigFields, cfg FunctionConfigFields) map[string]FunctionConfigFields {
+		acc[cfg.Name] = cfg
+		return acc
 	})
-	fct.Configuration = slices.Collect(maps.Values(additionalArguments))
+	mergedArguments := mapsUtils.Merge(additionalArguments, existingArguments)
+	fct.Configuration = slices.Collect(maps.Values(mergedArguments))
 	slices.SortFunc(fct.Configuration, func(a, b FunctionConfigFields) int {
 		return compareArgs(a.Name, b.Name)
 	})

@@ -102,6 +102,7 @@ Required:
 
 Optional:
 - `overwrite`: regenerate all files
+- `show_config`: Show the effective configuration used by this command before execution.
 - `summary`: Write a human-readable summary to the selected destination. Allowed values: file, github, output.
 - `summary_file`: Path to the summary file when summary is set to file
 - `go_version`: targeted go version for the tool
@@ -119,6 +120,7 @@ Defaults:
 			pwd, _ := filesystem.CurrentDirectory()
 			return pwd
 		}()
+- `summary` → "output"
 
 ### `go-sdk-generator schema`
 
@@ -135,7 +137,11 @@ docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema
 ```
 
 
-No command-specific options.
+Required:
+- none
+
+Optional:
+- `show_config`: Show the effective configuration used by this command before execution.
 
 
 
@@ -159,6 +165,7 @@ Required:
 
 Optional:
 - `init`: install the embedded skills into the current repository
+- `show_config`: Show the effective configuration used by this command before execution.
 
 
 

@@ -348,3 +348,45 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	assert.Equal(t, 1, strings.Count(output, `"github.com/ARM-software/golang-utils/utils/filesystem"`))
 	assert.Less(t, strings.Index(output, "err := configUtils.ValidateEmbedded(cfg)"), strings.Index(output, "err = validation.ValidateStruct(cfg,"))
 }
+
+func TestWrapperTemplateIncludesShowConfigHelper(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/wrapper.cli.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SDK: SDK{
+			Specification: SDKSpecification{
+				PackageName: "show-config-sdk",
+				MainModule:  "showconfig",
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Generate",
+						Description: "Generate output",
+						Configuration: []FunctionConfigFields{{
+							Name:            showConfigArgument,
+							LangType:        string(BuiltInLangTypeBool),
+							MapstructureTag: showConfigMapstructureTag,
+							Description:     "show config",
+						}},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "wrapper.cli.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "func ShowCommandConfiguration(ctx context.Context, envVarPrefix string, cfg any, logger logs.Loggers, show bool) (err error) {")
+	assert.Contains(t, output, "func DetermineCommandConfigurationEnvironmentVariables(ctx context.Context, envVarPrefix string, cfg any) (envVars []environmentUtils.IEnvironmentVariable, err error) {")
+	assert.Contains(t, output, "configUtils.DetermineConfigurationEnvironmentVariablesWithContext(ctx, envVarPrefix, serviceCfg, sensitiveDataRedacters()...)")
+	assert.Contains(t, output, `logger.Log("command configuration:")`)
+	assert.Contains(t, output, "environmentUtils.UniqueEnvironmentVariables(false, envVars...)")
+	assert.Contains(t, output, "environmentUtils.SortEnvironmentVariables(envVars)")
+	assert.Contains(t, output, "configUtils.CommonFieldTagSecretConverter")
+	assert.Contains(t, output, "func redactProtectedString() valueUtils.IValueConverter {")
+	assert.Contains(t, output, "func redactLikelyHexHash() valueUtils.IValueConverter {")
+	assert.Contains(t, output, "hashing.IsLikelyHexHashString(text)")
+	assert.Contains(t, output, "configUtils.SecretConverter.ConvertValue(ctx, text)")
+	assert.Contains(t, output, "ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)")
+}

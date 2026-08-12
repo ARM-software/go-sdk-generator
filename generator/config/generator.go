@@ -33,7 +33,7 @@ func (cfg *SDKGeneratorManagerConfiguration) Validate() error {
 	return validation.ValidateStruct(cfg,
 		validation.Field(&cfg.Input, validationUtils.Required),
 		validation.Field(&cfg.Output, validationUtils.Required),
-		validation.Field(&cfg.Overwrite, validationUtils.Required),
+		validation.Field(&cfg.Overwrite),
 		validation.Field(&cfg.TargetedGoVersion, validationUtils.Required, is.Semver),
 	)
 
