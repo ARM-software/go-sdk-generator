@@ -165,6 +165,16 @@ Summary support:
 
 {{- end }}
 
+Logging and annotation support:
+- `logger=console` uses the standard console logger
+- `logger=rich` uses the richer terminal logger
+- `logger=file` requires `logger_file` and writes normal logs to that path
+- `logger=none` disables normal logging output
+- `logger=custom` uses the application-defined logger registered during initialisation
+- `annotation=github` enables GitHub-compatible structured annotations
+- `annotation=none` disables structured annotation output
+- CLI defaults: `logger=console`, `annotation=none`
+
 {{- else }}
 
 No command-specific options.
@@ -214,6 +224,9 @@ Defaults:
 - Use `{{ $cli.Binary }} -h` for command help
 - Use `{{ $cli.Binary }} -v` to check version
 - When a command supports summaries, prefer `summary=output` for local runs and `summary=github` in GitHub Actions
+- Prefer `logger=console` for ordinary local runs unless richer terminal output is wanted
+- Prefer `logger=rich` with `annotation=github` in GitHub Actions unless the workflow needs a different logging destination
+- Remember that `logger=custom` uses the application-defined implementation registered during initialisation and fails if no custom logger has been registered
 - Do not assume prior state unless explicitly stated
 - Do not pass parameters that match their default values unless explicitly required or improves clarity
 - Prefer relying on implicit defaults over explicitly setting values

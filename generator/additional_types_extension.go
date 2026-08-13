@@ -16,8 +16,13 @@ import (
 const (
 	defaultAdditionalTypePackage = "types"
 	defaultCLIPackage            = "cli"
+	fieldImportPath              = "github.com/ARM-software/golang-utils/utils/field"
 	filesystemImportPath         = "github.com/ARM-software/golang-utils/utils/filesystem"
+	httpUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/http"
 	jsonUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell // canonical import path
+	platformImportPath           = "github.com/ARM-software/golang-utils/utils/platform"
+	validationUtilsImportPath    = "github.com/ARM-software/golang-utils/utils/validation"
+	xdgImportPath                = "github.com/adrg/xdg"
 )
 
 type additionalTypeImport struct {
@@ -190,10 +195,11 @@ func configExtraImports(spec *SDKSpecification) ExtraImports {
 		return nil
 	}
 	excluded := []string{}
-	if spec.GlobalConfiguration.UsesFilesystemValidationAlias() {
+	excluded = append(excluded, validationUtilsImportPath)
+	if !spec.GlobalConfiguration.UsesFilesystemValidationAlias() {
 		excluded = append(excluded, filesystemImportPath)
 	}
-	if spec.GlobalConfiguration.UsesJSONValidationAlias() {
+	if !spec.GlobalConfiguration.UsesJSONValidationAlias() {
 		excluded = append(excluded, jsonUtilsImportPath)
 	}
 	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
@@ -206,13 +212,42 @@ func cliConfigExtraImports(spec *SDKSpecification) ExtraImports {
 		return nil
 	}
 	excluded := []string{}
-	if spec.CommandLineCommands.UsesFilesystemValidationAlias() {
+	if !spec.CommandLineCommands.UsesValidationUtilsImport() {
+		excluded = append(excluded, validationUtilsImportPath)
+	}
+	if !spec.CommandLineCommands.UsesFilesystemValidationAlias() {
 		excluded = append(excluded, filesystemImportPath)
 	}
-	if spec.CommandLineCommands.UsesJSONValidationAlias() {
+	if !spec.CommandLineCommands.UsesJSONValidationAlias() {
 		excluded = append(excluded, jsonUtilsImportPath)
 	}
+	excluded = append(excluded, collection.Filter([]string{httpUtilsImportPath, platformImportPath, xdgImportPath}, func(importPath string) bool {
+		return !cliConfigUsesImportPath(spec, importPath)
+	})...)
 	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
+}
+func cliConfigUsesImportPath(spec *SDKSpecification, importPath string) bool {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return false
+	}
+	return collection.AnyFunc(spec.CommandLineCommands.Functions, func(fct CliFunction) bool {
+		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
+			if reflection.IsEmpty(cfg.DefaultValue) {
+				return false
+			}
+			expr := defaultFieldValue(nil, "", "tool", defaultGeneratedToolVersion, "", cfg.Name, cfg.LangType, cfg.EffectiveEnum(), field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
+			switch importPath {
+			case httpUtilsImportPath:
+				return strings.Contains(expr, "httpUtils.")
+			case platformImportPath:
+				return strings.Contains(expr, "platform.")
+			case xdgImportPath:
+				return strings.Contains(expr, "xdg.")
+			default:
+				return false
+			}
+		})
+	})
 }
 
 // typesExtraImports returns extra imports for generated additional-type Go files
@@ -222,10 +257,11 @@ func typesExtraImports(spec *SDKSpecification) ExtraImports {
 		return nil
 	}
 	excluded := []string{}
-	if spec.AdditionalTypes.UsesFilesystemValidationAlias() {
+	excluded = append(excluded, validationUtilsImportPath)
+	if !spec.AdditionalTypes.UsesFilesystemValidationAlias() {
 		excluded = append(excluded, filesystemImportPath)
 	}
-	if spec.AdditionalTypes.UsesJSONValidationAlias() {
+	if !spec.AdditionalTypes.UsesJSONValidationAlias() {
 		excluded = append(excluded, jsonUtilsImportPath)
 	}
 	return filterExtraImportsByPath(spec.ExtraImports, excluded...)

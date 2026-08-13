@@ -288,6 +288,11 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		return
 	}
 
+	err = validateProtectedCLIArgumentNamesInManifest(ext, spec)
+	if err != nil {
+		return
+	}
+
 	err = validateManifestContent(ctx, ext, spec)
 	if err != nil {
 		err = commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "the file '%v' does not comply with the schema and thus, cannot be parsed", cfg.Input)

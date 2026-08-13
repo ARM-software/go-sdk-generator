@@ -212,8 +212,8 @@ func TestCanGenerateSummaryValidationTestRejectsBoundCustomTypes(t *testing.T) {
 				Name:            summaryArgument,
 				LangType:        stringLangType,
 				MapstructureTag: summaryMapstructureTag,
-				Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
-				DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
+				Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
+				DefaultValue:    field.ToOptionalString(SummaryDestinationOutput.String()),
 			},
 			{
 				Name:            summaryFileArg,

@@ -211,3 +211,34 @@ func TestFunctionConfigFieldsValidateRejectsRequiredEnumWithoutDefault(t *testin
 	errortest.AssertError(t, err, commonerrors.ErrInvalid)
 	errortest.AssertErrorDescription(t, err, "must define a default value")
 }
+
+func TestValidateProtectedCLIArgumentNamesRejectsProtectedConfigurationNames(t *testing.T) {
+	t.Parallel()
+
+	cmds := &CommandLineCommands{
+		Functions: []CliFunction{{
+			Name:        "Run",
+			Description: "Run.",
+			Configuration: []FunctionConfigFields{
+				{
+					Name:            loggerArgument,
+					LangType:        "bool",
+					MapstructureTag: "domain_logger",
+					Description:     "Domain logger.",
+				},
+				{
+					Name:            summaryFileArg,
+					LangType:        "string",
+					MapstructureTag: "domain_summary_file",
+					Description:     "Domain summary path.",
+				},
+			},
+		}},
+	}
+
+	err := validateProtectedCLIArgumentNames(cmds)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "uses protected argument names [Logger, SummaryFile]")
+	errortest.AssertErrorDescription(t, err, "cannot be used in command_line_commands.functions[].configuration")
+	errortest.AssertErrorDescription(t, err, "cli function \"Run\"")
+}

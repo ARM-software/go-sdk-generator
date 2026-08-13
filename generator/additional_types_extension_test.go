@@ -162,7 +162,7 @@ func TestFilterExtraImportsByPath(t *testing.T) {
 	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[1].ImportUrl, ""))
 }
 
-func TestConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+func TestConfigExtraImportsKeepsExplicitTemplateImportsWhenUsed(t *testing.T) {
 	t.Parallel()
 
 	spec := &SDKSpecification{
@@ -185,11 +185,13 @@ func TestConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
 	}
 
 	filtered := configExtraImports(spec)
-	assert.Len(t, filtered, 1)
-	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Len(t, filtered, 3)
+	assert.Equal(t, filesystemImportPath, field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Equal(t, jsonUtilsImportPath, field.OptionalString(filtered[1].ImportUrl, ""))
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[2].ImportUrl, ""))
 }
 
-func TestCLIConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+func TestCLIConfigExtraImportsKeepsExplicitTemplateImportsWhenUsed(t *testing.T) {
 	t.Parallel()
 
 	spec := &SDKSpecification{
@@ -197,6 +199,7 @@ func TestCLIConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
 			{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
 			{ImportRef: field.ToOptionalString("jsonutils"), ImportUrl: field.ToOptionalString(jsonUtilsImportPath)},
 			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+			{ImportRef: field.ToOptionalString("validationUtils"), ImportUrl: field.ToOptionalString(validationUtilsImportPath)},
 		},
 		CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
 			Name:        "Generate",
@@ -211,16 +214,20 @@ func TestCLIConfigExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
 				LangType:        string(BuiltInLangTypeValidJSON),
 				MapstructureTag: "payload",
 				Description:     "Payload.",
+				Required:        true,
 			}},
 		}}},
 	}
 
 	filtered := cliConfigExtraImports(spec)
-	assert.Len(t, filtered, 1)
-	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Len(t, filtered, 4)
+	assert.Equal(t, filesystemImportPath, field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Equal(t, jsonUtilsImportPath, field.OptionalString(filtered[1].ImportUrl, ""))
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[2].ImportUrl, ""))
+	assert.Equal(t, validationUtilsImportPath, field.OptionalString(filtered[3].ImportUrl, ""))
 }
 
-func TestTypesExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
+func TestTypesExtraImportsKeepsExplicitTemplateImportsWhenUsed(t *testing.T) {
 	t.Parallel()
 
 	spec := &SDKSpecification{
@@ -247,6 +254,8 @@ func TestTypesExtraImportsExcludesExplicitTemplateImports(t *testing.T) {
 	}
 
 	filtered := typesExtraImports(spec)
-	assert.Len(t, filtered, 1)
-	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Len(t, filtered, 3)
+	assert.Equal(t, filesystemImportPath, field.OptionalString(filtered[0].ImportUrl, ""))
+	assert.Equal(t, jsonUtilsImportPath, field.OptionalString(filtered[1].ImportUrl, ""))
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[2].ImportUrl, ""))
 }

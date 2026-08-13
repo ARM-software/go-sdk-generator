@@ -1,3 +1,12 @@
+x-protected-cli-argument-names: &x-protected-cli-argument-names
+  # These names are injected by the generator for built-in CLI wiring and are
+  # therefore reserved for internal use.
+  - Summary
+  - SummaryFile
+  - Logger
+  - LoggerFile
+  - Annotation
+
 x-description: &x-description
   type: string
   description: |
@@ -725,6 +734,10 @@ $defs:
         default: false
     additionalProperties: false
   function_config_fields:
+    description: |
+      A CLI configuration field.
+      The built-in names `Summary`, `SummaryFile`, `Logger`, `LoggerFile`, and
+      `Annotation` are reserved and cannot be defined in manifests.
     <<: *x-parameter
     required:
       - name
@@ -732,6 +745,10 @@ $defs:
       - mapstructure_tag
       - description
     additionalProperties: false
+    not:
+      properties:
+        name:
+          enum: *x-protected-cli-argument-names
   command_argument:
     <<: *x-parameter
     required:

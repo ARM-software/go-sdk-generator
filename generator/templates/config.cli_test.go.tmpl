@@ -5,6 +5,11 @@ package config
 import (
 	"testing"
 
+	{{ range cliConfigTestImports .Specification .ToolVersion -}}
+	{{ renderImport "" . false }}
+	{{ end -}}
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +21,7 @@ func valid{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	cfg := Default{{ $configName }}Configuration()
 	{{ range .Configuration -}}
 	{{ $testValue := configFieldTestValue $.AdditionalTypesPackagesByName "" $.Specification.PackageName $.ToolVersion $configName . -}}
-	{{ if and (ne .Name "Summary") (ne .Name "SummaryFile") (not (hasEnum .Enum)) $testValue }}
+	{{ if shouldAssignCLIConfigTestValue . $testValue }}
 	cfg.{{ .Name | toPascal }} = {{ $testValue }}
 	{{ end -}}
 	{{ end }}
@@ -24,13 +29,78 @@ func valid{{ $configName }}Configuration() *{{ $configName }}Configuration {
 }
 
 func Test{{ $configName }}ConfigurationValidateSummaryRules(t *testing.T) {
+	t.Run("logger defaults to console when unset", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+
+		assert.Equal(t, {{ $configName }}LoggerConsole.String(), cfg.Logger)
+	})
+
+	t.Run("annotation defaults to none when unset", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+
+		assert.Equal(t, {{ $configName }}AnnotationNone.String(), cfg.Annotation)
+	})
+
+	t.Run("logger file path must be valid when provided", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.LoggerFile = "bad\npath"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "path")
+	})
+
+	t.Run("logger file is required when logger is file", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.Logger = {{ $configName }}LoggerFile.String()
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "LoggerFile")
+	})
+
+	t.Run("logger file is rejected when logger is not file", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.LoggerFile = "tool.log"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "unsupported additional properties")
+	})
+
+	t.Run("invalid logger value is rejected", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.Logger = "not-a-logger"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "Logger")
+	})
+
+	t.Run("invalid annotation value is rejected", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.Annotation = "not-an-annotation"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "Annotation")
+	})
+
+	t.Run("valid file logger configuration passes combined rules", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.Logger = {{ $configName }}LoggerFile.String()
+		cfg.LoggerFile = "tool.log"
+
+		require.NoError(t, cfg.Validate())
+	})
+
 	t.Run("summary file path must be valid when provided", func(t *testing.T) {
 		cfg := valid{{ $configName }}Configuration()
 		cfg.SummaryFile = "bad\npath"
 
 		err := cfg.Validate()
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "path")
+		errortest.AssertErrorDescription(t, err, "path")
 	})
 
 	t.Run("summary file is required when summary is file", func(t *testing.T) {
@@ -39,7 +109,7 @@ func Test{{ $configName }}ConfigurationValidateSummaryRules(t *testing.T) {
 
 		err := cfg.Validate()
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "SummaryFile")
+		errortest.AssertErrorDescription(t, err, "SummaryFile")
 	})
 
 	t.Run("summary defaults to output when unset", func(t *testing.T) {

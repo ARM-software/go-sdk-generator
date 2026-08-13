@@ -58,7 +58,6 @@ func TestUpdateRegressionFixtures(t *testing.T) {
 		{recipe: "enum.yml", zip: "enum.zip"},
 		{recipe: "packaged-types.yml", zip: "packaged-types.zip"},
 		{recipe: "cli-package.yml", zip: "cli-package.zip"},
-		{recipe: "constraints.yml", zip: "constraints.zip"},
 	}
 
 	for _, fixture := range fixtures {

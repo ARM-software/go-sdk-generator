@@ -20,7 +20,7 @@ func (g *sdkGenerator) Generate(ctx context.Context) error {
 	return Generate(ctx, g.GetConfig())
 }
 
-func NewSdkGenerator(cfg *config.SDKGeneratorManagerConfiguration) (g ISDKGeneratorManager, err error) {
+func NewSDKGenerator(cfg *config.SDKGeneratorManagerConfiguration) (g ISDKGeneratorManager, err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return

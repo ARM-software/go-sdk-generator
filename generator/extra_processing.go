@@ -22,20 +22,41 @@ import (
 const (
 	noKeyringArgument  = "NoKeyring"
 	showConfigArgument = "ShowConfig"
-	summaryArgument    = "Summary"
-	summaryFileArg     = "SummaryFile"
-
-	showConfigMapstructureTag  = "show_config"
-	summaryMapstructureTag     = "summary"
-	summaryFileMapstructureTag = "summary_file"
 )
+
+var (
+	showConfigMapstructureTag  = "show_config"
+	summaryMapstructureTag     = syntheticCLIMapstructureTagSummary.String()
+	summaryFileMapstructureTag = syntheticCLIMapstructureTagSummaryFile.String()
+	summaryArgument            = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummary)
+	summaryFileArg             = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummaryFile)
+	loggerMapstructureTag      = syntheticCLIMapstructureTagLogger.String()
+	loggerFileMapstructureTag  = syntheticCLIMapstructureTagLoggerFile.String()
+	loggerArgument             = syntheticCLIArgumentName(syntheticCLIMapstructureTagLogger)
+	loggerFileArg              = syntheticCLIArgumentName(syntheticCLIMapstructureTagLoggerFile)
+	annotationArgument         = syntheticCLIArgumentName(syntheticCLIMapstructureTagAnnotation)
+	// protectedCommands lists manifest-defined CLI configuration names that are reserved
+	// for built-in generator wiring and therefore cannot be supplied by users.
+	protectedCommands = []string{summaryArgument, summaryFileArg, loggerArgument, loggerFileArg, annotationArgument}
+
+	defaultCLILoggerMode        = runtimeLoggerModeConsole.String()
+	defaultCLIAnnotationMode    = runtimeAnnotationModeNone.String()
+	defaultActionLoggerMode     = runtimeLoggerModeRich.String()
+	defaultActionAnnotationMode = runtimeAnnotationModeGithub.String()
+)
+
+func syntheticCLIArgumentName(tag syntheticCLIMapstructureTag) string {
+	return toPascalCase(tag.String())
+}
 
 func usualExtraImports() map[string]string {
 	return map[string]string{
-		"xdg":        "github.com/adrg/xdg",
-		"filesystem": "github.com/ARM-software/golang-utils/utils/filesystem",
-		"httpUtils":  "github.com/ARM-software/golang-utils/utils/http",
-		"platform":   "github.com/ARM-software/golang-utils/utils/platform",
+		"xdg":             xdgImportPath,
+		"filesystem":      filesystemImportPath,
+		"httpUtils":       httpUtilsImportPath,
+		"jsonutils":       jsonUtilsImportPath,
+		"platform":        platformImportPath,
+		"validationUtils": validationUtilsImportPath,
 	}
 }
 
@@ -380,6 +401,10 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 			if fct.StoreToKeyring && fct.LoadFromKeyring {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "Issue with function [%v]: CLI configuration can either be loaded from system's keyring or stored there but not both", fct.Name)
 			}
+			subErr = updateCliFunctionArgumentsToSupportRuntimeLogging(&fct)
+			if subErr != nil {
+				return subErr
+			}
 			if fct.UsesSummary(sdk.Specification.CommandLineCommands) {
 				subErr = updateCliFunctionArgumentsToSupportSummary(&fct)
 				if subErr != nil {
@@ -461,8 +486,8 @@ func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 	args := map[string]FunctionConfigFields{
 		summaryArgument: {
 			Description:     "Write a human-readable summary to the selected destination. Allowed values: file, github, output.",
-			DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
-			Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
+			DefaultValue:    field.ToOptionalString(SummaryDestinationOutput.String()),
+			Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
 			IsRoot:          false,
 			LangType:        string(BuiltInLangTypeString),
 			MapstructureTag: summaryMapstructureTag,
@@ -481,9 +506,55 @@ func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 				RequiredWhen: &ParameterValueConstraint{
 					Operator:  ParameterValueConstraintOperatorEquals,
 					Parameter: summaryArgument,
-					Value:     string(SummaryDestinationFile),
+					Value:     SummaryDestinationFile.String(),
 				},
 			},
+		},
+	}
+	return updateCliFunctionArguments(fct, args)
+}
+
+func updateCliFunctionArgumentsToSupportRuntimeLogging(fct *CliFunction) error {
+	args := map[string]FunctionConfigFields{
+		loggerArgument: {
+			Description:     "Select the implementation used for normal runtime logs.",
+			DefaultValue:    field.ToOptionalString(defaultCLILoggerMode),
+			Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+			IsRoot:          true,
+			LangType:        string(BuiltInLangTypeString),
+			MapstructureTag: loggerMapstructureTag,
+			Name:            loggerArgument,
+			Required:        false,
+		},
+		loggerFileArg: {
+			Description:     "Path to write normal runtime logs when logger is set to file.",
+			IsRoot:          true,
+			LangType:        string(BuiltInLangTypeFilepath),
+			MapstructureTag: loggerFileMapstructureTag,
+			Name:            loggerFileArg,
+			Required:        false,
+			Constraints: &ParameterConstraints{
+				RequiredWhen: &ParameterValueConstraint{
+					Operator:  ParameterValueConstraintOperatorEquals,
+					Parameter: loggerArgument,
+					Value:     runtimeLoggerModeFile.String(),
+				},
+				ForbiddenWhen: &ParameterValueConstraint{
+					Operator:  ParameterValueConstraintOperatorNotEquals,
+					Parameter: loggerArgument,
+					Value:     runtimeLoggerModeFile.String(),
+				},
+			},
+		},
+		annotationArgument: {
+			Description:     "Select the implementation used for structured annotations such as errors, warnings, and notices.",
+			DefaultValue:    field.ToOptionalString(defaultCLIAnnotationMode),
+			Enum:            []string{runtimeAnnotationModeGithub.String(), runtimeAnnotationModeNone.String()},
+			IsRoot:          true,
+			LangType:        string(BuiltInLangTypeString),
+			MapstructureTag: syntheticCLIMapstructureTagAnnotation.String(),
+			Name:            annotationArgument,
+			Required:        false,
 		},
 	}
 	return updateCliFunctionArguments(fct, args)

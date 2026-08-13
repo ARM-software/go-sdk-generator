@@ -10,12 +10,6 @@ import (
 	"fmt"
 	{{ end -}}
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	{{ if .Specification.GlobalConfiguration.UsesFilesystemValidationAlias -}}
-	"github.com/ARM-software/golang-utils/utils/filesystem"
-	{{ end -}}
-	{{ if .Specification.GlobalConfiguration.UsesJSONValidationAlias -}}
-	{{ renderImport "jsonutils" "github.com/ARM-software/golang-utils/utils/serialization/json" true }}
-	{{ end -}}
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	{{ if .Specification.GlobalConfiguration.UsesReflectInConstraintValidationRules -}}
 	"reflect"

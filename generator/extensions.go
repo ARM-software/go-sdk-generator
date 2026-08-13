@@ -140,6 +140,9 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"documentedConfigFieldType": func(specName string, cfg ConfigurationOption) string {
 		return documentedConfigFieldType(specName, &cfg)
 	},
+	"cliConfigTestImports":               cliConfigTestImports,
+	"shouldAssignCLIConfigTestValue":     shouldAssignCLIConfigTestValue,
+	"firstVisibleCLICommand":             firstVisibleCLICommand,
 	"documentedInterfaceMethodSignature": documentedInterfaceMethodSignature,
 	"documentedCLIOptions":               documentedCLIOptions,
 	"parameterTypeFromBase":              parameterTypeFromBase,
@@ -178,14 +181,13 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
-	"dereferenceString":                      ptr.Deref[string],
-	"moduleRoot":                             moduleRoot,
-	"sdkModuleRoot":                          sdkModuleRoot,
-	"cliModuleRoot":                          cliModuleRoot,
-	"importPrefix":                           importPrefix,
-	"repositoryURL":                          repositoryURL,
-	"hasSecretStringParameters":              hasSecretStringParameters,
-	"hasReferenceLikeSecretStringParameters": hasReferenceLikeSecretStringParameters,
+	"dereferenceString":         ptr.Deref[string],
+	"moduleRoot":                moduleRoot,
+	"sdkModuleRoot":             sdkModuleRoot,
+	"cliModuleRoot":             cliModuleRoot,
+	"importPrefix":              importPrefix,
+	"repositoryURL":             repositoryURL,
+	"hasSecretStringParameters": hasSecretStringParameters,
 }, gitHubFuncMap)
 
 func stripHTTPScheme(value string) string {

@@ -101,7 +101,10 @@ Required:
 - `output`: destination of the generated code
 
 Optional:
+- `annotation`: Select the implementation used for structured annotations such as errors, warnings, and notices.
 - `overwrite`: regenerate all files
+- `logger`: Select the implementation used for normal runtime logs.
+- `logger_file`: Path to write normal runtime logs when logger is set to file.
 - `show_config`: Show the effective configuration used by this command before execution.
 - `summary`: Write a human-readable summary to the selected destination. Allowed values: file, github, output.
 - `summary_file`: Path to the summary file when summary is set to file
@@ -112,9 +115,21 @@ Summary support:
 - `summary=github` writes the summary to the GitHub Actions step summary when available
 - `summary=file` requires `summary_file` and writes the summary to that path
 
+Logging and annotation support:
+- `logger=console` uses the standard console logger
+- `logger=rich` uses the richer terminal logger
+- `logger=file` requires `logger_file` and writes normal logs to that path
+- `logger=none` disables normal logging output
+- `logger=custom` uses the application-defined logger registered during initialisation
+- `annotation=github` enables GitHub-compatible structured annotations
+- `annotation=none` disables structured annotation output
+- CLI defaults: `logger=console`, `annotation=none`
+
 
 Defaults:
+- `annotation` → "none"
 - `overwrite` → false
+- `logger` → "console"
 - `output` → 
 		func() string {
 			pwd, _ := filesystem.CurrentDirectory()
@@ -141,9 +156,25 @@ Required:
 - none
 
 Optional:
+- `annotation`: Select the implementation used for structured annotations such as errors, warnings, and notices.
+- `logger`: Select the implementation used for normal runtime logs.
+- `logger_file`: Path to write normal runtime logs when logger is set to file.
 - `show_config`: Show the effective configuration used by this command before execution.
 
+Logging and annotation support:
+- `logger=console` uses the standard console logger
+- `logger=rich` uses the richer terminal logger
+- `logger=file` requires `logger_file` and writes normal logs to that path
+- `logger=none` disables normal logging output
+- `logger=custom` uses the application-defined logger registered during initialisation
+- `annotation=github` enables GitHub-compatible structured annotations
+- `annotation=none` disables structured annotation output
+- CLI defaults: `logger=console`, `annotation=none`
 
+
+Defaults:
+- `annotation` → "none"
+- `logger` → "console"
 
 ### `go-sdk-generator agent`
 
@@ -164,10 +195,26 @@ Required:
 - none
 
 Optional:
+- `annotation`: Select the implementation used for structured annotations such as errors, warnings, and notices.
 - `init`: install the embedded skills into the current repository
+- `logger`: Select the implementation used for normal runtime logs.
+- `logger_file`: Path to write normal runtime logs when logger is set to file.
 - `show_config`: Show the effective configuration used by this command before execution.
 
+Logging and annotation support:
+- `logger=console` uses the standard console logger
+- `logger=rich` uses the richer terminal logger
+- `logger=file` requires `logger_file` and writes normal logs to that path
+- `logger=none` disables normal logging output
+- `logger=custom` uses the application-defined logger registered during initialisation
+- `annotation=github` enables GitHub-compatible structured annotations
+- `annotation=none` disables structured annotation output
+- CLI defaults: `logger=console`, `annotation=none`
 
+
+Defaults:
+- `annotation` → "none"
+- `logger` → "console"
 
 ---
 ## Default behaviour
@@ -190,6 +237,9 @@ Optional:
 - Use `go-sdk-generator -h` for command help
 - Use `go-sdk-generator -v` to check version
 - When a command supports summaries, prefer `summary=output` for local runs and `summary=github` in GitHub Actions
+- Prefer `logger=console` for ordinary local runs unless richer terminal output is wanted
+- Prefer `logger=rich` with `annotation=github` in GitHub Actions unless the workflow needs a different logging destination
+- Remember that `logger=custom` uses the application-defined implementation registered during initialisation and fails if no custom logger has been registered
 - Do not assume prior state unless explicitly stated
 - Do not pass parameters that match their default values unless explicitly required or improves clarity
 - Prefer relying on implicit defaults over explicitly setting values

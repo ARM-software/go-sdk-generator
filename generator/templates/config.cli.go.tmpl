@@ -13,18 +13,6 @@ import (
 	"fmt"
 	{{ end -}}
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	{{ if .Specification.CommandLineCommands.UsesFilesystemValidationAlias -}}
-	"github.com/ARM-software/golang-utils/utils/filesystem"
-	{{ end -}}
-	{{ if or (hasReferenceLikeSecretStringParameters .Specification.CommandLineCommands) (.Specification.CommandLineCommands.HasReferenceLikeEnumGetters) -}}
-	"github.com/ARM-software/golang-utils/utils/field"
-	{{ end -}}
-	{{ if .Specification.CommandLineCommands.UsesJSONValidationAlias -}}
-	{{ renderImport "jsonutils" "github.com/ARM-software/golang-utils/utils/serialization/json" true }}
-	{{ end -}}
-	{{ if .Specification.CommandLineCommands.UsesValidationUtilsAlias -}}
-	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
-	{{ end -}}
 	{{ if .Specification.CommandLineCommands.UsesReflectInConstraintValidationRules -}}
 	"reflect"
 	{{ end -}}

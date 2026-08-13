@@ -12,7 +12,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
-	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
@@ -60,11 +59,6 @@ var generateCmd = &cobra.Command{
 	Long:  "Generate tool",
 	RunE: func(cmd *cobra.Command, _ []string) (err error) {
 		ctx := context.Background()
-		logger, err := logs.NewStdLogger("Generate")
-		if err != nil {
-			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
-			return
-		}
 
 		var generateCfg config.GenerateConfiguration
 		cfgLoadOptions := []configUtils.LoadingOption{
@@ -80,11 +74,19 @@ var generateCmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
+		logger, annotationLogger, err := generator.ResolveRuntimeLoggerAndAnnotations(generateCfg.Logger, generateCfg.LoggerFile, generateCfg.Annotation, "Generate")
+		if err != nil {
+			return
+		}
+		defer func() {
+			_ = logger.Close()
+		}()
+
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
 		if err == nil {
 			generateCfg.ToolVersion = field.ToOptionalString(cliVersion)
 		}
-		err = generator.WrapGenerate(cancellableCtx, logger, &generateCfg, generator.GenerateImplFunc)
+		err = generator.WrapGenerateWithSummaryAndAnnotations(cancellableCtx, annotationLogger, &generateCfg)
 		if err != nil {
 			cancel(nil)
 			return
@@ -100,11 +102,6 @@ var schemaCmd = &cobra.Command{
 	Long:  "Run `go-sdk-generator schema` to dump the embedded manifest schema as JSON for agents and other tooling",
 	RunE: func(cmd *cobra.Command, _ []string) (err error) {
 		ctx := context.Background()
-		logger, err := logs.NewStdLogger("Schema")
-		if err != nil {
-			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
-			return
-		}
 
 		var schemaCfg config.SchemaConfiguration
 		cfgLoadOptions := []configUtils.LoadingOption{
@@ -120,11 +117,19 @@ var schemaCmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
+		logger, annotationLogger, err := generator.ResolveRuntimeLoggerAndAnnotations(schemaCfg.Logger, schemaCfg.LoggerFile, schemaCfg.Annotation, "Schema")
+		if err != nil {
+			return
+		}
+		defer func() {
+			_ = logger.Close()
+		}()
+
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
 		if err == nil {
 			schemaCfg.ToolVersion = field.ToOptionalString(cliVersion)
 		}
-		err = generator.WrapSchema(cancellableCtx, logger, &schemaCfg, generator.SchemaImplFunc)
+		err = generator.WrapSchemaWithAnnotations(cancellableCtx, annotationLogger, &schemaCfg)
 		if err != nil {
 			cancel(nil)
 			return
@@ -140,11 +145,6 @@ var agentCmd = &cobra.Command{
 	Long:  "Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/skills",
 	RunE: func(cmd *cobra.Command, _ []string) (err error) {
 		ctx := context.Background()
-		logger, err := logs.NewStdLogger("Agent")
-		if err != nil {
-			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
-			return
-		}
 
 		var agentCfg config.AgentConfiguration
 		cfgLoadOptions := []configUtils.LoadingOption{
@@ -160,11 +160,19 @@ var agentCmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
+		logger, annotationLogger, err := generator.ResolveRuntimeLoggerAndAnnotations(agentCfg.Logger, agentCfg.LoggerFile, agentCfg.Annotation, "Agent")
+		if err != nil {
+			return
+		}
+		defer func() {
+			_ = logger.Close()
+		}()
+
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
 		if err == nil {
 			agentCfg.ToolVersion = field.ToOptionalString(cliVersion)
 		}
-		err = generator.WrapAgent(cancellableCtx, logger, &agentCfg, generator.AgentImplFunc)
+		err = generator.WrapAgentWithAnnotations(cancellableCtx, annotationLogger, &agentCfg)
 		if err != nil {
 			cancel(nil)
 			return

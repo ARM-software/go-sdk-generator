@@ -5,6 +5,7 @@ package config
 import (
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,13 +32,78 @@ func validGenerateConfiguration() *GenerateConfiguration {
 }
 
 func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
+	t.Run("logger defaults to console when unset", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+
+		assert.Equal(t, GenerateLoggerConsole.String(), cfg.Logger)
+	})
+
+	t.Run("annotation defaults to none when unset", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+
+		assert.Equal(t, GenerateAnnotationNone.String(), cfg.Annotation)
+	})
+
+	t.Run("logger file path must be valid when provided", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.LoggerFile = "bad\npath"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "path")
+	})
+
+	t.Run("logger file is required when logger is file", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Logger = GenerateLoggerFile.String()
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "LoggerFile")
+	})
+
+	t.Run("logger file is rejected when logger is not file", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.LoggerFile = "tool.log"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "unsupported additional properties")
+	})
+
+	t.Run("invalid logger value is rejected", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Logger = "not-a-logger"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "Logger")
+	})
+
+	t.Run("invalid annotation value is rejected", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Annotation = "not-an-annotation"
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "Annotation")
+	})
+
+	t.Run("valid file logger configuration passes combined rules", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Logger = GenerateLoggerFile.String()
+		cfg.LoggerFile = "tool.log"
+
+		require.NoError(t, cfg.Validate())
+	})
+
 	t.Run("summary file path must be valid when provided", func(t *testing.T) {
 		cfg := validGenerateConfiguration()
 		cfg.SummaryFile = "bad\npath"
 
 		err := cfg.Validate()
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "path")
+		errortest.AssertErrorDescription(t, err, "path")
 	})
 
 	t.Run("summary file is required when summary is file", func(t *testing.T) {
@@ -46,7 +112,7 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 
 		err := cfg.Validate()
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "SummaryFile")
+		errortest.AssertErrorDescription(t, err, "SummaryFile")
 	})
 
 	t.Run("summary defaults to output when unset", func(t *testing.T) {

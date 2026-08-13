@@ -678,6 +678,36 @@ func (cmds *CommandLineCommands) Validate() error {
 	return nil
 }
 
+func validateProtectedCLIArgumentNames(cmds *CommandLineCommands) error {
+	if cmds == nil {
+		return nil
+	}
+	for i := range cmds.Functions {
+		if err := validateProtectedCLIArgumentNamesForFunction(&cmds.Functions[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateProtectedCLIArgumentNamesForFunction(fct *CliFunction) error {
+	if fct == nil {
+		return nil
+	}
+	protected := make([]string, 0, len(fct.Configuration))
+	for _, cfg := range fct.Configuration {
+		if slices.Contains(protectedCommands, cfg.Name) {
+			protected = append(protected, cfg.Name)
+		}
+	}
+	if len(protected) == 0 {
+		return nil
+	}
+	slices.Sort(protected)
+	protected = slices.Compact(protected)
+	return commonerrors.Newf(commonerrors.ErrInvalid, "cli function %q uses protected argument names [%s]; these names are reserved by the generator and cannot be used in command_line_commands.functions[].configuration", fct.Name, strings.Join(protected, ", "))
+}
+
 func validateOCIStringMap(name string, entries OciMapStringString) error {
 	for key, value := range entries {
 		if err := validation.Validate(key, validation.Required); err != nil {

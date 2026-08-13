@@ -49,10 +49,6 @@ func hasSecretStringParameters(cmds *CommandLineCommands) bool {
 	return cmds.HasSecretStringParameters()
 }
 
-func hasReferenceLikeSecretStringParameters(cmds *CommandLineCommands) bool {
-	return cmds.HasReferenceLikeSecretStringParameters()
-}
-
 func validateSecretParameters(cmds *CommandLineCommands) error {
 	if cmds == nil {
 		return nil

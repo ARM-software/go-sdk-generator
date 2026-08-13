@@ -333,6 +333,14 @@ func (cfg *FunctionConfigFields) UsesJSONValidationAlias() bool {
 	return cfg != nil && usesJSONValidationAlias(cfg.LangType)
 }
 
+func (cfg *FunctionConfigFields) UsesValidationUtilsImport() bool {
+	if cfg == nil {
+		return false
+	}
+	validationRule := argValidationRule(cfg.LangType)
+	return cfg.IsRequired() || strings.Contains(validationRule, "validationUtils.") || hasEnum(cfg.EffectiveEnum()) || cfg.Pattern != nil || cfg.Constraints.HasAnyValidationRules()
+}
+
 func (typ *Type) HasEnum() bool {
 	if typ == nil {
 		return false
@@ -588,15 +596,6 @@ func (cmds *CommandLineCommands) HasSummaryValidationTests() bool {
 	})
 }
 
-func (fct *CliFunction) UsesFilesystemValidationAlias() bool {
-	if fct == nil {
-		return false
-	}
-	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
-		return cfg.UsesFilesystemValidationAlias()
-	})
-}
-
 func (cfg *ConfigurationOption) UsesPresenceGuardForValidation() bool {
 	return cfg != nil && !cfg.IsRequired() && (usesPresenceGuardForValidation(cfg.LangType) || cfg.HasEnum())
 }
@@ -609,15 +608,6 @@ func (fieldDef *EntityField) UsesPresenceGuardForValidation() bool {
 	return fieldDef != nil && !fieldDef.IsRequired() && (usesPresenceGuardForValidation(fieldDef.LangType) || fieldDef.HasEnum())
 }
 
-func (fct *CliFunction) UsesJSONValidationAlias() bool {
-	if fct == nil {
-		return false
-	}
-	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
-		return cfg.UsesJSONValidationAlias()
-	})
-}
-
 func (fct *CliFunction) UsesFmtInConstraintValidationRules() bool {
 	if fct == nil {
 		return false
@@ -627,20 +617,30 @@ func (fct *CliFunction) UsesFmtInConstraintValidationRules() bool {
 	})
 }
 
-func (cfg *FunctionConfigFields) UsesValidationUtilsAlias() bool {
-	if cfg == nil {
-		return false
-	}
-	validationRule := argValidationRule(cfg.LangType)
-	return cfg.IsRequired() || strings.Contains(validationRule, "validationUtils.") || hasEnum(cfg.EffectiveEnum()) || cfg.Pattern != nil || cfg.Constraints.HasAnyValidationRules()
-}
-
-func (fct *CliFunction) UsesValidationUtilsAlias() bool {
+func (fct *CliFunction) UsesFilesystemValidationAlias() bool {
 	if fct == nil {
 		return false
 	}
 	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
-		return cfg.UsesValidationUtilsAlias()
+		return cfg.UsesFilesystemValidationAlias()
+	})
+}
+
+func (fct *CliFunction) UsesJSONValidationAlias() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesJSONValidationAlias()
+	})
+}
+
+func (fct *CliFunction) UsesValidationUtilsImport() bool {
+	if fct == nil {
+		return false
+	}
+	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
+		return cfg.UsesValidationUtilsImport()
 	})
 }
 
@@ -675,25 +675,12 @@ func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	})
 }
 
-func (cfg *FunctionConfigFields) UsesFieldAliasInEnumGetter() bool {
-	return cfg != nil && cfg.HasEnum() && isReferenceLikeSecretField(*cfg)
-}
-
-func (fct *CliFunction) HasReferenceLikeEnumGetters() bool {
-	if fct == nil {
-		return false
-	}
-	return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
-		return cfg.UsesFieldAliasInEnumGetter()
-	})
-}
-
-func (cmds *CommandLineCommands) HasReferenceLikeEnumGetters() bool {
+func (cmds *CommandLineCommands) UsesFmtInConstraintValidationRules() bool {
 	if cmds == nil {
 		return false
 	}
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
-		return fct.HasReferenceLikeEnumGetters()
+		return fct.UsesFmtInConstraintValidationRules()
 	})
 }
 
@@ -715,21 +702,12 @@ func (cmds *CommandLineCommands) UsesJSONValidationAlias() bool {
 	})
 }
 
-func (cmds *CommandLineCommands) UsesFmtInConstraintValidationRules() bool {
+func (cmds *CommandLineCommands) UsesValidationUtilsImport() bool {
 	if cmds == nil {
 		return false
 	}
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
-		return fct.UsesFmtInConstraintValidationRules()
-	})
-}
-
-func (cmds *CommandLineCommands) UsesValidationUtilsAlias() bool {
-	if cmds == nil {
-		return false
-	}
-	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
-		return fct.UsesValidationUtilsAlias()
+		return fct.UsesValidationUtilsImport()
 	})
 }
 
@@ -804,17 +782,6 @@ func (cmds *CommandLineCommands) HasSecretStringParameters() bool {
 	})
 }
 
-func (cmds *CommandLineCommands) HasReferenceLikeSecretStringParameters() bool {
-	if cmds == nil {
-		return false
-	}
-	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
-		return collection.AnyRefFunc(fct.Configuration, func(cfg *FunctionConfigFields) bool {
-			return cfg.Secret && isReferenceLikeSecretField(*cfg) && isSecretCompatibleLangType(cfg.LangType)
-		})
-	})
-}
-
 func (cmds *CommandLineCommands) HasCloudCommands() bool {
 	if cmds == nil || len(cmds.Functions) == 0 {
 		return false
@@ -845,16 +812,16 @@ func (spec *SDKSpecification) HasInterfaceEnums() bool {
 	return (&spec.Interface).HasEnum()
 }
 
+func (spec *SDKSpecification) UsesFmtInConstraintValidationRules() bool {
+	return spec != nil && (spec.GlobalConfiguration.UsesFmtInConstraintValidationRules() || spec.AdditionalTypes.UsesFmtInConstraintValidationRules())
+}
+
 func (spec *SDKSpecification) UsesFilesystemValidationAlias() bool {
 	return spec != nil && (spec.GlobalConfiguration.UsesFilesystemValidationAlias() || spec.AdditionalTypes.UsesFilesystemValidationAlias())
 }
 
 func (spec *SDKSpecification) UsesJSONValidationAlias() bool {
 	return spec != nil && (spec.GlobalConfiguration.UsesJSONValidationAlias() || spec.AdditionalTypes.UsesJSONValidationAlias())
-}
-
-func (spec *SDKSpecification) UsesFmtInConstraintValidationRules() bool {
-	return spec != nil && (spec.GlobalConfiguration.UsesFmtInConstraintValidationRules() || spec.AdditionalTypes.UsesFmtInConstraintValidationRules())
 }
 
 func (typ *Type) SuppressedRequiredValidationMap() map[string]bool {

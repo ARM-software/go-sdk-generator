@@ -51,6 +51,7 @@ In particular, do not blindly accept dogfooded changes if they remove or break t
 
 - `go.work` entries required for local multi-module development
 - `go.mod` requirements needed for the repository's current development and test workflow
+- `go tool` entries declared in `go.mod`, unless the work explicitly changes the repository's toolchain setup
 - targeted Go versions or dependency versions that were not meant to change as part of the work
 - the repository's own manifest content in `generate.yml` when the feature is about generator behaviour rather than a deliberate manifest edit
 - checked-in implementation logic in this repository that is intentionally not meant to be replaced by generated placeholders

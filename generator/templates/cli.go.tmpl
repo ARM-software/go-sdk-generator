@@ -23,7 +23,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/keyring"
-	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
@@ -75,11 +74,6 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 	{{ end -}}
 	RunE: func(cmd *cobra.Command, {{ if .Operands }}args []string{{ else }}_ []string{{ end }}) (err error) {
 		ctx := context.Background()
-		logger, err := logs.NewStdLogger("{{ .Name | toPascal }}")
-		if err != nil {
-			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed initialising the logger")
-			return
-		}
 
 		var {{ $nameLower }}Cfg config.{{ $configName }}Configuration
         cfgLoadOptions := []configUtils.LoadingOption{
@@ -108,16 +102,28 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
-       {{ if .StoreToKeyring -}}
-           {{ $nameLower }}Cfg.ToolVersion = nil
+		logger, annotationLogger, err := {{ $package }}.ResolveRuntimeLoggerAndAnnotations({{ $nameLower }}Cfg.Logger, {{ $nameLower }}Cfg.LoggerFile, {{ $nameLower }}Cfg.Annotation, "{{ .Name | toPascal }}")
+		if err != nil {
+			return
+		}
+		defer func() {
+			_ = logger.Close()
+		}()
+
+        {{ if .StoreToKeyring -}}
+            {{ $nameLower }}Cfg.ToolVersion = nil
        {{ else }}
 		cliVersion, err := semver.DetermineEmbeddedVersion(cancellableCtx, &embeddedFS, nil)
         if err == nil {
-            {{ $nameLower }}Cfg.ToolVersion = field.ToOptionalString(cliVersion)
+			{{ $nameLower }}Cfg.ToolVersion = field.ToOptionalString(cliVersion)
         }
         {{ end -}}
 
-		err = {{ $package }}.Wrap{{ .Name | toPascal }}(cancellableCtx, logger, &{{ $nameLower }}Cfg, {{ $package }}.{{ .Name | toPascal }}ImplFunc)
+		{{ if usesSummary . $.Specification.CommandLineCommands -}}
+		err = {{ $package }}.Wrap{{ .Name | toPascal }}WithSummaryAndAnnotations(cancellableCtx, annotationLogger, &{{ $nameLower }}Cfg)
+		{{ else -}}
+		err = {{ $package }}.Wrap{{ .Name | toPascal }}WithAnnotations(cancellableCtx, annotationLogger, &{{ $nameLower }}Cfg)
+		{{ end -}}
 		if err != nil {
 			cancel(nil)
 			return

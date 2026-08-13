@@ -86,6 +86,13 @@ Each command action also exposes one input per non-hidden CLI flag for its subco
 
 For commands that support summaries, the generated action defaults the `summary` input to `github` so the command writes to the GitHub step summary automatically.
 
+Command actions also default:
+
+- `logger=rich`
+- `annotation=github`
+
+These defaults can be overridden when a workflow needs a different logging destination or wants to disable annotations.
+
 Commands that support positional operands also expose an `operands` input, with one operand per line.
 
 ---
@@ -170,6 +177,8 @@ The action installs from the released archive.
 - Use `actions/install-tool` when later steps need to call the binary directly
 - Keep `workdir` explicit when command inputs depend on relative paths
 - Keep the default `summary=github` input on summary-aware command actions unless the workflow needs a file or console summary instead
+- Keep the default `logger=rich` input unless the workflow needs file logging, no logging, or a registered custom logger
+- Keep the default `annotation=github` input unless the workflow explicitly wants no annotations
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
 - Prefer OCI images from `ghcr.io/arm-debug/go-sdk-generator` when the workflow wants containerised execution instead of installing the binary onto the runner
 

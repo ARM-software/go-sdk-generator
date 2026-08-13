@@ -282,6 +282,10 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 			Specification: SDKSpecification{
 				PackageName: "summary-test-sdk",
 				MainModule:  "summarytest",
+				ExtraImports: ExtraImports{
+					{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+					{ImportRef: field.ToOptionalString("validationUtils"), ImportUrl: field.ToOptionalString(validationUtilsImportPath)},
+				},
 				CommandLineCommands: &CommandLineCommands{
 					RootEnvironmentVar: field.ToOptionalString("SUMMARY_TEST"),
 					Functions: []CliFunction{{
@@ -298,10 +302,44 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 								Description:     "mode",
 							},
 							{
+								Name:            loggerArgument,
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString(defaultCLILoggerMode),
+								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+								MapstructureTag: loggerMapstructureTag,
+								Description:     "Select the implementation used for normal runtime logs.",
+							},
+							{
+								Name:            loggerFileArg,
+								LangType:        string(BuiltInLangTypeFilepath),
+								MapstructureTag: loggerFileMapstructureTag,
+								Description:     "Path to write normal runtime logs when logger is set to file.",
+								Constraints: &ParameterConstraints{
+									RequiredWhen: &ParameterValueConstraint{
+										Operator:  ParameterValueConstraintOperatorEquals,
+										Parameter: loggerArgument,
+										Value:     runtimeLoggerModeFile.String(),
+									},
+									ForbiddenWhen: &ParameterValueConstraint{
+										Operator:  ParameterValueConstraintOperatorNotEquals,
+										Parameter: loggerArgument,
+										Value:     runtimeLoggerModeFile.String(),
+									},
+								},
+							},
+							{
+								Name:            annotationArgument,
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString(defaultCLIAnnotationMode),
+								Enum:            []string{runtimeAnnotationModeGithub.String(), runtimeAnnotationModeNone.String()},
+								MapstructureTag: syntheticCLIMapstructureTagAnnotation.String(),
+								Description:     "Select the implementation used for structured annotations such as errors, warnings, and notices.",
+							},
+							{
 								Name:            summaryArgument,
 								LangType:        stringLangType,
-								DefaultValue:    field.ToOptionalString(string(SummaryDestinationOutput)),
-								Enum:            []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)},
+								DefaultValue:    field.ToOptionalString(SummaryDestinationOutput.String()),
+								Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
 								MapstructureTag: summaryMapstructureTag,
 								Description:     "summary destination",
 							},
@@ -315,7 +353,7 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 									RequiredWhen: &ParameterValueConstraint{
 										Operator:  ParameterValueConstraintOperatorEquals,
 										Parameter: summaryArgument,
-										Value:     string(SummaryDestinationFile),
+										Value:     SummaryDestinationFile.String(),
 									},
 								},
 							},
@@ -336,16 +374,22 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.Enum(GenerateModeFast.String(), GenerateModeSlow.String()))")
 	assert.Contains(t, output, "Mode: GenerateModeFast.String(),")
 	assert.Contains(t, output, "validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true)))")
+	assert.Contains(t, output, "validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerRich.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String())))")
+	assert.Contains(t, output, "validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(GenerateAnnotationGithub.String(), GenerateAnnotationNone.String())))")
+	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile))")
+	assert.Contains(t, output, "validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile))")
 	assert.NotContains(t, output, "func validateGenerateSummaryConfiguration(cfg *GenerateConfiguration) error {")
 	assert.Contains(t, output, "err = validationUtils.NewAllRule(")
 	assert.Contains(t, output, "validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}})")
 	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))")
 	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
 	assert.NotContains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, \"file\", validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
+	assert.Contains(t, output, "Logger: GenerateLoggerConsole.String(),")
+	assert.Contains(t, output, "Annotation: GenerateAnnotationNone.String(),")
 	assert.Contains(t, output, "Summary: GenerateSummaryOutput.String(),")
 	assert.Contains(t, output, "func (cfg *GenerateConfiguration) GetSummary() (GenerateSummary, error) {")
 	assert.Contains(t, output, "value, err := GenerateSummaryString(cfg.Summary)")
-	assert.Equal(t, 1, strings.Count(output, `"github.com/ARM-software/golang-utils/utils/filesystem"`))
+	assert.Equal(t, 1, strings.Count(output, `github.com/ARM-software/golang-utils/utils/filesystem`))
 	assert.Less(t, strings.Index(output, "err := configUtils.ValidateEmbedded(cfg)"), strings.Index(output, "err = validation.ValidateStruct(cfg,"))
 }
 

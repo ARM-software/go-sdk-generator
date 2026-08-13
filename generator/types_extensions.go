@@ -48,6 +48,18 @@ func unmarshalManifestContent(extension string, content []byte, sdk *SDK) error 
 	return jsonutils.Unmarshal(content, sdk)
 }
 
+func validateProtectedCLIArgumentNamesInManifest(extension string, content []byte) error {
+	var sdk SDK
+	if err := unmarshalManifestContent(extension, content, &sdk); err != nil {
+		return nil
+	}
+	return validateProtectedCLIArgumentNames(sdk.Specification.CommandLineCommands)
+}
+
+func (destination SummaryDestination) String() string {
+	return string(destination)
+}
+
 func Validate(ctx context.Context, path string) (validationErr, err error) {
 	localFs := filesystem.GetGlobalFileSystem()
 
@@ -58,6 +70,9 @@ func Validate(ctx context.Context, path string) (validationErr, err error) {
 	}
 
 	ext := filesystem.FilePathExt(localFs, path)
+	if err = validateProtectedCLIArgumentNamesInManifest(ext, data); err != nil {
+		return err, nil
+	}
 	if err = validateManifestContent(ctx, ext, data); err != nil {
 		return err, nil
 	}

@@ -85,6 +85,7 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 			err = commonerrors.WrapErrorf(commonerrors.ErrConflict, subErr, "subcommand %q action inputs conflict", cliFunc.Name)
 			return
 		}
+		applyGeneratedActionInputDefaults(inputs)
 
 		directoryName := normaliseActionDirectoryName(cliFunc.Name)
 		if seenDirectories.Contains(directoryName) {
@@ -107,6 +108,19 @@ func BuildGeneratedActions(sdk *SDK) (actions []GeneratedAction, err error) {
 	}
 
 	return
+}
+
+func applyGeneratedActionInputDefaults(inputs []GeneratedActionInput) {
+	for i := range inputs {
+		switch inputs[i].FlagName {
+		case summaryMapstructureTag:
+			inputs[i].Default = SummaryDestinationGithub.String()
+		case loggerMapstructureTag:
+			inputs[i].Default = defaultActionLoggerMode
+		case syntheticCLIMapstructureTagAnnotation.String():
+			inputs[i].Default = defaultActionAnnotationMode
+		}
+	}
 }
 
 func splitGeneratedActions(actions []GeneratedAction) (installAction *GeneratedAction, commandActions []GeneratedAction) {
@@ -168,15 +182,6 @@ func buildFunctionActionInputs(cmds *CommandLineCommands, cliFunc CliFunction) (
 		}
 
 		inputs = append(inputs, cfgInputs...)
-	}
-
-	if cliFunc.UsesSummary(cmds) {
-		for i := range inputs {
-			if inputs[i].FlagName == summaryMapstructureTag {
-				inputs[i].Default = string(SummaryDestinationGithub)
-				break
-			}
-		}
 	}
 
 	if cliFunc.Operands {

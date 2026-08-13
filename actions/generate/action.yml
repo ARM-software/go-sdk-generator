@@ -25,6 +25,18 @@ inputs:
     description: Working directory where the CLI is run. If later workflow steps need to call the installed tool, use the `cmd` output rather than inferring its location from this directory.
     required: false
     default: .
+  annotation:
+    description: "Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none."
+    required: false
+    default: "github"
+  logger:
+    description: "Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom."
+    required: false
+    default: "rich"
+  logger-file:
+    description: "Path to write normal runtime logs when logger is set to file."
+    required: false
+    default: ""
   show-config:
     description: "Show the effective configuration used by this command before execution."
     required: false
@@ -153,6 +165,9 @@ runs:
         INPUT_WORKDIR: ${{ inputs.workdir }}
         INPUT_SUBCOMMAND: "generate"
         INPUT_ACTION_INPUTS_SPEC: |-
+          ACTION_INPUT_ANNOTATION|annotation|false|false
+          ACTION_INPUT_LOGGER|logger|false|false
+          ACTION_INPUT_LOGGER_FILE|logger-file|false|false
           ACTION_INPUT_SHOW_CONFIG|show-config|true|false
           ACTION_INPUT_OVERWRITE|overwrite|true|false
           ACTION_INPUT_INPUT|input|false|false
@@ -161,6 +176,9 @@ runs:
           ACTION_INPUT_SUMMARY_FILE|summary-file|false|false
           ACTION_INPUT_GO_VERSION|go-version|false|false
         SOURCE_CHECKOUT_DIR: ${{ github.workspace }}/.action-source
+        ACTION_INPUT_ANNOTATION: ${{ inputs.annotation }}
+        ACTION_INPUT_LOGGER: ${{ inputs.logger }}
+        ACTION_INPUT_LOGGER_FILE: ${{ inputs.logger-file }}
         ACTION_INPUT_SHOW_CONFIG: ${{ inputs.show-config }}
         ACTION_INPUT_OVERWRITE: ${{ inputs.overwrite }}
         ACTION_INPUT_INPUT: ${{ inputs.input }}

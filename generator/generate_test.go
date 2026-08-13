@@ -433,12 +433,6 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
-			title:         "Yes CLI (constraints generate explicit flag and validation rules)",
-			recipe:        "constraints.yml",
-			regressionSrc: "constraints.zip",
-			err:           nil,
-		},
-		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,
@@ -527,6 +521,13 @@ func TestGenerate(t *testing.T) {
 		assert.Contains(t, string(configContent), "// It supports multiline descriptions.")
 		assert.Contains(t, string(typesContent), "// It supports multiline descriptions.")
 		assert.Contains(t, string(interfaceContent), "// This also verifies multiline descriptions.")
+	})
+
+	t.Run("Protected built-in CLI argument names are rejected", func(t *testing.T) {
+		validationErr, err := Validate(context.Background(), filesystem.FilePathJoin(localFs, "testdata", "runtime-logger-collision.yml"))
+		require.NoError(t, err)
+		errortest.RequireError(t, validationErr, commonerrors.ErrInvalid)
+		errortest.AssertErrorDescription(t, validationErr, "protected argument names [Logger]")
 	})
 
 	t.Run("No actions skips action outputs", func(t *testing.T) {

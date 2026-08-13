@@ -17,6 +17,9 @@ import (
 )
 
 const (
+	rootAnnotationArg = "annotation"
+	rootLoggerArg     = "logger"
+	rootLoggerFileArg = "logger-file"
 	rootShowConfigArg = "show-config"
 )
 
@@ -49,7 +52,13 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().String(rootAnnotationArg, "", "Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.")
+	rootCmd.PersistentFlags().String(rootLoggerArg, "", "Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.")
+	rootCmd.PersistentFlags().String(rootLoggerFileArg, "", "Path to write normal runtime logs when logger is set to file.")
 	rootCmd.PersistentFlags().Bool(rootShowConfigArg, false, "Show the effective configuration used by this command before execution.")
 
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "annotation", rootCmd.PersistentFlags().Lookup(rootAnnotationArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "logger", rootCmd.PersistentFlags().Lookup(rootLoggerArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "logger_file", rootCmd.PersistentFlags().Lookup(rootLoggerFileArg))
 	_ = configUtils.BindFlagToEnv(viperSession, config.App, "show_config", rootCmd.PersistentFlags().Lookup(rootShowConfigArg))
 }

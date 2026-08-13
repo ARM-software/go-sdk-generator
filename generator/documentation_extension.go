@@ -26,6 +26,18 @@ type DocumentedCLIOption struct {
 
 type DocumentedCLIOptionSet []DocumentedCLIOption
 
+func firstVisibleCLICommand(cmds *CommandLineCommands) *CliFunction {
+	if cmds == nil {
+		return nil
+	}
+	if cliFunc, found := collection.FirstRef(cmds.Functions, func(cliFunc *CliFunction) bool {
+		return cliFunc != nil && !cliFunc.Hidden
+	}); found {
+		return &cliFunc
+	}
+	return nil
+}
+
 func ensureSentence(s string) string {
 	s = normaliseDescription(s)
 	if s == "" {
@@ -171,6 +183,49 @@ func documentedInterfaceMethodSignature(method InterfaceMethod) string {
 		return fmt.Sprintf("%s (%s)", signature, returns[0])
 	}
 	return fmt.Sprintf("%s (%s)", signature, strings.Join(returns, ", "))
+}
+
+func cliConfigTestUsesImportPath(spec *SDKSpecification, toolVersion string, importPath string) bool {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return false
+	}
+	return collection.AnyFunc(spec.CommandLineCommands.Functions, func(fct CliFunction) bool {
+		configName := toPascalCase(fct.Name)
+		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
+			if hasEnum(cfg.EffectiveEnum()) || cfg.Name == loggerArgument || cfg.Name == loggerFileArg || cfg.Name == annotationArgument || cfg.Name == summaryArgument || cfg.Name == summaryFileArg {
+				return false
+			}
+			testValue := configFieldTestValue(nil, "", spec.PackageName, toolVersion, configName, cfg)
+			switch importPath {
+			case filesystemImportPath:
+				return strings.Contains(testValue, "filesystem.")
+			default:
+				return false
+			}
+		})
+	})
+}
+
+func cliConfigTestImports(spec *SDKSpecification, toolVersion string) []string {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return nil
+	}
+	return collection.Filter([]string{filesystemImportPath}, func(importPath string) bool {
+		return cliConfigTestUsesImportPath(spec, toolVersion, importPath)
+	})
+}
+
+func shouldAssignCLIConfigTestValue(cfg FunctionConfigFields, testValue string) bool {
+	if hasEnum(cfg.EffectiveEnum()) || testValue == "" {
+		return false
+	}
+
+	switch cfg.Name {
+	case summaryArgument, summaryFileArg, loggerArgument, loggerFileArg, annotationArgument:
+		return false
+	default:
+		return true
+	}
 }
 
 func documentedCLIOptions(cmds *CommandLineCommands, cliFunc CliFunction) DocumentedCLIOptionSet {

@@ -110,6 +110,103 @@ This CLI does not declare a dedicated configuration file path. The underlying lo
 
 Configuration is loaded and validated at the start of command execution, so configuration errors are surfaced before the underlying manager logic runs.
 
+### Logging And Annotations
+
+CLIs expose separate runtime configuration for normal logging and structured annotations.
+
+CLI defaults:
+
+- `logger=console`
+- `annotation=none`
+
+Action defaults:
+
+- `logger=rich`
+- `annotation=github`
+
+
+Logger modes:
+
+- `console`: use the standard generated console logger.
+- `rich`: use a richer terminal logger built with [Charmbracelet Log](https://github.com/charmbracelet/log).
+- `file`: write normal logs to the path selected by `logger_file`.
+- `none`: disable normal log output.
+- `custom`: use the logger implementation registered by the application during initialisation.
+
+Annotation modes:
+
+- Annotations are structured status messages separate from normal logs. They are primarily intended for CI systems that can render errors, warnings, and notices with extra context.
+- `github`: emit GitHub Actions-compatible structured annotations using `golang-utils` annotation support.
+- `none`: disable structured annotation output.
+
+Logging and annotations are independent concerns. For example:
+
+- `logger=rich` with `annotation=none` gives richer human-readable terminal logging without CI annotations.
+- `logger=rich` with `annotation=github` gives richer terminal logging together with GitHub-compatible annotations.
+- `logger=none` with `annotation=github` suppresses normal logs while still allowing advanced GitHub annotations.
+
+
+Usage examples:
+
+```sh
+go-sdk-generator generate --logger=console
+```
+
+```sh
+go-sdk-generator generate --logger=rich
+```
+
+```sh
+go-sdk-generator generate --logger=file --logger-file=tool.log
+```
+
+```sh
+go-sdk-generator generate --logger=none
+```
+
+```sh
+go-sdk-generator generate --logger=custom
+```
+
+```sh
+go-sdk-generator generate --annotation=github
+```
+
+```sh
+go-sdk-generator generate --logger=rich --annotation=github
+```
+
+
+### Custom Logger Registration
+
+To use `logger=custom`, register `CustomLoggerDefinition` during application initialisation.
+
+Add a file under `cmd/generator/` in package `generator`.
+
+```go
+package generator
+
+import (
+	"log/slog"
+	"os"
+
+	baselogs "github.com/ARM-software/golang-utils/utils/logs"
+)
+
+func init() {
+	logger, err := baselogs.NewSlogLogger(slog.New(slog.NewJSONHandler(os.Stderr, nil)), "go-sdk-generator")
+	if err != nil {
+		panic(err)
+	}
+	CustomLoggerDefinition = logger
+}
+```
+
+The command-line user does not supply an arbitrary Go implementation through the CLI.
+Selecting `logger=custom` simply chooses the implementation already registered by the application.
+
+If `logger=custom` is selected without registering `CustomLoggerDefinition`, the generated CLI returns an error.
+
 Skills:
 
 - [Install `go-sdk-generator`](./.agents/skills/install-go-sdk-generator/SKILL.md)
@@ -189,19 +286,25 @@ You can pass values as flags on the command line or by setting the corresponding
 Example flag usage:
 
 ```sh
-go-sdk-generator generate --show-config <value>
+go-sdk-generator generate --annotation <value>
 ```
 
 
 Example environment usage:
 
 ```sh
-SDK_GENERATOR_SHOW_CONFIG=<value> go-sdk-generator generate
+SDK_GENERATOR_ANNOTATION=<value> go-sdk-generator generate
 ```
 
 
 | Configuration | Flag | Short | Environment | Required | Description |
 | --- | --- | --- | --- | --- | --- |
+
+| `Annotation` (shared) | `--annotation` | - | `SDK_GENERATOR_ANNOTATION` | no | Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. |
+
+| `Logger` (shared) | `--logger` | - | `SDK_GENERATOR_LOGGER` | no | Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. |
+
+| `LoggerFile` (shared) | `--logger-file` | - | `SDK_GENERATOR_LOGGER_FILE` | no | Path to write normal runtime logs when logger is set to file. |
 
 | `ShowConfig` (shared) | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
 
@@ -226,8 +329,11 @@ Configuration type:
 
 ```go
 type GenerateConfiguration struct {
+	Annotation GenerateAnnotation `mapstructure:"annotation"`
 	Generate bool `mapstructure:"overwrite"`
 	Input string `mapstructure:"input"`
+	Logger GenerateLogger `mapstructure:"logger"`
+	LoggerFile string `mapstructure:"logger_file"`
 	Output string `mapstructure:"output"`
 	ShowConfig bool `mapstructure:"show_config"`
 	Summary GenerateSummary `mapstructure:"summary"`
@@ -239,9 +345,15 @@ type GenerateConfiguration struct {
 Fields:
 
 
+- **`Annotation : GenerateAnnotation`** - Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. 
+
 - **`Generate : bool`** - regenerate all files 
 
 - **`Input : string`** - path to tool definition file (required)
+
+- **`Logger : GenerateLogger`** - Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. 
+
+- **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 
 - **`Output : string`** - destination of the generated code (required)
 
@@ -304,19 +416,25 @@ You can pass values as flags on the command line or by setting the corresponding
 Example flag usage:
 
 ```sh
-go-sdk-generator schema --show-config <value>
+go-sdk-generator schema --annotation <value>
 ```
 
 
 Example environment usage:
 
 ```sh
-SDK_GENERATOR_SHOW_CONFIG=<value> go-sdk-generator schema
+SDK_GENERATOR_ANNOTATION=<value> go-sdk-generator schema
 ```
 
 
 | Configuration | Flag | Short | Environment | Required | Description |
 | --- | --- | --- | --- | --- | --- |
+
+| `Annotation` (shared) | `--annotation` | - | `SDK_GENERATOR_ANNOTATION` | no | Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. |
+
+| `Logger` (shared) | `--logger` | - | `SDK_GENERATOR_LOGGER` | no | Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. |
+
+| `LoggerFile` (shared) | `--logger-file` | - | `SDK_GENERATOR_LOGGER_FILE` | no | Path to write normal runtime logs when logger is set to file. |
 
 | `ShowConfig` (shared) | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
 
@@ -329,12 +447,21 @@ Configuration type:
 
 ```go
 type SchemaConfiguration struct {
+	Annotation SchemaAnnotation `mapstructure:"annotation"`
+	Logger SchemaLogger `mapstructure:"logger"`
+	LoggerFile string `mapstructure:"logger_file"`
 	ShowConfig bool `mapstructure:"show_config"`
 }
 ```
 
 Fields:
 
+
+- **`Annotation : SchemaAnnotation`** - Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. 
+
+- **`Logger : SchemaLogger`** - Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. 
+
+- **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 
 - **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
 
@@ -389,19 +516,25 @@ You can pass values as flags on the command line or by setting the corresponding
 Example flag usage:
 
 ```sh
-go-sdk-generator agent --show-config <value>
+go-sdk-generator agent --annotation <value>
 ```
 
 
 Example environment usage:
 
 ```sh
-SDK_GENERATOR_SHOW_CONFIG=<value> go-sdk-generator agent
+SDK_GENERATOR_ANNOTATION=<value> go-sdk-generator agent
 ```
 
 
 | Configuration | Flag | Short | Environment | Required | Description |
 | --- | --- | --- | --- | --- | --- |
+
+| `Annotation` (shared) | `--annotation` | - | `SDK_GENERATOR_ANNOTATION` | no | Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. |
+
+| `Logger` (shared) | `--logger` | - | `SDK_GENERATOR_LOGGER` | no | Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. |
+
+| `LoggerFile` (shared) | `--logger-file` | - | `SDK_GENERATOR_LOGGER_FILE` | no | Path to write normal runtime logs when logger is set to file. |
 
 | `ShowConfig` (shared) | `--show-config` | - | `SDK_GENERATOR_SHOW_CONFIG` | no | Show the effective configuration used by this command before execution. |
 
@@ -416,7 +549,10 @@ Configuration type:
 
 ```go
 type AgentConfiguration struct {
+	Annotation AgentAnnotation `mapstructure:"annotation"`
 	Init bool `mapstructure:"init"`
+	Logger AgentLogger `mapstructure:"logger"`
+	LoggerFile string `mapstructure:"logger_file"`
 	ShowConfig bool `mapstructure:"show_config"`
 }
 ```
@@ -424,7 +560,13 @@ type AgentConfiguration struct {
 Fields:
 
 
+- **`Annotation : AgentAnnotation`** - Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. 
+
 - **`Init : bool`** - install the embedded skills into the current repository 
+
+- **`Logger : AgentLogger`** - Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. 
+
+- **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 
 - **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
 

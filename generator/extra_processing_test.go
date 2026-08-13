@@ -59,15 +59,23 @@ func TestProcessExtraImports(t *testing.T) {
 			},
 			{
 				ImportRef: field.ToOptionalString("filesystem"),
-				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/filesystem"),
+				ImportUrl: field.ToOptionalString(filesystemImportPath),
 			},
 			{
 				ImportRef: field.ToOptionalString("httpUtils"),
-				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/http"),
+				ImportUrl: field.ToOptionalString(httpUtilsImportPath),
+			},
+			{
+				ImportRef: field.ToOptionalString("jsonutils"),
+				ImportUrl: field.ToOptionalString(jsonUtilsImportPath),
 			},
 			{
 				ImportRef: field.ToOptionalString("platform"),
-				ImportUrl: field.ToOptionalString("github.com/ARM-software/golang-utils/utils/platform"),
+				ImportUrl: field.ToOptionalString(platformImportPath),
+			},
+			{
+				ImportRef: field.ToOptionalString("validationUtils"),
+				ImportUrl: field.ToOptionalString(validationUtilsImportPath),
 			},
 			{
 				ImportRef: field.ToOptionalString("test"),
@@ -479,7 +487,7 @@ func TestProcessArguments(t *testing.T) {
 		}
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
-		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 3)
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 6)
 	})
 	t.Run("happy path: with calls to Cloud", func(t *testing.T) {
 		arg1 := FunctionConfigFields{
@@ -518,7 +526,47 @@ func TestProcessArguments(t *testing.T) {
 		}
 		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 2)
 		assert.NoError(t, ProcessArguments(context.Background(), sdk))
-		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 6)
+		assert.Len(t, sdk.Specification.CommandLineCommands.Functions[0].Configuration, 9)
+	})
+
+	t.Run("injects runtime logging arguments for CLI commands", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("input"),
+				Description:     "input file",
+				LangType:        "string",
+				MapstructureTag: "input",
+				Name:            "Input",
+			}},
+			Description: "generate output",
+			Name:        "Generate",
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, loggerArgument)
+		require.Contains(t, byName, loggerFileArg)
+		require.Contains(t, byName, annotationArgument)
+		assert.Equal(t, []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Enum)
+		require.NotNil(t, byName[loggerArgument].DefaultValue)
+		assert.Equal(t, defaultCLILoggerMode, *byName[loggerArgument].DefaultValue)
+		require.NotNil(t, byName[annotationArgument].DefaultValue)
+		assert.Equal(t, defaultCLIAnnotationMode, *byName[annotationArgument].DefaultValue)
+		require.NotNil(t, byName[loggerFileArg].Constraints)
+		require.NotNil(t, byName[loggerFileArg].Constraints.RequiredWhen)
+		assert.Equal(t, loggerArgument, byName[loggerFileArg].Constraints.RequiredWhen.Parameter)
+		assert.Equal(t, runtimeLoggerModeFile.String(), byName[loggerFileArg].Constraints.RequiredWhen.Value)
+		require.NotNil(t, byName[loggerFileArg].Constraints.ForbiddenWhen)
+		assert.Equal(t, ParameterValueConstraintOperatorNotEquals, byName[loggerFileArg].Constraints.ForbiddenWhen.Operator)
 	})
 
 	t.Run("injects summary arguments for summary-aware commands", func(t *testing.T) {
@@ -546,25 +594,28 @@ func TestProcessArguments(t *testing.T) {
 
 		require.NoError(t, ProcessArguments(context.Background(), sdk))
 		configs := sdk.Specification.CommandLineCommands.Functions[0].Configuration
-		assert.Len(t, configs, 4)
-		assert.ElementsMatch(t, []string{"Input", showConfigArgument, summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name, configs[3].Name})
+		assert.Len(t, configs, 7)
+		assert.ElementsMatch(t, []string{"Input", showConfigArgument, loggerArgument, loggerFileArg, annotationArgument, summaryArgument, summaryFileArg}, []string{configs[0].Name, configs[1].Name, configs[2].Name, configs[3].Name, configs[4].Name, configs[5].Name, configs[6].Name})
 
 		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
 		require.Contains(t, byName, showConfigArgument)
 		assert.True(t, byName[showConfigArgument].IsRoot)
+		require.Contains(t, byName, loggerArgument)
+		require.Contains(t, byName, loggerFileArg)
+		require.Contains(t, byName, annotationArgument)
 		require.Contains(t, byName, summaryArgument)
 		require.Contains(t, byName, summaryFileArg)
 		assert.Equal(t, "Write a human-readable summary to the selected destination. Allowed values: file, github, output.", byName[summaryArgument].Description)
-		assert.Equal(t, []string{string(SummaryDestinationFile), string(SummaryDestinationGithub), string(SummaryDestinationOutput)}, byName[summaryArgument].Enum)
+		assert.Equal(t, []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()}, byName[summaryArgument].Enum)
 		require.NotNil(t, byName[summaryArgument].DefaultValue)
-		assert.Equal(t, string(SummaryDestinationOutput), *byName[summaryArgument].DefaultValue)
+		assert.Equal(t, SummaryDestinationOutput.String(), *byName[summaryArgument].DefaultValue)
 		require.NotNil(t, byName[summaryFileArg].Constraints)
 		assert.Equal(t, "filepath", byName[summaryFileArg].LangType)
 		assert.Equal(t, []string{summaryArgument}, byName[summaryFileArg].Constraints.DependentRequired)
 		require.NotNil(t, byName[summaryFileArg].Constraints.RequiredWhen)
 		assert.Equal(t, ParameterValueConstraintOperatorEquals, byName[summaryFileArg].Constraints.RequiredWhen.Operator)
 		assert.Equal(t, summaryArgument, byName[summaryFileArg].Constraints.RequiredWhen.Parameter)
-		assert.Equal(t, string(SummaryDestinationFile), byName[summaryFileArg].Constraints.RequiredWhen.Value)
+		assert.Equal(t, SummaryDestinationFile.String(), byName[summaryFileArg].Constraints.RequiredWhen.Value)
 		assert.False(t, byName[summaryFileArg].Required)
 
 		rules := sdk.Specification.CommandLineCommands.Functions[0].ConstraintValidationRules()
@@ -596,6 +647,10 @@ func TestProcessArguments(t *testing.T) {
 
 		require.NoError(t, ProcessArguments(context.Background(), sdk))
 		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, showConfigArgument)
+		require.Contains(t, byName, loggerArgument)
+		require.Contains(t, byName, loggerFileArg)
+		require.Contains(t, byName, annotationArgument)
 		require.Contains(t, byName, summaryArgument)
 		require.Contains(t, byName, summaryFileArg)
 	})
@@ -625,6 +680,10 @@ func TestProcessArguments(t *testing.T) {
 
 		require.NoError(t, ProcessArguments(context.Background(), sdk))
 		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		assert.Contains(t, byName, showConfigArgument)
+		assert.Contains(t, byName, loggerArgument)
+		assert.Contains(t, byName, loggerFileArg)
+		assert.Contains(t, byName, annotationArgument)
 		assert.NotContains(t, byName, summaryArgument)
 		assert.NotContains(t, byName, summaryFileArg)
 	})
@@ -1278,12 +1337,15 @@ func TestCliRootLevelCallCloud(t *testing.T) {
 		credentials := sdk.Specification.CommandLineCommands.Functions[credentialsIndex]
 		assert.True(t, credentials.StoreToKeyring)
 		assert.True(t, credentials.NoAction)
-		require.Len(t, credentials.Configuration, 3)
-		assert.Equal(t, "APIKey", credentials.Configuration[0].Name)
-		assert.Equal(t, "ServiceCredentials", credentials.Configuration[1].Name)
-		assert.Equal(t, showConfigArgument, credentials.Configuration[2].Name)
-		require.Len(t, credentials.Configuration[1].Bindings, 1)
-		assert.Equal(t, "Token", field.OptionalString(credentials.Configuration[1].Bindings[0].Name, ""))
+		byName := credentials.ConfigurationByName()
+		require.Contains(t, byName, showConfigArgument)
+		require.Contains(t, byName, "APIKey")
+		require.Contains(t, byName, "ServiceCredentials")
+		require.Contains(t, byName, loggerArgument)
+		require.Contains(t, byName, loggerFileArg)
+		require.Contains(t, byName, annotationArgument)
+		require.Len(t, byName["ServiceCredentials"].Bindings, 1)
+		assert.Equal(t, "Token", field.OptionalString(byName["ServiceCredentials"].Bindings[0].Name, ""))
 	})
 
 	t.Run("rejects secret parameters that are not string compatible", func(t *testing.T) {

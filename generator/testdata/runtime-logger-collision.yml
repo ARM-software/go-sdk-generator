@@ -1,0 +1,25 @@
+specification:
+  package_name: runtime-logger-collision
+  main_module: loggercollision
+  name: Runtime Logger Collision
+  description: Test manifest with an existing Logger CLI configuration field.
+
+  interface:
+    methods: []
+
+  command_line_commands:
+    binary: runtime-logger-collision
+    root_environment_var: RUNTIME_LOGGER_COLLISION
+    description: CLI for testing runtime logger configuration collisions.
+    no_actions: true
+    functions:
+      - name: Run
+        description: Run with the manifest-defined logger setting.
+        no_action: true
+        configuration:
+          - name: Logger
+            lang_type: bool
+            mapstructure_tag: domain_logger
+            description: Whether to enable the domain logger.
+
+  global_configuration: []

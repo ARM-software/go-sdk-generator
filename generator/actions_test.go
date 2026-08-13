@@ -1,8 +1,10 @@
 package generator
 
 import (
+	"context"
 	"testing"
 
+	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -86,6 +88,7 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
@@ -126,6 +129,7 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
@@ -155,6 +159,7 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
@@ -187,16 +192,26 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
 		require.Len(t, actions, 2)
 		verifyAction := requireAction(t, actions, "verify")
-		require.Len(t, verifyAction.Inputs, 1)
-		match, err := matchingActionInputFlagName(noKeyringArgument, verifyAction.Inputs[0].Name)
+		var noKeyringInput *GeneratedActionInput
+		for i := range verifyAction.Inputs {
+			match, subErr := matchingActionInputFlagName(noKeyringArgument, verifyAction.Inputs[i].Name)
+			require.NoError(t, subErr)
+			if match {
+				noKeyringInput = &verifyAction.Inputs[i]
+				break
+			}
+		}
+		require.NotNil(t, noKeyringInput)
+		match, err := matchingActionInputFlagName(noKeyringArgument, noKeyringInput.Name)
 		require.NoError(t, err)
 		assert.True(t, match)
-		assert.Equal(t, "true", verifyAction.Inputs[0].Default)
+		assert.Equal(t, "true", noKeyringInput.Default)
 	})
 
 	t.Run("defaults summary action input to github for summary-aware commands", func(t *testing.T) {
@@ -225,15 +240,20 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
 		require.Len(t, actions, 2)
 
 		action := requireAction(t, actions, "generate")
-		require.Len(t, action.Inputs, 2)
-		assert.Equal(t, summaryMapstructureTag, action.Inputs[0].FlagName)
-		assert.Equal(t, string(SummaryDestinationGithub), action.Inputs[0].Default)
+		defaultsByFlag := map[string]string{}
+		for i := range action.Inputs {
+			defaultsByFlag[action.Inputs[i].FlagName] = action.Inputs[i].Default
+		}
+		assert.Equal(t, SummaryDestinationGithub.String(), defaultsByFlag[summaryMapstructureTag])
+		assert.Equal(t, defaultActionLoggerMode, defaultsByFlag[loggerMapstructureTag])
+		assert.Equal(t, defaultActionAnnotationMode, defaultsByFlag[syntheticCLIMapstructureTagAnnotation.String()])
 	})
 
 	t.Run("explicitly disabling summary keeps action input unset", func(t *testing.T) {
@@ -255,12 +275,19 @@ func TestBuildGeneratedActions(t *testing.T) {
 				},
 			},
 		}
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
 
 		actions, err := BuildGeneratedActions(sdk)
 		require.NoError(t, err)
 		action := requireAction(t, actions, "generate")
-		require.Len(t, action.Inputs, 1)
-		assert.Equal(t, "input", action.Inputs[0].FlagName)
+		flagNames := collection.Map(action.Inputs, func(input GeneratedActionInput) string {
+			return input.FlagName
+		})
+		assert.Contains(t, flagNames, "input")
+		assert.Contains(t, flagNames, loggerMapstructureTag)
+		assert.Contains(t, flagNames, syntheticCLIMapstructureTagAnnotation.String())
+		assert.Contains(t, flagNames, "logger-file")
+		assert.NotContains(t, flagNames, summaryMapstructureTag)
 	})
 }
 

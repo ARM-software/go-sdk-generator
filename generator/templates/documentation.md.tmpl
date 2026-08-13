@@ -134,6 +134,8 @@ This method does not return any values.
 {{ end -}}
 
 {{ if .Specification.CommandLineCommands -}}
+{{ $primaryCommand := firstVisibleCLICommand .Specification.CommandLineCommands -}}
+{{ $implementationPackage := .Specification.MainModule | toPackageName -}}
 ## CLI Tool
 
 ### `{{ .Specification.CommandLineCommands.Binary }}`
@@ -165,6 +167,106 @@ This CLI does not declare a dedicated configuration file path. The underlying lo
 {{ end }}
 
 Configuration is loaded and validated at the start of command execution, so configuration errors are surfaced before the underlying manager logic runs.
+
+### Logging And Annotations
+
+CLIs expose separate runtime configuration for normal logging and structured annotations.
+
+CLI defaults:
+
+- `logger=console`
+- `annotation=none`
+
+{{ if .GeneratedActions -}}
+Action defaults:
+
+- `logger=rich`
+- `annotation=github`
+{{ else -}}
+If actions are defined, they should default to `logger=rich` and `annotation=github`.
+{{ end }}
+
+Logger modes:
+
+- `console`: use the standard generated console logger.
+- `rich`: use a richer terminal logger built with [Charmbracelet Log](https://github.com/charmbracelet/log).
+- `file`: write normal logs to the path selected by `logger_file`.
+- `none`: disable normal log output.
+- `custom`: use the logger implementation registered by the application during initialisation.
+
+Annotation modes:
+
+- Annotations are structured status messages separate from normal logs. They are primarily intended for CI systems that can render errors, warnings, and notices with extra context.
+- `github`: emit GitHub Actions-compatible structured annotations using `golang-utils` annotation support.
+- `none`: disable structured annotation output.
+
+Logging and annotations are independent concerns. For example:
+
+- `logger=rich` with `annotation=none` gives richer human-readable terminal logging without CI annotations.
+- `logger=rich` with `annotation=github` gives richer terminal logging together with GitHub-compatible annotations.
+- `logger=none` with `annotation=github` suppresses normal logs while still allowing advanced GitHub annotations.
+
+{{ if $primaryCommand }}
+Usage examples:
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=console
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=rich
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=file --logger-file=tool.log
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=none
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=custom
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --annotation=github
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryCommand.Name | lower }} --logger=rich --annotation=github
+```
+{{ end }}
+
+### Custom Logger Registration
+
+To use `logger=custom`, register `CustomLoggerDefinition` during application initialisation.
+
+Add a file under `cmd/{{ .Specification.MainModule }}/` in package `{{ $implementationPackage }}`.
+
+```go
+package {{ $implementationPackage }}
+
+import (
+	"log/slog"
+	"os"
+
+	baselogs "github.com/ARM-software/golang-utils/utils/logs"
+)
+
+func init() {
+	logger, err := baselogs.NewSlogLogger(slog.New(slog.NewJSONHandler(os.Stderr, nil)), "{{ .Specification.CommandLineCommands.Binary }}")
+	if err != nil {
+		panic(err)
+	}
+	CustomLoggerDefinition = logger
+}
+```
+
+The command-line user does not supply an arbitrary Go implementation through the CLI.
+Selecting `logger=custom` simply chooses the implementation already registered by the application.
+
+If `logger=custom` is selected without registering `CustomLoggerDefinition`, the generated CLI returns an error.
 
 Skills:
 

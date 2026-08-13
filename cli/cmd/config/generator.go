@@ -18,10 +18,16 @@ const (
 
 // GenerateConfiguration defines the configuration for Generate command
 type GenerateConfiguration struct {
+	// Annotation is select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.
+	Annotation string `mapstructure:"annotation"`
 	// Generate is regenerate all files
 	Generate bool `mapstructure:"overwrite"`
 	// Input is path to tool definition file
 	Input string `mapstructure:"input"`
+	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	Logger string `mapstructure:"logger"`
+	// LoggerFile is path to write normal runtime logs when logger is set to file.
+	LoggerFile string `mapstructure:"logger_file"`
 	// Output is destination of the generated code
 	Output string `mapstructure:"output"`
 	// ShowConfig is show the effective configuration used by this command before execution.
@@ -35,6 +41,32 @@ type GenerateConfiguration struct {
 
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
+}
+
+func (cfg *GenerateConfiguration) GetAnnotation() (GenerateAnnotation, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Annotation) {
+		return 0, commonerrors.UndefinedVariable("Annotation")
+	}
+
+	value, err := GenerateAnnotationString(cfg.Annotation)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Annotation")
+	}
+
+	return value, nil
+}
+
+func (cfg *GenerateConfiguration) GetLogger() (GenerateLogger, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Logger) {
+		return 0, commonerrors.UndefinedVariable("Logger")
+	}
+
+	value, err := GenerateLoggerString(cfg.Logger)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Logger")
+	}
+
+	return value, nil
 }
 
 func (cfg *GenerateConfiguration) GetSummary() (GenerateSummary, error) {
@@ -57,7 +89,10 @@ func (cfg *GenerateConfiguration) Validate() error {
 	}
 
 	err = validation.ValidateStruct(cfg,
+		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(GenerateAnnotationGithub.String(), GenerateAnnotationNone.String()))),
 		validation.Field(&cfg.Input, validationUtils.Required),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerRich.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String()))),
+		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
 		validation.Field(&cfg.Output, validationUtils.Required),
 		validation.Field(&cfg.Summary, validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))),
 		validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true))),
@@ -69,6 +104,8 @@ func (cfg *GenerateConfiguration) Validate() error {
 	}
 
 	err = validationUtils.NewAllRule(
+		validationUtils.WhenFieldEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile)),
+		validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile)),
 		validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}}),
 		validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile)),
 	).Validate(cfg)
@@ -83,7 +120,11 @@ func (cfg *GenerateConfiguration) Validate() error {
 func DefaultGenerateConfiguration() *GenerateConfiguration {
 	return &GenerateConfiguration{
 
+		Annotation: GenerateAnnotationNone.String(),
+
 		Generate: false,
+
+		Logger: GenerateLoggerConsole.String(),
 
 		Output: func() string {
 			pwd, _ := filesystem.CurrentDirectory()
@@ -96,11 +137,43 @@ func DefaultGenerateConfiguration() *GenerateConfiguration {
 
 // SchemaConfiguration defines the configuration for Schema command
 type SchemaConfiguration struct {
+	// Annotation is select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.
+	Annotation string `mapstructure:"annotation"`
+	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	Logger string `mapstructure:"logger"`
+	// LoggerFile is path to write normal runtime logs when logger is set to file.
+	LoggerFile string `mapstructure:"logger_file"`
 	// ShowConfig is show the effective configuration used by this command before execution.
 	ShowConfig bool `mapstructure:"show_config"`
 
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
+}
+
+func (cfg *SchemaConfiguration) GetAnnotation() (SchemaAnnotation, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Annotation) {
+		return 0, commonerrors.UndefinedVariable("Annotation")
+	}
+
+	value, err := SchemaAnnotationString(cfg.Annotation)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Annotation")
+	}
+
+	return value, nil
+}
+
+func (cfg *SchemaConfiguration) GetLogger() (SchemaLogger, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Logger) {
+		return 0, commonerrors.UndefinedVariable("Logger")
+	}
+
+	value, err := SchemaLoggerString(cfg.Logger)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Logger")
+	}
+
+	return value, nil
 }
 
 func (cfg *SchemaConfiguration) Validate() error {
@@ -109,8 +182,20 @@ func (cfg *SchemaConfiguration) Validate() error {
 		return err
 	}
 
-	err = validation.ValidateStruct(cfg)
+	err = validation.ValidateStruct(cfg,
+		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(SchemaAnnotationGithub.String(), SchemaAnnotationNone.String()))),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(SchemaLoggerConsole.String(), SchemaLoggerRich.String(), SchemaLoggerFile.String(), SchemaLoggerNone.String(), SchemaLoggerCustom.String()))),
+		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
+	)
 
+	if err != nil {
+		return err
+	}
+
+	err = validationUtils.NewAllRule(
+		validationUtils.WhenFieldEqualsValue(&cfg.Logger, SchemaLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile)),
+		validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, SchemaLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile)),
+	).Validate(cfg)
 	if err != nil {
 		return err
 	}
@@ -120,18 +205,55 @@ func (cfg *SchemaConfiguration) Validate() error {
 }
 
 func DefaultSchemaConfiguration() *SchemaConfiguration {
-	return &SchemaConfiguration{}
+	return &SchemaConfiguration{
+
+		Annotation: SchemaAnnotationNone.String(),
+
+		Logger: SchemaLoggerConsole.String(),
+	}
 }
 
 // AgentConfiguration defines the configuration for Agent command
 type AgentConfiguration struct {
+	// Annotation is select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.
+	Annotation string `mapstructure:"annotation"`
 	// Init is install the embedded skills into the current repository
 	Init bool `mapstructure:"init"`
+	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	Logger string `mapstructure:"logger"`
+	// LoggerFile is path to write normal runtime logs when logger is set to file.
+	LoggerFile string `mapstructure:"logger_file"`
 	// ShowConfig is show the effective configuration used by this command before execution.
 	ShowConfig bool `mapstructure:"show_config"`
 
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
+}
+
+func (cfg *AgentConfiguration) GetAnnotation() (AgentAnnotation, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Annotation) {
+		return 0, commonerrors.UndefinedVariable("Annotation")
+	}
+
+	value, err := AgentAnnotationString(cfg.Annotation)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Annotation")
+	}
+
+	return value, nil
+}
+
+func (cfg *AgentConfiguration) GetLogger() (AgentLogger, error) {
+	if cfg == nil || reflection.IsEmpty(cfg.Logger) {
+		return 0, commonerrors.UndefinedVariable("Logger")
+	}
+
+	value, err := AgentLoggerString(cfg.Logger)
+	if err != nil {
+		return 0, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "invalid value for %q", "Logger")
+	}
+
+	return value, nil
 }
 
 func (cfg *AgentConfiguration) Validate() error {
@@ -140,8 +262,20 @@ func (cfg *AgentConfiguration) Validate() error {
 		return err
 	}
 
-	err = validation.ValidateStruct(cfg)
+	err = validation.ValidateStruct(cfg,
+		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(AgentAnnotationGithub.String(), AgentAnnotationNone.String()))),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(AgentLoggerConsole.String(), AgentLoggerRich.String(), AgentLoggerFile.String(), AgentLoggerNone.String(), AgentLoggerCustom.String()))),
+		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
+	)
 
+	if err != nil {
+		return err
+	}
+
+	err = validationUtils.NewAllRule(
+		validationUtils.WhenFieldEqualsValue(&cfg.Logger, AgentLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile)),
+		validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, AgentLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile)),
+	).Validate(cfg)
 	if err != nil {
 		return err
 	}
@@ -151,5 +285,10 @@ func (cfg *AgentConfiguration) Validate() error {
 }
 
 func DefaultAgentConfiguration() *AgentConfiguration {
-	return &AgentConfiguration{}
+	return &AgentConfiguration{
+
+		Annotation: AgentAnnotationNone.String(),
+
+		Logger: AgentLoggerConsole.String(),
+	}
 }
