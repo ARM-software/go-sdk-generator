@@ -1,0 +1,1 @@
+:builder: Add a workflow that reports Go dependency licences, runs `go-licenses check`, and publishes an SPDX SBOM artifact.

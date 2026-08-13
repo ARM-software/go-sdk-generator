@@ -9,6 +9,8 @@
 [![License](https://img.shields.io/badge/Licence-Proprietary-blue.svg)](https://opensource.org/licenses/Proprietary)
 [![Manifest](https://img.shields.io/badge/Manifest-generate.yml-blue)](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generate.yml)
 [![GHCR version](https://img.shields.io/github/v/release/Arm-Debug/go-sdk-generator?label=container)](https://github.com/orgs/Arm-Debug/packages/container/package/go-sdk-generator)
+[![Licence compliance](https://img.shields.io/github/check-runs/Arm-Debug/go-sdk-generator/main?nameFilter=Go%20Licence%20Check&label=licence%20compliance)](https://github.com/Arm-Debug/go-sdk-generator/actions/workflows/license-compliance.yml?query=branch%3Amain)
+[![SPDX SBOM](https://img.shields.io/github/check-runs/Arm-Debug/go-sdk-generator/main?nameFilter=SPDX%20SBOM&label=SPDX%20SBOM)](https://github.com/Arm-Debug/go-sdk-generator/actions/workflows/license-compliance.yml?query=branch%3Amain)
 
 
 SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
