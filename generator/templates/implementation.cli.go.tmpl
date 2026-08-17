@@ -32,17 +32,57 @@ Deprecated: {{ deprecationNoticeDetails .DeprecationNotice }}
 {{ end }}
 */
 {{ $functionName:= .Name  | toPascal -}}
-{{ if usesSummary . $.Specification.CommandLineCommands -}}
+{{ if and (usesSummary . $.Specification.CommandLineCommands) (usesResult .) -}}
+func {{ $functionName }}WithResultAndSummaryAndAnnotations(_ context.Context, _ annotations.IAnnotationLogger, _ summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error) {
+{{ if .StoreToKeyring -}}
+	return nil, nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - Return nil to signal successful execution with no result to emit.
+	// - Leave human formatting, JSON/YAML serialisation, and output destination
+	//   selection to the generated output layer.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return nil, commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithResultAndSummaryAndAnnotations()` implementation")
+{{ end -}}
+}
+
+func {{ $functionName }}WithResultAndSummary(_ context.Context, _ logs.Loggers, _ summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error) {
+{{ if .StoreToKeyring -}}
+	return nil, nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - Return nil to signal successful execution with no result to emit.
+	// - Leave human formatting, JSON/YAML serialisation, and output destination
+	//   selection to the generated output layer.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return nil, commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithResultAndSummary()` implementation")
+{{ end -}}
+}
+
 func {{ $functionName }}WithSummaryAndAnnotations(_ context.Context, _ annotations.IAnnotationLogger, _ summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
 {{ if .StoreToKeyring -}}
 	return nil
 {{ else }}
 	// TODO implement me
-	// Note: only one implementation path needs to be implemented and registered.
-	//       If the simple logger-based variant is sufficient, this annotation-aware
-	//       variant can be left unused.
-	// Note: this function code was generated to help setting up the project. It can be moved to separate files
-	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
 	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithSummaryAndAnnotations()` implementation")
 {{ end -}}
 }
@@ -52,25 +92,99 @@ func {{ $functionName }}WithSummary(_ context.Context, _ logs.Loggers, _ summary
 	return nil
 {{ else }}
 	// TODO implement me
-	// Note: only one implementation path needs to be implemented and registered.
-	//       This simple logger-based variant is not needed when the annotation-aware
-	//       variant is implemented and registered instead.
-	// Note: this function code was generated to help setting up the project. It can be moved to separate files
-	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
 	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithSummary()` implementation")
 {{ end -}}
 }
-{{ else -}}
+{{ else if usesSummary . $.Specification.CommandLineCommands -}}
+func {{ $functionName }}WithSummaryAndAnnotations(_ context.Context, _ annotations.IAnnotationLogger, _ summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+{{ if .StoreToKeyring -}}
+	return nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithSummaryAndAnnotations()` implementation")
+{{ end -}}
+}
+
+func {{ $functionName }}WithSummary(_ context.Context, _ logs.Loggers, _ summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+{{ if .StoreToKeyring -}}
+	return nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithSummary()` implementation")
+{{ end -}}
+}
+{{ else if usesResult . -}}
+func {{ $functionName }}WithResultAndAnnotations(_ context.Context, _ annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error) {
+{{ if .StoreToKeyring -}}
+	return nil, nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - Return nil to signal successful execution with no result to emit.
+	// - Leave human formatting, JSON/YAML serialisation, and output destination
+	//   selection to the generated output layer.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return nil, commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithResultAndAnnotations()` implementation")
+{{ end -}}
+}
+
+func {{ $functionName }}WithResult(_ context.Context, _ logs.Loggers, cfg *config.{{ $functionName }}Configuration) (result any, err error) {
+{{ if .StoreToKeyring -}}
+	return nil, nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - Return nil to signal successful execution with no result to emit.
+	// - Leave human formatting, JSON/YAML serialisation, and output destination
+	//   selection to the generated output layer.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return nil, commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithResult()` implementation")
+{{ end -}}
+}
+
 func {{ $functionName }}WithAnnotations(_ context.Context, _ annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
 {{ if .StoreToKeyring -}}
 	return nil
 {{ else }}
 	// TODO implement me
-	// Note: only one implementation path needs to be implemented and registered.
-	//       If the simple logger-based variant is sufficient, this annotation-aware
-	//       variant can be left unused.
-	// Note: this function code was generated to help setting up the project. It can be moved to separate files
-	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
 	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithAnnotations()` implementation")
 {{ end -}}
 }
@@ -80,11 +194,45 @@ func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{
 	return nil
 {{ else }}
 	// TODO implement me
-	// Note: only one implementation path needs to be implemented and registered.
-	//       This simple logger-based variant is not needed when the annotation-aware
-	//       variant is implemented and registered instead.
-	// Note: this function code was generated to help setting up the project. It can be moved to separate files
-	//       if this helps readiness, as long as it remains in the same module i.e. {{ $packageName }}.
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}()` implementation")
+{{ end -}}
+}
+{{ else -}}
+func {{ $functionName }}WithAnnotations(_ context.Context, _ annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+{{ if .StoreToKeyring -}}
+	return nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - If the simple logger-based variant is sufficient, this annotation-aware
+	//   variant can be left unused.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
+	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}WithAnnotations()` implementation")
+{{ end -}}
+}
+
+func {{ $functionName }}(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {
+{{ if .StoreToKeyring -}}
+	return nil
+{{ else }}
+	// TODO implement me
+	// Notes:
+	// - Only one implementation path needs to be implemented and registered.
+	// - This simple logger-based variant is not needed when the annotation-aware
+	//   variant is implemented and registered instead.
+	// - This function code was generated to help setting up the project. It can be
+	//   moved to separate files if this helps readiness, as long as it remains in
+	//   the same module i.e. {{ $packageName }}.
 	return commonerrors.New(commonerrors.ErrNotImplemented, "missing `{{ $functionName }}()` implementation")
 {{ end -}}
 }
@@ -99,6 +247,9 @@ func init() {
 	// Note: The following makes the link between the CLI command definitions and their actual implementations.
 	// The binding is performed at runtime when package {{ $packageName }} is imported.
 	// `...WithAnnotations` and `...WithSummaryAndAnnotations` register the advanced annotation-aware path.
+	{{ if .Specification.CommandLineCommands.UsesResult -}}
+	// `...WithResult...` registers the result-producing path when a command enables `with_result: true`.
+	{{ end -}}
 	// `...WithSummary` and the plain command function register the simple logger-based path.
 	// `...ImplFunc = Base...Impl` keeps the generated wrapper's summary wiring before delegating.
 	// Set `CustomLoggerDefinition` to register the implementation used when runtime configuration selects `logger=custom`.
@@ -107,19 +258,36 @@ func init() {
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $functionName:= .Name  | toPascal -}}
 {{ if .StoreToKeyring -}}
-	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	{{ if and (usesSummary . $.Specification.CommandLineCommands) (usesResult .) -}}
+	{{ $functionName }}WithResultAndSummaryImplFunc = {{ $functionName }}WithResultAndSummary
 	{{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
 	{{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ else if usesSummary . $.Specification.CommandLineCommands -}}
+	{{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
+	{{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ else if usesResult . -}}
+	{{ $functionName }}WithResultImplFunc = {{ $functionName }}WithResult
 	{{ else -}}
 	{{ $functionName }}ImplFunc = {{ $functionName }}
 	{{ end -}}
 {{ else }}
-	{{ if usesSummary . $.Specification.CommandLineCommands -}}
+	{{ if and (usesSummary . $.Specification.CommandLineCommands) (usesResult .) -}}
+	// {{ $functionName }}WithResultAndSummaryAndAnnotationsImplFunc = {{ $functionName }}WithResultAndSummaryAndAnnotations
+	// {{ $functionName }}WithResultAndSummaryImplFunc = {{ $functionName }}WithResultAndSummary
 	// {{ $functionName }}WithSummaryAndAnnotationsImplFunc = {{ $functionName }}WithSummaryAndAnnotations
 	// {{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
 	// {{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ else if usesSummary . $.Specification.CommandLineCommands -}}
+	// {{ $functionName }}WithSummaryAndAnnotationsImplFunc = {{ $functionName }}WithSummaryAndAnnotations
+	// {{ $functionName }}WithSummaryImplFunc = {{ $functionName }}WithSummary
+	// {{ $functionName }}ImplFunc = Base{{ $functionName }}Impl
+	{{ else if usesResult . -}}
+	// {{ $functionName }}WithResultAndAnnotationsImplFunc = {{ $functionName }}WithResultAndAnnotations
+	// {{ $functionName }}WithResultImplFunc = {{ $functionName }}WithResult
+	// {{ $functionName }}WithAnnotationsImplFunc = {{ $functionName }}WithAnnotations
+	// {{ $functionName }}ImplFunc = {{ $functionName }}
 	{{ end -}}
-	{{ if not (usesSummary . $.Specification.CommandLineCommands) -}}
+	{{ if and (not (usesSummary . $.Specification.CommandLineCommands)) (not (usesResult .)) -}}
 	// {{ $functionName }}WithAnnotationsImplFunc = {{ $functionName }}WithAnnotations
 	// {{ $functionName }}ImplFunc = {{ $functionName }}
 	{{ end -}}

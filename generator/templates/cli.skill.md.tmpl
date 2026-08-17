@@ -175,6 +175,21 @@ Logging and annotation support:
 - `annotation=none` disables structured annotation output
 - CLI defaults: `logger=console`, `annotation=none`
 
+{{- if usesResult $fn }}
+
+Result output and logging combinations:
+
+| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |
+| --- | --- | --- | --- | --- |
+| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` | The result is rendered through the configured logger on the normal logger stream. | yes |
+| `human` | any file path | none | `output_file` is rejected because human output does not use the machine-readable file/output stream. | no |
+| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` | The machine-readable result is written to standard output. `logger=console` and `logger=rich` are accepted but normal logging is routed away from stdout so the result stream stays clean. | yes |
+| `json` or `yaml` | any file path | `console`, `rich`, `file`, `none`, `custom` | The machine-readable result is written to the selected file and normal logging follows the configured logger mode. | yes |
+
+`logger=file` still requires `logger_file` in every allowed combination.
+
+{{- end }}
+
 {{- else }}
 
 No command-specific options.

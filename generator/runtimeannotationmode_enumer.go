@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _runtimeAnnotationModeName = "githubnone"
+const _runtimeAnnotationModeName = "nonegithub"
 
-var _runtimeAnnotationModeIndex = [...]uint8{0, 6, 10}
+var _runtimeAnnotationModeIndex = [...]uint8{0, 4, 10}
 
-const _runtimeAnnotationModeLowerName = "githubnone"
+const _runtimeAnnotationModeLowerName = "nonegithub"
 
 func (i runtimeAnnotationMode) String() string {
 	if i < 0 || i >= runtimeAnnotationMode(len(_runtimeAnnotationModeIndex)-1) {
@@ -24,22 +24,22 @@ func (i runtimeAnnotationMode) String() string {
 // Re-run the stringer command to generate them again.
 func _runtimeAnnotationModeNoOp() {
 	var x [1]struct{}
-	_ = x[runtimeAnnotationModeGithub-(0)]
-	_ = x[runtimeAnnotationModeNone-(1)]
+	_ = x[runtimeAnnotationModeNone-(0)]
+	_ = x[runtimeAnnotationModeGithub-(1)]
 }
 
-var _runtimeAnnotationModeValues = []runtimeAnnotationMode{runtimeAnnotationModeGithub, runtimeAnnotationModeNone}
+var _runtimeAnnotationModeValues = []runtimeAnnotationMode{runtimeAnnotationModeNone, runtimeAnnotationModeGithub}
 
 var _runtimeAnnotationModeNameToValueMap = map[string]runtimeAnnotationMode{
-	_runtimeAnnotationModeName[0:6]:       runtimeAnnotationModeGithub,
-	_runtimeAnnotationModeLowerName[0:6]:  runtimeAnnotationModeGithub,
-	_runtimeAnnotationModeName[6:10]:      runtimeAnnotationModeNone,
-	_runtimeAnnotationModeLowerName[6:10]: runtimeAnnotationModeNone,
+	_runtimeAnnotationModeName[0:4]:       runtimeAnnotationModeNone,
+	_runtimeAnnotationModeLowerName[0:4]:  runtimeAnnotationModeNone,
+	_runtimeAnnotationModeName[4:10]:      runtimeAnnotationModeGithub,
+	_runtimeAnnotationModeLowerName[4:10]: runtimeAnnotationModeGithub,
 }
 
 var _runtimeAnnotationModeNames = []string{
-	_runtimeAnnotationModeName[0:6],
-	_runtimeAnnotationModeName[6:10],
+	_runtimeAnnotationModeName[0:4],
+	_runtimeAnnotationModeName[4:10],
 }
 
 // runtimeAnnotationModeString retrieves an enum value from the enum constants string name.

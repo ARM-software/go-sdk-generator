@@ -393,6 +393,207 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	assert.Less(t, strings.Index(output, "err := configUtils.ValidateEmbedded(cfg)"), strings.Index(output, "err = validation.ValidateStruct(cfg,"))
 }
 
+func TestCLIConfigTemplateIncludesResultOutputRuntimeValidationRules(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.cli.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				PackageName: "result-output-sdk",
+				MainModule:  "resultoutput",
+				ExtraImports: ExtraImports{
+					{ImportRef: field.ToOptionalString("filesystem"), ImportUrl: field.ToOptionalString(filesystemImportPath)},
+					{ImportRef: field.ToOptionalString("validationUtils"), ImportUrl: field.ToOptionalString(validationUtilsImportPath)},
+				},
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Inspect",
+						Description: "Emit command results to the selected destination.",
+						WithResult:  true,
+						WithSummary: field.ToOptionalBool(false),
+						Configuration: []FunctionConfigFields{
+							{
+								Name:            resultOutputArgument,
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString(resultOutputModeHuman.String()),
+								Enum:            []string{resultOutputModeHuman.String(), resultOutputModeJSON.String(), resultOutputModeYAML.String()},
+								MapstructureTag: resultOutputMapstructureTag,
+								Description:     "output format",
+							},
+							{
+								Name:            resultOutputFileArgument,
+								LangType:        string(BuiltInLangTypeFilepath),
+								MapstructureTag: resultOutputFileMapstructureTag,
+								Description:     "Write machine-readable result output to the selected destination. Use `-` to write to standard output explicitly. This is only valid when output format is json or yaml. When a file path is used, the destination file is created or truncated immediately before writing the result, so an existing file is reset even if the later write fails.",
+								Constraints: &ParameterConstraints{
+									DependentRequired: []string{resultOutputArgument},
+									ForbiddenWhen: &ParameterValueConstraint{
+										Operator:  ParameterValueConstraintOperatorEquals,
+										Parameter: resultOutputArgument,
+										Value:     resultOutputModeHuman.String(),
+									},
+									ParameterValue: &ParameterValueComparisonConstraint{
+										Parameter: loggerFileArg,
+										Operator:  ParameterValueComparisonConstraintOperatorNotEquals,
+										When:      ParameterValueComparisonConstraintWhenNotEmpty,
+									},
+								},
+							},
+							{
+								Name:            loggerArgument,
+								LangType:        stringLangType,
+								DefaultValue:    field.ToOptionalString(defaultCLILoggerMode),
+								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+								MapstructureTag: loggerMapstructureTag,
+								Description:     "logger",
+								Constraints: &ParameterConstraints{
+									RequiredValuesWhen: []ParameterRequiredValuesConstraint{
+										{
+											Parameter:      resultOutputFileArgument,
+											Operator:       ParameterRequiredValuesConstraintOperatorAbsent,
+											RequiredValues: []any{runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+										},
+										{
+											Parameter:      resultOutputFileArgument,
+											Operator:       ParameterRequiredValuesConstraintOperatorEquals,
+											Value:          stdoutArgumentValue,
+											RequiredValues: []any{runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+										},
+									},
+								},
+							},
+							{
+								Name:            loggerFileArg,
+								LangType:        string(BuiltInLangTypeFilepath),
+								MapstructureTag: loggerFileMapstructureTag,
+								Description:     "logger file",
+							},
+						},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.cli.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "func (cfg *InspectConfiguration) GetOutputFormat() (InspectOutputFormat, error) {")
+	assert.Contains(t, output, "OutputFormat: InspectOutputFormatHuman.String(),")
+	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.OutputFormat), validationUtils.Enum(InspectOutputFormatHuman.String(), InspectOutputFormatJSON.String(), InspectOutputFormatYAML.String()))")
+	assert.Contains(t, output, "validation.Field(&cfg.OutputFile, validation.When(reflection.IsNotEmpty(cfg.OutputFile), filesystem.NewOSPathValidationRule(true)))")
+	assert.Contains(t, output, "destination file is created or truncated immediately before writing the result")
+	assert.Contains(t, output, "validationUtils.FieldDependencyBy(map[any][]any{&cfg.OutputFile: []any{&cfg.OutputFormat}})")
+	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.OutputFormat, InspectOutputFormatHuman.String(), validationUtils.ForbiddenFieldsBy(&cfg.OutputFile))")
+	assert.NotContains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.OutputFormat, \"human\", validationUtils.ForbiddenFieldsBy(&cfg.OutputFile))")
+	assert.Contains(t, output, `validationUtils.WhenFieldAbsent(&cfg.OutputFile, validation.By(func(value any) error { return validation.Validate(cfg.Logger, validationUtils.Enum(`)
+	assert.Contains(t, output, `validationUtils.WhenFieldEqualsValue(&cfg.OutputFile, "-", validation.By(func(value any) error { return validation.Validate(cfg.Logger, validationUtils.Enum(`)
+	assert.Contains(t, output, `validationUtils.WhenFieldPresent(&cfg.OutputFile, validation.By(func(value any) error {`)
+	assert.Contains(t, output, `if !reflect.DeepEqual(any(cfg.OutputFile), any(cfg.LoggerFile)) {`)
+	assert.Contains(t, output, `parameter \"OutputFile\" must satisfy the configured value comparison against \"LoggerFile\"`)
+}
+
+func TestWrapperTemplateIncludesResultOutputHelpers(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/wrapper.cli.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SDK: SDK{
+			Specification: SDKSpecification{
+				PackageName: "result-output-sdk",
+				MainModule:  "resultoutput",
+				CommandLineCommands: &CommandLineCommands{
+					Functions: []CliFunction{{
+						Name:        "Inspect",
+						Description: "Emit command results to the selected destination.",
+						WithResult:  true,
+						WithSummary: field.ToOptionalBool(false),
+						Configuration: []FunctionConfigFields{
+							{Name: resultOutputArgument, LangType: stringLangType, MapstructureTag: resultOutputMapstructureTag, Enum: []string{resultOutputModeHuman.String(), resultOutputModeJSON.String(), resultOutputModeYAML.String()}, DefaultValue: field.ToOptionalString(resultOutputModeHuman.String()), Description: "output format"},
+							{Name: resultOutputFileArgument, LangType: string(BuiltInLangTypeFilepath), MapstructureTag: resultOutputFileMapstructureTag, Description: "Write machine-readable result output to the selected destination. Use `-` to write to standard output explicitly. This is only valid when output format is json or yaml. When a file path is used, the destination file is created or truncated immediately before writing the result, so an existing file is reset even if the later write fails.", Constraints: &ParameterConstraints{ParameterValue: &ParameterValueComparisonConstraint{Parameter: loggerFileArg, Operator: ParameterValueComparisonConstraintOperatorNotEquals, When: ParameterValueComparisonConstraintWhenNotEmpty}}},
+							{Name: loggerArgument, LangType: stringLangType, MapstructureTag: loggerMapstructureTag, Enum: []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, DefaultValue: field.ToOptionalString(defaultCLILoggerMode), Description: "logger"},
+							{Name: loggerFileArg, LangType: string(BuiltInLangTypeFilepath), MapstructureTag: loggerFileMapstructureTag, Description: "logger file"},
+							{Name: annotationArgument, LangType: stringLangType, MapstructureTag: syntheticCLIMapstructureTagAnnotation.String(), Enum: []string{runtimeAnnotationModeGithub.String(), runtimeAnnotationModeNone.String()}, DefaultValue: field.ToOptionalString(defaultCLIAnnotationMode), Description: "annotation"},
+						},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "wrapper.cli.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, `jsonserialisation "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell`) //nolint:misspell
+	assert.Contains(t, output, `yamlserialisation "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell`) //nolint:misspell
+	assert.Contains(t, output, "type IResultWriter interface {")
+	assert.Contains(t, output, "Write(result any) error")
+	assert.Contains(t, output, "type HumanWriter struct {")
+	assert.Contains(t, output, "type JSONWriter struct {")
+	assert.Contains(t, output, "type YAMLWriter struct {")
+	assert.Contains(t, output, "closeStore *parallelisation.CloserStore")
+	assert.Contains(t, output, "defer func() { _ = writer.closeStore.Close() }()")
+	assert.Contains(t, output, "func resolveRuntimeLoggerTypeForResultOutput(option any, outputFile string, loggerType string, defaultLoggerType string, fileLoggerType string, customLoggerType string, noneLoggerType string) string {")
+	assert.Contains(t, output, "func ResolveRuntimeLoggerAndAnnotationsForResultOutput(option any, outputFile string, loggerType string, loggerFile string, annotationType string, loggerSource string) (logs.Loggers, annotations.IAnnotationLogger, error) {")
+	assert.Contains(t, output, "selectedLogger := resolveRuntimeLoggerTypeForResultOutput(option, outputFile, loggerType, config.InspectLoggerConsole.String(), config.InspectLoggerFile.String(), config.InspectLoggerCustom.String(), config.InspectLoggerNone.String())")
+	assert.Contains(t, output, "func writeResultFactory(ctx context.Context, output string, outputFile string) (IResultWriter, error) {")
+	assert.Contains(t, output, "converted, err := valueUtils.StringConverter.ConvertValue(writer.ctx, result)")
+	assert.Contains(t, output, "case config.InspectOutputFormatHuman.String():")
+	assert.Contains(t, output, "if err := filesystem.NewOSPathValidationRule(true).Validate(trimmed); err != nil {")
+	assert.Contains(t, output, "closeStore = parallelisation.NewCloserStore(false)")
+	assert.Contains(t, output, "return &HumanWriter{ctx: ctx, writer: writer, closeStore: closeStore}, nil")
+	assert.Contains(t, output, "var InspectWithResultAndAnnotationsImplFunc func(context.Context, annotations.IAnnotationLogger, *config.InspectConfiguration) (any, error) = nil")
+	assert.Contains(t, output, "var InspectWithResultImplFunc func(context.Context, logs.Loggers, *config.InspectConfiguration) (any, error) = nil")
+	assert.Contains(t, output, "logger.LogError(fmt.Sprintf(\"an error occurred: %v\", resultErr))")
+	assert.Contains(t, output, "resultWriter, err := writeResultFactory(ctx, cfg.OutputFormat, cfg.OutputFile)")
+	assert.Contains(t, output, "logger.Log(result)")
+}
+
+func TestDocumentationTemplateIncludesResultOutputCombinationTable(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/documentation.md.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		Distribution: precomputeDistribution(&SDKSpecification{}),
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("Result Output SDK"),
+				PackageName: "result-output-sdk",
+				MainModule:  "resultoutput",
+				Interface:   Interface{Methods: []InterfaceMethod{}},
+				CommandLineCommands: &CommandLineCommands{
+					Binary:             field.ToOptionalString("result-output"),
+					RootEnvironmentVar: field.ToOptionalString("RESULT_OUTPUT"),
+					Description:        field.ToOptionalString("CLI for testing generated result output support."),
+					Functions: []CliFunction{{
+						Name:        "Inspect",
+						Description: "Emit command results to the selected destination.",
+						WithResult:  true,
+						Configuration: []FunctionConfigFields{{
+							Name:            resultOutputArgument,
+							LangType:        stringLangType,
+							MapstructureTag: resultOutputMapstructureTag,
+							Description:     "output format",
+						}},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "documentation.md.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "Result output and logging combinations:")
+	assert.Contains(t, output, "| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |")
+	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "`logger=file` still requires `logger_file` in every allowed combination.")
+	assert.NotContains(t, output, "Every generated CLI command exposes the shared logging and annotation options.")
+}
+
 func TestWrapperTemplateIncludesShowConfigHelper(t *testing.T) {
 	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/wrapper.cli.go.tmpl")
 	require.NoError(t, err)

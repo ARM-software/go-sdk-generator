@@ -1,5 +1,7 @@
 package generator
 
+import "fmt"
+
 //go:generate go tool enumer -type=syntheticCLIMapstructureTag -linecomment -text
 type syntheticCLIMapstructureTag int
 
@@ -9,6 +11,8 @@ const (
 	syntheticCLIMapstructureTagLogger                                         // logger
 	syntheticCLIMapstructureTagLoggerFile                                     // logger_file
 	syntheticCLIMapstructureTagAnnotation                                     // annotation
+	syntheticCLIMapstructureTagOutput                                         // output_format
+	syntheticCLIMapstructureTagOutputFile                                     // output_file
 )
 
 //go:generate go tool enumer -type=runtimeLoggerMode -linecomment -text
@@ -26,6 +30,27 @@ const (
 type runtimeAnnotationMode int
 
 const (
-	runtimeAnnotationModeGithub runtimeAnnotationMode = iota // github
-	runtimeAnnotationModeNone                                // none
+	runtimeAnnotationModeNone   runtimeAnnotationMode = iota // none
+	runtimeAnnotationModeGithub                              // github
 )
+
+type resultOutputMode int
+
+const (
+	resultOutputModeHuman resultOutputMode = iota
+	resultOutputModeJSON
+	resultOutputModeYAML
+)
+
+func (mode resultOutputMode) String() string {
+	switch mode {
+	case resultOutputModeHuman:
+		return "human"
+	case resultOutputModeJSON:
+		return "json"
+	case resultOutputModeYAML:
+		return "yaml"
+	default:
+		return fmt.Sprintf("resultOutputMode(%d)", mode)
+	}
+}

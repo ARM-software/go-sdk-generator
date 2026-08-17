@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _syntheticCLIMapstructureTagName = "summarysummary_fileloggerlogger_fileannotation"
+const _syntheticCLIMapstructureTagName = "summarysummary_fileloggerlogger_fileannotationoutput_formatoutput_file"
 
-var _syntheticCLIMapstructureTagIndex = [...]uint8{0, 7, 19, 25, 36, 46}
+var _syntheticCLIMapstructureTagIndex = [...]uint8{0, 7, 19, 25, 36, 46, 59, 70}
 
-const _syntheticCLIMapstructureTagLowerName = "summarysummary_fileloggerlogger_fileannotation"
+const _syntheticCLIMapstructureTagLowerName = "summarysummary_fileloggerlogger_fileannotationoutput_formatoutput_file"
 
 func (i syntheticCLIMapstructureTag) String() string {
 	if i < 0 || i >= syntheticCLIMapstructureTag(len(_syntheticCLIMapstructureTagIndex)-1) {
@@ -29,9 +29,11 @@ func _syntheticCLIMapstructureTagNoOp() {
 	_ = x[syntheticCLIMapstructureTagLogger-(2)]
 	_ = x[syntheticCLIMapstructureTagLoggerFile-(3)]
 	_ = x[syntheticCLIMapstructureTagAnnotation-(4)]
+	_ = x[syntheticCLIMapstructureTagOutput-(5)]
+	_ = x[syntheticCLIMapstructureTagOutputFile-(6)]
 }
 
-var _syntheticCLIMapstructureTagValues = []syntheticCLIMapstructureTag{syntheticCLIMapstructureTagSummary, syntheticCLIMapstructureTagSummaryFile, syntheticCLIMapstructureTagLogger, syntheticCLIMapstructureTagLoggerFile, syntheticCLIMapstructureTagAnnotation}
+var _syntheticCLIMapstructureTagValues = []syntheticCLIMapstructureTag{syntheticCLIMapstructureTagSummary, syntheticCLIMapstructureTagSummaryFile, syntheticCLIMapstructureTagLogger, syntheticCLIMapstructureTagLoggerFile, syntheticCLIMapstructureTagAnnotation, syntheticCLIMapstructureTagOutput, syntheticCLIMapstructureTagOutputFile}
 
 var _syntheticCLIMapstructureTagNameToValueMap = map[string]syntheticCLIMapstructureTag{
 	_syntheticCLIMapstructureTagName[0:7]:        syntheticCLIMapstructureTagSummary,
@@ -44,6 +46,10 @@ var _syntheticCLIMapstructureTagNameToValueMap = map[string]syntheticCLIMapstruc
 	_syntheticCLIMapstructureTagLowerName[25:36]: syntheticCLIMapstructureTagLoggerFile,
 	_syntheticCLIMapstructureTagName[36:46]:      syntheticCLIMapstructureTagAnnotation,
 	_syntheticCLIMapstructureTagLowerName[36:46]: syntheticCLIMapstructureTagAnnotation,
+	_syntheticCLIMapstructureTagName[46:59]:      syntheticCLIMapstructureTagOutput,
+	_syntheticCLIMapstructureTagLowerName[46:59]: syntheticCLIMapstructureTagOutput,
+	_syntheticCLIMapstructureTagName[59:70]:      syntheticCLIMapstructureTagOutputFile,
+	_syntheticCLIMapstructureTagLowerName[59:70]: syntheticCLIMapstructureTagOutputFile,
 }
 
 var _syntheticCLIMapstructureTagNames = []string{
@@ -52,6 +58,8 @@ var _syntheticCLIMapstructureTagNames = []string{
 	_syntheticCLIMapstructureTagName[19:25],
 	_syntheticCLIMapstructureTagName[25:36],
 	_syntheticCLIMapstructureTagName[36:46],
+	_syntheticCLIMapstructureTagName[46:59],
+	_syntheticCLIMapstructureTagName[59:70],
 }
 
 // syntheticCLIMapstructureTagString retrieves an enum value from the enum constants string name.

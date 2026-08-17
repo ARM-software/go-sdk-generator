@@ -1,0 +1,35 @@
+specification:
+  package_name: result-output-sdk
+  main_module: resultoutput
+  name: Result Output SDK
+  description: Example manifest covering command result output.
+
+  interface:
+    methods: []
+
+  command_line_commands:
+    binary: result-output
+    root_environment_var: RESULT_OUTPUT
+    description: CLI for testing generated result output support.
+    no_actions: true
+    functions:
+      - name: Inspect
+        description: Emit command results to the selected destination.
+        with_result: true
+        with_summary: false
+        configuration:
+          - name: Target
+            lang_type: string
+            mapstructure_tag: target
+            description: Target to inspect.
+
+      - name: Write
+        description: Write output without result output wiring.
+        with_summary: false
+        configuration:
+          - name: Output
+            lang_type: filepath
+            mapstructure_tag: output
+            description: Destination file.
+
+  global_configuration: []

@@ -694,12 +694,22 @@ func validateProtectedCLIArgumentNamesForFunction(fct *CliFunction) error {
 	if fct == nil {
 		return nil
 	}
-	protected := make([]string, 0, len(fct.Configuration))
-	for _, cfg := range fct.Configuration {
-		if slices.Contains(protectedCommands, cfg.Name) {
-			protected = append(protected, cfg.Name)
-		}
+	protectedNames, err := embeddedProtectedCLIArgumentNames(alwaysProtectedCLIArgumentNamesKey)
+	if err != nil {
+		return err
 	}
+	if fct.UsesResult() {
+		resultProtectedNames, err := embeddedProtectedCLIArgumentNames(resultProtectedCLIArgumentNamesKey)
+		if err != nil {
+			return err
+		}
+		protectedNames = append(protectedNames, resultProtectedNames...)
+	}
+	protected := collection.Filter(collection.Map(fct.Configuration, func(cfg FunctionConfigFields) string {
+		return cfg.Name
+	}), func(name string) bool {
+		return slices.Contains(protectedNames, name)
+	})
 	if len(protected) == 0 {
 		return nil
 	}
@@ -771,21 +781,85 @@ func validateParameterValueConstraintDefinition(name string, condition *Paramete
 		return nil
 	}
 	operator := condition.Operator
-	if operator == "" {
+	if reflection.IsEmpty(operator) {
 		operator = ParameterValueConstraintOperatorPresent
 	}
-	if condition.Parameter == "" {
+	if reflection.IsEmpty(condition.Parameter) {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must specify a parameter", name)
 	}
 	switch operator {
 	case ParameterValueConstraintOperatorEquals, ParameterValueConstraintOperatorNotEquals:
-		if condition.Value == nil {
+		if reflection.IsEmpty(condition.Value) {
 			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define value", name, operator)
 		}
 	case ParameterValueConstraintOperatorIn, ParameterValueConstraintOperatorNotIn:
-		if len(condition.Values) == 0 {
+		if reflection.IsEmpty(condition.Values) {
 			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define values", name, operator)
 		}
+	}
+	return nil
+}
+
+func validateParameterRequiredValuesConstraintDefinition(name string, condition *ParameterRequiredValuesConstraint) error {
+	if condition == nil {
+		return nil
+	}
+	operator := condition.Operator
+	if reflection.IsEmpty(operator) {
+		operator = ParameterRequiredValuesConstraintOperatorPresent
+	}
+	if reflection.IsEmpty(condition.Parameter) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must specify a parameter", name)
+	}
+	if reflection.IsEmpty(condition.RequiredValues) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must define required_values", name)
+	}
+	switch operator {
+	case ParameterRequiredValuesConstraintOperatorEquals, ParameterRequiredValuesConstraintOperatorNotEquals:
+		if reflection.IsEmpty(condition.Value) {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define value", name, operator)
+		}
+	case ParameterRequiredValuesConstraintOperatorIn, ParameterRequiredValuesConstraintOperatorNotIn:
+		if reflection.IsEmpty(condition.Values) {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define values", name, operator)
+		}
+	}
+	return nil
+}
+
+func validateParameterForbiddenValuesConstraintDefinition(name string, condition *ParameterForbiddenValuesConstraint) error {
+	if condition == nil {
+		return nil
+	}
+	operator := condition.Operator
+	if reflection.IsEmpty(operator) {
+		operator = ParameterForbiddenValuesConstraintOperatorPresent
+	}
+	if reflection.IsEmpty(condition.Parameter) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must specify a parameter", name)
+	}
+	if reflection.IsEmpty(condition.ForbiddenValues) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must define forbidden_values", name)
+	}
+	switch operator {
+	case ParameterForbiddenValuesConstraintOperatorEquals, ParameterForbiddenValuesConstraintOperatorNotEquals:
+		if reflection.IsEmpty(condition.Value) {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define value", name, operator)
+		}
+	case ParameterForbiddenValuesConstraintOperatorIn, ParameterForbiddenValuesConstraintOperatorNotIn:
+		if reflection.IsEmpty(condition.Values) {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%s with operator %q must define values", name, operator)
+		}
+	}
+	return nil
+}
+
+func validateParameterValueComparisonConstraintDefinition(name string, condition *ParameterValueComparisonConstraint) error {
+	if condition == nil {
+		return nil
+	}
+	if reflection.IsEmpty(condition.Parameter) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must specify a parameter", name)
 	}
 	return nil
 }
@@ -827,6 +901,19 @@ func validateParameterConstraintsDefinition(name string, langType string, refere
 		validation.Field(&constraints.ForbiddenWhen, validation.By(func(value any) error {
 			return validateParameterValueConstraintDefinition(fmt.Sprintf("%s forbidden_when", name), constraints.ForbiddenWhen)
 		})),
+		validation.Field(&constraints.RequiredValuesWhen, validation.By(func(value any) error {
+			return collection.ForAll(constraints.RequiredValuesWhen, func(condition ParameterRequiredValuesConstraint) error {
+				return validateParameterRequiredValuesConstraintDefinition(fmt.Sprintf("%s required_values_when", name), &condition)
+			})
+		})),
+		validation.Field(&constraints.ForbiddenValuesWhen, validation.By(func(value any) error {
+			return collection.ForAll(constraints.ForbiddenValuesWhen, func(condition ParameterForbiddenValuesConstraint) error {
+				return validateParameterForbiddenValuesConstraintDefinition(fmt.Sprintf("%s forbidden_values_when", name), &condition)
+			})
+		})),
+		validation.Field(&constraints.ParameterValue, validation.By(func(value any) error {
+			return validateParameterValueComparisonConstraintDefinition(fmt.Sprintf("%s parameter_value", name), constraints.ParameterValue)
+		})),
 	)
 }
 
@@ -855,6 +942,25 @@ func validateParameterConstraintReferences(names []string, sourceName string, co
 	}
 	if constraints.ForbiddenWhen != nil && !collection.In(known, constraints.ForbiddenWhen.Parameter, collection.StringMatch) {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares forbidden_when parameter %q that does not exist in the same parameter collection", sourceName, constraints.ForbiddenWhen.Parameter)
+	}
+	if constraints.ParameterValue != nil && !collection.In(known, constraints.ParameterValue.Parameter, collection.StringMatch) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares parameter_value parameter %q that does not exist in the same parameter collection", sourceName, constraints.ParameterValue.Parameter)
+	}
+	if err := collection.ForAll(constraints.RequiredValuesWhen, func(condition ParameterRequiredValuesConstraint) error {
+		if collection.In(known, condition.Parameter, collection.StringMatch) {
+			return nil
+		}
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares required_values_when parameter %q that does not exist in the same parameter collection", sourceName, condition.Parameter)
+	}); err != nil {
+		return err
+	}
+	if err := collection.ForAll(constraints.ForbiddenValuesWhen, func(condition ParameterForbiddenValuesConstraint) error {
+		if collection.In(known, condition.Parameter, collection.StringMatch) {
+			return nil
+		}
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares forbidden_values_when parameter %q that does not exist in the same parameter collection", sourceName, condition.Parameter)
+	}); err != nil {
+		return err
 	}
 	return nil
 }

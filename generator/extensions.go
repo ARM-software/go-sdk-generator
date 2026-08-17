@@ -110,6 +110,9 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"usesSummary": func(fct CliFunction, cmds *CommandLineCommands) bool {
 		return (&fct).UsesSummary(cmds)
 	},
+	"usesResult": func(fct CliFunction) bool {
+		return (&fct).UsesResult()
+	},
 	"canGenerateSummaryValidationTest": func(fct CliFunction, cmds *CommandLineCommands) bool {
 		return (&fct).CanGenerateSummaryValidationTest(cmds)
 	},
@@ -143,6 +146,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"cliConfigTestImports":               cliConfigTestImports,
 	"shouldAssignCLIConfigTestValue":     shouldAssignCLIConfigTestValue,
 	"firstVisibleCLICommand":             firstVisibleCLICommand,
+	"firstVisibleResultCLICommand":       firstVisibleResultCLICommand,
 	"documentedInterfaceMethodSignature": documentedInterfaceMethodSignature,
 	"documentedCLIOptions":               documentedCLIOptions,
 	"parameterTypeFromBase":              parameterTypeFromBase,

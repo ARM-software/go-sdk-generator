@@ -227,6 +227,12 @@ func TestValidateProtectedCLIArgumentNamesRejectsProtectedConfigurationNames(t *
 					Description:     "Domain logger.",
 				},
 				{
+					Name:            showConfigArgument,
+					LangType:        "bool",
+					MapstructureTag: "domain_show_config",
+					Description:     "Domain show config.",
+				},
+				{
 					Name:            summaryFileArg,
 					LangType:        "string",
 					MapstructureTag: "domain_summary_file",
@@ -238,7 +244,52 @@ func TestValidateProtectedCLIArgumentNamesRejectsProtectedConfigurationNames(t *
 
 	err := validateProtectedCLIArgumentNames(cmds)
 	errortest.AssertError(t, err, commonerrors.ErrInvalid)
-	errortest.AssertErrorDescription(t, err, "uses protected argument names [Logger, SummaryFile]")
+	errortest.AssertErrorDescription(t, err, "uses protected argument names [Logger, ShowConfig, SummaryFile]")
 	errortest.AssertErrorDescription(t, err, "cannot be used in command_line_commands.functions[].configuration")
 	errortest.AssertErrorDescription(t, err, "cli function \"Run\"")
+}
+
+func TestValidateProtectedCLIArgumentNamesRejectsResultProtectedConfigurationNames(t *testing.T) {
+	t.Parallel()
+
+	cmds := &CommandLineCommands{
+		Functions: []CliFunction{{
+			Name:        "Run",
+			Description: "Run.",
+			WithResult:  true,
+			Configuration: []FunctionConfigFields{
+				{
+					Name:            resultOutputArgument,
+					LangType:        "string",
+					MapstructureTag: "domain_output",
+					Description:     "Domain output.",
+				},
+			},
+		}},
+	}
+
+	err := validateProtectedCLIArgumentNames(cmds)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "uses protected argument names [OutputFormat]")
+}
+
+func TestValidateProtectedCLIArgumentNamesAllowsOutputWhenResultOutputIsDisabled(t *testing.T) {
+	t.Parallel()
+
+	cmds := &CommandLineCommands{
+		Functions: []CliFunction{{
+			Name:        "Run",
+			Description: "Run.",
+			Configuration: []FunctionConfigFields{
+				{
+					Name:            resultOutputArgument,
+					LangType:        "string",
+					MapstructureTag: "domain_output",
+					Description:     "Domain output.",
+				},
+			},
+		}},
+	}
+
+	require.NoError(t, validateProtectedCLIArgumentNames(cmds))
 }

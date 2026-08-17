@@ -605,7 +605,7 @@ func TestProcessArguments(t *testing.T) {
 		require.Contains(t, byName, annotationArgument)
 		require.Contains(t, byName, summaryArgument)
 		require.Contains(t, byName, summaryFileArg)
-		assert.Equal(t, "Write a human-readable summary to the selected destination. Allowed values: file, github, output.", byName[summaryArgument].Description)
+		assert.Equal(t, "Write a human-readable summary to the selected destination.", byName[summaryArgument].Description)
 		assert.Equal(t, []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()}, byName[summaryArgument].Enum)
 		require.NotNil(t, byName[summaryArgument].DefaultValue)
 		assert.Equal(t, SummaryDestinationOutput.String(), *byName[summaryArgument].DefaultValue)
@@ -686,6 +686,91 @@ func TestProcessArguments(t *testing.T) {
 		assert.Contains(t, byName, annotationArgument)
 		assert.NotContains(t, byName, summaryArgument)
 		assert.NotContains(t, byName, summaryFileArg)
+	})
+
+	t.Run("injects result output arguments for result-aware commands", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("target"),
+				Description:     "target",
+				LangType:        "string",
+				MapstructureTag: "target",
+				Name:            "Target",
+			}},
+			Description: "Emit command results to the selected destination.",
+			Name:        "Inspect",
+			WithResult:  true,
+			WithSummary: field.ToOptionalBool(false),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{NoActions: true, Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		require.Contains(t, byName, resultOutputArgument)
+		require.Contains(t, byName, resultOutputFileArgument)
+		require.Contains(t, byName, loggerArgument)
+		assert.Equal(t, "output_format", byName[resultOutputArgument].MapstructureTag)
+		assert.Equal(t, "OutputFormat", byName[resultOutputArgument].Name)
+		assert.Equal(t, []string{resultOutputModeHuman.String(), resultOutputModeJSON.String(), resultOutputModeYAML.String()}, byName[resultOutputArgument].Enum)
+		require.NotNil(t, byName[resultOutputArgument].DefaultValue)
+		assert.Equal(t, defaultCLIResultOutputMode, *byName[resultOutputArgument].DefaultValue)
+		require.NotNil(t, byName[loggerArgument].Constraints)
+		require.Len(t, byName[loggerArgument].Constraints.RequiredValuesWhen, 2)
+		assert.Equal(t, resultOutputFileArgument, byName[loggerArgument].Constraints.RequiredValuesWhen[0].Parameter)
+		assert.Equal(t, ParameterRequiredValuesConstraintOperatorAbsent, byName[loggerArgument].Constraints.RequiredValuesWhen[0].Operator)
+		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[0].RequiredValues)
+		assert.Equal(t, ParameterRequiredValuesConstraintOperatorEquals, byName[loggerArgument].Constraints.RequiredValuesWhen[1].Operator)
+		assert.Equal(t, stdoutArgumentValue, byName[loggerArgument].Constraints.RequiredValuesWhen[1].Value)
+		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[1].RequiredValues)
+		require.NotNil(t, byName[resultOutputFileArgument].Constraints)
+		assert.Equal(t, []string{resultOutputArgument}, byName[resultOutputFileArgument].Constraints.DependentRequired)
+		require.NotNil(t, byName[resultOutputFileArgument].Constraints.ForbiddenWhen)
+		assert.Equal(t, ParameterValueConstraintOperatorEquals, byName[resultOutputFileArgument].Constraints.ForbiddenWhen.Operator)
+		assert.Equal(t, resultOutputArgument, byName[resultOutputFileArgument].Constraints.ForbiddenWhen.Parameter)
+		assert.Equal(t, resultOutputModeHuman.String(), byName[resultOutputFileArgument].Constraints.ForbiddenWhen.Value)
+		require.NotNil(t, byName[resultOutputFileArgument].Constraints.ParameterValue)
+		assert.Equal(t, loggerFileArg, byName[resultOutputFileArgument].Constraints.ParameterValue.Parameter)
+		assert.Equal(t, ParameterValueComparisonConstraintOperatorNotEquals, byName[resultOutputFileArgument].Constraints.ParameterValue.Operator)
+		assert.Equal(t, ParameterValueComparisonConstraintWhenNotEmpty, byName[resultOutputFileArgument].Constraints.ParameterValue.When)
+		assert.NotContains(t, byName, summaryArgument)
+		assert.NotContains(t, byName, summaryFileArg)
+	})
+
+	t.Run("does not inject result output arguments when with_result is omitted", func(t *testing.T) {
+		cliFunc := CliFunction{
+			Configuration: []FunctionConfigFields{{
+				Arg:             field.ToOptionalString("target"),
+				Description:     "target",
+				LangType:        "string",
+				MapstructureTag: "target",
+				Name:            "Target",
+			}},
+			Description: "Emit command results to the selected destination.",
+			Name:        "Inspect",
+			WithSummary: field.ToOptionalBool(false),
+		}
+		sdk := &SDK{
+			Specification: SDKSpecification{
+				CommandLineCommands: &CommandLineCommands{NoActions: true, Functions: []CliFunction{cliFunc}},
+				GlobalConfiguration: []ConfigurationOption{},
+				Interface:           Interface{},
+				MainModule:          "main",
+				PackageName:         "pkg",
+			},
+		}
+
+		require.NoError(t, ProcessArguments(context.Background(), sdk))
+		byName := sdk.Specification.CommandLineCommands.Functions[0].ConfigurationByName()
+		assert.NotContains(t, byName, resultOutputArgument)
+		assert.NotContains(t, byName, resultOutputFileArgument)
 	})
 
 	t.Run("rejects parameters that set both list and iterator", func(t *testing.T) {

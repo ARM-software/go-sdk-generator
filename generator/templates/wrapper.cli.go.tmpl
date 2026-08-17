@@ -8,6 +8,10 @@ package {{ $packageName }}
 import (
 	"context"
 	"fmt"
+	{{ if .Specification.CommandLineCommands.UsesResult -}}
+	"io"
+	"os"
+	{{ end -}}
 	"maps"
 	"reflect"
 	"slices"
@@ -23,6 +27,11 @@ import (
 	"github.com/ARM-software/golang-utils/utils/logs/summary"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	"github.com/ARM-software/golang-utils/utils/safeio"
+	{{ if .Specification.CommandLineCommands.UsesResult -}}
+	jsonserialisation "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
+	yamlserialisation "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell
+	{{ end -}}
 	valueUtils "github.com/ARM-software/golang-utils/utils/value"
 	richlog "github.com/charmbracelet/log"
 
@@ -130,6 +139,55 @@ type AnnotationAwareLogger struct {
 type RichLoggerAdapter struct {
 	logger richlog.Logger
 }
+
+{{ if .Specification.CommandLineCommands.UsesResult -}}
+// IResultWriter writes a command result to the resolved output destination.
+type IResultWriter interface {
+	Write(result any) error
+}
+
+type HumanWriter struct {
+	ctx        context.Context
+	writer     io.Writer
+	closeStore *parallelisation.CloserStore
+}
+
+func (writer *HumanWriter) Write(result any) (err error) {
+	defer func() { _ = writer.closeStore.Close() }()
+	converted, err := valueUtils.StringConverter.ConvertValue(writer.ctx, result)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrMarshalling, err, "failed converting the command result to text")
+	}
+	_, err = safeio.WriteString(writer.ctx, writer.writer, fmt.Sprint(converted))
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed writing the command result")
+	}
+	return nil
+}
+
+type JSONWriter struct {
+	ctx        context.Context
+	writer     io.Writer
+	closeStore *parallelisation.CloserStore
+}
+
+func (writer *JSONWriter) Write(result any) (err error) {
+	defer func() { _ = writer.closeStore.Close() }()
+	return jsonserialisation.NewEncoder(writer.ctx, writer.writer).Encode(result)
+}
+
+type YAMLWriter struct {
+	ctx        context.Context
+	writer     io.Writer
+	closeStore *parallelisation.CloserStore
+}
+
+func (writer *YAMLWriter) Write(result any) (err error) {
+	defer func() { _ = writer.closeStore.Close() }()
+	return yamlserialisation.NewEncoder(writer.ctx, writer.writer).Encode(result)
+}
+
+{{ end -}}
 
 func (logger *RichLoggerAdapter) Check() error {
 	if logger == nil || logger.logger == nil {
@@ -287,6 +345,95 @@ func ResolveRuntimeLoggerAndAnnotations(loggerType string, loggerFile string, an
 	return baseLogger, annotationLogger, nil
 }
 
+{{ if .Specification.CommandLineCommands.UsesResult -}}
+func usesResultStandardOutput(outputFile string) bool {
+	trimmed := strings.TrimSpace(outputFile)
+	return reflection.IsEmpty(trimmed) || trimmed == "-"
+}
+
+func usesMachineReadableResultOutput(option any) bool {
+	switch option {
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ $functionName := .Name | toPascal -}}
+	{{ if usesResult . -}}
+	case config.{{ $functionName }}OutputFormatJSON, config.{{ $functionName }}OutputFormatYAML:
+		return true
+	{{ end -}}
+	{{ end -}}
+	default:
+		return false
+	}
+}
+
+func resolveRuntimeLoggerTypeForResultOutput(option any, outputFile string, loggerType string, defaultLoggerType string, fileLoggerType string, customLoggerType string, noneLoggerType string) string {
+	selectedLogger := normaliseRuntimeOption(loggerType, defaultLoggerType)
+	if usesResultStandardOutput(outputFile) && usesMachineReadableResultOutput(option) && selectedLogger != fileLoggerType && selectedLogger != customLoggerType {
+		return noneLoggerType
+	}
+	return selectedLogger
+}
+
+// ResolveRuntimeLoggerAndAnnotationsForResultOutput keeps stdout clean for
+// machine-readable result output while preserving the configured logger and
+// annotation behaviour on a separate stream.
+func ResolveRuntimeLoggerAndAnnotationsForResultOutput(option any, outputFile string, loggerType string, loggerFile string, annotationType string, loggerSource string) (logs.Loggers, annotations.IAnnotationLogger, error) {
+	selectedLogger := resolveRuntimeLoggerTypeForResultOutput(option, outputFile, loggerType, config.{{ $runtimeEnumPrefix }}LoggerConsole.String(), config.{{ $runtimeEnumPrefix }}LoggerFile.String(), config.{{ $runtimeEnumPrefix }}LoggerCustom.String(), config.{{ $runtimeEnumPrefix }}LoggerNone.String())
+	return ResolveRuntimeLoggerAndAnnotations(selectedLogger, loggerFile, annotationType, loggerSource)
+}
+
+
+func resultOutputDestinationWriter(ctx context.Context, filepath string) (writer io.Writer, closeStore *parallelisation.CloserStore, err error) {
+	closeStore = parallelisation.NewCloserStore(false)
+	trimmed := strings.TrimSpace(filepath)
+	if reflection.IsEmpty(trimmed) || trimmed == "-" {
+		return safeio.ContextualWriter(ctx, os.Stdout), closeStore, nil
+	}
+	if err := filesystem.NewOSPathValidationRule(true).Validate(trimmed); err != nil {
+		return nil, nil, err
+	}
+	file, err := filesystem.CreateFile(trimmed)
+	if err != nil {
+		return nil, nil, err
+	}
+	closeStore.RegisterCloser(file)
+	return safeio.ContextualWriter(ctx, file), closeStore, nil
+}
+
+// writeResultFactory resolves the result writer for the selected output mode and destination.
+func writeResultFactory(ctx context.Context, output string, outputFile string) (IResultWriter, error) {
+	writer, closeStore, err := resultOutputDestinationWriter(ctx, outputFile)
+	if err != nil {
+		return nil, err
+	}
+	switch strings.TrimSpace(output) {
+	{{ range .Specification.CommandLineCommands.Functions -}}
+	{{ $functionName := .Name | toPascal -}}
+	{{ if usesResult . -}}
+	case config.{{ $functionName }}OutputFormatHuman.String():
+		return &HumanWriter{ctx: ctx, writer: writer, closeStore: closeStore}, nil
+	case config.{{ $functionName }}OutputFormatJSON.String():
+		return &JSONWriter{ctx: ctx, writer: writer, closeStore: closeStore}, nil
+	case config.{{ $functionName }}OutputFormatYAML.String():
+		return &YAMLWriter{ctx: ctx, writer: writer, closeStore: closeStore}, nil
+	{{ end -}}
+	{{ end -}}
+	default:
+		_ = closeStore.Close()
+		return nil, commonerrors.Newf(commonerrors.ErrUnsupported, "unsupported result output value %q", output)
+	}
+}
+
+// WriteCommandResult renders a command result according to the selected output
+// mode and destination.
+func WriteCommandResult(ctx context.Context, output string, outputFile string, result any) error {
+	resultWriter, err := writeResultFactory(ctx, output, outputFile)
+	if err != nil {
+		return err
+	}
+	return resultWriter.Write(result)
+}
+{{ end -}}
+
 {{ if .Specification.CommandLineCommands.UsesSummary -}}
 // SummaryLoggerFactory creates a summary logger for any summary-enabled command.
 // The option is typed as `any` because each generated command has its own enum type,
@@ -324,7 +471,113 @@ func SummaryLoggerFactory(option any, filepath string, logger logs.Loggers) summ
 
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ $functionName:= .Name  | toPascal -}}
-{{ if usesSummary . $.Specification.CommandLineCommands -}}
+{{ if and (usesSummary . $.Specification.CommandLineCommands) (usesResult .) -}}
+
+// {{ $functionName }}WithResultAndSummaryAndAnnotationsImplFunc binds the
+// annotation-aware, summary-aware, result-returning implementation function
+// when ready to the CLI definition.
+var {{ $functionName }}WithResultAndSummaryAndAnnotationsImplFunc func(context.Context, annotations.IAnnotationLogger, summary.ISummaryLogger, *config.{{ $functionName }}Configuration) (any, error) = nil
+
+// {{ $functionName }}WithResultAndSummaryImplFunc binds the summary-aware,
+// result-returning implementation function when ready to the CLI definition.
+var {{ $functionName }}WithResultAndSummaryImplFunc func(context.Context, logs.Loggers, summary.ISummaryLogger, *config.{{ $functionName }}Configuration) (any, error) = nil
+
+// {{ $functionName }}WithSummaryAndAnnotationsImplFunc binds the annotation-aware,
+// summary-aware implementation function when ready to the CLI definition.
+var {{ $functionName }}WithSummaryAndAnnotationsImplFunc func(context.Context, annotations.IAnnotationLogger, summary.ISummaryLogger, *config.{{ $functionName }}Configuration) error = nil
+
+// {{ $functionName }}WithSummaryImplFunc binds the summary-aware implementation function (i.e. {{ $functionName }}WithSummary()) when ready to the CLI definition.
+var {{ $functionName }}WithSummaryImplFunc func(context.Context, logs.Loggers, summary.ISummaryLogger, *config.{{ $functionName }}Configuration) error = nil
+
+// {{ $functionName }}ImplFunc binds the implementation function (i.e. {{ $functionName }}()) when ready to the CLI definition.
+var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error = Base{{ $functionName }}Impl
+
+func write{{ $functionName }}Result(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration, result any, resultErr error) error {
+	if resultErr != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", resultErr))
+		return resultErr
+	}
+	resultWriter, err := writeResultFactory(ctx, cfg.OutputFormat, cfg.OutputFile)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", err))
+		return err
+	}
+	err = resultWriter.Write(result)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", err))
+		return err
+	}
+	logger.Log(result)
+	return nil
+}
+
+func Base{{ $functionName }}Impl(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (err error) {
+	if {{ $functionName }}WithSummaryImplFunc == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}WithSummary", {{ $functionName }}WithSummaryImplFunc)
+		return
+	}
+
+	summaryOption, err := cfg.GetSummary()
+	if err != nil {
+		return
+	}
+
+	summaryLogger := SummaryLoggerFactory(summaryOption, cfg.SummaryFile, logger)
+
+	return {{ $functionName }}WithSummaryImplFunc(ctx, logger, summaryLogger, cfg)
+}
+
+func wrap{{ $functionName }}WithAnnotationsOrSimple(ctx context.Context, logger annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+	if {{ $functionName }}ImplFunc == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}", {{ $functionName }}ImplFunc)
+		return
+	}
+	return {{ $functionName }}ImplFunc(ctx, logger, cfg)
+}
+
+// Wrap{{ $functionName }}WithAnnotations wraps around the annotation-aware
+// logger path and falls back to the existing simple implementation when no
+// summary-capable implementation has been registered.
+func Wrap{{ $functionName }}WithAnnotations(ctx context.Context, logger annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+	err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+	if err != nil {
+		return
+	}
+	return wrap{{ $functionName }}WithAnnotationsOrSimple(ctx, logger, cfg)
+}
+
+// Wrap{{ $functionName }}WithSummaryAndAnnotations wraps around the advanced
+// annotation-aware implementation and falls back to the existing summary-aware
+// or simple implementation when no advanced implementation has been registered.
+func Wrap{{ $functionName }}WithSummaryAndAnnotations(ctx context.Context, logger annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+	err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+	if err != nil {
+		return
+	}
+
+	summaryOption, err := cfg.GetSummary()
+	if err != nil {
+		return
+	}
+
+	summaryLogger := SummaryLoggerFactory(summaryOption, cfg.SummaryFile, logger)
+	if {{ $functionName }}WithResultAndSummaryAndAnnotationsImplFunc != nil {
+		result, subErr := {{ $functionName }}WithResultAndSummaryAndAnnotationsImplFunc(ctx, logger, summaryLogger, cfg)
+		return write{{ $functionName }}Result(ctx, logger, cfg, result, subErr)
+	}
+	if {{ $functionName }}WithResultAndSummaryImplFunc != nil {
+		result, subErr := {{ $functionName }}WithResultAndSummaryImplFunc(ctx, logger, summaryLogger, cfg)
+		return write{{ $functionName }}Result(ctx, logger, cfg, result, subErr)
+	}
+	if {{ $functionName }}WithSummaryAndAnnotationsImplFunc != nil {
+		return {{ $functionName }}WithSummaryAndAnnotationsImplFunc(ctx, logger, summaryLogger, cfg)
+	}
+	if {{ $functionName }}WithSummaryImplFunc != nil {
+		return {{ $functionName }}WithSummaryImplFunc(ctx, logger, summaryLogger, cfg)
+	}
+	return wrap{{ $functionName }}WithAnnotationsOrSimple(ctx, logger, cfg)
+}
+{{ else if usesSummary . $.Specification.CommandLineCommands -}}
 
 // {{ $functionName }}WithSummaryAndAnnotationsImplFunc binds the annotation-aware,
 // summary-aware implementation function when ready to the CLI definition.
@@ -393,6 +646,68 @@ func Wrap{{ $functionName }}WithSummaryAndAnnotations(ctx context.Context, logge
 		return {{ $functionName }}WithSummaryImplFunc(ctx, logger, summaryLogger, cfg)
 	}
 	return wrap{{ $functionName }}WithAnnotationsOrSimple(ctx, logger, cfg)
+}
+{{ else if usesResult . -}}
+// {{ $functionName }}WithResultAndAnnotationsImplFunc binds the annotation-aware,
+// result-returning implementation function when ready to the CLI definition.
+var {{ $functionName }}WithResultAndAnnotationsImplFunc func(context.Context, annotations.IAnnotationLogger, *config.{{ $functionName }}Configuration) (any, error) = nil
+
+// {{ $functionName }}WithResultImplFunc binds the simple logger-based,
+// result-returning implementation function when ready to the CLI definition.
+var {{ $functionName }}WithResultImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) (any, error) = nil
+
+// {{ $functionName }}WithAnnotationsImplFunc binds the annotation-aware
+// implementation function when ready to the CLI definition.
+var {{ $functionName }}WithAnnotationsImplFunc func(context.Context, annotations.IAnnotationLogger, *config.{{ $functionName }}Configuration) error = nil
+
+// {{ $functionName }}ImplFunc binds the implementation function (i.e. {{ $functionName }}()) when ready to the CLI definition.
+var {{ $functionName }}ImplFunc func(context.Context, logs.Loggers, *config.{{ $functionName }}Configuration) error = nil
+
+func write{{ $functionName }}Result(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration, result any, resultErr error) error {
+	if resultErr != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", resultErr))
+		return resultErr
+	}
+	resultWriter, err := writeResultFactory(ctx, cfg.OutputFormat, cfg.OutputFile)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", err))
+		return err
+	}
+	err = resultWriter.Write(result)
+	if err != nil {
+		logger.LogError(fmt.Sprintf("an error occurred: %v", err))
+		return err
+	}
+	logger.Log(result)
+	return nil
+}
+
+// Wrap{{ $functionName }}WithAnnotations wraps around the annotation-aware
+// implementation and falls back to the existing simple implementation when no
+// advanced implementation has been registered.
+func Wrap{{ $functionName }}WithAnnotations(ctx context.Context, logger annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (err error) {
+	if cfg != nil {
+		err = ShowCommandConfiguration(ctx, config.App, cfg, logger, cfg.ShowConfig)
+		if err != nil {
+			return
+		}
+	}
+	if {{ $functionName }}WithResultAndAnnotationsImplFunc != nil {
+		result, subErr := {{ $functionName }}WithResultAndAnnotationsImplFunc(ctx, logger, cfg)
+		return write{{ $functionName }}Result(ctx, logger, cfg, result, subErr)
+	}
+	if {{ $functionName }}WithResultImplFunc != nil {
+		result, subErr := {{ $functionName }}WithResultImplFunc(ctx, logger, cfg)
+		return write{{ $functionName }}Result(ctx, logger, cfg, result, subErr)
+	}
+	if {{ $functionName }}WithAnnotationsImplFunc != nil {
+		return {{ $functionName }}WithAnnotationsImplFunc(ctx, logger, cfg)
+	}
+	if {{ $functionName }}ImplFunc == nil {
+		err = commonerrors.Newf(commonerrors.ErrUndefined, "must provide an implementation of %T to {{ $functionName }}", {{ $functionName }}ImplFunc)
+		return
+	}
+	return {{ $functionName }}ImplFunc(ctx, logger, cfg)
 }
 {{ else -}}
 // {{ $functionName }}WithAnnotationsImplFunc binds the annotation-aware

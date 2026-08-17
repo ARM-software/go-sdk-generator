@@ -20,33 +20,41 @@ import (
 )
 
 const (
-	noKeyringArgument  = "NoKeyring"
-	showConfigArgument = "ShowConfig"
+	noKeyringArgument   = "NoKeyring"
+	showConfigArgument  = "ShowConfig"
+	stdoutArgumentValue = "-"
 )
 
 var (
-	showConfigMapstructureTag  = "show_config"
-	summaryMapstructureTag     = syntheticCLIMapstructureTagSummary.String()
-	summaryFileMapstructureTag = syntheticCLIMapstructureTagSummaryFile.String()
-	summaryArgument            = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummary)
-	summaryFileArg             = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummaryFile)
-	loggerMapstructureTag      = syntheticCLIMapstructureTagLogger.String()
-	loggerFileMapstructureTag  = syntheticCLIMapstructureTagLoggerFile.String()
-	loggerArgument             = syntheticCLIArgumentName(syntheticCLIMapstructureTagLogger)
-	loggerFileArg              = syntheticCLIArgumentName(syntheticCLIMapstructureTagLoggerFile)
-	annotationArgument         = syntheticCLIArgumentName(syntheticCLIMapstructureTagAnnotation)
-	// protectedCommands lists manifest-defined CLI configuration names that are reserved
-	// for built-in generator wiring and therefore cannot be supplied by users.
-	protectedCommands = []string{summaryArgument, summaryFileArg, loggerArgument, loggerFileArg, annotationArgument}
+	showConfigMapstructureTag       = "show_config"
+	summaryMapstructureTag          = syntheticCLIMapstructureTagSummary.String()
+	summaryFileMapstructureTag      = syntheticCLIMapstructureTagSummaryFile.String()
+	summaryArgument                 = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummary)
+	summaryFileArg                  = syntheticCLIArgumentName(syntheticCLIMapstructureTagSummaryFile)
+	loggerMapstructureTag           = syntheticCLIMapstructureTagLogger.String()
+	loggerFileMapstructureTag       = syntheticCLIMapstructureTagLoggerFile.String()
+	loggerArgument                  = syntheticCLIArgumentName(syntheticCLIMapstructureTagLogger)
+	loggerFileArg                   = syntheticCLIArgumentName(syntheticCLIMapstructureTagLoggerFile)
+	annotationArgument              = syntheticCLIArgumentName(syntheticCLIMapstructureTagAnnotation)
+	resultOutputMapstructureTag     = syntheticCLIMapstructureTagOutput.String()
+	resultOutputFileMapstructureTag = syntheticCLIMapstructureTagOutputFile.String()
+	resultOutputArgument            = syntheticCLIArgumentName(syntheticCLIMapstructureTagOutput)
+	resultOutputFileArgument        = syntheticCLIArgumentName(syntheticCLIMapstructureTagOutputFile)
+	syntheticCLIConfigurationNames  = []string{showConfigArgument, loggerArgument, loggerFileArg, annotationArgument, summaryArgument, summaryFileArg, resultOutputArgument, resultOutputFileArgument}
 
 	defaultCLILoggerMode        = runtimeLoggerModeConsole.String()
 	defaultCLIAnnotationMode    = runtimeAnnotationModeNone.String()
 	defaultActionLoggerMode     = runtimeLoggerModeRich.String()
 	defaultActionAnnotationMode = runtimeAnnotationModeGithub.String()
+	defaultCLIResultOutputMode  = resultOutputModeHuman.String()
 )
 
 func syntheticCLIArgumentName(tag syntheticCLIMapstructureTag) string {
 	return toPascalCase(tag.String())
+}
+
+func isLoggerArgument(cfg *FunctionConfigFields) bool {
+	return cfg != nil && cfg.Name == loggerArgument
 }
 
 func usualExtraImports() map[string]string {
@@ -411,6 +419,12 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 					return subErr
 				}
 			}
+			if fct.UsesResult() {
+				subErr = updateCliFunctionArgumentsToSupportResult(&fct)
+				if subErr != nil {
+					return subErr
+				}
+			}
 			if fct.LoadFromKeyring {
 				subErr = updateCliFunctionArgumentsToLoadFromKeyring(&fct)
 				if subErr != nil {
@@ -485,7 +499,7 @@ func updateCliFunctionArgumentsToSupportShowConfig(fct *CliFunction) error {
 func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 	args := map[string]FunctionConfigFields{
 		summaryArgument: {
-			Description:     "Write a human-readable summary to the selected destination. Allowed values: file, github, output.",
+			Description:     "Write a human-readable summary to the selected destination.",
 			DefaultValue:    field.ToOptionalString(SummaryDestinationOutput.String()),
 			Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
 			IsRoot:          false,
@@ -512,6 +526,68 @@ func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 		},
 	}
 	return updateCliFunctionArguments(fct, args)
+}
+
+func updateCliFunctionArgumentsToSupportResult(fct *CliFunction) error {
+	args := map[string]FunctionConfigFields{
+		resultOutputArgument: {
+			Description:     "Select the output format for the command result.",
+			DefaultValue:    field.ToOptionalString(defaultCLIResultOutputMode),
+			Enum:            []string{resultOutputModeHuman.String(), resultOutputModeJSON.String(), resultOutputModeYAML.String()},
+			IsRoot:          false,
+			LangType:        string(BuiltInLangTypeString),
+			MapstructureTag: resultOutputMapstructureTag,
+			Name:            resultOutputArgument,
+			Required:        false,
+		},
+		resultOutputFileArgument: {
+			Description:     "Write machine-readable result output to the selected destination. Use `-` to write to standard output explicitly. This is only valid when output format is json or yaml. When a file path is used, the destination file is created or truncated immediately before writing the result, so an existing file is reset even if the later write fails.",
+			IsRoot:          false,
+			LangType:        string(BuiltInLangTypeFilepath),
+			MapstructureTag: resultOutputFileMapstructureTag,
+			Name:            resultOutputFileArgument,
+			Required:        false,
+			Constraints: &ParameterConstraints{
+				DependentRequired: []string{resultOutputArgument},
+				ForbiddenWhen: &ParameterValueConstraint{
+					Operator:  ParameterValueConstraintOperatorEquals,
+					Parameter: resultOutputArgument,
+					Value:     resultOutputModeHuman.String(),
+				},
+				ParameterValue: &ParameterValueComparisonConstraint{
+					Parameter: loggerFileArg,
+					Operator:  ParameterValueComparisonConstraintOperatorNotEquals,
+					When:      ParameterValueComparisonConstraintWhenNotEmpty,
+				},
+			},
+		},
+	}
+	if err := updateCliFunctionArguments(fct, args); err != nil {
+		return err
+	}
+	fct.Configuration = collection.MapRef(fct.Configuration, func(cfg *FunctionConfigFields) *FunctionConfigFields {
+		if !isLoggerArgument(cfg) {
+			return cfg
+		}
+		if cfg.Constraints == nil {
+			cfg.Constraints = &ParameterConstraints{}
+		}
+		cfg.Constraints.RequiredValuesWhen = []ParameterRequiredValuesConstraint{
+			{
+				Parameter:      resultOutputFileArgument,
+				Operator:       ParameterRequiredValuesConstraintOperatorAbsent,
+				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+			},
+			{
+				Parameter:      resultOutputFileArgument,
+				Operator:       ParameterRequiredValuesConstraintOperatorEquals,
+				Value:          stdoutArgumentValue,
+				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+			},
+		}
+		return cfg
+	})
+	return nil
 }
 
 func updateCliFunctionArgumentsToSupportRuntimeLogging(fct *CliFunction) error {

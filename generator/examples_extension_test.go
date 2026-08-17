@@ -128,3 +128,44 @@ func TestEmbeddedCLISkillTemplateIncludesExamples(t *testing.T) {
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
 	assert.Contains(t, b.String(), `Example: "https://example.com".`)
 }
+
+func TestEmbeddedCLISkillTemplateIncludesResultOutputCombinationTable(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/cli.skill.md.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("Result Output SDK"),
+				Description: field.ToOptionalString("Example CLI skill."),
+				PackageName: "result-output-sdk",
+				MainModule:  "resultoutput",
+				Licence:     "MIT",
+				CommandLineCommands: &CommandLineCommands{
+					Binary:             field.ToOptionalString("result-output"),
+					RootEnvironmentVar: field.ToOptionalString("RESULT_OUTPUT"),
+					Functions: []CliFunction{{
+						Name:        "Inspect",
+						Description: "Emit command results to the selected destination.",
+						WithResult:  true,
+						Configuration: []FunctionConfigFields{{
+							Name:            resultOutputArgument,
+							LangType:        stringLangType,
+							MapstructureTag: resultOutputMapstructureTag,
+							Description:     "output format",
+						}},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "Result output and logging combinations:")
+	assert.Contains(t, output, "| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |")
+	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "`logger=file` still requires `logger_file` in every allowed combination.")
+}

@@ -38,6 +38,18 @@ func firstVisibleCLICommand(cmds *CommandLineCommands) *CliFunction {
 	return nil
 }
 
+func firstVisibleResultCLICommand(cmds *CommandLineCommands) *CliFunction {
+	if cmds == nil {
+		return nil
+	}
+	if cliFunc, found := collection.FirstRef(cmds.Functions, func(cliFunc *CliFunction) bool {
+		return cliFunc != nil && !cliFunc.Hidden && cliFunc.UsesResult()
+	}); found {
+		return &cliFunc
+	}
+	return nil
+}
+
 func ensureSentence(s string) string {
 	s = normaliseDescription(s)
 	if s == "" {
@@ -185,6 +197,12 @@ func documentedInterfaceMethodSignature(method InterfaceMethod) string {
 	return fmt.Sprintf("%s (%s)", signature, strings.Join(returns, ", "))
 }
 
+func isSyntheticCLIConfigurationName(name string) bool {
+	return collection.AnyFunc(syntheticCLIConfigurationNames, func(syntheticName string) bool {
+		return syntheticName == name
+	})
+}
+
 func cliConfigTestUsesImportPath(spec *SDKSpecification, toolVersion string, importPath string) bool {
 	if spec == nil || spec.CommandLineCommands == nil {
 		return false
@@ -192,7 +210,7 @@ func cliConfigTestUsesImportPath(spec *SDKSpecification, toolVersion string, imp
 	return collection.AnyFunc(spec.CommandLineCommands.Functions, func(fct CliFunction) bool {
 		configName := toPascalCase(fct.Name)
 		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
-			if hasEnum(cfg.EffectiveEnum()) || cfg.Name == loggerArgument || cfg.Name == loggerFileArg || cfg.Name == annotationArgument || cfg.Name == summaryArgument || cfg.Name == summaryFileArg {
+			if hasEnum(cfg.EffectiveEnum()) || isSyntheticCLIConfigurationName(cfg.Name) {
 				return false
 			}
 			testValue := configFieldTestValue(nil, "", spec.PackageName, toolVersion, configName, cfg)
@@ -219,13 +237,7 @@ func shouldAssignCLIConfigTestValue(cfg FunctionConfigFields, testValue string) 
 	if hasEnum(cfg.EffectiveEnum()) || testValue == "" {
 		return false
 	}
-
-	switch cfg.Name {
-	case summaryArgument, summaryFileArg, loggerArgument, loggerFileArg, annotationArgument:
-		return false
-	default:
-		return true
-	}
+	return !isSyntheticCLIConfigurationName(cfg.Name)
 }
 
 func documentedCLIOptions(cmds *CommandLineCommands, cliFunc CliFunction) DocumentedCLIOptionSet {

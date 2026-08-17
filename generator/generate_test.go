@@ -433,6 +433,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "Yes CLI (result output generates machine-readable output wiring only for result-enabled commands)",
+			recipe:        "result-output.yml",
+			regressionSrc: "result-output.zip",
+			err:           nil,
+		},
+		{
 			title:  "Yes CLI (verify cmsis example sdk (yaml))",
 			recipe: "verify.bad.yml",
 			err:    commonerrors.ErrConflict,
@@ -546,7 +552,6 @@ func TestGenerate(t *testing.T) {
 	})
 
 }
-
 func TestCompareGoVersions(t *testing.T) {
 	assert.Equal(t, 0, compareGoVersions("1.24.6", "1.24.6"))
 	assert.Equal(t, 1, compareGoVersions("1.24.6", "1.24.5"))

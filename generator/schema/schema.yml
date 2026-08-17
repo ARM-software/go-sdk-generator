@@ -1,11 +1,26 @@
-x-protected-cli-argument-names: &x-protected-cli-argument-names
+x-always-protected-cli-argument-names: &x-always-protected-cli-argument-names
   # These names are injected by the generator for built-in CLI wiring and are
-  # therefore reserved for internal use.
+  # therefore always reserved for internal use.
   - Summary
   - SummaryFile
   - Logger
   - LoggerFile
   - Annotation
+  - ShowConfig
+
+x-result-protected-cli-argument-names: &x-result-protected-cli-argument-names
+  # These names are injected by the generator only when `with_result: true`
+  # enables result output wiring for the command.
+  - OutputFormat
+  - OutputFile
+
+x-parameter-value-constraint-operators: &x-parameter-value-constraint-operators
+  - present
+  - absent
+  - equals
+  - not_equals
+  - in
+  - not_in
 
 x-description: &x-description
   type: string
@@ -313,18 +328,114 @@ $defs:
         type: string
         default: present
         description: The comparison performed against the parameter
-        enum:
-          - present
-          - absent
-          - equals
-          - not_equals
-          - in
-          - not_in
+        enum: *x-parameter-value-constraint-operators
       value:
         description: The value used by operators such as equals or not_equals
       values:
         type: array
         description: Values used by operators such as in or not_in
+        items: {}
+  parameter_value_comparison_constraint:
+    type: object
+    description: |
+      A value comparison against another parameter.
+      This definition is used by parameter `constraints.parameter_value` when
+      the current parameter value must equal or differ from another parameter
+      value.
+      Unlike `required_when` or `forbidden_when`, this is not a rule about
+      whether the parameter itself is present. It is a rule about which values
+      of the current parameter are valid when compared with another parameter
+      value.
+    additionalProperties: true
+    required:
+      - parameter
+      - operator
+    properties:
+      parameter:
+        type: string
+        description: The name of the parameter whose value is compared with the current parameter value
+      operator:
+        type: string
+        description: The comparison performed between the current parameter value and the referenced parameter value
+        enum: *x-parameter-value-constraint-operators
+      when:
+        type: string
+        default: always
+        description: |
+          Controls when this comparison is evaluated against the current parameter
+          value. `always` applies the comparison unconditionally. `empty` applies it
+          only when the current parameter value is empty according to the generator's
+          normal validation semantics. `not_empty` applies it only when the current
+          parameter value is non-empty.
+        enum:
+          - always
+          - empty
+          - not_empty
+  parameter_forbidden_values_constraint:
+    type: object
+    description: |
+      A conditional forbidden-values rule for the current parameter value.
+      This definition is used by parameter `constraints.forbidden_values_when`
+      when specific values of the current parameter become invalid depending on
+      another parameter value.
+      Unlike `required_when` or `forbidden_when`, this is not a rule about
+      whether the parameter itself is present. It is a rule about which values
+      of the current parameter are valid.
+    additionalProperties: true
+    required:
+      - parameter
+      - forbidden_values
+    properties:
+      parameter:
+        type: string
+        description: The name of the parameter being evaluated
+      operator:
+        type: string
+        default: present
+        description: The comparison performed against the parameter
+        enum: *x-parameter-value-constraint-operators
+      value:
+        description: The value used by operators such as equals or not_equals
+      values:
+        type: array
+        description: Values used by operators such as in or not_in
+        items: {}
+      forbidden_values:
+        type: array
+        description: Values of the current parameter that are forbidden when the condition matches
+        items: {}
+  parameter_required_values_constraint:
+    type: object
+    description: |
+      A conditional required-values rule for the current parameter value.
+      This definition is used by parameter `constraints.required_values_when`
+      when the current parameter value must be one of the specified values
+      depending on another parameter value.
+      Unlike `required_when` or `forbidden_when`, this is not a rule about
+      whether the parameter itself is present. It is a rule about which values
+      of the current parameter are valid.
+    additionalProperties: true
+    required:
+      - parameter
+      - required_values
+    properties:
+      parameter:
+        type: string
+        description: The name of the parameter being evaluated
+      operator:
+        type: string
+        default: present
+        description: The comparison performed against the parameter
+        enum: *x-parameter-value-constraint-operators
+      value:
+        description: The value used by operators such as equals or not_equals
+      values:
+        type: array
+        description: Values used by operators such as in or not_in
+        items: {}
+      required_values:
+        type: array
+        description: Values of the current parameter that are required when the condition matches
         items: {}
   parameter_constraints:
     type: object
@@ -501,6 +612,20 @@ $defs:
         items:
           type: string
         uniqueItems: true
+      parameter_value:
+        $ref: "#/$defs/parameter_value_comparison_constraint"
+      required_values_when:
+        type: array
+        description: |
+          Conditions that require the current parameter to use one of the specified values.
+        items:
+          $ref: "#/$defs/parameter_required_values_constraint"
+      forbidden_values_when:
+        type: array
+        description: |
+          Conditions that forbid specific values of the current parameter.
+        items:
+          $ref: "#/$defs/parameter_forbidden_values_constraint"
       required_when:
         $ref: "#/$defs/parameter_value_constraint"
       forbidden_when:
@@ -710,6 +835,16 @@ $defs:
           calling that summary-aware implementation.
           When omitted, this defaults to `true` for commands that have a generated GitHub
           Action and `false` otherwise.
+      with_result:
+        type: boolean
+        description: |
+          Whether the command should expose machine-readable result output.
+          When enabled, the generated CLI injects `--output-format` and `--output-file` flags,
+          the generated wrapper exposes additional `WithResult` implementation bindings,
+          and the generated output layer renders human, JSON, or YAML result output as
+          selected at runtime.
+          When omitted, this defaults to `false`.
+        default: false
       silenceUsage:
         type: boolean
         description: |
@@ -733,11 +868,30 @@ $defs:
         type: boolean
         default: false
     additionalProperties: false
+    allOf:
+      - if:
+          required:
+            - with_result
+          properties:
+            with_result:
+              const: true
+        then:
+          properties:
+            configuration:
+              items:
+                allOf:
+                  - $ref: "#/$defs/function_config_fields"
+                  - not:
+                      properties:
+                        name:
+                          enum: *x-result-protected-cli-argument-names
   function_config_fields:
     description: |
       A CLI configuration field.
       The built-in names `Summary`, `SummaryFile`, `Logger`, `LoggerFile`, and
       `Annotation` are reserved and cannot be defined in manifests.
+      When `with_result: true` is enabled for the containing command, `OutputFormat` and
+      `OutputFile` are also reserved for the generated result output wiring.
     <<: *x-parameter
     required:
       - name
@@ -748,7 +902,7 @@ $defs:
     not:
       properties:
         name:
-          enum: *x-protected-cli-argument-names
+          enum: *x-always-protected-cli-argument-names
   command_argument:
     <<: *x-parameter
     required:

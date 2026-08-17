@@ -135,6 +135,7 @@ This method does not return any values.
 
 {{ if .Specification.CommandLineCommands -}}
 {{ $primaryCommand := firstVisibleCLICommand .Specification.CommandLineCommands -}}
+{{ $primaryResultCommand := firstVisibleResultCLICommand .Specification.CommandLineCommands -}}
 {{ $implementationPackage := .Specification.MainModule | toPackageName -}}
 ## CLI Tool
 
@@ -267,6 +268,57 @@ The command-line user does not supply an arbitrary Go implementation through the
 Selecting `logger=custom` simply chooses the implementation already registered by the application.
 
 If `logger=custom` is selected without registering `CustomLoggerDefinition`, the generated CLI returns an error.
+
+{{ if .Specification.CommandLineCommands.UsesResult }}
+### Result Output
+
+Only commands declared with `with_result: true` expose result output options.
+
+Result output modes:
+
+- `human`: the default; renders the result through the normal logger
+- `json`: writes machine-readable JSON
+- `yaml`: writes machine-readable YAML
+
+Nil results are treated as successful execution with no result to emit.
+
+Result output and logging combinations:
+
+| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |
+| --- | --- | --- | --- | --- |
+| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` | The result is rendered through the configured logger on the normal logger stream. | yes |
+| `human` | any file path | none | `output_file` is rejected because human output does not use the machine-readable file/output stream. | no |
+| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` | The machine-readable result is written to standard output. `logger=console` and `logger=rich` are accepted but normal logging is routed away from stdout so the result stream stays clean. | yes |
+| `json` or `yaml` | any file path | `console`, `rich`, `file`, `none`, `custom` | The machine-readable result is written to the selected file and normal logging follows the configured logger mode. | yes |
+
+`logger=file` still requires `logger_file` in every allowed combination.
+
+`--output-file` is only valid when `--output-format` is `json` or `yaml`.
+
+When `--output-file=-` is used, the command writes to standard output.
+
+When `--output-format=json` or `--output-format=yaml` is selected without `--output-file`, stdout is reserved for the machine-readable result. Normal logging and annotations are routed away from stdout so shell composition remains reliable.
+
+When machine-readable result output is written to standard output, the command accepts `logger=file`, `logger=custom`, or `logger=none`. This prevents standard console logging from colliding with the machine-readable result stream.
+
+When `--output-format=human` is selected, the result is rendered through the logger and there is no dedicated machine-readable stdout stream.
+
+{{ if $primaryResultCommand }}
+Examples:
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryResultCommand.Name | lower }} --output-format=json | jq .
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryResultCommand.Name | lower }} --output-format=yaml > result.yaml
+```
+
+```sh
+{{ $.Specification.CommandLineCommands.Binary }} {{ $primaryResultCommand.Name | lower }} --output-format=json --output-file=result.json
+```
+{{ end }}
+{{ end }}
 
 Skills:
 
@@ -418,6 +470,65 @@ func (cfg *{{ $functionName }}Configuration) Validate() error
 ```go
 func Default{{ $functionName }}Configuration() *{{ $functionName }}Configuration
 ```
+
+{{ if usesResult . }}
+Result-producing implementation paths:
+
+{{ if usesSummary . $.Specification.CommandLineCommands }}
+- `{{ $functionName }}WithResultAndSummaryAndAnnotations(ctx context.Context, logger annotations.IAnnotationLogger, summaryLogger summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error)`
+- `{{ $functionName }}WithResultAndSummary(ctx context.Context, logger logs.Loggers, summaryLogger summary.ISummaryLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error)`
+
+Recommended implementation example:
+
+```go
+package {{ $implementationPackage }}
+
+import (
+	"context"
+
+	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/logs/summary"
+
+	"{{ cliModuleRoot $.Specification }}/cmd/config"
+)
+
+func {{ $functionName }}WithResultAndSummary(_ context.Context, _ logs.Loggers, _ summary.ISummaryLogger, _ *config.{{ $functionName }}Configuration) (result any, err error) {
+	return map[string]any{"ok": true}, nil
+}
+
+func init() {
+	{{ $functionName }}WithResultAndSummaryImplFunc = {{ $functionName }}WithResultAndSummary
+}
+```
+{{ else }}
+- `{{ $functionName }}WithResultAndAnnotations(ctx context.Context, logger annotations.IAnnotationLogger, cfg *config.{{ $functionName }}Configuration) (result any, err error)`
+- `{{ $functionName }}WithResult(ctx context.Context, logger logs.Loggers, cfg *config.{{ $functionName }}Configuration) (result any, err error)`
+
+Recommended implementation example:
+
+```go
+package {{ $implementationPackage }}
+
+import (
+	"context"
+
+	"github.com/ARM-software/golang-utils/utils/logs"
+
+	"{{ cliModuleRoot $.Specification }}/cmd/config"
+)
+
+func {{ $functionName }}WithResult(_ context.Context, _ logs.Loggers, _ *config.{{ $functionName }}Configuration) (result any, err error) {
+	return map[string]any{"ok": true}, nil
+}
+
+func init() {
+	{{ $functionName }}WithResultImplFunc = {{ $functionName }}WithResult
+}
+```
+{{ end }}
+
+Return `nil, nil` when the command succeeds but has no result to emit. Leave human formatting, JSON/YAML serialisation, and output destination selection to the command wrapper and result output layer.
+{{ end }}
 {{ else }}
 This command does not define any configuration fields.
 {{ end }}

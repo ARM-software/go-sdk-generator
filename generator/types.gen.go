@@ -252,6 +252,16 @@ type CliFunction struct {
 	// Whether to store the configuration to system's keyring service
 	StoreToKeyring bool `json:"storeToKeyring,omitempty,omitzero" yaml:"storeToKeyring,omitempty" mapstructure:"storeToKeyring,omitempty"`
 
+	// Whether the command should expose machine-readable result output.
+	// When enabled, the generated CLI injects `--output-format` and `--output-file`
+	// flags,
+	// the generated wrapper exposes additional `WithResult` implementation bindings,
+	// and the generated output layer renders human, JSON, or YAML result output as
+	// selected at runtime.
+	// When omitted, this defaults to `false`.
+	//
+	WithResult bool `json:"with_result,omitempty,omitzero" yaml:"with_result,omitempty" mapstructure:"with_result,omitempty"`
+
 	// Whether the command should support writing a human-readable execution summary.
 	// When enabled, the generated CLI injects `--summary` and `--summary-file` flags,
 	// the generated wrapper exposes a summary-aware implementation binding, and the
@@ -303,6 +313,9 @@ func (j *CliFunction) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["storeToKeyring"]; !ok || v == nil {
 		plain.StoreToKeyring = false
+	}
+	if v, ok := raw["with_result"]; !ok || v == nil {
+		plain.WithResult = false
 	}
 	*j = CliFunction(plain)
 	return nil
@@ -1152,6 +1165,10 @@ type ParameterConstraints struct {
 	//
 	Extension []string `json:"extension,omitempty,omitzero" yaml:"extension,omitempty" mapstructure:"extension,omitempty"`
 
+	// Conditions that forbid specific values of the current parameter.
+	//
+	ForbiddenValuesWhen []ParameterForbiddenValuesConstraint `json:"forbidden_values_when,omitempty,omitzero" yaml:"forbidden_values_when,omitempty" mapstructure:"forbidden_values_when,omitempty"`
+
 	// ForbiddenWhen corresponds to the JSON schema field "forbidden_when".
 	ForbiddenWhen *ParameterValueConstraint `json:"forbidden_when,omitempty,omitzero" yaml:"forbidden_when,omitempty" mapstructure:"forbidden_when,omitempty"`
 
@@ -1222,6 +1239,9 @@ type ParameterConstraints struct {
 	//
 	Nullable bool `json:"nullable,omitempty,omitzero" yaml:"nullable,omitempty" mapstructure:"nullable,omitempty"`
 
+	// ParameterValue corresponds to the JSON schema field "parameter_value".
+	ParameterValue *ParameterValueComparisonConstraint `json:"parameter_value,omitempty,omitzero" yaml:"parameter_value,omitempty" mapstructure:"parameter_value,omitempty"`
+
 	// Validation-oriented equivalent of the top-level `pattern` field.
 	// This is only valid for scalar string-compatible values.
 	// This follows the JSON Schema `pattern` keyword.
@@ -1252,6 +1272,11 @@ type ParameterConstraints struct {
 	// https://json-schema.org/understanding-json-schema/reference/object#required
 	//
 	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Conditions that require the current parameter to use one of the specified
+	// values.
+	//
+	RequiredValuesWhen []ParameterRequiredValuesConstraint `json:"required_values_when,omitempty,omitzero" yaml:"required_values_when,omitempty" mapstructure:"required_values_when,omitempty"`
 
 	// RequiredWhen corresponds to the JSON schema field "required_when".
 	RequiredWhen *ParameterValueConstraint `json:"required_when,omitempty,omitzero" yaml:"required_when,omitempty" mapstructure:"required_when,omitempty"`
@@ -1312,6 +1337,328 @@ func (j *ParameterConstraints) UnmarshalJSON(value []byte) error {
 		return err
 	}
 	*j = ParameterConstraints(plain)
+	return nil
+}
+
+// A conditional forbidden-values rule for the current parameter value.
+// This definition is used by parameter `constraints.forbidden_values_when`
+// when specific values of the current parameter become invalid depending on
+// another parameter value.
+// Unlike `required_when` or `forbidden_when`, this is not a rule about
+// whether the parameter itself is present. It is a rule about which values
+// of the current parameter are valid.
+type ParameterForbiddenValuesConstraint struct {
+	// Values of the current parameter that are forbidden when the condition matches
+	ForbiddenValues []interface{} `json:"forbidden_values" yaml:"forbidden_values" mapstructure:"forbidden_values"`
+
+	// The comparison performed against the parameter
+	Operator ParameterForbiddenValuesConstraintOperator `json:"operator,omitempty,omitzero" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// The name of the parameter being evaluated
+	Parameter string `json:"parameter" yaml:"parameter" mapstructure:"parameter"`
+
+	// The value used by operators such as equals or not_equals
+	Value interface{} `json:"value,omitempty,omitzero" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+
+	// Values used by operators such as in or not_in
+	Values []interface{} `json:"values,omitempty,omitzero" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type ParameterForbiddenValuesConstraintOperator string
+
+const ParameterForbiddenValuesConstraintOperatorAbsent ParameterForbiddenValuesConstraintOperator = "absent"
+const ParameterForbiddenValuesConstraintOperatorEquals ParameterForbiddenValuesConstraintOperator = "equals"
+const ParameterForbiddenValuesConstraintOperatorIn ParameterForbiddenValuesConstraintOperator = "in"
+const ParameterForbiddenValuesConstraintOperatorNotEquals ParameterForbiddenValuesConstraintOperator = "not_equals"
+const ParameterForbiddenValuesConstraintOperatorNotIn ParameterForbiddenValuesConstraintOperator = "not_in"
+const ParameterForbiddenValuesConstraintOperatorPresent ParameterForbiddenValuesConstraintOperator = "present"
+
+var enumValues_ParameterForbiddenValuesConstraintOperator = []interface{}{
+	"present",
+	"absent",
+	"equals",
+	"not_equals",
+	"in",
+	"not_in",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterForbiddenValuesConstraintOperator) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParameterForbiddenValuesConstraintOperator {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParameterForbiddenValuesConstraintOperator, v)
+	}
+	*j = ParameterForbiddenValuesConstraintOperator(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterForbiddenValuesConstraint) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["forbidden_values"]; raw != nil && !ok {
+		return fmt.Errorf("field forbidden_values in ParameterForbiddenValuesConstraint: required")
+	}
+	if _, ok := raw["parameter"]; raw != nil && !ok {
+		return fmt.Errorf("field parameter in ParameterForbiddenValuesConstraint: required")
+	}
+	type Plain ParameterForbiddenValuesConstraint
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["operator"]; !ok || v == nil {
+		plain.Operator = "present"
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = ParameterForbiddenValuesConstraint(plain)
+	return nil
+}
+
+// A conditional required-values rule for the current parameter value.
+// This definition is used by parameter `constraints.required_values_when`
+// when the current parameter value must be one of the specified values
+// depending on another parameter value.
+// Unlike `required_when` or `forbidden_when`, this is not a rule about
+// whether the parameter itself is present. It is a rule about which values
+// of the current parameter are valid.
+type ParameterRequiredValuesConstraint struct {
+	// The comparison performed against the parameter
+	Operator ParameterRequiredValuesConstraintOperator `json:"operator,omitempty,omitzero" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// The name of the parameter being evaluated
+	Parameter string `json:"parameter" yaml:"parameter" mapstructure:"parameter"`
+
+	// Values of the current parameter that are required when the condition matches
+	RequiredValues []interface{} `json:"required_values" yaml:"required_values" mapstructure:"required_values"`
+
+	// The value used by operators such as equals or not_equals
+	Value interface{} `json:"value,omitempty,omitzero" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+
+	// Values used by operators such as in or not_in
+	Values []interface{} `json:"values,omitempty,omitzero" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type ParameterRequiredValuesConstraintOperator string
+
+const ParameterRequiredValuesConstraintOperatorAbsent ParameterRequiredValuesConstraintOperator = "absent"
+const ParameterRequiredValuesConstraintOperatorEquals ParameterRequiredValuesConstraintOperator = "equals"
+const ParameterRequiredValuesConstraintOperatorIn ParameterRequiredValuesConstraintOperator = "in"
+const ParameterRequiredValuesConstraintOperatorNotEquals ParameterRequiredValuesConstraintOperator = "not_equals"
+const ParameterRequiredValuesConstraintOperatorNotIn ParameterRequiredValuesConstraintOperator = "not_in"
+const ParameterRequiredValuesConstraintOperatorPresent ParameterRequiredValuesConstraintOperator = "present"
+
+var enumValues_ParameterRequiredValuesConstraintOperator = []interface{}{
+	"present",
+	"absent",
+	"equals",
+	"not_equals",
+	"in",
+	"not_in",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterRequiredValuesConstraintOperator) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParameterRequiredValuesConstraintOperator {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParameterRequiredValuesConstraintOperator, v)
+	}
+	*j = ParameterRequiredValuesConstraintOperator(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterRequiredValuesConstraint) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["parameter"]; raw != nil && !ok {
+		return fmt.Errorf("field parameter in ParameterRequiredValuesConstraint: required")
+	}
+	if _, ok := raw["required_values"]; raw != nil && !ok {
+		return fmt.Errorf("field required_values in ParameterRequiredValuesConstraint: required")
+	}
+	type Plain ParameterRequiredValuesConstraint
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["operator"]; !ok || v == nil {
+		plain.Operator = "present"
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = ParameterRequiredValuesConstraint(plain)
+	return nil
+}
+
+// A value comparison against another parameter.
+// This definition is used by parameter `constraints.parameter_value` when
+// the current parameter value must equal or differ from another parameter
+// value.
+// Unlike `required_when` or `forbidden_when`, this is not a rule about
+// whether the parameter itself is present. It is a rule about which values
+// of the current parameter are valid when compared with another parameter
+// value.
+type ParameterValueComparisonConstraint struct {
+	// The comparison performed between the current parameter value and the referenced
+	// parameter value
+	Operator ParameterValueComparisonConstraintOperator `json:"operator" yaml:"operator" mapstructure:"operator"`
+
+	// The name of the parameter whose value is compared with the current parameter
+	// value
+	Parameter string `json:"parameter" yaml:"parameter" mapstructure:"parameter"`
+
+	// Controls when this comparison is evaluated against the current parameter
+	// value. `always` applies the comparison unconditionally. `empty` applies it
+	// only when the current parameter value is empty according to the generator's
+	// normal validation semantics. `not_empty` applies it only when the current
+	// parameter value is non-empty.
+	//
+	When ParameterValueComparisonConstraintWhen `json:"when,omitempty,omitzero" yaml:"when,omitempty" mapstructure:"when,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type ParameterValueComparisonConstraintOperator string
+
+const ParameterValueComparisonConstraintOperatorAbsent ParameterValueComparisonConstraintOperator = "absent"
+const ParameterValueComparisonConstraintOperatorEquals ParameterValueComparisonConstraintOperator = "equals"
+const ParameterValueComparisonConstraintOperatorIn ParameterValueComparisonConstraintOperator = "in"
+const ParameterValueComparisonConstraintOperatorNotEquals ParameterValueComparisonConstraintOperator = "not_equals"
+const ParameterValueComparisonConstraintOperatorNotIn ParameterValueComparisonConstraintOperator = "not_in"
+const ParameterValueComparisonConstraintOperatorPresent ParameterValueComparisonConstraintOperator = "present"
+
+var enumValues_ParameterValueComparisonConstraintOperator = []interface{}{
+	"present",
+	"absent",
+	"equals",
+	"not_equals",
+	"in",
+	"not_in",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterValueComparisonConstraintOperator) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParameterValueComparisonConstraintOperator {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParameterValueComparisonConstraintOperator, v)
+	}
+	*j = ParameterValueComparisonConstraintOperator(v)
+	return nil
+}
+
+type ParameterValueComparisonConstraintWhen string
+
+const ParameterValueComparisonConstraintWhenAlways ParameterValueComparisonConstraintWhen = "always"
+const ParameterValueComparisonConstraintWhenEmpty ParameterValueComparisonConstraintWhen = "empty"
+const ParameterValueComparisonConstraintWhenNotEmpty ParameterValueComparisonConstraintWhen = "not_empty"
+
+var enumValues_ParameterValueComparisonConstraintWhen = []interface{}{
+	"always",
+	"empty",
+	"not_empty",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterValueComparisonConstraintWhen) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_ParameterValueComparisonConstraintWhen {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ParameterValueComparisonConstraintWhen, v)
+	}
+	*j = ParameterValueComparisonConstraintWhen(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *ParameterValueComparisonConstraint) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["operator"]; raw != nil && !ok {
+		return fmt.Errorf("field operator in ParameterValueComparisonConstraint: required")
+	}
+	if _, ok := raw["parameter"]; raw != nil && !ok {
+		return fmt.Errorf("field parameter in ParameterValueComparisonConstraint: required")
+	}
+	type Plain ParameterValueComparisonConstraint
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["when"]; !ok || v == nil {
+		plain.When = "always"
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = ParameterValueComparisonConstraint(plain)
 	return nil
 }
 

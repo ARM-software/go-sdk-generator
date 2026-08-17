@@ -231,6 +231,12 @@ func TestCanGenerateSummaryValidationTestRejectsBoundCustomTypes(t *testing.T) {
 	assert.False(t, (&cmds.Functions[0]).CanGenerateSummaryValidationTest(cmds))
 }
 
+func TestCliFunctionUsesResultDefaultsToFalse(t *testing.T) {
+	assert.False(t, (&CliFunction{}).UsesResult())
+	assert.True(t, (&CliFunction{WithResult: true}).UsesResult())
+	assert.False(t, (&CliFunction{WithResult: false}).UsesResult())
+}
+
 func Test_toCase(t *testing.T) {
 	assert.Equal(t, "Port", toPascalCase("Port"))
 	assert.Equal(t, "Port", toPascalCase("port"))

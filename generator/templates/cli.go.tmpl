@@ -102,7 +102,15 @@ var {{ $nameLower }}Cmd = &cobra.Command{
 		cancellableCtx, cancel := addInterruptHandlerToContext(ctx)
 		defer cancel(nil)
 
+		{{ if usesResult . -}}
+		outputOption, err := {{ $nameLower }}Cfg.GetOutputFormat()
+		if err != nil {
+			return
+		}
+		logger, annotationLogger, err := {{ $package }}.ResolveRuntimeLoggerAndAnnotationsForResultOutput(outputOption, {{ $nameLower }}Cfg.OutputFile, {{ $nameLower }}Cfg.Logger, {{ $nameLower }}Cfg.LoggerFile, {{ $nameLower }}Cfg.Annotation, "{{ .Name | toPascal }}")
+		{{ else -}}
 		logger, annotationLogger, err := {{ $package }}.ResolveRuntimeLoggerAndAnnotations({{ $nameLower }}Cfg.Logger, {{ $nameLower }}Cfg.LoggerFile, {{ $nameLower }}Cfg.Annotation, "{{ .Name | toPascal }}")
+		{{ end }}
 		if err != nil {
 			return
 		}

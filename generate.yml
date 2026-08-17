@@ -19,7 +19,7 @@ specification:
     description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
     functions:
       - name: Generate
-        description: Generate tool
+        description: Generate tool/project scaffolding. Run `go mod tidy` afterwards to resolve the generated module dependencies, then run `go generate ./...` to execute any generated code-generation directives inside the new project.
         configuration:
           - name: Input
             lang_type: string
