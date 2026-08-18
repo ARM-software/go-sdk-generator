@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
 func compositeConfigFieldTestValue(additionalTypesPackages map[string]string, currentPackage, toolName, toolVersion, ownerName string, cfg FunctionConfigFields) (string, bool) {
@@ -13,14 +14,14 @@ func compositeConfigFieldTestValue(additionalTypesPackages map[string]string, cu
 	}
 
 	typeName := strings.TrimSpace(baseLangType(cfg.LangType))
-	if typeName == "" {
+	if reflection.IsEmpty(typeName) {
 		return "", false
 	}
 
 	fieldValues := make([]string, 0, len(cfg.Bindings))
 	for _, binding := range cfg.Bindings {
 		bindingName := strings.TrimSpace(field.OptionalString(binding.Name, ""))
-		if bindingName == "" {
+		if reflection.IsEmpty(bindingName) {
 			return "", false
 		}
 
@@ -35,7 +36,7 @@ func compositeConfigFieldTestValue(additionalTypesPackages map[string]string, cu
 		}
 
 		bindingValue := configFieldTestValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, bindingCfg)
-		if bindingValue == "" {
+		if reflection.IsEmpty(bindingValue) {
 			return "", false
 		}
 
@@ -89,11 +90,11 @@ func configFieldTestValue(additionalTypesPackages map[string]string, currentPack
 
 	baseType := strings.TrimSpace(baseLangType(cfg.LangType))
 	valueSource := field.OptionalString(cfg.DefaultValue, "")
-	if valueSource == "" {
+	if reflection.IsEmpty(valueSource) {
 		switch {
-		case cfg.Example != nil && strings.TrimSpace(*cfg.Example) != "":
+		case reflection.IsNotEmpty(cfg.Example):
 			valueSource = strings.TrimSpace(*cfg.Example)
-		case len(cfg.Examples) > 0 && strings.TrimSpace(cfg.Examples[0]) != "":
+		case len(cfg.Examples) > 0 && reflection.IsNotEmpty(cfg.Examples[0]):
 			valueSource = strings.TrimSpace(cfg.Examples[0])
 		case len(cfg.EffectiveEnum()) > 0:
 			valueSource = cfg.EffectiveEnum()[0]
@@ -137,7 +138,7 @@ func configFieldTestValue(additionalTypesPackages map[string]string, currentPack
 		}
 	}
 
-	if valueSource == "" {
+	if reflection.IsEmpty(valueSource) {
 		return ""
 	}
 

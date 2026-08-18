@@ -14,6 +14,9 @@ import (
 {{ range additionalTypeImports .Specification "" -}}
 	{{ renderImport .Alias .Path false }}
 {{ end -}}
+{{ range optionImports .Specification "" -}}
+	{{ renderImport .Alias .Path false }}
+{{ end -}}
 {{ range .Specification.ExtraImports -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 {{ end -}}

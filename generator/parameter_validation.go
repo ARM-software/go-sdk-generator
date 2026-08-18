@@ -69,7 +69,7 @@ func validateEnumDefaultValueRequired(name string, enum []string, defaultValue *
 
 func normalisedStringValues(values []string) []string {
 	normalised := collection.Filter(collection.Map(values, strings.TrimSpace), func(value string) bool {
-		return value != ""
+		return reflection.IsNotEmpty(value)
 	})
 	normalised = collection.UniqueBy(normalised, func(value string) string { return value })
 	slices.Sort(normalised)
@@ -113,7 +113,7 @@ func validateStringSubstringConstraintDefinition(name string, langType string, l
 	if constraints == nil {
 		return nil
 	}
-	definesStringSubstringConstraint := strings.TrimSpace(field.OptionalString(constraints.Contains, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.NotContains, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.Prefix, "")) != "" || strings.TrimSpace(field.OptionalString(constraints.Suffix, "")) != ""
+	definesStringSubstringConstraint := reflection.IsNotEmpty(field.OptionalString(constraints.Contains, "")) || reflection.IsNotEmpty(field.OptionalString(constraints.NotContains, "")) || reflection.IsNotEmpty(field.OptionalString(constraints.Prefix, "")) || reflection.IsNotEmpty(field.OptionalString(constraints.Suffix, ""))
 	if !definesStringSubstringConstraint {
 		return nil
 	}
@@ -135,7 +135,7 @@ func validateMirroredConstraintDefinitions(name string, directEnum []string, dir
 	}
 	topLevelPattern := strings.TrimSpace(field.OptionalString(directPattern, ""))
 	constraintPattern := strings.TrimSpace(field.OptionalString(constraints.Pattern, ""))
-	if topLevelPattern != "" && constraintPattern != "" && topLevelPattern != constraintPattern {
+	if reflection.IsNotEmpty(topLevelPattern) && reflection.IsNotEmpty(constraintPattern) && topLevelPattern != constraintPattern {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot define conflicting patterns at both the top level and under constraints", name)
 	}
 	return nil
@@ -280,7 +280,7 @@ func validateExampleValue(name string, langType string, list bool, iterator bool
 		baseType = strings.TrimSpace(baseLangType(baseType))
 	}
 	value = strings.TrimSpace(value)
-	if value == "" {
+	if reflection.IsEmpty(value) {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s must not be empty", name)
 	}
 	switch baseType {
@@ -628,6 +628,95 @@ func (typ *Type) Validate() error {
 	)
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate type")
+	}
+	return nil
+}
+
+func (parameter *OptionParameter) Validate() error {
+	if parameter == nil {
+		return commonerrors.UndefinedVariable("option parameter")
+	}
+	if err := configUtils.ValidateEmbedded(parameter); err != nil {
+		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in option parameter")
+	}
+	err := validation.ValidateStruct(parameter,
+		validation.Field(&parameter.LangType, validation.By(func(value any) error {
+			langType, _ := value.(string)
+			return validateParameterShape(fmt.Sprintf("option parameter %q", parameter.Name), langType, parameter.List, parameter.Iterator)
+		})),
+		validation.Field(&parameter.DeprecationNotice, validation.By(func(value any) error {
+			return parameter.DeprecationNotice.Validate()
+		})),
+		validation.Field(&parameter.Example, validation.By(func(value any) error {
+			return validateExamplesDefinition(fmt.Sprintf("option parameter %q", parameter.Name), parameter.LangType, parameter.List, parameter.Iterator, parameter.EffectiveEnum(), parameter.Example, parameter.Examples)
+		})),
+		validation.Field(&parameter.Enum, validation.By(func(value any) error {
+			return validateStringEnumDefinition(fmt.Sprintf("option parameter %q", parameter.Name), parameter.LangType, parameter.Reference, parameter.List, parameter.Iterator, parameter.Enum)
+		})),
+		validation.Field(&parameter.DefaultValue, validation.By(func(value any) error {
+			if err := validateEnumDefaultValueRequired(fmt.Sprintf("option parameter %q", parameter.Name), parameter.EffectiveEnum(), parameter.DefaultValue); err != nil {
+				return err
+			}
+			return validateStringEnumDefaultValue(fmt.Sprintf("option parameter %q", parameter.Name), parameter.EffectiveEnum(), parameter.DefaultValue)
+		})),
+	)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate option parameter")
+	}
+	if err := validateParameterConstraintsDefinition(fmt.Sprintf("option parameter %q", parameter.Name), parameter.LangType, parameter.Reference, parameter.List, parameter.Iterator, parameter.Enum, parameter.Pattern, parameter.Constraints); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (optionFunction *OptionFunction) Validate() error {
+	if optionFunction == nil {
+		return commonerrors.UndefinedVariable("option function")
+	}
+	if err := configUtils.ValidateEmbedded(optionFunction); err != nil {
+		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in option function")
+	}
+	err := validation.ValidateStruct(optionFunction,
+		validation.Field(&optionFunction.Parameters, validation.By(func(value any) error {
+			return collection.ForAll(optionFunction.Parameters, func(parameter OptionParameter) error {
+				return (&parameter).Validate()
+			})
+		})),
+	)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate option function")
+	}
+	if len(optionFunction.Parameters) > 1 && reflection.IsEmpty(optionFunction.FunctionName) {
+		return commonerrors.New(commonerrors.ErrInvalid, "option functions with more than one parameter must declare function_name")
+	}
+	return nil
+}
+
+func (optionSet *OptionSet) Validate() error {
+	if optionSet == nil {
+		return commonerrors.UndefinedVariable("option set")
+	}
+	if err := configUtils.ValidateEmbedded(optionSet); err != nil {
+		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in option set")
+	}
+	err := validation.ValidateStruct(optionSet,
+		validation.Field(&optionSet.DeprecationNotice, validation.By(func(value any) error {
+			return optionSet.DeprecationNotice.Validate()
+		})),
+		validation.Field(&optionSet.Package, validation.By(func(value any) error {
+			return validateOptionPackageName(optionSet.Package)
+		})),
+		validation.Field(&optionSet.Functions, validation.By(func(value any) error {
+			return collection.ForAll(optionSet.Functions, func(optionFunction OptionFunction) error {
+				return (&optionFunction).Validate()
+			})
+		})),
+	)
+	if err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate option set")
+	}
+	if err := optionSet.ValidateOptionParameterNames(); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate option set parameters")
 	}
 	return nil
 }
@@ -990,6 +1079,11 @@ func validateCollectionParameters(sdk *SDK) error {
 				return (&typ).Validate()
 			})
 		})),
+		validation.Field(&sdk.Specification.Options, validation.By(func(value any) error {
+			return collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
+				return (&optionSet).Validate()
+			})
+		})),
 		validation.Field(&sdk.Specification.Interface, validation.By(func(value any) error {
 			return (&sdk.Specification.Interface).Validate()
 		})),
@@ -1002,6 +1096,9 @@ func validateCollectionParameters(sdk *SDK) error {
 	)
 	if err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, commonerrors.DescribeCircumstance(err, "failed to validate manifest parameter collections"), "invalid manifest parameter shape")
+	}
+	if err := sdk.Specification.ValidateGeneratedNameUniqueness(); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid manifest parameter naming")
 	}
 	if err := validateParameterCollectionConstraintReferences(collection.Map(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) *ConfigurationOption { return &cfg })); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid global configuration constraints")
@@ -1022,6 +1119,11 @@ func validateCollectionParameters(sdk *SDK) error {
 		return validateParameterCollectionConstraintReferences(collection.Map(typ.Fields, func(fieldDef EntityField) *EntityField { return &fieldDef }))
 	}); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid additional type constraints")
+	}
+	if err := collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
+		return validateParameterCollectionConstraintReferences(collection.Map((&optionSet).Parameters(), func(parameter OptionParameter) *OptionParameter { return &parameter }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid option parameter constraints")
 	}
 	return nil
 }

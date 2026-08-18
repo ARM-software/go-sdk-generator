@@ -107,6 +107,10 @@ func effectiveEnumTemplateValue(value any) []string {
 		return (&typed).EffectiveEnum()
 	case *FunctionConfigFields:
 		return typed.EffectiveEnum()
+	case OptionParameter:
+		return (&typed).EffectiveEnum()
+	case *OptionParameter:
+		return typed.EffectiveEnum()
 	default:
 		return nil
 	}

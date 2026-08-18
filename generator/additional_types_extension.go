@@ -129,7 +129,7 @@ func resolveGeneratedAdditionalTypeReference(langType string, additionalTypesPac
 	if !found {
 		return generatedAdditionalTypeReference{}, false
 	}
-	if packageAlias != "" && packageAlias != targetPackage && packageAlias != defaultAdditionalTypePackage {
+	if reflection.IsNotEmpty(packageAlias) && packageAlias != targetPackage && packageAlias != defaultAdditionalTypePackage {
 		return generatedAdditionalTypeReference{}, false
 	}
 	return generatedAdditionalTypeReference{
@@ -174,7 +174,7 @@ func additionalTypeImports(spec *SDKSpecification, currentPackage string) []addi
 // emits directly, so generated files do not end up with duplicate imports.
 func filterExtraImportsByPath(extraImports ExtraImports, excludedPaths ...string) ExtraImports {
 	excluded := collection.Filter(collection.Map(excludedPaths, strings.TrimSpace), func(path string) bool {
-		return path != ""
+		return reflection.IsNotEmpty(path)
 	})
 	if len(excluded) == 0 {
 		return extraImports
@@ -272,10 +272,10 @@ func rewriteGeneratedAdditionalTypeReference(value string, currentPackage string
 	if reflection.IsEmpty(value) {
 		return value
 	}
-	for _, prefix := range []string{"[]", "*", "..."} {
-		if strings.HasPrefix(value, prefix) {
-			return prefix + rewriteGeneratedAdditionalTypeReference(value[len(prefix):], currentPackage, additionalTypesPackages)
-		}
+	if prefix, found := collection.FirstBy([]string{"[]", "*", "..."}, func(prefix string) bool {
+		return strings.HasPrefix(value, prefix)
+	}); found {
+		return prefix + rewriteGeneratedAdditionalTypeReference(value[len(prefix):], currentPackage, additionalTypesPackages)
 	}
 
 	packageName := ""
@@ -290,7 +290,7 @@ func rewriteGeneratedAdditionalTypeReference(value string, currentPackage string
 	if !ok {
 		return value
 	}
-	if packageName != "" && packageName != defaultAdditionalTypePackage && packageName != targetPackage {
+	if reflection.IsNotEmpty(packageName) && packageName != defaultAdditionalTypePackage && packageName != targetPackage {
 		return value
 	}
 	if targetPackage == currentPackage {

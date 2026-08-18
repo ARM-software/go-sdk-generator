@@ -52,7 +52,7 @@ func firstVisibleResultCLICommand(cmds *CommandLineCommands) *CliFunction {
 
 func ensureSentence(s string) string {
 	s = normaliseDescription(s)
-	if s == "" {
+	if reflection.IsEmpty(s) {
 		return ""
 	}
 	if collection.AnyFunc([]string{".", "!", "?"}, func(suffix string) bool {
@@ -85,10 +85,10 @@ func deprecationNoticeDetails(notice *DeprecationNotice) string {
 func descriptionWithDeprecation(description string, notice *DeprecationNotice) string {
 	description = normaliseDescription(description)
 	deprecation := deprecationNoticeDetails(notice)
-	if deprecation == "" {
+	if reflection.IsEmpty(deprecation) {
 		return description
 	}
-	if description == "" {
+	if reflection.IsEmpty(description) {
 		return deprecation
 	}
 	return strings.TrimSpace(description + "\nDeprecated: " + deprecation)
@@ -115,7 +115,7 @@ func cobraDeprecationMessage(notice *DeprecationNotice) string {
 
 func lowerFirstDescription(s string) string {
 	s = normaliseDescription(s)
-	if s == "" {
+	if reflection.IsEmpty(s) {
 		return s
 	}
 	leading := firstDescriptionToken(s)
@@ -234,7 +234,7 @@ func cliConfigTestImports(spec *SDKSpecification, toolVersion string) []string {
 }
 
 func shouldAssignCLIConfigTestValue(cfg FunctionConfigFields, testValue string) bool {
-	if hasEnum(cfg.EffectiveEnum()) || testValue == "" {
+	if hasEnum(cfg.EffectiveEnum()) || reflection.IsEmpty(testValue) {
 		return false
 	}
 	return !isSyntheticCLIConfigurationName(cfg.Name)
@@ -311,11 +311,11 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			return
 		}
 		description := cfg.Description
-		if binding.Description != nil && strings.TrimSpace(*binding.Description) != "" {
+		if reflection.IsNotEmpty(binding.Description) {
 			description = *binding.Description
 		}
 		example := cfg.Example
-		if binding.Example != nil && strings.TrimSpace(*binding.Example) != "" {
+		if reflection.IsNotEmpty(binding.Example) {
 			example = binding.Example
 		}
 		examples := cfg.Examples
@@ -323,7 +323,7 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 			examples = binding.Examples
 		}
 		fieldName := cfg.Name
-		if binding.Name != nil && strings.TrimSpace(*binding.Name) != "" {
+		if reflection.IsNotEmpty(binding.Name) {
 			fieldName = fmt.Sprintf("%s.%s", cfg.Name, *binding.Name)
 		}
 		options = append(options, DocumentedCLIOption{
@@ -345,7 +345,7 @@ func documentedCLIOptionsFromConfig(rootPrefix string, cfg FunctionConfigFields,
 
 func documentedCLIEnvSuffix(cfg FunctionConfigFields, binding *Binding) string {
 	if cfg.IsRoot {
-		if binding != nil && binding.MapstructureTag != nil && strings.TrimSpace(*binding.MapstructureTag) != "" {
+		if binding != nil && reflection.IsNotEmpty(binding.MapstructureTag) {
 			return *binding.MapstructureTag
 		}
 		return cfg.MapstructureTag
@@ -358,11 +358,11 @@ func documentedCLIEnvSuffix(cfg FunctionConfigFields, binding *Binding) string {
 }
 
 func documentedCLIEnvVar(prefix, suffix string) string {
-	if strings.TrimSpace(suffix) == "" {
+	if reflection.IsEmpty(suffix) {
 		return ""
 	}
 	parts := collection.Filter([]string{strings.TrimSpace(prefix), strings.TrimSpace(suffix)}, func(part string) bool {
-		return part != ""
+		return reflection.IsNotEmpty(part)
 	})
 	joined := strings.Join(parts, "_")
 	joined = strings.ReplaceAll(joined, "-", "_")
@@ -371,7 +371,7 @@ func documentedCLIEnvVar(prefix, suffix string) string {
 
 func documentedCLIOptionDescription(description, condition string, enum []string, example *string, examples []string, notice *DeprecationNotice) string {
 	desc := descriptionWithDeprecation(descriptionWithMetadata(description, enum, example, examples), notice)
-	if strings.TrimSpace(condition) == "" {
+	if reflection.IsEmpty(condition) {
 		return desc
 	}
 	return fmt.Sprintf("%s Required when %s.", desc, condition)

@@ -22,55 +22,6 @@ var (
 // types_extended_logic centralises capability queries and small schema-model
 // traversal logic that belongs on the generated manifest types themselves.
 
-func isBoolean(langType string) bool {
-	return strings.EqualFold(strings.TrimSpace(langType), "bool")
-}
-
-func usesFilesystemValidationAlias(langType string) bool {
-	switch strings.TrimSpace(langType) {
-	case "filepath", "existingFilepath":
-		return true
-	default:
-		return false
-	}
-}
-
-func usesJSONValidationAlias(langType string) bool {
-	return strings.TrimSpace(langType) == "validJSON"
-}
-
-func effectiveParameterEnum(enum []string, constraints *ParameterConstraints) []string {
-	if hasEnum(enum) {
-		return enum
-	}
-	if constraints == nil {
-		return nil
-	}
-	return constraints.Enum
-}
-
-func effectiveParameterPattern(pattern *string, constraints *ParameterConstraints) *string {
-	if pattern != nil && strings.TrimSpace(*pattern) != "" {
-		return pattern
-	}
-	if constraints == nil || constraints.Pattern == nil || strings.TrimSpace(*constraints.Pattern) == "" {
-		return nil
-	}
-	return constraints.Pattern
-}
-
-func effectiveParameterRequired(required bool, constraints *ParameterConstraints) bool {
-	return required || (constraints != nil && constraints.Required)
-}
-
-func usesFilesystemConstraintRule(constraints *ParameterConstraints) bool {
-	return constraints != nil && reflection.IsNotEmpty(constraints.Extension)
-}
-
-func usesFmtConstraintRule(constraints *ParameterConstraints) bool {
-	return constraints != nil && constraints.UniqueItems
-}
-
 func (b *Binding) HasEnum() bool {
 	return false
 }
@@ -262,6 +213,70 @@ func (cfg *FunctionConfigFields) ApplyConstraintMirrors() {
 	}
 }
 
+func (optionFunction *OptionFunction) singleParameter() *OptionParameter {
+	if optionFunction == nil || len(optionFunction.Parameters) != 1 {
+		return nil
+	}
+	return &optionFunction.Parameters[0]
+}
+
+func (parameter *OptionParameter) HasEnum() bool {
+	if parameter == nil {
+		return false
+	}
+	return hasEnum(parameter.EffectiveEnum())
+}
+
+func (parameter *OptionParameter) EffectiveEnum() []string {
+	if parameter == nil {
+		return nil
+	}
+	return effectiveParameterEnum(parameter.Enum, parameter.Constraints)
+}
+
+func (parameter *OptionParameter) EffectivePattern() *string {
+	if parameter == nil {
+		return nil
+	}
+	return effectiveParameterPattern(parameter.Pattern, parameter.Constraints)
+}
+
+func (parameter *OptionParameter) IsRequired() bool {
+	if parameter == nil {
+		return false
+	}
+	return effectiveParameterRequired(parameter.Required, parameter.Constraints)
+}
+
+func (parameter *OptionParameter) ApplyConstraintMirrors() {
+	if parameter == nil || parameter.Constraints == nil {
+		return
+	}
+	if reflection.IsEmpty(parameter.Enum) && reflection.IsNotEmpty(parameter.Constraints.Enum) {
+		parameter.Enum = append([]string(nil), parameter.Constraints.Enum...)
+	}
+	if reflection.IsEmpty(parameter.Pattern) && reflection.IsNotEmpty(parameter.Constraints.Pattern) {
+		parameter.Pattern = field.ToOptionalString(field.OptionalString(parameter.Constraints.Pattern, ""))
+	}
+	if !parameter.Required && parameter.Constraints.Required {
+		parameter.Required = true
+	}
+}
+
+func (optionFunction *OptionFunction) ApplyConstraintMirrors() {
+	if optionFunction == nil {
+		return
+	}
+	optionFunction.FunctionName = field.ToOptionalStringOrNilIfEmpty(normaliseOptionFunctionName(field.OptionalString(optionFunction.FunctionName, "")))
+	for i := range optionFunction.Parameters {
+		optionFunction.Parameters[i].ApplyConstraintMirrors()
+	}
+}
+
+func (optionFunction *OptionFunction) GeneratedName() string {
+	return optionFunctionName(optionFunction)
+}
+
 func (arg *CommandArgument) GetName() string {
 	if arg == nil {
 		return ""
@@ -318,11 +333,29 @@ func (cfg *FunctionConfigFields) GetConstraints() *ParameterConstraints {
 	return cfg.Constraints
 }
 
+func (parameter *OptionParameter) GetName() string {
+	if parameter == nil {
+		return ""
+	}
+	return parameter.Name
+}
+
+func (parameter *OptionParameter) GetConstraints() *ParameterConstraints {
+	if parameter == nil {
+		return nil
+	}
+	return parameter.Constraints
+}
+
 func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {
 	if cfg == nil {
 		return false
 	}
 	return cfg.HasEnum() || isBoolean(cfg.LangType)
+}
+
+func (parameter *OptionParameter) SuppressesRequiredValidation() bool {
+	return parameter != nil && (parameter.HasEnum() || isBoolean(parameter.LangType))
 }
 
 func (cfg *FunctionConfigFields) UsesFilesystemValidationAlias() bool {
@@ -331,6 +364,29 @@ func (cfg *FunctionConfigFields) UsesFilesystemValidationAlias() bool {
 
 func (cfg *FunctionConfigFields) UsesJSONValidationAlias() bool {
 	return cfg != nil && usesJSONValidationAlias(cfg.LangType)
+}
+
+func (parameter *OptionParameter) UsesFilesystemValidationAlias() bool {
+	return parameter != nil && (usesFilesystemValidationAlias(parameter.LangType) || usesFilesystemConstraintRule(parameter.Constraints))
+}
+
+func (parameter *OptionParameter) UsesFmtInConstraintValidationRules() bool {
+	return parameter != nil && usesFmtConstraintRule(parameter.Constraints)
+}
+
+func (parameter *OptionParameter) UsesJSONValidationAlias() bool {
+	return parameter != nil && usesJSONValidationAlias(parameter.LangType)
+}
+
+func (parameter *OptionParameter) UsesPresenceGuardForValidation() bool {
+	return parameter != nil && !parameter.IsRequired() && (usesPresenceGuardForValidation(parameter.LangType) || parameter.HasEnum())
+}
+
+func (parameter *OptionParameter) constrainedParameter() constrainedParameter {
+	if parameter == nil {
+		return constrainedParameter{}
+	}
+	return constrainedParameter{Name: parameter.Name, LangType: parameter.LangType, Reference: parameter.Reference, Enum: parameter.EffectiveEnum(), Constraints: parameter.Constraints}
 }
 
 func (cfg *FunctionConfigFields) UsesValidationUtilsImport() bool {
@@ -443,6 +499,249 @@ func (types Types) ApplyConstraintMirrors() {
 	}
 }
 
+func (optionSet *OptionSet) Parameters() []OptionParameter {
+	if optionSet == nil {
+		return nil
+	}
+	return collection.Reduce(optionSet.Functions, []OptionParameter{}, func(acc []OptionParameter, optionFunction OptionFunction) []OptionParameter {
+		return append(acc, optionFunction.Parameters...)
+	})
+}
+
+func (optionSet *OptionSet) HasEnum() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).HasEnum()
+	})
+}
+
+func (optionSet *OptionSet) UsesFilesystemValidationAlias() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).UsesFilesystemValidationAlias()
+	})
+}
+
+func (optionSet *OptionSet) UsesJSONValidationAlias() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).UsesJSONValidationAlias()
+	})
+}
+
+func (optionSet *OptionSet) UsesFmtInConstraintValidationRules() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (optionSet *OptionSet) UsesPresenceGuardForValidation() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).UsesPresenceGuardForValidation()
+	})
+}
+
+func (optionSet *OptionSet) HasConstraintValidationRules() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return parameter.Constraints.HasAnyValidationRules()
+	})
+}
+
+func (optionSet *OptionSet) UsesReflectInConstraintValidationRules() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return parameter.Constraints.UsesReflect()
+	})
+}
+
+func (optionSet *OptionSet) UsesCollectionInConstraintValidationRules() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return parameter.Constraints.UsesCollection()
+	})
+}
+
+func (optionSet *OptionSet) UsesSlicesClone() bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return parameter.List && !parameter.Iterator
+	})
+}
+
+func (optionSet *OptionSet) ConstraintValidationRules() []string {
+	if optionSet == nil {
+		return nil
+	}
+	return parameterConstraintValidationRuleLines(collection.Map(optionSet.Parameters(), func(parameter OptionParameter) constrainedParameter {
+		return (&parameter).constrainedParameter()
+	}), false)
+}
+
+func (optionSet *OptionSet) ApplyConstraintMirrors() {
+	if optionSet == nil {
+		return
+	}
+	for i := range optionSet.Functions {
+		optionSet.Functions[i].ApplyConstraintMirrors()
+	}
+	optionSet.Package = normaliseOptionPackageName(optionSet.Package)
+}
+
+func (optionSet *OptionSet) NormalisePackage() {
+	if optionSet == nil {
+		return
+	}
+	optionSet.Package = normaliseOptionPackageName(optionSet.Package)
+}
+
+func (optionSets OptionSets) HasEnum() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.HasEnum() })
+}
+
+func (optionSets OptionSets) UsesFilesystemValidationAlias() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.UsesFilesystemValidationAlias() })
+}
+
+func (optionSets OptionSets) UsesJSONValidationAlias() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.UsesJSONValidationAlias() })
+}
+
+func (optionSets OptionSets) UsesFmtInConstraintValidationRules() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool {
+		return optionSet != nil && optionSet.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (optionSets OptionSets) UsesPresenceGuardForValidation() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.UsesPresenceGuardForValidation() })
+}
+
+func (optionSets OptionSets) HasConstraintValidationRules() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.HasConstraintValidationRules() })
+}
+
+func (optionSets OptionSets) UsesReflectInConstraintValidationRules() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool {
+		return optionSet != nil && optionSet.UsesReflectInConstraintValidationRules()
+	})
+}
+
+func (optionSets OptionSets) UsesCollectionInConstraintValidationRules() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool {
+		return optionSet != nil && optionSet.UsesCollectionInConstraintValidationRules()
+	})
+}
+
+func (optionSets OptionSets) UsesSlicesClone() bool {
+	return collection.AnyRefFunc(optionSets, func(optionSet *OptionSet) bool { return optionSet != nil && optionSet.UsesSlicesClone() })
+}
+
+func (optionSets OptionSets) ApplyConstraintMirrors() {
+	for i := range optionSets {
+		optionSets[i].ApplyConstraintMirrors()
+	}
+}
+
+func (optionSets OptionSets) NormalisePackages() {
+	for i := range optionSets {
+		optionSets[i].NormalisePackage()
+	}
+}
+
+func (optionSet *OptionSet) ValidateOptionParameterNames() error {
+	if optionSet == nil {
+		return nil
+	}
+	parametersByName := map[string]OptionParameter{}
+	for i := range optionSet.Functions {
+		for j := range optionSet.Functions[i].Parameters {
+			parameter := optionSet.Functions[i].Parameters[j]
+			generatedName := toPascalCase(parameter.Name)
+			key := normaliseKeyNames(generatedName)
+			if existing, found := parametersByName[key]; found {
+				if existing.LangType != parameter.LangType || existing.Reference != parameter.Reference || existing.List != parameter.List || existing.Iterator != parameter.Iterator {
+					return commonerrors.Newf(commonerrors.ErrConflict, "option parameter %q in option set %q is defined more than once with different shapes", generatedName, optionSet.Name)
+				}
+				return commonerrors.Newf(commonerrors.ErrConflict, "option parameter %q in option set %q is defined more than once; parameter names must be unique within an option set", generatedName, optionSet.Name)
+			}
+			parametersByName[key] = parameter
+		}
+	}
+	return nil
+}
+
+func (optionSet *OptionSet) ValidateGeneratedNameUniqueness() error {
+	if optionSet == nil {
+		return nil
+	}
+	if err := optionSet.ValidateOptionParameterNames(); err != nil {
+		return err
+	}
+	if err := validateUniqueCaseInsensitiveNames(fmt.Sprintf("option set %q", optionSet.Name), "function", collection.Map(optionSet.Functions, func(optionFunction OptionFunction) string {
+		return (&optionFunction).GeneratedName()
+	})); err != nil {
+		return err
+	}
+	return validateUniqueCaseInsensitiveNames(fmt.Sprintf("option set %q", optionSet.Name), "parameter", collection.Map(optionSet.Parameters(), func(parameter OptionParameter) string {
+		return toPascalCase(parameter.Name)
+	}))
+}
+
+func (optionSets OptionSets) ValidateGeneratedNameUniqueness() error {
+	if err := validateUniqueCaseInsensitiveNames("options", "option set", collection.Map(optionSets, func(optionSet OptionSet) string {
+		return toPascalCase(optionSet.Name)
+	})); err != nil {
+		return err
+	}
+	return collection.ForAll(optionSets, func(optionSet OptionSet) error {
+		return (&optionSet).ValidateGeneratedNameUniqueness()
+	})
+}
+
+func (optionSets OptionSets) ValidateGeneratedIdentifiers() error {
+	grouped := groupOptionSetsByPackage(optionSets)
+	for pkg, groupedOptionSets := range grouped {
+		identifiers := map[string]string{}
+		for i := range groupedOptionSets {
+			optionSet := &groupedOptionSets[i]
+			if err := optionSet.ValidateGeneratedNameUniqueness(); err != nil {
+				return err
+			}
+			for _, identifier := range optionSetIdentifiers(optionSet) {
+				if reflection.IsEmpty(identifier.Name) {
+					continue
+				}
+				key := normaliseKeyNames(identifier.Name)
+				if existing, found := identifiers[key]; found {
+					return commonerrors.Newf(commonerrors.ErrConflict, "generated option identifier %q in package %q is defined by both %s and %s", identifier.Name, pkg, existing, identifier.Source)
+				}
+				identifiers[key] = identifier.Source
+			}
+		}
+	}
+	return nil
+}
+
+func (cfgs Configuration) ValidateGeneratedNameUniqueness() error {
+	return validateUniqueCaseInsensitiveNames("global configuration", "field", collection.Map(cfgs, func(cfg ConfigurationOption) string {
+		return toPascalCase(cfg.Name)
+	}))
+}
+
+func (typ *Type) ValidateGeneratedNameUniqueness() error {
+	if typ == nil {
+		return nil
+	}
+	return validateUniqueCaseInsensitiveNames(fmt.Sprintf("additional type %q", typ.Name), "field", collection.Map(typ.Fields, func(fieldDef EntityField) string {
+		return toPascalCase(fieldDef.Name)
+	}))
+}
+
+func (types Types) ValidateGeneratedNameUniqueness() error {
+	if err := validateUniqueCaseInsensitiveNames("additional types", "type", collection.Map(types, func(typ Type) string {
+		return toPascalCase(typ.Name)
+	})); err != nil {
+		return err
+	}
+	return collection.ForAll(types, func(typ Type) error {
+		return (&typ).ValidateGeneratedNameUniqueness()
+	})
+}
+
 func (cfgs Configuration) HasEnum() bool {
 	return collection.AnyRefFunc(cfgs, func(cfg *ConfigurationOption) bool {
 		return cfg.HasEnum()
@@ -522,6 +821,34 @@ func (iface *Interface) ApplyConstraintMirrors() {
 	for i := range iface.Methods {
 		iface.Methods[i].ApplyConstraintMirrors()
 	}
+}
+
+func (method *InterfaceMethod) ValidateGeneratedNameUniqueness() error {
+	if method == nil {
+		return nil
+	}
+	if err := validateUniqueCaseInsensitiveNames(fmt.Sprintf("interface method %q", method.Name), "argument", collection.Map(method.Args, func(arg CommandArgument) string {
+		return toCamelCase(arg.Name)
+	})); err != nil {
+		return err
+	}
+	return validateUniqueCaseInsensitiveNames(fmt.Sprintf("interface method %q", method.Name), "return value", collection.Map(method.Returns, func(ret CommandArgument) string {
+		return toCamelCase(ret.Name)
+	}))
+}
+
+func (iface *Interface) ValidateGeneratedNameUniqueness() error {
+	if iface == nil {
+		return nil
+	}
+	if err := validateUniqueCaseInsensitiveNames("interface", "method", collection.Map(iface.Methods, func(method InterfaceMethod) string {
+		return toPascalCase(method.Name)
+	})); err != nil {
+		return err
+	}
+	return collection.ForAll(iface.Methods, func(method InterfaceMethod) error {
+		return (&method).ValidateGeneratedNameUniqueness()
+	})
 }
 
 func (fct *CliFunction) HasEnum() bool {
@@ -670,6 +997,15 @@ func (fct *CliFunction) ApplyConstraintMirrors() {
 	}
 }
 
+func (fct *CliFunction) ValidateGeneratedNameUniqueness() error {
+	if fct == nil {
+		return nil
+	}
+	return validateUniqueCaseInsensitiveNames(fmt.Sprintf("cli function %q", fct.Name), "configuration", collection.Map(fct.Configuration, func(cfg FunctionConfigFields) string {
+		return toPascalCase(cfg.Name)
+	}))
+}
+
 func (cmds *CommandLineCommands) HasConfigEnums() bool {
 	if cmds == nil {
 		return false
@@ -685,6 +1021,20 @@ func (cmds *CommandLineCommands) UsesFmtInConstraintValidationRules() bool {
 	}
 	return collection.AnyRefFunc(cmds.Functions, func(fct *CliFunction) bool {
 		return fct.UsesFmtInConstraintValidationRules()
+	})
+}
+
+func (cmds *CommandLineCommands) ValidateGeneratedNameUniqueness() error {
+	if cmds == nil {
+		return nil
+	}
+	if err := validateUniqueCaseInsensitiveNames("command line commands", "function", collection.Map(cmds.Functions, func(fct CliFunction) string {
+		return toPascalCase(fct.Name)
+	})); err != nil {
+		return err
+	}
+	return collection.ForAll(cmds.Functions, func(fct CliFunction) error {
+		return (&fct).ValidateGeneratedNameUniqueness()
 	})
 }
 
@@ -880,10 +1230,30 @@ func (spec *SDKSpecification) ApplyConstraintMirrors() {
 	}
 	spec.GlobalConfiguration.ApplyConstraintMirrors()
 	spec.AdditionalTypes.ApplyConstraintMirrors()
+	spec.Options.ApplyConstraintMirrors()
 	(&spec.Interface).ApplyConstraintMirrors()
 	if spec.CommandLineCommands != nil {
 		spec.CommandLineCommands.ApplyConstraintMirrors()
 	}
+}
+
+func (spec *SDKSpecification) ValidateGeneratedNameUniqueness() error {
+	if spec == nil {
+		return nil
+	}
+	if err := spec.GlobalConfiguration.ValidateGeneratedNameUniqueness(); err != nil {
+		return err
+	}
+	if err := spec.AdditionalTypes.ValidateGeneratedNameUniqueness(); err != nil {
+		return err
+	}
+	if err := (&spec.Interface).ValidateGeneratedNameUniqueness(); err != nil {
+		return err
+	}
+	if err := spec.CommandLineCommands.ValidateGeneratedNameUniqueness(); err != nil {
+		return err
+	}
+	return spec.Options.ValidateGeneratedNameUniqueness()
 }
 
 func (b *Binding) RewriteAdditionalTypeReferences(currentPackage string, additionalTypesPackages map[string]string) {
@@ -938,6 +1308,24 @@ func (cfg *FunctionConfigFields) RewriteAdditionalTypeReferences(currentPackage 
 	cfg.Bindings = collection.MapRef(cfg.Bindings, func(binding *Binding) *Binding {
 		binding.RewriteAdditionalTypeReferences(currentPackage, additionalTypesPackages)
 		return binding
+	})
+}
+
+func (parameter *OptionParameter) RewriteAdditionalTypeReferences(currentPackage string, additionalTypesPackages map[string]string) {
+	if parameter == nil {
+		return
+	}
+	parameter.LangType = rewriteGeneratedAdditionalTypeReference(parameter.LangType, currentPackage, additionalTypesPackages)
+	parameter.DefaultValue = rewriteGeneratedAdditionalTypeDefaultValue(parameter.DefaultValue, currentPackage, additionalTypesPackages)
+}
+
+func (optionFunction *OptionFunction) RewriteAdditionalTypeReferences(currentPackage string, additionalTypesPackages map[string]string) {
+	if optionFunction == nil {
+		return
+	}
+	optionFunction.Parameters = collection.MapRef(optionFunction.Parameters, func(parameter *OptionParameter) *OptionParameter {
+		parameter.RewriteAdditionalTypeReferences(currentPackage, additionalTypesPackages)
+		return parameter
 	})
 }
 
@@ -1007,6 +1395,25 @@ func (types Types) RewriteAdditionalTypeReferences(additionalTypesPackages map[s
 	copy(types, updated)
 }
 
+func (optionSet *OptionSet) RewriteAdditionalTypeReferences(additionalTypesPackages map[string]string) {
+	if optionSet == nil {
+		return
+	}
+	currentPackage := optionPackageName(optionSet)
+	optionSet.Functions = collection.MapRef(optionSet.Functions, func(optionFunction *OptionFunction) *OptionFunction {
+		optionFunction.RewriteAdditionalTypeReferences(currentPackage, additionalTypesPackages)
+		return optionFunction
+	})
+}
+
+func (optionSets OptionSets) RewriteAdditionalTypeReferences(additionalTypesPackages map[string]string) {
+	updated := collection.MapRef(optionSets, func(optionSet *OptionSet) *OptionSet {
+		optionSet.RewriteAdditionalTypeReferences(additionalTypesPackages)
+		return optionSet
+	})
+	copy(optionSets, updated)
+}
+
 func (fct *CliFunction) RewriteAdditionalTypeReferences(additionalTypesPackages map[string]string) {
 	if fct == nil {
 		return
@@ -1038,6 +1445,7 @@ func (spec *SDKSpecification) RewriteAdditionalTypeReferences(additionalTypesPac
 	(&spec.Interface).RewriteAdditionalTypeReferences(additionalTypesPackages)
 	spec.CommandLineCommands.RewriteAdditionalTypeReferences(additionalTypesPackages)
 	spec.AdditionalTypes.RewriteAdditionalTypeReferences(additionalTypesPackages)
+	spec.Options.RewriteAdditionalTypeReferences(additionalTypesPackages)
 }
 
 func (cfg *FunctionConfigFields) IsStandaloneCLIFlag() bool {
@@ -1512,7 +1920,7 @@ func (condition *ParameterValueComparisonConstraint) ValidationRuleLine(source c
 	default:
 		return ""
 	}
-	if line == "" {
+	if reflection.IsEmpty(line) {
 		return ""
 	}
 	switch condition.whenOrDefault() {

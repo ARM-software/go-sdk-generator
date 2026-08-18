@@ -10,6 +10,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
 const embeddedSkillsDir = "skills"
@@ -54,7 +55,7 @@ func InitialiseAgentSkills(ctx context.Context, outputDir string) (err error) {
 		return
 	}
 
-	if outputDir == "" {
+	if reflection.IsEmpty(outputDir) {
 		err = commonerrors.UndefinedVariable("output directory")
 		return
 	}

@@ -92,6 +92,9 @@ func Validate(ctx context.Context, path string) (validationErr, err error) {
 	if err = ProcessAdditionalTypePackages(ctx, &sdk); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate manifest preprocessing for additional type packages"), nil
 	}
+	if err = ProcessOptionPackages(ctx, &sdk); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate manifest preprocessing for option packages"), nil
+	}
 	if err = ProcessBindings(ctx, &sdk); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "failed to validate manifest preprocessing for bindings"), nil
 	}

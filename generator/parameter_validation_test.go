@@ -293,3 +293,110 @@ func TestValidateProtectedCLIArgumentNamesAllowsOutputWhenResultOutputIsDisabled
 
 	require.NoError(t, validateProtectedCLIArgumentNames(cmds))
 }
+
+func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateInterfaceArgumentNames(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{
+			Name:        "Build",
+			Description: "Build.",
+			Args: []CommandArgument{{
+				Name:        "Target",
+				LangType:    "string",
+				Description: "Target.",
+			}, {
+				Name:        "target",
+				LangType:    "string",
+				Description: "Target override.",
+			}},
+		}}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, `interface method "Build" defines duplicate argument names [Target]`)
+	errortest.AssertErrorDescription(t, err, "invalid manifest parameter naming")
+}
+
+func TestValidateCollectionParametersRejectsDuplicateInterfaceArgumentNamesAcrossCaseAndSeparators(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{
+			Name:        "Build",
+			Description: "Build.",
+			Args: []CommandArgument{{
+				Name:        "a_name",
+				LangType:    "string",
+				Description: "Target.",
+			}, {
+				Name:        "a-name",
+				LangType:    "string",
+				Description: "Target override.",
+			}},
+		}}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, `interface method "Build" defines duplicate argument names [aName]`)
+}
+
+func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateCLIConfigurationNames(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{Name: "Build", Description: "Build."}}},
+		CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
+			Name:        "Run",
+			Description: "Run.",
+			Configuration: []FunctionConfigFields{{
+				Name:            "Mode",
+				LangType:        "string",
+				MapstructureTag: "mode",
+				Description:     "Mode.",
+			}, {
+				Name:            "mode",
+				LangType:        "string",
+				MapstructureTag: "mode_2",
+				Description:     "Mode override.",
+			}},
+		}}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, `cli function "Run" defines duplicate configuration names [Mode]`)
+}
+
+func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateOptionFunctionNames(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{Name: "Build", Description: "Build."}}},
+		Options: OptionSets{{
+			Name:        "Build",
+			Description: "Build options.",
+			Functions: []OptionFunction{{
+				FunctionName: field.ToOptionalString("EnableTracing"),
+				Parameters: []OptionParameter{{
+					Name:        "Tracing",
+					LangType:    "bool",
+					Description: "Tracing.",
+				}},
+			}, {
+				FunctionName: field.ToOptionalString("enableTracing"),
+				Parameters: []OptionParameter{{
+					Name:        "Verbose",
+					LangType:    "bool",
+					Description: "Verbose.",
+				}},
+			}},
+		}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, `option set "Build" defines duplicate function names [EnableTracing]`)
+}

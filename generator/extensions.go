@@ -143,45 +143,59 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"documentedConfigFieldType": func(specName string, cfg ConfigurationOption) string {
 		return documentedConfigFieldType(specName, &cfg)
 	},
-	"cliConfigTestImports":               cliConfigTestImports,
-	"shouldAssignCLIConfigTestValue":     shouldAssignCLIConfigTestValue,
-	"firstVisibleCLICommand":             firstVisibleCLICommand,
-	"firstVisibleResultCLICommand":       firstVisibleResultCLICommand,
-	"documentedInterfaceMethodSignature": documentedInterfaceMethodSignature,
-	"documentedCLIOptions":               documentedCLIOptions,
-	"parameterTypeFromBase":              parameterTypeFromBase,
-	"methodArgumentType":                 methodArgumentType,
-	"methodArgumentTypeFromBase":         methodArgumentTypeFromBase,
-	"isVariadicParameter":                isVariadicParameter,
-	"isLastIndex":                        func(index, total int) bool { return total > 0 && index == total-1 },
-	"toCamel":                            toCamelCase,
-	"toSnake":                            toSnakeCase,
-	"toKebab":                            toKebabCase,
-	"toPascal":                           toPascalCase,
-	"quote":                              withQuote,
-	"quoteDescription":                   quoteDescription,
-	"renderImport":                       renderImport,
-	"toPackageName":                      toPackageName,
-	"additionalTypeImports":              additionalTypeImports,
-	"configExtraImports":                 configExtraImports,
-	"cliConfigExtraImports":              cliConfigExtraImports,
-	"typesExtraImports":                  typesExtraImports,
-	"additionalTypePackageName":          additionalTypePackageName, // FIXME: This template helper does not seem to be used and should be removed.
-	"groupAdditionalTypesByPackage":      groupAdditionalTypesByPackage,
-	"hasSingleDefaultTypesPackage":       hasSingleDefaultTypesPackage,
-	"sortedAdditionalTypePackages":       sortedAdditionalTypePackages,
-	"goComment":                          goComment,
-	"referenceType":                      referenceType,      // FIXME: This template helper does not seem to be used and should be removed.
-	"ignoreLinting":                      ignoreLintingError, // FIXME: This template helper does not seem to be used and should be removed.
-	"nowYear":                            nowYear,
-	"toURIEncoded":                       toURIEncoded,
-	"linkToManifest":                     linkToManifest,
-	"runSkillName":                       runSkillName,
-	"installSkillName":                   installSkillName,
-	"githubActionSkillName":              githubActionSkillName,
-	"normaliseActionDirectoryName":       normaliseActionDirectoryName, // FIXME: This template helper does not seem to be used and should be removed.
-	"normaliseActionName":                normaliseActionName,          // FIXME: This template helper does not seem to be used and should be removed.
-	"hasCloudCommands":                   isCallCloudTrue,
+	"cliConfigTestImports":                  cliConfigTestImports,
+	"shouldAssignCLIConfigTestValue":        shouldAssignCLIConfigTestValue,
+	"firstVisibleCLICommand":                firstVisibleCLICommand,
+	"firstVisibleResultCLICommand":          firstVisibleResultCLICommand,
+	"documentedInterfaceMethodSignature":    documentedInterfaceMethodSignature,
+	"documentedCLIOptions":                  documentedCLIOptions,
+	"parameterTypeFromBase":                 parameterTypeFromBase,
+	"methodArgumentType":                    methodArgumentType,
+	"methodArgumentTypeFromBase":            methodArgumentTypeFromBase,
+	"isVariadicParameter":                   isVariadicParameter,
+	"isLastIndex":                           func(index, total int) bool { return total > 0 && index == total-1 },
+	"toCamel":                               toCamelCase,
+	"toSnake":                               toSnakeCase,
+	"toKebab":                               toKebabCase,
+	"toPascal":                              toPascalCase,
+	"quote":                                 withQuote,
+	"quoteDescription":                      quoteDescription,
+	"renderImport":                          renderImport,
+	"toPackageName":                         toPackageName,
+	"additionalTypeImports":                 additionalTypeImports,
+	"optionImports":                         optionImports,
+	"configExtraImports":                    configExtraImports,
+	"cliConfigExtraImports":                 cliConfigExtraImports,
+	"typesExtraImports":                     typesExtraImports,
+	"additionalTypePackageName":             additionalTypePackageName, // FIXME: This template helper does not seem to be used and should be removed.
+	"groupAdditionalTypesByPackage":         groupAdditionalTypesByPackage,
+	"hasSingleDefaultTypesPackage":          hasSingleDefaultTypesPackage,
+	"sortedAdditionalTypePackages":          sortedAdditionalTypePackages,
+	"optionSetStructName":                   optionSetStructName,
+	"optionSetOptionTypeName":               optionSetOptionTypeName,
+	"optionSetBuilderFunctionName":          optionSetBuilderFunctionName,
+	"optionFunctionUsesBooleanShortcut":     optionFunctionUsesBooleanShortcut,
+	"optionFunctionSingleParameter":         optionFunctionSingleParameter,
+	"optionFunctionName":                    optionFunctionName,
+	"optionWithoutFunctionName":             optionWithoutFunctionName,
+	"optionParameterType":                   optionParameterType,
+	"optionSetConstraintValidationRules":    optionSetConstraintValidationRules,
+	"optionFunctionSignature":               optionFunctionSignature,
+	"optionFunctionAssignments":             optionFunctionAssignments,
+	"optionBooleanParameterValueExpression": optionBooleanParameterValueExpression,
+	"optionParameterCloneStatements":        optionParameterCloneStatements,
+	"goComment":                             goComment,
+	"referenceType":                         referenceType,      // FIXME: This template helper does not seem to be used and should be removed.
+	"ignoreLinting":                         ignoreLintingError, // FIXME: This template helper does not seem to be used and should be removed.
+	"nowYear":                               nowYear,
+	"toURIEncoded":                          toURIEncoded,
+	"linkToManifest":                        linkToManifest,
+	"runSkillName":                          runSkillName,
+	"installSkillName":                      installSkillName,
+	"githubActionSkillName":                 githubActionSkillName,
+	"normaliseActionDirectoryName":          normaliseActionDirectoryName, // FIXME: This template helper does not seem to be used and should be removed.
+	"normaliseActionName":                   normaliseActionName,          // FIXME: This template helper does not seem to be used and should be removed.
+	"hasCloudCommands":                      isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
 	},
@@ -384,13 +398,13 @@ func quoteDescription(s string) string {
 
 func goComment(linePrefix, s string) string {
 	s = normaliseDescription(s)
-	if s == "" {
+	if reflection.IsEmpty(s) {
 		return fmt.Sprintf("%s//", linePrefix)
 	}
 
 	commentLines := collection.Map(strings.Split(s, "\n"), func(line string) string {
 		line = strings.TrimSpace(line)
-		if line == "" {
+		if reflection.IsEmpty(line) {
 			return fmt.Sprintf("%s//", linePrefix)
 		}
 		return fmt.Sprintf("%s// %s", linePrefix, line)
@@ -414,7 +428,7 @@ func descriptionWithExamples(description string, example *string, examples []str
 	}
 	values = append(values, examples...)
 	values = collection.Filter(values, func(value string) bool {
-		return reflection.IsNotEmpty(strings.TrimSpace(value))
+		return reflection.IsNotEmpty(value)
 	})
 	if len(values) == 1 {
 		parts = append(parts, fmt.Sprintf("Example: %s.", withQuote(strings.TrimSpace(values[0]))))
@@ -614,14 +628,14 @@ func replaceUnderscores(value string) string {
 func renderImport(alias, importPath string, applyMisspellException bool) string {
 	alias = strings.TrimSpace(alias)
 	importPath = strings.TrimSpace(importPath)
-	if importPath == "" {
+	if reflection.IsEmpty(importPath) {
 		return ""
 	}
 	comment := ""
 	if applyMisspellException {
 		comment = " //nolint:misspell"
 	}
-	if alias == "" || alias == path.Base(importPath) {
+	if reflection.IsEmpty(alias) || alias == path.Base(importPath) {
 		return fmt.Sprintf("%q%s", importPath, comment)
 	}
 	return fmt.Sprintf("%s %q%s", alias, importPath, comment)

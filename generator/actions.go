@@ -218,7 +218,7 @@ func mergeActionInputs(bases []GeneratedActionInput, extras []GeneratedActionInp
 }
 
 func buildActionInputsFromConfig(cfg FunctionConfigFields) (inputs []GeneratedActionInput, err error) {
-	required := cfg.IsRequired() && cfg.DefaultValue == nil && cfg.Condition == ""
+	required := cfg.IsRequired() && cfg.DefaultValue == nil && reflection.IsEmpty(cfg.Condition)
 
 	if len(cfg.Bindings) == 0 {
 		flagName, subErr := determineActionInputFlagName(cfg, nil)
@@ -314,7 +314,7 @@ func toActionInputEnvName(inputName string) (inputEnvName string) {
 }
 
 func describeActionInput(description string, condition string) (newDescription string) {
-	if strings.TrimSpace(condition) == "" {
+	if reflection.IsEmpty(condition) {
 		newDescription = description
 		return
 	}

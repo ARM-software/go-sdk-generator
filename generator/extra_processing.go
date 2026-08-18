@@ -141,6 +141,32 @@ func ProcessAdditionalTypePackages(ctx context.Context, sdk *SDK) (err error) {
 	return
 }
 
+func ProcessOptionPackages(ctx context.Context, sdk *SDK) (err error) {
+	err = parallelisation.DetermineContextError(ctx)
+	if err != nil {
+		return
+	}
+	if sdk == nil {
+		err = commonerrors.UndefinedVariable("generator configuration")
+		return
+	}
+
+	sdk.Specification.Options.NormalisePackages()
+	additionalTypePackages := groupAdditionalTypesByPackage(sdk.Specification.AdditionalTypes)
+	for _, pkg := range sortedOptionPackages(sdk.Specification.Options) {
+		if _, found := additionalTypePackages[pkg]; found {
+			err = commonerrors.Newf(commonerrors.ErrConflict, "option package %q conflicts with an additional type package; generated package paths must be distinct", pkg)
+			return
+		}
+	}
+	err = sdk.Specification.Options.ValidateGeneratedIdentifiers()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func validateURL(value string) error {
 	err := validation.Validate(value, validation.Required, is.URL)
 	if err != nil {
@@ -754,7 +780,7 @@ func buildFlagLine(isRoot, hidden bool, funcName, flagType, argName, argShort, z
 
 	var registration string
 
-	if argShort != "" {
+	if reflection.IsNotEmpty(argShort) {
 		registration = fmt.Sprintf(`%v.%vP(%v, "%v", %v, %v)`, cmdPrefix, flagType, argName, argShort, zeroVal, withQuote(desc))
 	} else {
 		registration = fmt.Sprintf(`%v.%v(%v, %v, %v)`, cmdPrefix, flagType, argName, zeroVal, withQuote(desc))
@@ -785,7 +811,7 @@ func addFlagLookup(flagLookupMap map[string][]string, envVar, flagPtr string) {
 
 func determineNameFromPointer(arg *string, variableName string) (name string, err error) {
 	name = field.Optional(arg, "")
-	if name == "" {
+	if reflection.IsEmpty(name) {
 		err = commonerrors.UndefinedVariable(variableName)
 		return
 	}
@@ -793,7 +819,7 @@ func determineNameFromPointer(arg *string, variableName string) (name string, er
 }
 
 func determineName(name string, variableName string) (nameOut string, err error) {
-	if name == "" {
+	if reflection.IsEmpty(name) {
 		err = commonerrors.UndefinedVariable(variableName)
 		return
 	}
@@ -931,7 +957,7 @@ func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefini
 						value = parentName
 					}
 
-					if value == "" {
+					if reflection.IsEmpty(value) {
 						err = commonerrors.UndefinedVariable("value")
 						return
 					}
@@ -956,7 +982,7 @@ func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefini
 					value = replaceUnderscores(cfg.MapstructureTag)
 				}
 
-				if value == "" {
+				if reflection.IsEmpty(value) {
 					err = commonerrors.UndefinedVariable("value")
 					return
 				}

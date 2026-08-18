@@ -28,6 +28,10 @@ func effectivePatternTemplateValue(value any) *string {
 		return (&typed).EffectivePattern()
 	case *FunctionConfigFields:
 		return typed.EffectivePattern()
+	case OptionParameter:
+		return (&typed).EffectivePattern()
+	case *OptionParameter:
+		return typed.EffectivePattern()
 	default:
 		return nil
 	}
@@ -54,6 +58,10 @@ func isRequiredTemplateValue(value any) bool {
 	case FunctionConfigFields:
 		return (&typed).IsRequired()
 	case *FunctionConfigFields:
+		return typed.IsRequired()
+	case OptionParameter:
+		return (&typed).IsRequired()
+	case *OptionParameter:
 		return typed.IsRequired()
 	default:
 		return false

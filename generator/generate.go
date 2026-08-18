@@ -52,6 +52,8 @@ const (
 	mainCliFile                  = "templates/main.go.tmpl"
 	typesFile                    = "templates/types.go.tmpl"
 	typesEnumFile                = "templates/types.enums.go.tmpl"
+	optionsFile                  = "templates/options.go.tmpl"
+	optionsEnumFile              = "templates/options.enums.go.tmpl"
 	goWorkFile                   = "templates/go.work.tmpl"
 	goModSdkFile                 = "templates/go.mod.sdk.tmpl"
 	goModCliFile                 = "templates/go.mod.cli.tmpl"
@@ -163,6 +165,8 @@ type DataModel struct {
 	SuppressRequiredValidationMap map[string]bool
 	CurrentTypePackage            string
 	CurrentAdditionalTypes        Types
+	CurrentOptionPackage          string
+	CurrentOptionSets             OptionSets
 	GeneratedActions              []GeneratedAction
 	GeneratedAction               *GeneratedAction
 	InstallAction                 *GeneratedAction
@@ -321,6 +325,12 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	err = ProcessAdditionalTypePackages(ctx, &sdk)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for additional type packages")
+		return
+	}
+
+	err = ProcessOptionPackages(ctx, &sdk)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "failed preprocessing the SDK definition for option packages")
 		return
 	}
 
@@ -540,6 +550,33 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
 				if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput); subErr != nil {
 					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate type enums template")
+				}
+				generated = append(generated, enumOutput)
+			}
+			return nil
+		})
+		if err != nil {
+			return
+		}
+	}
+
+	if reflection.IsNotEmpty(sdk.Specification.Options) {
+		groupedOptionSets := groupOptionSetsByPackage(sdk.Specification.Options)
+		err = collection.ForAll(sortedOptionPackages(sdk.Specification.Options), func(pkg string) error {
+			packageData := *data
+			packageData.CurrentOptionPackage = pkg
+			packageData.CurrentOptionSets = groupedOptionSets[pkg]
+
+			optionOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
+			if subErr := populateTemplate(ctx, &packageData, optionsFile, optionOutput); subErr != nil {
+				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate options template")
+			}
+			generated = append(generated, optionOutput)
+
+			if groupedOptionSets[pkg].HasEnum() {
+				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
+				if subErr := populateTemplate(ctx, &packageData, optionsEnumFile, enumOutput); subErr != nil {
+					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate option enums template")
 				}
 				generated = append(generated, enumOutput)
 			}

@@ -1,0 +1,66 @@
+specification:
+  package_name: options-variadic-sdk
+  main_module: optionsvariadic
+  name: OptionsVariadicSDK
+  description: Test manifest ensuring generated options can be passed as variadic interface arguments.
+
+  options:
+    - name: Build
+      description: Build options.
+      functions:
+        - function_name: SetTracing
+          parameters:
+            - name: Tracing
+              lang_type: bool
+              description: Whether tracing output is enabled.
+              default_value: "true"
+        - parameters:
+            - name: Verbose
+              lang_type: bool
+              description: Whether verbose output is enabled.
+              default_value: "false"
+        - parameters:
+            - name: Mode
+              lang_type: string
+              description: Build mode.
+              enum:
+                - fast
+                - safe
+              default_value: fast
+        - function_name: WithWindow
+          parameters:
+            - name: Width
+              lang_type: int
+              description: Requested output width.
+              default_value: "80"
+            - name: Height
+              lang_type: int
+              description: Requested output height.
+              default_value: "24"
+
+  interface:
+    methods:
+      - name: Build
+        description: Build a project with variadic functional options.
+        args:
+          - name: projectDefinition
+            lang_type: string
+            description: Relative path to the project definition file.
+          - name: buildOptions
+            lang_type: options.BuildOption
+            list: true
+            description: Functional options applied to the build.
+        returns:
+          - name: ok
+            lang_type: bool
+            description: Whether the build was successful.
+          - name: err
+            lang_type: error
+            description: Whether the build failed.
+
+  global_configuration:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      description: Whether the generated manager is enabled.
+      default_value: "true"

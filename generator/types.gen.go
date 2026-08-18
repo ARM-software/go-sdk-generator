@@ -1109,6 +1109,250 @@ func (j *Interface) UnmarshalJSON(value []byte) error {
 // generated from the tool documentation and repository metadata.
 type OciMapStringString map[string]interface{}
 
+// A generated functional option helper
+type OptionFunction struct {
+	// The helper function name to generate for this option.
+	// When omitted for a single non-boolean parameter, this defaults to `With<Name>`.
+	// When omitted for a single boolean parameter, this defaults to generating
+	// `With<Name>()` and `Without<Name>()`.
+	// When more than one parameter is defined, `function_name` is required.
+	//
+	FunctionName *string `json:"function_name,omitempty,omitzero" yaml:"function_name,omitempty" mapstructure:"function_name,omitempty"`
+
+	// Parameters corresponds to the JSON schema field "parameters".
+	Parameters []OptionParameter `json:"parameters" yaml:"parameters" mapstructure:"parameters"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OptionFunction) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["parameters"]; raw != nil && !ok {
+		return fmt.Errorf("field parameters in OptionFunction: required")
+	}
+	type Plain OptionFunction
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if plain.Parameters != nil && len(plain.Parameters) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "parameters", 1)
+	}
+	*j = OptionFunction(plain)
+	return nil
+}
+
+// A command argument or code parameter
+type OptionParameter struct {
+	// The argument to bind to
+	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
+
+	// The short version of the argument to bind to
+	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
+
+	// Bind configuration options to variables
+	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
+
+	// A condition in which to require the value. It should be based on one (and one
+	// only) other configuration variable. Condition MUST start with the name of the
+	// variable and only mention it once
+	Condition string `json:"condition,omitempty,omitzero" yaml:"condition,omitempty" mapstructure:"condition,omitempty"`
+
+	// Constraints corresponds to the JSON schema field "constraints".
+	Constraints *ParameterConstraints `json:"constraints,omitempty,omitzero" yaml:"constraints,omitempty" mapstructure:"constraints,omitempty"`
+
+	// An optional default value for use when creating a new instance of the
+	// configuration
+	DefaultValue *string `json:"default_value,omitempty,omitzero" yaml:"default_value,omitempty" mapstructure:"default_value,omitempty"`
+
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Allowed string values for the field. This is only supported for
+	// string-compatible values.
+	Enum []string `json:"enum,omitempty,omitzero" yaml:"enum,omitempty" mapstructure:"enum,omitempty"`
+
+	// A single example value for the field.
+	// For list or iterator shapes, the example represents one item value.
+	//
+	Example *string `json:"example,omitempty,omitzero" yaml:"example,omitempty" mapstructure:"example,omitempty"`
+
+	// Example values for the field.
+	// For list or iterator shapes, each example represents one item value.
+	//
+	Examples []string `json:"examples,omitempty,omitzero" yaml:"examples,omitempty" mapstructure:"examples,omitempty"`
+
+	// Whether to mark the flag as hidden in the command line
+	Hidden bool `json:"hidden,omitempty,omitzero" yaml:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
+	// Whether the variable should be in the root command so it can be shared between
+	// sub commands
+	IsRoot bool `json:"is_root,omitempty,omitzero" yaml:"is_root,omitempty" mapstructure:"is_root,omitempty"`
+
+	// Whether the value should be represented as an iterator over the language type
+	// using iter.Seq
+	Iterator bool `json:"iterator,omitempty,omitzero" yaml:"iterator,omitempty" mapstructure:"iterator,omitempty"`
+
+	// The JSON tag of the field
+	JsonTag *string `json:"json_tag,omitempty,omitzero" yaml:"json_tag,omitempty" mapstructure:"json_tag,omitempty"`
+
+	// The language type for the field
+	LangType string `json:"lang_type" yaml:"lang_type" mapstructure:"lang_type"`
+
+	// Whether the value should be represented as a list of the language type
+	List bool `json:"list,omitempty,omitzero" yaml:"list,omitempty" mapstructure:"list,omitempty"`
+
+	// The mapstructure tag of the field
+	MapstructureTag *string `json:"mapstructure_tag,omitempty,omitzero" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+
+	// The name of the field
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The pattern that the field should follow if it is a string
+	Pattern *string `json:"pattern,omitempty,omitzero" yaml:"pattern,omitempty" mapstructure:"pattern,omitempty"`
+
+	// Whether the value is a pointer
+	Reference bool `json:"reference,omitempty,omitzero" yaml:"reference,omitempty" mapstructure:"reference,omitempty"`
+
+	// Whether the configuration value is required
+	Required bool `json:"required,omitempty,omitzero" yaml:"required,omitempty" mapstructure:"required,omitempty"`
+
+	// Whether the parameter contains secret material and should be included in
+	// credentials storage
+	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OptionParameter) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in OptionParameter: required")
+	}
+	if _, ok := raw["lang_type"]; raw != nil && !ok {
+		return fmt.Errorf("field lang_type in OptionParameter: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in OptionParameter: required")
+	}
+	type Plain OptionParameter
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if v, ok := raw["condition"]; !ok || v == nil {
+		plain.Condition = ""
+	}
+	if v, ok := raw["hidden"]; !ok || v == nil {
+		plain.Hidden = false
+	}
+	if v, ok := raw["is_root"]; !ok || v == nil {
+		plain.IsRoot = false
+	}
+	if v, ok := raw["iterator"]; !ok || v == nil {
+		plain.Iterator = false
+	}
+	if v, ok := raw["list"]; !ok || v == nil {
+		plain.List = false
+	}
+	if v, ok := raw["reference"]; !ok || v == nil {
+		plain.Reference = false
+	}
+	if v, ok := raw["required"]; !ok || v == nil {
+		plain.Required = false
+	}
+	if v, ok := raw["secret"]; !ok || v == nil {
+		plain.Secret = false
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = OptionParameter(plain)
+	return nil
+}
+
+// A functional option collection
+type OptionSet struct {
+	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
+	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
+
+	// A human-readable description.
+	// Multiline YAML descriptions using `|` are supported.
+	//
+	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Functions corresponds to the JSON schema field "functions".
+	Functions []OptionFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
+
+	// The name of the functional option collection
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// The package the functional option collection is defined in.
+	// Defaults to `options`.
+	// This must resolve to a single package segment, not a nested path.
+	//
+	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
+
+	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OptionSet) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["description"]; raw != nil && !ok {
+		return fmt.Errorf("field description in OptionSet: required")
+	}
+	if _, ok := raw["functions"]; raw != nil && !ok {
+		return fmt.Errorf("field functions in OptionSet: required")
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in OptionSet: required")
+	}
+	type Plain OptionSet
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	if plain.Functions != nil && len(plain.Functions) < 1 {
+		return fmt.Errorf("field %s length: must be >= %d", "functions", 1)
+	}
+	if v, ok := raw["package"]; !ok || v == nil {
+		plain.Package = "options"
+	}
+	st := reflect.TypeOf(Plain{})
+	for i := range st.NumField() {
+		delete(raw, st.Field(i).Name)
+		delete(raw, strings.Split(st.Field(i).Tag.Get("json"), ",")[0])
+	}
+	if err := mapstructure.Decode(raw, &plain.AdditionalProperties); err != nil {
+		return err
+	}
+	*j = OptionSet(plain)
+	return nil
+}
+
+// A set of functional option collections to export
+type OptionSets []OptionSet
+
 // Validation constraints applying to a parameter.
 // These constraints complement the existing `condition` field rather than
 // replacing it. Use `condition` for the current expression-style required
@@ -1834,6 +2078,9 @@ type SDKSpecification struct {
 
 	// The name of the SDK to expose (used for the interface and its implementations)
 	Name *string `json:"name,omitempty,omitzero" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Options corresponds to the JSON schema field "options".
+	Options OptionSets `json:"options,omitempty,omitzero" yaml:"options,omitempty" mapstructure:"options,omitempty"`
 
 	// The package name for the main SDK module
 	PackageName string `json:"package_name" yaml:"package_name" mapstructure:"package_name"`

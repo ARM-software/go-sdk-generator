@@ -19,6 +19,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/hashing"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -41,7 +42,7 @@ func generatedModuleDirectories(ctx context.Context, t *testing.T, localFs files
 func isPrivateDependencyFailure(output string) bool {
 	trimmed := strings.TrimSpace(output)
 	lowerTrimmed := strings.ToLower(trimmed)
-	if trimmed == "" || !strings.Contains(lowerTrimmed, strings.ToLower("github.com/Arm-Debug/")) {
+	if reflection.IsEmpty(trimmed) || !strings.Contains(lowerTrimmed, strings.ToLower("github.com/Arm-Debug/")) {
 		return false
 	}
 	return collection.AnyFunc([]string{
@@ -412,6 +413,12 @@ func TestGenerate(t *testing.T) {
 			title:         "No CLI (explicit variadic lang_type forwards delegate calls with spread syntax)",
 			recipe:        "variadic.yml",
 			regressionSrc: "variadic.zip",
+			err:           nil,
+		},
+		{
+			title:         "No CLI (generated option helpers can be passed as variadic interface arguments)",
+			recipe:        "options-variadic.yml",
+			regressionSrc: "options-variadic.zip",
 			err:           nil,
 		},
 		{

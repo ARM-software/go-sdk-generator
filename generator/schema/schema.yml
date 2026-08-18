@@ -31,92 +31,94 @@ x-description: &x-description
 x-deprecation-notice-ref: &x-deprecation-notice-ref
   $ref: "#/$defs/deprecation_notice"
 
+x-parameter-properties: &x-parameter-properties
+  name:
+    type: string
+    description: The name of the field
+  lang_type:
+    type: string
+    description: The language type for the field
+  enum:
+    type: array
+    description: Allowed string values for the field. This is only supported for string-compatible values.
+    items:
+      type: string
+  json_tag:
+    type: string
+    description: The JSON tag of the field
+  mapstructure_tag:
+    type: string
+    description: The mapstructure tag of the field
+  pattern:
+    type: string
+    description: The pattern that the field should follow if it is a string
+  required:
+    type: boolean
+    default: false
+    description: Whether the configuration value is required
+  condition:
+    type: string
+    default: ""
+    description: A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once
+  constraints:
+    $ref: "#/$defs/parameter_constraints"
+  reference:
+    type: boolean
+    default: false
+    description: Whether the value is a pointer
+  list:
+    type: boolean
+    default: false
+    description: Whether the value should be represented as a list of the language type
+  iterator:
+    type: boolean
+    default: false
+    description: Whether the value should be represented as an iterator over the language type using iter.Seq
+  default_value:
+    type: string
+    description: An optional default value for use when creating a new instance of the configuration
+  example:
+    type: string
+    description: |
+      A single example value for the field.
+      For list or iterator shapes, the example represents one item value.
+  examples:
+    type: array
+    description: |
+      Example values for the field.
+      For list or iterator shapes, each example represents one item value.
+    items:
+      type: string
+  bindings:
+    type: array
+    description: Bind configuration options to variables
+    items:
+      $ref: "#/$defs/binding"
+  description: *x-description
+  is_root:
+    type: boolean
+    description: Whether the variable should be in the root command so it can be shared between sub commands
+    default: false
+  arg:
+    type: string
+    description: The argument to bind to
+  arg_short:
+    type: string
+    description: The short version of the argument to bind to
+  hidden:
+    type: boolean
+    default: false
+    description: Whether to mark the flag as hidden in the command line
+  secret:
+    type: boolean
+    default: false
+    description: Whether the parameter contains secret material and should be included in credentials storage
+  deprecation_notice: *x-deprecation-notice-ref
+
 x-parameter: &x-parameter
   description: A command argument or code parameter
   type: object
-  properties:
-    name:
-      type: string
-      description: The name of the field
-    lang_type:
-      type: string
-      description: The language type for the field
-    enum:
-      type: array
-      description: Allowed string values for the field. This is only supported for string-compatible values.
-      items:
-        type: string
-    json_tag:
-      type: string
-      description: The JSON tag of the field
-    mapstructure_tag:
-      type: string
-      description: The mapstructure tag of the field
-    pattern:
-      type: string
-      description: The pattern that the field should follow if it is a string
-    required:
-      type: boolean
-      default: false
-      description: Whether the configuration value is required
-    condition:
-      type: string
-      default: ""
-      description: A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once
-    constraints:
-      $ref: "#/$defs/parameter_constraints"
-    reference:
-      type: boolean
-      default: false
-      description: Whether the value is a pointer
-    list:
-      type: boolean
-      default: false
-      description: Whether the value should be represented as a list of the language type
-    iterator:
-      type: boolean
-      default: false
-      description: Whether the value should be represented as an iterator over the language type using iter.Seq
-    default_value:
-      type: string
-      description: An optional default value for use when creating a new instance of the configuration
-    example:
-      type: string
-      description: |
-        A single example value for the field.
-        For list or iterator shapes, the example represents one item value.
-    examples:
-      type: array
-      description: |
-        Example values for the field.
-        For list or iterator shapes, each example represents one item value.
-      items:
-        type: string
-    bindings:
-      type: array
-      description: Bind configuration options to variables
-      items:
-        $ref: "#/$defs/binding"
-    description: *x-description
-    is_root:
-      type: boolean
-      description: Whether the variable should be in the root command so it can be shared between sub commands
-      default: false
-    arg:
-      type: string
-      description: The argument to bind to
-    arg_short:
-      type: string
-      description: The short version of the argument to bind to
-    hidden:
-      type: boolean
-      default: false
-      description: Whether to mark the flag as hidden in the command line
-    secret:
-      type: boolean
-      default: false
-      description: Whether the parameter contains secret material and should be included in credentials storage
-    deprecation_notice: *x-deprecation-notice-ref
+  properties: *x-parameter-properties
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -163,6 +165,8 @@ properties:
         description: An optional configuration file that will be used to load values from (in addtion to cli args and env vars)
       additional_types:
         $ref: "#/$defs/types"
+      options:
+        $ref: "#/$defs/option_sets"
       interface:
         $ref: "#/$defs/interface"
       command_line_commands:
@@ -214,6 +218,64 @@ $defs:
         items:
           $ref: "#/$defs/entity_field"
     additionalProperties: false
+  option_sets:
+    type: array
+    description: A set of functional option collections to export
+    items:
+      $ref: "#/$defs/option_set"
+  option_set:
+    description: A functional option collection
+    type: object
+    required:
+      - name
+      - description
+      - functions
+    properties:
+      name:
+        type: string
+        description: The name of the functional option collection
+      package:
+        type: string
+        default: options
+        description: |
+          The package the functional option collection is defined in.
+          Defaults to `options`.
+          This must resolve to a single package segment, not a nested path.
+      description: *x-description
+      deprecation_notice: *x-deprecation-notice-ref
+      functions:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/option_function"
+    additionalProperties: true
+  option_function:
+    description: A generated functional option helper
+    type: object
+    required:
+      - parameters
+    properties:
+      function_name:
+        type: string
+        description: |
+          The helper function name to generate for this option.
+          When omitted for a single non-boolean parameter, this defaults to `With<Name>`.
+          When omitted for a single boolean parameter, this defaults to generating `With<Name>()` and `Without<Name>()`.
+          When more than one parameter is defined, `function_name` is required.
+      parameters:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/option_parameter"
+    additionalProperties: false
+  option_parameter:
+    description: A parameter on a generated functional option collection
+    <<: *x-parameter
+    required:
+      - name
+      - lang_type
+      - description
+    additionalProperties: true
   interface:
     description: An interface
     type: object
