@@ -2,6 +2,42 @@
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Proprietary
 -->
+"0.47.0" (2026-08-18)
+=====================
+
+Features
+--------
+
+- :sparkles: Add manifest support for generated functional options packages. (#202608171215)
+- :sparkles: Add configurable generated CLI and action logging and annotation support, including custom and rich logger support. (#20260812022604)
+- :sparkles: Reject manifest-defined CLI configuration fields that reuse protected built-in argument names. (#20260813153433)
+- :sparkles: Add manifest-driven result output support for CLI commands with human, JSON, and YAML destinations. (#20260814095502)
+- :recycle: Set generated enum zero values to match the default option where applicable. (#20260814101526)
+- :sparkles: Add parameter_value.when to control always, empty, and non-empty comparisons. (#20260817112135)
+
+
+Bugfixes
+--------
+
+- :builder: Add a workflow that reports Go dependency licences, runs `go-licenses check`, and publishes an SPDX SBOM artifact. (#202608130135)
+
+
+Deprecations and Removals
+-------------------------
+
+- :broom: Remove unused template helper registrations and dead helper code from the generator. (#202608171620)
+
+
+Misc
+----
+
+- #202608171735, #202608171905
+
+
+<!--
+Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Proprietary
+-->
 "0.46.0" (2026-08-12)
 =====================
 
