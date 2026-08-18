@@ -96,13 +96,11 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 		return "" // a return value is required
 	},
 	"isVariadicArg":                isVariadicLangType,
-	"convertLangType":              convertLangType, // FIXME: This template helper does not seem to be used and should be removed.
 	"validationLangType":           argValidationRule,
 	"defaultValue":                 defaultValue,
 	"defaultFieldValue":            defaultFieldValue,
 	"cliConfigFieldDefaultValue":   cliConfigFieldDefaultValue,
 	"cliConfigEnumGetterValueExpr": cliConfigEnumGetterValueExpr,
-	"configFieldType":              configFieldType, // FIXME: This template helper does not seem to be used and should be removed.
 	"cliConfigFieldType":           cliConfigFieldType,
 	"configFieldDefaultValue":      configFieldDefaultValue,
 	"configFieldTestValue":         configFieldTestValue,
@@ -125,11 +123,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"fieldEnumStringValidationRule":  fieldEnumStringValidationRule,
 	"constraintValidationRule":       constraintValidationRule,
 	"usesPresenceGuardForValidation": usesPresenceGuardForValidation,
-	"effectiveEnum":                  effectiveEnumTemplateValue,          // FIXME: This template helper does not seem to be used and should be removed.
-	"effectivePattern":               effectivePatternTemplateValue,       // FIXME: This template helper does not seem to be used and should be removed.
-	"effectivePatternString":         effectivePatternStringTemplateValue, // FIXME: This template helper does not seem to be used and should be removed.
-	"isRequired":                     isRequiredTemplateValue,             // FIXME: This template helper does not seem to be used and should be removed.
-	"descriptionWithEnum":            descriptionWithEnum,                 // FIXME: This template helper does not seem to be used and should be removed.
+	"effectivePatternString":         effectivePatternStringTemplateValue,
 	"descriptionWithExamples":        descriptionWithExamples,
 	"descriptionWithMetadata":        descriptionWithMetadata,
 	"descriptionWithDeprecation":     descriptionWithDeprecation,
@@ -167,7 +161,6 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"configExtraImports":                    configExtraImports,
 	"cliConfigExtraImports":                 cliConfigExtraImports,
 	"typesExtraImports":                     typesExtraImports,
-	"additionalTypePackageName":             additionalTypePackageName, // FIXME: This template helper does not seem to be used and should be removed.
 	"groupAdditionalTypesByPackage":         groupAdditionalTypesByPackage,
 	"hasSingleDefaultTypesPackage":          hasSingleDefaultTypesPackage,
 	"sortedAdditionalTypePackages":          sortedAdditionalTypePackages,
@@ -185,16 +178,14 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"optionBooleanParameterValueExpression": optionBooleanParameterValueExpression,
 	"optionParameterCloneStatements":        optionParameterCloneStatements,
 	"goComment":                             goComment,
-	"referenceType":                         referenceType,      // FIXME: This template helper does not seem to be used and should be removed.
-	"ignoreLinting":                         ignoreLintingError, // FIXME: This template helper does not seem to be used and should be removed.
 	"nowYear":                               nowYear,
 	"toURIEncoded":                          toURIEncoded,
 	"linkToManifest":                        linkToManifest,
 	"runSkillName":                          runSkillName,
 	"installSkillName":                      installSkillName,
 	"githubActionSkillName":                 githubActionSkillName,
-	"normaliseActionDirectoryName":          normaliseActionDirectoryName, // FIXME: This template helper does not seem to be used and should be removed.
-	"normaliseActionName":                   normaliseActionName,          // FIXME: This template helper does not seem to be used and should be removed.
+	"normaliseActionDirectoryName":          normaliseActionDirectoryName,
+	"normaliseActionName":                   normaliseActionName,
 	"hasCloudCommands":                      isCallCloudTrue,
 	"toCLIArgNameConstantRef": func(cliFuncName, arg string, isRoot bool) string {
 		return getArgName(cliFuncName, arg, "", isRoot)
@@ -443,13 +434,6 @@ func descriptionWithExamples(description string, example *string, examples []str
 
 func descriptionWithMetadata(description string, enum []string, example *string, examples []string) string {
 	return descriptionWithExamples(descriptionWithEnum(description, enum), example, examples)
-}
-
-func referenceType(reference bool, langType string) string {
-	if reference {
-		return fmt.Sprintf("*%s", langType)
-	}
-	return langType
 }
 
 func parameterType(reference bool, list bool, iterator bool, langType string) string {

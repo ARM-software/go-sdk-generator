@@ -89,33 +89,6 @@ func fieldEnumStringValidationRule(ownerName, fieldName, langType string, refere
 	return fmt.Sprintf(", validation.When(reflection.IsNotEmpty(%s), %s)", fieldExpr, baseRule)
 }
 
-func effectiveEnumTemplateValue(value any) []string {
-	switch typed := value.(type) {
-	case CommandArgument:
-		return (&typed).EffectiveEnum()
-	case *CommandArgument:
-		return typed.EffectiveEnum()
-	case EntityField:
-		return (&typed).EffectiveEnum()
-	case *EntityField:
-		return typed.EffectiveEnum()
-	case ConfigurationOption:
-		return (&typed).EffectiveEnum()
-	case *ConfigurationOption:
-		return typed.EffectiveEnum()
-	case FunctionConfigFields:
-		return (&typed).EffectiveEnum()
-	case *FunctionConfigFields:
-		return typed.EffectiveEnum()
-	case OptionParameter:
-		return (&typed).EffectiveEnum()
-	case *OptionParameter:
-		return typed.EffectiveEnum()
-	default:
-		return nil
-	}
-}
-
 func cliConfigFieldDefaultValue(ownerName string, cfg FunctionConfigFields) string {
 	if !hasEnum(cfg.EffectiveEnum()) || cfg.DefaultValue == nil {
 		return ""

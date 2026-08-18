@@ -17,6 +17,44 @@ Write manifests that are:
 - easy to regenerate safely
 - aligned with the generator's built-in capabilities
 - consistent across SDKs, CLIs, actions, and generated documentation
+- detailed enough to define a real project and generate a useful starting point
+- understandable by a human and easy to read
+
+## Primary Mindset
+
+The goal of a manifest is to define a real project in enough detail that its SDK, CLI, and surrounding project structure can be bootstrapped quickly.
+
+In general, the more precise and detailed the project definition is in the manifest, the less boilerplate and bespoke code should need to be written by hand afterwards.
+
+A manifest should also be understandable by a human. Prefer names, descriptions, and structure that make the project easy to read and reason about without having to mentally simulate the generator.
+
+This means manifests should:
+
+- be real project definitions rather than synthetic schema-only exercises
+- model one coherent concern clearly enough that a team could start implementation from the generated output
+- use generator features such as `enum`, `constraints`, `options`, result output, and structured built-in types when they naturally fit the application
+- avoid adding strange or artificial parameters purely to hit edge cases unless those parameters still make sense for a real project
+
+## Quick Checklist
+
+Before finalising a manifest, check:
+
+- Does it look like a real project or tool a team could plausibly generate and continue developing?
+- Are built-in `lang_type` values used wherever they already match the intent?
+- Are closed choices expressed with `enum` rather than unconstrained strings?
+- Are relationships and validation semantics expressed with `constraints` where appropriate?
+- If the API or CLI would otherwise require repeated boilerplate, would `options` make the interface cleaner?
+- If the project has several commands, do some naturally produce structured results while others do not?
+- Does the manifest use the generator features that help keep the generated project structure consistent?
+- Does the manifest express validation as thoroughly as the real project contract allows?
+
+When a manifest definition needs to be more thorough, prefer using richer manifest features where they naturally fit, such as:
+
+- several commands with different operational modes
+- a mix of commands with and without result output
+- functional options for repetitive or mode-specific behaviour
+- cross-parameter constraints
+- representative defaults, enums, and examples
 
 ## Core Guidance
 

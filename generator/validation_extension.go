@@ -41,33 +41,6 @@ func effectivePatternStringTemplateValue(value any) string {
 	return field.OptionalString(effectivePatternTemplateValue(value), "")
 }
 
-func isRequiredTemplateValue(value any) bool {
-	switch typed := value.(type) {
-	case CommandArgument:
-		return (&typed).IsRequired()
-	case *CommandArgument:
-		return typed.IsRequired()
-	case EntityField:
-		return (&typed).IsRequired()
-	case *EntityField:
-		return typed.IsRequired()
-	case ConfigurationOption:
-		return (&typed).IsRequired()
-	case *ConfigurationOption:
-		return typed.IsRequired()
-	case FunctionConfigFields:
-		return (&typed).IsRequired()
-	case *FunctionConfigFields:
-		return typed.IsRequired()
-	case OptionParameter:
-		return (&typed).IsRequired()
-	case *OptionParameter:
-		return typed.IsRequired()
-	default:
-		return false
-	}
-}
-
 func optionalConstraintLiteral[T any](value *T) string {
 	if value == nil {
 		return ""

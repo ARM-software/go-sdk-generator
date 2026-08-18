@@ -422,6 +422,12 @@ func TestGenerate(t *testing.T) {
 			err:           nil,
 		},
 		{
+			title:         "Yes CLI (pet shop purchase example covers advanced commands, options, and constraints)",
+			recipe:        "petshop-purchase.yml",
+			regressionSrc: "petshop-purchase.zip",
+			err:           nil,
+		},
+		{
 			title:         "Yes CLI (string enums generate constants validation and cli help text)",
 			recipe:        "enum.yml",
 			regressionSrc: "enum.zip",

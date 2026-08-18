@@ -1,0 +1,423 @@
+specification:
+  package_name: petshop-purchase-sdk
+  main_module: petshoppurchase
+  name: Pet Shop Purchase
+  description: Manage online pet shop purchasing workflows from product search through to order cancellation.
+
+  options:
+    - name: Search
+      package: search
+      description: Functional options for product catalogue searches.
+      functions:
+        - parameters:
+            - name: IncludeOutOfStock
+              lang_type: bool
+              description: Whether search results should include out-of-stock products.
+        - function_name: WithPaging
+          parameters:
+            - name: PageSize
+              lang_type: uint32
+              description: Maximum number of products to return in one page.
+              default_value: "25"
+              constraints:
+                minimum: 1
+                maximum: 100
+            - name: PageToken
+              lang_type: string
+              description: Continuation token for fetching the next page of products.
+        - parameters:
+            - name: Tag
+              lang_type: string
+              list: true
+              description: Product tags that must be present in the search result.
+              constraints:
+                min_items: 1
+                unique_items: true
+
+    - name: Basket
+      package: basket
+      description: Functional options for basket creation and lifecycle management.
+      functions:
+        - function_name: WithCustomerReference
+          parameters:
+            - name: CustomerReference
+              lang_type: string
+              description: Optional external reference for reconciling the basket with a customer account.
+              constraints:
+                min_length: 6
+                max_length: 64
+                prefix: customer-
+        - parameters:
+            - name: AutoApplyOffers
+              lang_type: bool
+              description: Whether automatic basket offers should be applied during basket creation.
+
+    - name: Purchase
+      description: Functional options for pet shop checkout.
+      functions:
+        - function_name: WithCheckoutMode
+          parameters:
+            - name: CheckoutMode
+              lang_type: string
+              description: Checkout mode for the purchase flow.
+              enum:
+                - standard
+                - expedited
+                - gift
+              default_value: standard
+        - function_name: WithDeliveryWindow
+          parameters:
+            - name: DeliveryDay
+              lang_type: string
+              description: Requested delivery day.
+              constraints:
+                not_empty: true
+            - name: DeliverySlot
+              lang_type: string
+              description: Requested delivery slot.
+              constraints:
+                not_empty: true
+        - parameters:
+            - name: SavePaymentMethod
+              lang_type: bool
+              description: Whether the payment method should be stored for future pet shop purchases.
+
+    - name: Cancellation
+      description: Functional options for order cancellation.
+      functions:
+        - function_name: WithRestockDecision
+          parameters:
+            - name: RestockItems
+              lang_type: bool
+              description: Whether cancelled order items should be restocked.
+            - name: NotifyCustomer
+              lang_type: bool
+              description: Whether the customer should receive a cancellation notification.
+
+  interface:
+    methods:
+      - name: SearchProducts
+        description: Search the pet shop catalogue before creating a basket.
+        args:
+          - name: searchTerm
+            lang_type: string
+            description: Search term used to look up pet food, toys, or accessories.
+          - name: category
+            lang_type: string
+            description: Optional product category to narrow the search.
+          - name: timeout
+            lang_type: duration
+            description: Timeout for the catalogue search request.
+          - name: dryRun
+            lang_type: bool
+            description: Whether to validate the request without placing anything in a basket.
+          - name: searchOptions
+            lang_type: search.SearchOption
+            list: true
+            description: Functional options applied to the catalogue search.
+        returns:
+          - name: productCount
+            lang_type: uint32
+            description: Number of products matching the search.
+          - name: err
+            lang_type: error
+            description: Whether the search failed.
+
+      - name: CreateBasket
+        description: Create a new basket for a pet shop customer.
+        args:
+          - name: customerEmail
+            lang_type: email
+            description: Customer email address used to own the basket.
+          - name: ttl
+            lang_type: duration
+            description: Time-to-live for the basket before it expires.
+          - name: dryRun
+            lang_type: bool
+            description: Whether to validate the basket request without creating it.
+          - name: basketOptions
+            lang_type: basket.BasketOption
+            list: true
+            description: Functional options applied to basket creation.
+        returns:
+          - name: basketID
+            lang_type: string
+            description: Identifier of the created basket.
+          - name: err
+            lang_type: error
+            description: Whether the basket creation failed.
+
+      - name: PlaceOrder
+        description: Place an online order for the current basket.
+        args:
+          - name: basketID
+            lang_type: string
+            description: Identifier of the basket to purchase.
+          - name: paymentToken
+            lang_type: string
+            description: Payment token for the checkout request.
+          - name: timeout
+            lang_type: duration
+            description: Timeout for the checkout request.
+          - name: dryRun
+            lang_type: bool
+            description: Whether to perform a checkout rehearsal without placing the order.
+          - name: purchaseOptions
+            lang_type: options.PurchaseOption
+            list: true
+            description: Functional options applied to checkout.
+        returns:
+          - name: orderID
+            lang_type: string
+            description: Identifier of the placed order.
+          - name: receiptURL
+            lang_type: url
+            description: URL where the order receipt can be viewed.
+          - name: err
+            lang_type: error
+            description: Whether the checkout failed.
+
+      - name: CancelOrder
+        description: Cancel a previously placed pet shop order.
+        args:
+          - name: orderID
+            lang_type: string
+            description: Identifier of the order to cancel.
+          - name: reason
+            lang_type: string
+            description: Reason for cancelling the order.
+          - name: timeout
+            lang_type: duration
+            description: Timeout for the cancellation request.
+          - name: cancellationOptions
+            lang_type: options.CancellationOption
+            list: true
+            description: Functional options applied to order cancellation.
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether the cancellation failed.
+
+  command_line_commands:
+    binary: petshop-purchase
+    root_environment_var: PETSHOP_PURCHASE
+    description: CLI for managing online pet shop purchases.
+    no_actions: true
+    functions:
+      - name: SearchProducts
+        description: Search the pet shop catalogue before creating a basket.
+        with_result: true
+        with_summary: false
+        configuration:
+          - name: SearchTerm
+            lang_type: string
+            mapstructure_tag: search_term
+            description: Search term used to look up pet food, toys, or accessories.
+            required: true
+            constraints:
+              min_length: 3
+              max_length: 120
+              not_contains: discontinued
+          - name: Category
+            lang_type: string
+            mapstructure_tag: category
+            description: Optional product category to narrow the search.
+            enum:
+              - food
+              - toys
+              - grooming
+              - habitat
+            default_value: food
+          - name: Timeout
+            lang_type: duration
+            mapstructure_tag: timeout
+            description: Timeout for the catalogue search request.
+            default_value: 20s
+          - name: DryRun
+            lang_type: bool
+            mapstructure_tag: dry_run
+            description: Whether to validate the request without placing anything in a basket.
+          - name: SearchTags
+            lang_type: string
+            list: true
+            mapstructure_tag: search_tags
+            description: Tags that every returned product must satisfy.
+            constraints:
+              min_items: 1
+              unique_items: true
+              at_least_one: true
+
+      - name: CreateBasket
+        description: Create a new basket for a pet shop customer.
+        with_result: true
+        with_summary: false
+        configuration:
+          - name: CustomerEmail
+            lang_type: email
+            mapstructure_tag: customer_email
+            description: Customer email address used to own the basket.
+            required: true
+          - name: TTL
+            lang_type: duration
+            mapstructure_tag: ttl
+            description: Time-to-live for the basket before it expires.
+            default_value: 45m
+          - name: DryRun
+            lang_type: bool
+            mapstructure_tag: dry_run
+            description: Whether to validate the basket request without creating it.
+          - name: CouponCode
+            lang_type: string
+            mapstructure_tag: coupon_code
+            description: Promotional coupon code to apply when the basket is created.
+            constraints:
+              prefix: PET-
+              min_length: 8
+          - name: CustomerReference
+            lang_type: string
+            mapstructure_tag: customer_reference
+            description: External reference used to reconcile the basket with a customer account.
+            constraints:
+              dependent_required:
+                - CouponCode
+              require_together_as_cli_flags: true
+
+      - name: PlaceOrder
+        description: Place an online order for the current basket.
+        with_result: true
+        with_summary: false
+        configuration:
+          - name: BasketID
+            lang_type: string
+            mapstructure_tag: basket_id
+            description: Identifier of the basket to purchase.
+            required: true
+          - name: PaymentToken
+            lang_type: string
+            mapstructure_tag: payment_token
+            description: Payment token for the checkout request.
+            required: true
+            secret: true
+            constraints:
+              min_length: 12
+          - name: Timeout
+            lang_type: duration
+            mapstructure_tag: timeout
+            description: Timeout for the checkout request.
+            default_value: 30s
+          - name: DryRun
+            lang_type: bool
+            mapstructure_tag: dry_run
+            description: Whether to perform a checkout rehearsal without placing the order.
+          - name: SavePaymentMethod
+            lang_type: bool
+            mapstructure_tag: save_payment_method
+            description: Whether the payment method should be stored for future pet shop purchases.
+            constraints:
+              forbidden_when:
+                parameter: DryRun
+                operator: equals
+                value: true
+          - name: CheckoutMode
+            lang_type: string
+            mapstructure_tag: checkout_mode
+            description: Checkout mode for the purchase flow.
+            enum:
+              - standard
+              - expedited
+              - gift
+            default_value: standard
+          - name: GiftMessage
+            lang_type: string
+            mapstructure_tag: gift_message
+            description: Gift note to include with the order when using gift checkout.
+            constraints:
+              required_when:
+                parameter: CheckoutMode
+                operator: equals
+                value: gift
+              max_length: 200
+          - name: DeliverySlot
+            lang_type: string
+            mapstructure_tag: delivery_slot
+            description: Requested delivery slot for the order.
+            constraints:
+              conflicts_with:
+                - DryRun
+
+      - name: CancelOrder
+        description: Cancel a previously placed pet shop order.
+        with_summary: false
+        configuration:
+          - name: OrderID
+            lang_type: string
+            mapstructure_tag: order_id
+            description: Identifier of the order to cancel.
+            required: true
+          - name: Reason
+            lang_type: string
+            mapstructure_tag: reason
+            description: Reason for cancelling the order.
+            constraints:
+              not_empty: true
+              min_length: 5
+              max_length: 200
+          - name: Timeout
+            lang_type: duration
+            mapstructure_tag: timeout
+            description: Timeout for the cancellation request.
+            default_value: 15s
+          - name: NotifyCustomer
+            lang_type: bool
+            mapstructure_tag: notify_customer
+            description: Whether the customer should receive a cancellation notice.
+          - name: RefundReference
+            lang_type: string
+            mapstructure_tag: refund_reference
+            description: Optional external refund reference when a refund is initiated.
+            constraints:
+              required_when:
+                parameter: NotifyCustomer
+                operator: equals
+                value: true
+              prefix: refund-
+
+  global_configuration:
+    - name: Storefront
+      lang_type: serviceBehindAuth
+      reference: true
+      mapstructure_tag: storefront
+      description: Pet shop storefront service configuration.
+      default_value: https://petshop.example.com/api
+    - name: Currency
+      lang_type: string
+      mapstructure_tag: currency
+      description: Default currency used for price display and checkout.
+      enum:
+        - gbp
+        - eur
+        - usd
+      default_value: gbp
+    - name: RequestTimeout
+      lang_type: duration
+      mapstructure_tag: request_timeout
+      description: Default timeout for requests sent to the pet shop service.
+      default_value: 30s
+    - name: DryRun
+      lang_type: bool
+      mapstructure_tag: dry_run
+      description: Whether to avoid mutating the remote service by default.
+    - name: Region
+      lang_type: string
+      mapstructure_tag: region
+      description: Pet shop operating region used for stock and pricing decisions.
+      enum:
+        - uk
+        - eu
+        - us
+      default_value: uk
+    - name: BasketTTL
+      lang_type: duration
+      mapstructure_tag: basket_ttl
+      description: Default basket time-to-live used when a command does not override it.
+      default_value: 45m

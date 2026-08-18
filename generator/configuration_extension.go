@@ -51,17 +51,6 @@ func compositeConfigFieldTestValue(additionalTypesPackages map[string]string, cu
 	return value, true
 }
 
-func configFieldType(cfg FunctionConfigFields) string {
-	langType := convertLangType(baseLangType(cfg.LangType))
-	if cfg.Secret && langType == stringLangType {
-		langType = secretProtectedStringType
-	}
-	if hasEnum(cfg.EffectiveEnum()) && !cfg.Secret {
-		langType = enumTypeName("", cfg.Name, baseLangType(cfg.LangType), cfg.EffectiveEnum())
-	}
-	return parameterTypeFromBase(isReferenceLikeSecretField(cfg), cfg.List, cfg.Iterator, langType)
-}
-
 func cliConfigFieldType(cfg FunctionConfigFields) string {
 	langType := convertLangType(baseLangType(cfg.LangType))
 	if cfg.Secret && langType == stringLangType {

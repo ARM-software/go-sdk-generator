@@ -377,7 +377,6 @@ func TestSecretStringHelpersSupportPointerStrings(t *testing.T) {
 	}
 
 	assert.True(t, isSecretCompatibleLangType(cfg.LangType))
-	assert.Equal(t, "*secretutil.ProtectedString", configFieldType(cfg))
 	assert.Contains(t, configFieldDefaultValue(nil, "", "", "", cfg), "field.ToOptional(")
 	assert.Contains(t, configFieldDefaultValue(nil, "", "", "", cfg), `secretutil.ProtectedString("hello")`)
 }
