@@ -28,17 +28,6 @@ jobs:
             cli/go.sum
             generator/go.sum
 
-      - name: Configure access to private Go modules when required
-        shell: bash
-        env:
-          GIT_SECRET: ${{ secrets.GIT_SECRET }}
-        run: |
-          set -euo pipefail
-          # This remains a no-op for public-only dependency graphs.
-          if [[ -n "${GIT_SECRET:-}" ]]; then
-            git config --global url."https://${GIT_SECRET}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
-          fi
-
       - name: Download Go module dependencies
         shell: bash
         run: |
@@ -65,7 +54,7 @@ jobs:
         shell: bash
         env:
           REPORT_DIR: ${{ runner.temp }}/licence-compliance
-          FIRST_PARTY_IGNORE: github.com/Arm-Debug/go-sdk-generator
+          FIRST_PARTY_IGNORE: github.com/ARM-software/go-sdk-generator
         run: |
           set -euo pipefail
           mkdir -p "${REPORT_DIR}"

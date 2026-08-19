@@ -1,3 +1,7 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # ADR Template
 
 Create ADRs only for decisions about the generator that are hard to reverse, surprising without context, and the result of a real trade-off.

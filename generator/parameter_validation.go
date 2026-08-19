@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -9,14 +13,15 @@ import (
 	"strings"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 func validateParameterShape(name string, langType string, list bool, iterator bool) error {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -9,6 +13,10 @@ import (
 	"strings"
 	"text/template"
 
+	modsemver "golang.org/x/mod/semver"
+	"golang.org/x/tools/imports"
+
+	"github.com/ARM-software/go-sdk-generator/generator/config"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -16,10 +24,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/semver"
-	modsemver "golang.org/x/mod/semver"
-	"golang.org/x/tools/imports"
-
-	"github.com/Arm-Debug/go-sdk-generator/generator/config"
 )
 
 //go:generate go tool go-jsonschema -p generator ../generator/schema/schema.yml -o ../generator/types.gen.go --struct-name-from-title --capitalization SDK

@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Package cmd defines all the CLI commands for SDK Generator
 package cmd
 
@@ -15,8 +20,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/spf13/cobra"
 
-	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
-	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/generator"
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/generator"
 )
 
 const (

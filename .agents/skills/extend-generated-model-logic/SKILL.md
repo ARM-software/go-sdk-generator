@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: extend-generated-model-logic
 description: Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions.
-license: Proprietary
+license: Apache-2.0
 compatibility: opencode
 ---
 

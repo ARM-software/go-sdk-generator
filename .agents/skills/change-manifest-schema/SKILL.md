@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: change-manifest-schema
 description: Use when editing `generator/schema/schema.yml` or changing how manifests are validated or generated. This skill covers the follow-up work: regenerate generated files and dogfood the generator in the correct order.
-license: Proprietary
+license: Apache-2.0
 compatibility: opencode
 ---
 

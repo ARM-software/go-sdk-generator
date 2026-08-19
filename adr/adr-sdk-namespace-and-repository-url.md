@@ -1,3 +1,7 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # ADR | Schema: Separate SDK Namespace and Repository URL
 
 # Contributors
@@ -25,7 +29,7 @@ Treating those as one field makes the manifest less expressive and forces reposi
 How should the manifest model the SDK import namespace and the hosted repository location so that:
 
 - Go module and import paths remain stable.
-- The generator can create tools that do not live in the `Arm-Debug` organisation.
+- The generator can create tools that do not live under one fixed GitHub organisation.
 - Repository links and GitHub-specific references can move independently.
 - The generator does not emit broken GitHub links for non-GitHub repositories.
 

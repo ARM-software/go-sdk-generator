@@ -1,3 +1,7 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: grill-me
 description: Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation.

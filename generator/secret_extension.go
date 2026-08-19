@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -5,10 +9,11 @@ import (
 	"slices"
 	"strings"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 const (

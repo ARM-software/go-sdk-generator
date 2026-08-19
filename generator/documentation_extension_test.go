@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -7,10 +11,11 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/ARM-software/golang-utils/utils/field"
-	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ARM-software/golang-utils/utils/field"
+	"github.com/ARM-software/golang-utils/utils/filesystem"
 )
 
 func TestEmbeddedDocumentationTemplate(t *testing.T) {

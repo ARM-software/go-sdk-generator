@@ -35,7 +35,7 @@ jobs:
 
       - name: Run go-sdk-generator generate action
         id: generate-action
-        uses: Arm-Debug/go-sdk-generator/actions/generate@v{{ .ToolVersion }}
+        uses: ARM-software/go-sdk-generator/actions/generate@v{{ .ToolVersion }}
         with:
           github-token: ${{ "{{" }} secrets.GIT_SECRET || github.token }}
           input: {{ .ManifestFileName }}

@@ -25,18 +25,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Configure Git with secret
-        run: |
-          git config --global url."https://${{ secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
-        env:
-          GIT_SECRET: ${{ secrets.GIT_SECRET }}
-
       - name: Run local action
         uses: ./actions/generate
         with:
           action-repo: ${{ github.repository }}
           action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
+          github-token: ${{ github.token }}
           input: generate.yml
           output: ./tmp/action-test-local-gh
           go-version: 1.26.2
@@ -69,7 +63,7 @@ jobs:
         with:
           action-repo: ${{ github.repository }}
           action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
+          github-token: ${{ github.token }}
           input: generate.yml
           output: ./tmp/action-test-source-gh
           go-version: 1.26.2
@@ -103,172 +97,3 @@ jobs:
             fi
           done < "$actual_paths"
 
-  test-action-self-hosted-runner-arm:
-    name: Action integration test on Arm self hosted runners
-    runs-on: self-hosted-ubuntu-latest-arm64-ephemeral
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Configure Git with secret
-        run: |
-          git config --global url."https://${{ secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
-        env:
-          GIT_SECRET: ${{ secrets.GIT_SECRET }}
-
-      - name: Run local action
-        uses: ./actions/generate
-        with:
-          action-repo: ${{ github.repository }}
-          action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
-          input: generate.yml
-          output: ./tmp/action-test-local-arm
-          go-version: 1.26.2
-
-      - name: Verify local action generated files are present
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          actual_paths="$(mktemp)"
-
-          find ./tmp/action-test-local-arm -type f -printf '%P\n' | sort > "$actual_paths"
-
-          if [[ ! -s "$actual_paths" ]]; then
-            printf 'No generated files were found in ./tmp/action-test-local-arm\n' >&2
-            exit 1
-          fi
-
-          while IFS= read -r path; do
-            generated_path="./tmp/action-test-local-arm/${path}"
-
-            if [[ ! -s "$generated_path" ]]; then
-              printf 'Generated path missing or empty from local action output: %s\n' "$generated_path" >&2
-              exit 1
-            fi
-          done < "$actual_paths"
-
-      - name: Run unpublished action and binary
-        uses: ./actions/generate
-        with:
-          action-repo: ${{ github.repository }}
-          action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
-          input: generate.yml
-          output: ./tmp/action-test-source-arm
-          go-version: 1.26.2
-
-      - name: Verify source generated files match repository
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          actual_paths="$(mktemp)"
-
-          find ./tmp/action-test-source-arm -type f -printf '%P\n' | sort > "$actual_paths"
-
-          if [[ ! -s "$actual_paths" ]]; then
-            printf 'No generated files were found in ./tmp/action-test-source-arm\n' >&2
-            exit 1
-          fi
-
-          while IFS= read -r path; do
-            repo_path="./${path}"
-            generated_path="./tmp/action-test-source-arm/${path}"
-
-            if [[ ! -s "$repo_path" ]]; then
-              printf 'Repository path missing or empty for generated output: %s\n' "$repo_path" >&2
-              exit 1
-            fi
-
-            if [[ ! -s "$generated_path" ]]; then
-              printf 'Generated path missing or empty from source action output: %s\n' "$generated_path" >&2
-              exit 1
-            fi
-          done < "$actual_paths"
-
-  test-action-self-hosted-runner-amd64:
-    name: Action integration test on x64 self hosted runners
-    runs-on: self-hosted-ubuntu-latest-x64-ephemeral
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Configure Git with secret
-        run: |
-          git config --global url."https://${{ secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Debug".insteadOf "https://github.com/Arm-Debug"
-        env:
-          GIT_SECRET: ${{ secrets.GIT_SECRET }}
-
-      - name: Run local action
-        uses: ./actions/generate
-        with:
-          action-repo: ${{ github.repository }}
-          action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
-          input: generate.yml
-          output: ./tmp/action-test-local-amd64
-          go-version: 1.26.2
-
-      - name: Verify local action generated files are present
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          actual_paths="$(mktemp)"
-
-          find ./tmp/action-test-local-amd64 -type f -printf '%P\n' | sort > "$actual_paths"
-
-          if [[ ! -s "$actual_paths" ]]; then
-            printf 'No generated files were found in ./tmp/action-test-local-amd64\n' >&2
-            exit 1
-          fi
-
-          while IFS= read -r path; do
-            generated_path="./tmp/action-test-local-amd64/${path}"
-
-            if [[ ! -s "$generated_path" ]]; then
-              printf 'Generated path missing or empty from local action output: %s\n' "$generated_path" >&2
-              exit 1
-            fi
-          done < "$actual_paths"
-
-      - name: Run unpublished action and binary
-        uses: ./actions/generate
-        with:
-          action-repo: ${{ github.repository }}
-          action-ref: ${{ github.sha }}
-          github-token: ${{ secrets.GIT_SECRET }}
-          input: generate.yml
-          output: ./tmp/action-test-source-amd64
-          go-version: 1.26.2
-
-      - name: Verify source generated files match repository
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          actual_paths="$(mktemp)"
-
-          find ./tmp/action-test-source-amd64 -type f -printf '%P\n' | sort > "$actual_paths"
-
-          if [[ ! -s "$actual_paths" ]]; then
-            printf 'No generated files were found in ./tmp/action-test-source-amd64\n' >&2
-            exit 1
-          fi
-
-          while IFS= read -r path; do
-            repo_path="./${path}"
-            generated_path="./tmp/action-test-source-amd64/${path}"
-
-            if [[ ! -s "$repo_path" ]]; then
-              printf 'Repository path missing or empty for generated output: %s\n' "$repo_path" >&2
-              exit 1
-            fi
-
-            if [[ ! -s "$generated_path" ]]; then
-              printf 'Generated path missing or empty from source action output: %s\n' "$generated_path" >&2
-              exit 1
-            fi
-          done < "$actual_paths"

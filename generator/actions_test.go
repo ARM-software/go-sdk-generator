@@ -1,13 +1,18 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
 	"context"
 	"testing"
 
-	"github.com/ARM-software/golang-utils/utils/collection"
-	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ARM-software/golang-utils/utils/collection"
+	"github.com/ARM-software/golang-utils/utils/field"
 )
 
 func TestBuildGeneratedActions(t *testing.T) {

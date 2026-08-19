@@ -1,13 +1,18 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
 	"sort"
 	"strings"
 
+	mapset "github.com/deckarep/golang-set/v2"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/reflection"
-	mapset "github.com/deckarep/golang-set/v2"
 )
 
 // normaliseKeyNames reduces manifest-defined names to a stable comparison key

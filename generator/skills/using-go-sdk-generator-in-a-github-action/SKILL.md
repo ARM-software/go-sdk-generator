@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: using-go-sdk-generator-in-a-github-action
 description: "Use and integrate `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
-license: Proprietary
+license: Apache-2.0
 compatibility: opencode
 metadata:
   action_path: actions/install-tool
@@ -43,7 +47,7 @@ Actions in this repository:
 Example published action:
 
 ```yaml
-uses: Arm-Debug/go-sdk-generator/actions/install-tool@v0
+uses: ARM-software/go-sdk-generator/actions/install-tool@v0
 ```
 
 Example local path:

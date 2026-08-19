@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: run-go-sdk-generator
-description: "SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)"
-license: Proprietary
+description: "SDK/CLI generator from a specification following [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml)"
+license: Apache-2.0
 compatibility: opencode
 metadata:
   binary: go-sdk-generator

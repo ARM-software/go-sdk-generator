@@ -259,7 +259,7 @@
     },
     "extra_imports": [
       {
-        "import_url": "github.com/Arm-Debug/cmsis-project-types/project/types",
+        "import_url": "github.com/ARM-software/cmsis-project-types/project/types",
         "import_ref": "types"
       }
     ]

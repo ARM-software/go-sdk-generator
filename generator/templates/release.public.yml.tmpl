@@ -53,9 +53,10 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ "{{" }} github.actor }}
-          password: ${{ "{{" }} secrets.GITHUB_TOKEN }}
+          password: ${{ "{{" }} secrets.GIT_SECRET || github.token }}
 {{ end }}
       - name: Tag and release
-        run: cd-tag-and-release -b ${{ "{{" }} github.ref_name }} -t ${{ "{{" }} github.event.inputs.release_type }} -vv
+        run: cd-tag-and-release -b "$GIT_BRANCH" -t ${{ "{{" }} github.event.inputs.release_type }} -vv
         env:
-          GIT_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN }}
+          GIT_BRANCH: ${{ "{{" }} github.ref_name }}
+          GIT_TOKEN: ${{ "{{" }} secrets.GIT_SECRET || github.token }}

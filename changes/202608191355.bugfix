@@ -1,0 +1,1 @@
+:bug: Fix generated CI workflows to avoid unsupported YAML anchors in GitHub Actions.

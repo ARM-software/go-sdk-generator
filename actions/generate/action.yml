@@ -101,7 +101,7 @@ runs:
       shell: bash
       env:
         INPUT_ACTION_REPO: ${{ inputs.action-repo }}
-        DEFAULT_ACTION_REPOSITORY: Arm-Debug/go-sdk-generator
+        DEFAULT_ACTION_REPOSITORY: ARM-software/go-sdk-generator
         ACTION_REF: ${{ inputs.action-ref || github.action_ref }}
       run: |
         resolved_repo="${INPUT_ACTION_REPO:-}"
@@ -151,7 +151,7 @@ runs:
       if: steps.installation-mode.outputs.source-build != 'true'
       uses: actions/setup-go@v7
       with:
-        go-version: 1.26.4
+        go-version: 1.26.5
 
     - name: Install and run go-sdk-generator
       id: install-and-run

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -8,15 +12,16 @@ import (
 	"slices"
 	"strings"
 
+	mapset "github.com/deckarep/golang-set/v2"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	mapsUtils "github.com/ARM-software/golang-utils/utils/maps"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
-	mapset "github.com/deckarep/golang-set/v2"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 const (

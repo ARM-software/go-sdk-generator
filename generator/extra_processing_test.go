@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -6,15 +10,16 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/go-faker/faker/v4"
+	"github.com/go-faker/faker/v4/pkg/options"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
-	"github.com/go-faker/faker/v4"
-	"github.com/go-faker/faker/v4/pkg/options"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -101,14 +106,14 @@ func TestProcessRepositoryAndModuleMetadata(t *testing.T) {
 			Specification: SDKSpecification{
 				PackageName: "verify-cmsis-example-sdk",
 				Interface: Interface{
-					Namespace: "https://github.com/Arm-Debug",
+					Namespace: "https://github.com/ARM-software",
 				},
 				RepositoryUrl: field.ToOptionalString("https://github.com/Arm-Examples/verify-cmsis-example-sdk"),
 			},
 		}
 
 		require.NoError(t, ProcessRepositoryAndModuleMetadata(context.Background(), sdk))
-		assert.Equal(t, "github.com/Arm-Debug/", sdk.Specification.Interface.Namespace)
+		assert.Equal(t, "github.com/ARM-software/", sdk.Specification.Interface.Namespace)
 		assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk", field.OptionalString(sdk.Specification.RepositoryUrl, ""))
 	})
 

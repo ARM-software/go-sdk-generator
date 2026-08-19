@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -6,12 +10,13 @@ import (
 	"slices"
 	"strings"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	ociv1 "github.com/opencontainers/image-spec/specs-go/v1"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	maputils "github.com/ARM-software/golang-utils/utils/maps"
 	"github.com/ARM-software/golang-utils/utils/reflection"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	ociv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 type OciMetadata struct {

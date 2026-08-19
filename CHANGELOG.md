@@ -1,6 +1,6 @@
 <!--
-Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.47.0" (2026-08-18)
 =====================
@@ -36,7 +36,7 @@ Misc
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.46.0" (2026-08-12)
 =====================
@@ -72,7 +72,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.45.0" (2026-08-05)
 =====================
@@ -95,7 +95,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.44.1" (2026-08-05)
 =====================
@@ -116,7 +116,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.44.0" (2026-08-04)
 =====================
@@ -153,7 +153,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.43.4" (2026-07-22)
 =====================
@@ -166,7 +166,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.43.3" (2026-07-22)
 =====================
@@ -179,7 +179,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.43.2" (2026-07-22)
 =====================
@@ -192,7 +192,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.43.1" (2026-07-22)
 =====================
@@ -206,7 +206,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.43.0" (2026-07-22)
 =====================
@@ -235,7 +235,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.42.1" (2026-07-16)
 =====================
@@ -251,7 +251,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.42.0" (2026-07-15)
 =====================
@@ -272,7 +272,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.41.0" (2026-07-14)
 =====================
@@ -299,7 +299,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.40.2" (2026-07-11)
 =====================
@@ -318,7 +318,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.40.1" (2026-07-09)
 =====================
@@ -331,7 +331,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.40.0" (2026-07-09)
 =====================
@@ -352,7 +352,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.39.0" (2026-07-08)
 =====================
@@ -374,7 +374,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.38.0" (2026-07-07)
 =====================
@@ -400,7 +400,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.37.1" (2026-06-25)
 =====================
@@ -415,7 +415,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.37.0" (2026-06-24)
 =====================
@@ -440,7 +440,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.36.0" (2026-06-24)
 =====================
@@ -468,7 +468,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.35.0" (2026-06-18)
 =====================
@@ -495,7 +495,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.34.2" (2026-06-04)
 =====================
@@ -519,7 +519,7 @@ Misc
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.34.1" (2026-06-04)
 =====================
@@ -532,7 +532,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.34.0" (2026-06-04)
 =====================
@@ -554,7 +554,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.33.1" (2026-06-01)
 =====================
@@ -568,7 +568,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.33.0" (2026-05-26)
 =====================
@@ -582,7 +582,7 @@ Features
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.32.3" (2026-05-20)
 =====================
@@ -596,7 +596,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.32.2" (2026-05-20)
 =====================
@@ -609,7 +609,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.32.1" (2026-05-19)
 =====================
@@ -622,7 +622,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.32.0" (2026-05-14)
 =====================
@@ -655,7 +655,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.31.0" (2026-04-27)
 =====================
@@ -674,7 +674,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.30.2" (2026-04-21)
 =====================
@@ -687,7 +687,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.30.1" (2026-04-21)
 =====================
@@ -701,7 +701,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.30.0" (2026-04-09)
 =====================
@@ -722,7 +722,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.29.0" (2026-04-02)
 =====================
@@ -741,7 +741,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.28.0" (2026-03-26)
 =====================
@@ -761,7 +761,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.27.0" (2026-03-26)
 =====================
@@ -784,7 +784,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.26.2" (2026-03-19)
 =====================
@@ -797,7 +797,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.26.1" (2026-02-25)
 =====================
@@ -811,7 +811,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.26.0" (2026-02-20)
 =====================
@@ -831,7 +831,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.25.0" (2026-02-16)
 =====================
@@ -857,7 +857,7 @@ Misc
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.24.0" (2026-01-29)
 =====================
@@ -877,7 +877,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.23.0" (2026-01-23)
 =====================
@@ -899,7 +899,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.22.3" (2026-01-16)
 =====================
@@ -912,7 +912,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.22.2" (2026-01-15)
 =====================
@@ -931,7 +931,7 @@ Improved Documentation
 
 <!--
 Copyright (C) 2020-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.22.1" (2026-01-02)
 =====================
@@ -944,7 +944,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.22.0" (2025-12-31)
 =====================
@@ -963,7 +963,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.21.0" (2025-12-30)
 =====================
@@ -982,7 +982,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.20.0" (2025-12-30)
 =====================
@@ -1002,7 +1002,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.19.0" (2025-12-29)
 =====================
@@ -1021,7 +1021,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.18.0" (2025-12-19)
 =====================
@@ -1041,7 +1041,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.17.0" (2025-12-16)
 =====================
@@ -1061,7 +1061,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.16.1" (2025-11-19)
 =====================
@@ -1077,7 +1077,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.16.0" (2025-10-07)
 =====================
@@ -1098,7 +1098,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.15.0" (2025-09-24)
 =====================
@@ -1120,7 +1120,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.14.0" (2025-08-11)
 =====================
@@ -1143,7 +1143,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.13.1" (2025-07-08)
 =====================
@@ -1156,7 +1156,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.13.0" (2025-07-07)
 =====================
@@ -1170,7 +1170,7 @@ Features
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.12.3" (2025-07-04)
 =====================
@@ -1183,7 +1183,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.12.2" (2025-07-01)
 =====================
@@ -1196,7 +1196,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.12.1" (2025-06-25)
 =====================
@@ -1209,7 +1209,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.12.0" (2025-06-24)
 =====================
@@ -1228,7 +1228,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.11.2" (2025-06-20)
 =====================
@@ -1241,7 +1241,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.11.1" (2025-06-20)
 =====================
@@ -1255,7 +1255,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.11.0" (2025-06-19)
 =====================
@@ -1286,7 +1286,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.10.0" (2025-06-16)
 =====================
@@ -1299,7 +1299,7 @@ Features
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.9.0" (2025-06-16)
 ====================
@@ -1326,7 +1326,7 @@ Misc
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.8.3" (2025-05-22)
 ====================
@@ -1339,7 +1339,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.8.2" (2025-05-20)
 ====================
@@ -1352,7 +1352,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.8.1" (2025-05-20)
 ====================
@@ -1365,7 +1365,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.8.0" (2025-05-15)
 ====================
@@ -1386,7 +1386,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.7.0" (2025-04-25)
 ====================
@@ -1409,7 +1409,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.6.2" (2025-04-22)
 ====================
@@ -1423,7 +1423,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.6.1" (2025-04-11)
 ====================
@@ -1437,7 +1437,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.6.0" (2025-04-10)
 ====================
@@ -1457,7 +1457,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.5.0" (2025-03-19)
 ====================
@@ -1476,7 +1476,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.4.1" (2025-03-13)
 ====================
@@ -1489,7 +1489,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.4.0" (2025-03-11)
 ====================
@@ -1502,7 +1502,7 @@ Features
 
 <!--
 Copyright (C) 2020-2025 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.3.0" (2025-03-10)
 ====================
@@ -1527,7 +1527,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2024 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.2.0" (2024-08-13)
 ====================
@@ -1547,7 +1547,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2024 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.1.2" (2024-06-06)
 ====================
@@ -1563,7 +1563,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2024 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.1.1" (2024-05-28)
 ====================
@@ -1576,7 +1576,7 @@ Bugfixes
 
 <!--
 Copyright (C) 2020-2024 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Proprietary
+SPDX-License-Identifier: Apache-2.0
 -->
 "0.1.0" (2024-05-28)
 ====================

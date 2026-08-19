@@ -62,7 +62,7 @@ runs:
       shell: bash
       env:
         INPUT_ACTION_REPO: ${{ inputs.action-repo }}
-        DEFAULT_ACTION_REPOSITORY: Arm-Debug/go-sdk-generator
+        DEFAULT_ACTION_REPOSITORY: ARM-software/go-sdk-generator
         ACTION_REF: ${{ inputs.action-ref || github.action_ref }}
       run: |
         resolved_repo="${INPUT_ACTION_REPO:-}"

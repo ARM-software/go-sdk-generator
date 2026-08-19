@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -11,6 +15,10 @@ import (
 	"time"
 	"unicode"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
+	"github.com/ARM-software/go-sdk-generator/generator/internal/acronyms"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/idgen"
@@ -18,10 +26,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/ptr"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/strings/casing"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-
-	"github.com/Arm-Debug/go-sdk-generator/generator/internal/acronyms"
 )
 
 var (

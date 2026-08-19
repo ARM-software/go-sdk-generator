@@ -2,9 +2,12 @@ specification:
   package_name: go-sdk-generator
   main_module: generator
   name: SDK Generator
-  description: SDK/CLI generator from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
+  description: SDK/CLI generator from a specification following [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml)
+  public: true
+  Licence: Apache-2.0
   interface:
     notCloseable: true
+    namespace: github.com/ARM-software/
     methods:
       - name: Generate
         description: Generate the tool
@@ -16,7 +19,7 @@ specification:
   command_line_commands:
     binary: go-sdk-generator
     root_environment_var: SDK_GENERATOR
-    description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/Arm-Debug/go-sdk-generator/blob/main/generator/schema/schema.yml)
+    description: CLI for generating SDK/CLI go tools from a specification following [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml)
     functions:
       - name: Generate
         description: Generate tool/project scaffolding. Run `go mod tidy` afterwards to resolve the generated module dependencies, then run `go generate ./...` to execute any generated code-generation directives inside the new project.
@@ -89,4 +92,4 @@ specification:
     labels:
       io.arm.feature: contract-first-sdk-generation
     attributes:
-      org.opencontainers.image.documentation: https://github.com/Arm-Debug/go-sdk-generator/blob/main/DOCUMENTATION.md
+      org.opencontainers.image.documentation: https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md

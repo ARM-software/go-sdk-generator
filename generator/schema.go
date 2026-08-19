@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -7,9 +11,10 @@ import (
 	"io"
 	"sync"
 
+	"sigs.k8s.io/yaml"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
-	"sigs.k8s.io/yaml"
 )
 
 const embeddedSchemaFile = "schema/schema.yml"

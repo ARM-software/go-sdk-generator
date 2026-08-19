@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package generator
 
 import (
@@ -9,18 +13,18 @@ import (
 	"strings"
 	"testing"
 
+	richlog "github.com/charmbracelet/log"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
+	rootgenerator "github.com/ARM-software/go-sdk-generator/generator"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/logs/annotations"
 	"github.com/ARM-software/golang-utils/utils/logs/summary"
-	richlog "github.com/charmbracelet/log"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	"github.com/Arm-Debug/go-sdk-generator/cli/cmd/config"
-	rootgenerator "github.com/Arm-Debug/go-sdk-generator/generator"
 )
 
 func TestSchema(t *testing.T) {

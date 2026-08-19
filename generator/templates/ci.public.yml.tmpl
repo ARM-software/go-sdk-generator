@@ -7,6 +7,9 @@
 
 name: CI
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [main]
@@ -18,24 +21,6 @@ on:
 
 env:
   go_version: "{{ .TargetedGoVersion }}"
-
-x-setup-go-step: &x-setup-go-step
-  name: Set up Go
-  uses: actions/setup-go@v7
-  with:
-    go-version: ${{ "{{" }} env.go_version }}
-
-x-go-mod-tidy-step: &x-go-mod-tidy-step
-  name: Tidy dependencies
-  run: go mod tidy
-
-x-go-generate-step: &x-go-generate-step
-  name: Generate code
-  run: go generate -x ./...
-
-x-go-work-sync-step: &x-go-work-sync-step
-  name: Sync go.work
-  run: go work sync
 
 jobs:
   assert-news:
@@ -49,8 +34,9 @@ jobs:
       - name: Install CI/CD tools
         run: pip install continuous-delivery-scripts && pip list
       - name: Assert news
-        run: cd-assert-news -b ${{ "{{" }} github.head_ref || github.ref_name }}
+        run: cd-assert-news -b "$GIT_BRANCH"
         env:
+          GIT_BRANCH: ${{ "{{" }} github.head_ref || github.ref }}
           GIT_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
       - name: Report failure if needed
         if: ${{ "{{" }} failure() }}
@@ -88,29 +74,33 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ "{{" }} github.event.pull_request.head.ref }}
-          token: ${{ "{{" }} secrets.GITHUB_TOKEN || github.token }}
-      - *x-setup-go-step
-      - <<: *x-go-mod-tidy-step
-        name: Go mod tidy ({{ .Specification.MainModule }})
+          token: ${{ "{{" }} github.token }}
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ "{{" }} env.go_version }}
+      - name: Go mod tidy ({{ .Specification.MainModule }})
+        run: go mod tidy
         working-directory: {{ .Specification.MainModule }}
-      - <<: *x-go-generate-step
-        name: Run go generate ({{ .Specification.MainModule }})
+      - name: Run go generate ({{ .Specification.MainModule }})
+        run: go generate -x ./...
         working-directory: {{ .Specification.MainModule }}
-      - <<: *x-go-mod-tidy-step
-        name: Go mod tidy after generation ({{ .Specification.MainModule }})
+      - name: Go mod tidy after generation ({{ .Specification.MainModule }})
+        run: go mod tidy
         working-directory: {{ .Specification.MainModule }}
 {{- if .Specification.CommandLineCommands }}
-      - <<: *x-go-mod-tidy-step
-        name: Go mod tidy ({{ .Specification.CommandLineCommands.Package }})
+      - name: Go mod tidy ({{ .Specification.CommandLineCommands.Package }})
+        run: go mod tidy
         working-directory: {{ .Specification.CommandLineCommands.Package }}
-      - <<: *x-go-generate-step
-        name: Run go generate ({{ .Specification.CommandLineCommands.Package }})
+      - name: Run go generate ({{ .Specification.CommandLineCommands.Package }})
+        run: go generate -x ./...
         working-directory: {{ .Specification.CommandLineCommands.Package }}
-      - <<: *x-go-mod-tidy-step
-        name: Go mod tidy after generation ({{ .Specification.CommandLineCommands.Package }})
+      - name: Go mod tidy after generation ({{ .Specification.CommandLineCommands.Package }})
+        run: go mod tidy
         working-directory: {{ .Specification.CommandLineCommands.Package }}
 {{- end }}
-      - *x-go-work-sync-step
+      - name: Sync go.work
+        run: go work sync
       - name: Commit generated changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -130,18 +120,24 @@ jobs:
     runs-on: ${{ "{{" }} matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - *x-setup-go-step
-      - <<: *x-go-mod-tidy-step
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ "{{" }} env.go_version }}
+      - name: Tidy dependencies
+        run: go mod tidy
         if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') }}
         working-directory: ${{ "{{" }} matrix.go-module }}
-      - <<: *x-go-generate-step
+      - name: Generate code
+        run: go generate -x ./...
         if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') }}
         working-directory: ${{ "{{" }} matrix.go-module }}
-      - <<: *x-go-mod-tidy-step
+      - name: Go mod tidy (after generation)
+        run: go mod tidy
         if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') }}
-        name: Go mod tidy (after generation)
         working-directory: ${{ "{{" }} matrix.go-module }}
-      - <<: *x-go-work-sync-step
+      - name: Sync go.work
+        run: go work sync
         if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') && matrix.go-module == '{{ $cliPackage }}' }}
       - if: ${{ "{{" }} startsWith(matrix.os, 'ubuntu') }}
         name: Linting

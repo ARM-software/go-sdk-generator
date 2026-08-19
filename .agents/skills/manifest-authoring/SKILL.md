@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: manifest-authoring
 description: Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly.
-license: Proprietary
+license: Apache-2.0
 compatibility: opencode
 ---
 

@@ -1,7 +1,11 @@
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 ---
 name: integration-regression-tests
 description: Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests.
-license: Proprietary
+license: Apache-2.0
 compatibility: opencode
 ---
 
