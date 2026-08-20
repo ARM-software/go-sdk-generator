@@ -43,6 +43,12 @@ jobs:
           overwrite: ${{ github.event.inputs.overwrite || 'false' }}
           go-version: 1.26.5
 
+      - name: Refresh licence files
+        shell: bash
+        run: |
+          python -m pip install continuous-delivery-scripts
+          cd-license-files
+
       - name: Detect generated changes
         id: generated-changes
         shell: bash
@@ -72,7 +78,6 @@ jobs:
         if: steps.generated-changes.outputs.changed == 'true'
         shell: bash
         run: |
-          python -m pip install continuous-delivery-scripts
           cd-create-news-file --type bugfix ":camel: Regenerate project output after upgrading ${{ steps.generator-cli-version.outputs.generator-version }}."
 
       - name: Commit changes on non-default branches

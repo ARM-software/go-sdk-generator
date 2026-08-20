@@ -1,0 +1,1 @@
+:bug: Run `cd-license-files` in the generated upgrade-generator workflow after regeneration so licence headers stay in sync with automated generator updates.
