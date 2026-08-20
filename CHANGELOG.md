@@ -2,6 +2,33 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+"0.48.0" (2026-08-20)
+=====================
+
+Features
+--------
+
+- :seedling: Open-source the project so generating boilerplate code for Go tools can be made easier. (#20260819135603)
+
+
+Bugfixes
+--------
+
+- :bug: Fix generated CI workflows to avoid unsupported YAML anchors in GitHub Actions. (#202608191355)
+- Dependency upgrade: go-sdk-generator-0.46.0 (#20260818144845, #20260818145007, #20260818150923)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.46.0. (#20260818144921)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.47.0. (#20260818150908)
+- Dependency upgrade: testify-1.12.0 (#20260818152324, #20260818152408)
+- Dependency upgrade: v4-4.11.0 (#20260818152342)
+- Dependency upgrade: tools-0.49.0 (#20260818152404)
+- Dependency upgrade: create-pull-request-8 (#20260818154523)
+- Dependency upgrade: mod-0.39.0 (#20260818154626)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 "0.47.0" (2026-08-18)
 =====================
 
