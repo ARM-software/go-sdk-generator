@@ -30,7 +30,7 @@ import (
 	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
 )
 
-func DetermineCommandConfigurationEnvironmentVariables(ctx context.Context, envVarPrefix string, cfg any) (envVars []environmentUtils.IEnvironmentVariable, err error) {
+func DetermineCommandConfigurationEnvironmentVariablesForPrinting(ctx context.Context, envVarPrefix string, cfg any) (envVars []environmentUtils.IEnvironmentVariable, err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
 		return
@@ -48,9 +48,17 @@ func DetermineCommandConfigurationEnvironmentVariables(ctx context.Context, envV
 		return
 	}
 
-	envVars = collection.Map(slices.Collect(maps.Keys(flattenedCfg)), func(key string) environmentUtils.IEnvironmentVariable {
-		return environmentUtils.NewEnvironmentVariable(key, fmt.Sprintf("%v", flattenedCfg[key]))
+	keys := slices.Collect(maps.Keys(flattenedCfg))
+	envVars, err = collection.MapWithError(keys, func(key string) (environmentUtils.IEnvironmentVariable, error) {
+		converted, err := valueUtils.StringConverter.ConvertValue(ctx, flattenedCfg[key])
+		if err != nil {
+			return nil, commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "failed to stringify configuration value for %q", key)
+		}
+		return environmentUtils.NewEnvironmentVariable(key, fmt.Sprint(converted)), nil
 	})
+	if err != nil {
+		return
+	}
 	envVars = environmentUtils.UniqueEnvironmentVariables(false, envVars...)
 	environmentUtils.SortEnvironmentVariables(envVars)
 	return
@@ -61,7 +69,7 @@ func ShowCommandConfiguration(ctx context.Context, envVarPrefix string, cfg any,
 		return nil
 	}
 
-	envVars, err := DetermineCommandConfigurationEnvironmentVariables(ctx, envVarPrefix, cfg)
+	envVars, err := DetermineCommandConfigurationEnvironmentVariablesForPrinting(ctx, envVarPrefix, cfg)
 	if err != nil {
 		return
 	}

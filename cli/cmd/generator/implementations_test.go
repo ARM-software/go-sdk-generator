@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -21,6 +22,7 @@ import (
 	rootgenerator "github.com/ARM-software/go-sdk-generator/generator"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
+	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/logs/annotations"
@@ -265,6 +267,25 @@ func TestWrapAgentWithAnnotationsShowsConfigBeforeAdvancedImplementation(t *test
 	require.NoError(t, WrapAgentWithAnnotations(context.Background(), annotationLogger, cfg))
 	assert.True(t, advancedCalled)
 	assert.Contains(t, baseLogger.GetLogContent(), "command configuration:")
+}
+
+func TestDetermineCommandConfigurationEnvironmentVariablesForPrintingStringifiesPointers(t *testing.T) {
+	cfg := config.DefaultGenerateConfiguration()
+	cfg.ToolVersion = field.ToOptionalString("0.47.0")
+
+	envVars, err := DetermineCommandConfigurationEnvironmentVariablesForPrinting(context.Background(), config.App, cfg)
+	require.NoError(t, err)
+
+	toolVersionVar := ""
+	for _, envVar := range envVars {
+		if strings.HasPrefix(envVar.String(), "SDK_GENERATOR_TOOLVERSION=") {
+			toolVersionVar = envVar.String()
+			break
+		}
+	}
+
+	require.NotEmpty(t, toolVersionVar)
+	assert.Regexp(t, regexp.MustCompile(`^SDK_GENERATOR_TOOLVERSION=0x[0-9a-fA-F]+ -> 0\.47\.0$`), toolVersionVar)
 }
 
 func TestSummaryLoggerFactory(t *testing.T) {
