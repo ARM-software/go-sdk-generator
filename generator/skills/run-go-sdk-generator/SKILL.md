@@ -46,7 +46,7 @@ Supported sources:
 
 Use the `go-sdk-generator credentials` command to securely store secrets in the keyring when available.
 
-OCI distribution is also available at `ghcr.io/arm-debug/go-sdk-generator`.
+OCI distribution is also available at `ghcr.io/arm-software/go-sdk-generator`.
 This is useful for CI, reproducible builds, and users who prefer not to install the tool locally.
 
 GitHub documents container-registry authentication and package permissions at:
@@ -91,12 +91,12 @@ Generate tool/project scaffolding. Run `go mod tidy` afterwards to resolve the g
 
 OCI usage:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine generate
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine generate
 ```
 
 or:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu generate
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu generate
 ```
 
 
@@ -147,12 +147,12 @@ Run `go-sdk-generator schema` to dump the embedded manifest schema as JSON for a
 
 OCI usage:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine schema
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine schema
 ```
 
 or:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu schema
 ```
 
 
@@ -186,12 +186,12 @@ Run `go-sdk-generator agent --init` to initialise the repo skills under .agents/
 
 OCI usage:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine agent
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine agent
 ```
 
 or:
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu agent
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu agent
 ```
 
 

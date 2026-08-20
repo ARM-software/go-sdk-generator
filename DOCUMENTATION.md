@@ -223,7 +223,7 @@ Linux packages built for this tool also install the skills related to the tool u
 
 ### OCI Images
 
-OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator` for CI integration, reproducible builds, and workflows that prefer not to install the tool locally.
+OCI images are also published to `ghcr.io/arm-software/go-sdk-generator` for CI integration, reproducible builds, and workflows that prefer not to install the tool locally.
 
 GitHub documents container-registry authentication and package permissions at:
 `https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry`
@@ -274,11 +274,11 @@ go-sdk-generator generate [flags]
 OCI usage:
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine generate [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine generate [flags]
 ```
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu generate [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu generate [flags]
 ```
 
 
@@ -406,11 +406,11 @@ go-sdk-generator schema [flags]
 OCI usage:
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine schema [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine schema [flags]
 ```
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu schema [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu schema [flags]
 ```
 
 
@@ -508,11 +508,11 @@ go-sdk-generator agent [flags]
 OCI usage:
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine agent [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine agent [flags]
 ```
 
 ```sh
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu agent [flags]
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu agent [flags]
 ```
 
 

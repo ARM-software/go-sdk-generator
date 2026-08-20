@@ -33,7 +33,7 @@ Use this skill when the user wants to:
 
 Prefer the actions when one of them already represents the workflow step that needs to be run.
 Prefer `actions/install-tool` when the workflow only needs the tool to be available for later shell commands, loops, or more complex parallel orchestration.
-When workflows prefer containerised execution, reproducible builds, or avoiding local installation entirely, published OCI images from `ghcr.io/arm-debug/go-sdk-generator` are also an option.
+When workflows prefer containerised execution, reproducible builds, or avoiding local installation entirely, published OCI images from `ghcr.io/arm-software/go-sdk-generator` are also an option.
 
 
 ---
@@ -184,7 +184,7 @@ The action installs from the released archive.
 - Keep the default `logger=rich` input unless the workflow needs file logging, no logging, or a registered custom logger
 - Keep the default `annotation=github` input unless the workflow explicitly wants no annotations
 - Do not build the CLI from source in CI when the intent is to validate released artefacts
-- Prefer OCI images from `ghcr.io/arm-debug/go-sdk-generator` when the workflow wants containerised execution instead of installing the binary onto the runner
+- Prefer OCI images from `ghcr.io/arm-software/go-sdk-generator` when the workflow wants containerised execution instead of installing the binary onto the runner
 
 
 ---

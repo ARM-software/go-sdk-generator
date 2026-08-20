@@ -44,7 +44,7 @@ This ensures:
 
 Linux packages installed this way also include the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
 
-If the user prefers not to install the tool locally, OCI images are also published to `ghcr.io/arm-debug/go-sdk-generator`.
+If the user prefers not to install the tool locally, OCI images are also published to `ghcr.io/arm-software/go-sdk-generator`.
 This is useful for CI, reproducible builds, and container-first workflows.
 
 GitHub documents container-registry authentication and package permissions at:
@@ -112,13 +112,13 @@ If possible, recommend:
 Pull and run a published image instead:
 
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-alpine --help
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine --help
 ```
 
 or:
 
 ```bash
-docker run --rm ghcr.io/arm-debug/go-sdk-generator:v<version>-ubuntu --help
+docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-ubuntu --help
 ```
 
 
