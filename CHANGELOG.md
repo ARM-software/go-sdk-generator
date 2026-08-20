@@ -2,6 +2,21 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+"0.48.1" (2026-08-20)
+=====================
+
+Bugfixes
+--------
+
+- :bug: Fix show-config so pointer-backed values such as `SDK_GENERATOR_TOOLVERSION` are printed with their dereferenced string value instead of only a raw pointer address. (#202608201132)
+- :bug: Run `cd-license-files` in the generated upgrade-generator workflow after regeneration so licence headers stay in sync with automated generator updates. (#202608201220)
+- :broom: Rename repository documentation and skill references to `ghcr.io/arm-software/go-sdk-generator`. (#202608201330)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 "0.48.0" (2026-08-20)
 =====================
 
