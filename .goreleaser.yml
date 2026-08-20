@@ -86,7 +86,7 @@ nfpms:
   # - id: go-sdk-generator-ubuntu
     # dockerfile: Dockerfile.oci.ubuntu
     # images:
-      # - ghcr.io/arm-debug/go-sdk-generator
+      # - ghcr.io/arm-software/go-sdk-generator
     # tags:
       # - v{{ .Version }}-ubuntu
     # platforms:
@@ -117,7 +117,7 @@ nfpms:
   # - id: go-sdk-generator-alpine
   #   dockerfile: Dockerfile.oci.alpine
   #   images:
-  #     - ghcr.io/arm-debug/go-sdk-generator
+  #     - ghcr.io/arm-software/go-sdk-generator
   #   tags:
   #     - v{{ .Version }}-alpine
   #   platforms:
