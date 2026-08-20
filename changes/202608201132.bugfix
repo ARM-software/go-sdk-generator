@@ -1,0 +1,1 @@
+:bug: Fix show-config so pointer-backed values such as `SDK_GENERATOR_TOOLVERSION` are printed with their dereferenced string value instead of only a raw pointer address.
