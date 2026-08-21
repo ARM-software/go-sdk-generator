@@ -1,8 +1,8 @@
 bitbucket.org/creachadair/stringset v0.0.9/go.mod h1:t+4WcQ4+PXTa8aQdNKe40ZP6iwesoMFWAxPGd3UGjyY=
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 h1:D9PbaszZYpB4nj+d6HTWr1onlmlyuGVNfL9gAi8iB3k=
 charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410/go.mod h1:1qZyvvVCenJO2M1ac2mX0yyiIZJoZmDM4DG4s0udJkU=
-github.com/ARM-software/golang-utils/utils v1.170.2 h1:n9tEGCBQRAKEZYJgUeIegZ0G01imByHCaO9WRheqs/Y=
-github.com/ARM-software/golang-utils/utils v1.170.2/go.mod h1:SeLsKMc6Eew0VWQAIhwTx0igpq7IVccIsPVTCxg4Yj0=
+github.com/ARM-software/golang-utils/utils v1.170.3 h1:U9UW2ee3MsexLrIbMqYrOsrhC4UpGxHq7ERkRj0X+m8=
+github.com/ARM-software/golang-utils/utils v1.170.3/go.mod h1:7LZHvMx73oZgSbL9pz+Gc5D3CEnsSM0DqoCz5NiDDCM=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DeRuina/timberjack v1.4.6 h1:ixA4vWcXt160M69ZbhUTLfSOOlEtEE+7hHEgDWIXUiI=
 github.com/DeRuina/timberjack v1.4.6/go.mod h1:RLoeQrwrCGIEF8gO5nV5b/gMD0QIy7bzQhBUgpp1EqE=
@@ -235,8 +235,8 @@ github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e h1:+/AzLkOdIXE
 github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e/go.mod h1:9Tc1SKnfACJb9N7cw2eyuI6xzy845G7uZONBsi5uPEA=
 github.com/shirou/gopsutil/v4 v4.26.7 h1:IXzpHz/dkMRYAhKkOXr1HB6SuzWU3eoyyeWe7g3bNZc=
 github.com/shirou/gopsutil/v4 v4.26.7/go.mod h1:5O9FjBiXoTDFatIWjZZosqj4pV0DRtLx598xGbBehzM=
-github.com/sirupsen/logrus v1.9.4 h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
-github.com/sirupsen/logrus v1.9.4/go.mod h1:ftWc9WdOfJ0a92nsE2jF5u5ZwH8Bv2zdeOC42RjbV2g=
+github.com/sirupsen/logrus v1.10.0 h1:T8MxJJXVZkfcC5zSRMRAg2F8+lxjmUCGGWPzFxO+Msc=
+github.com/sirupsen/logrus v1.10.0/go.mod h1:FXZFonkDAnFozmO+5hGAFvB0Yg9/j2SIhA/QuIkP180=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 h1:+jumHNA0Wrelhe64i8F6HNlS8pkoyMv5sreGx2Ry5Rw=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8/go.mod h1:3n1Cwaq1E1/1lhQhtRK2ts/ZwZEhjcQeJQ1RuC6Q/8U=
 github.com/spaolacci/murmur3 v1.1.0 h1:7c1g84S4BPRrfL5Xrdp6fOJ206sU9y293DDHaoy0bLI=
@@ -264,8 +264,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.12.0 h1:K6Mr6jO9JICuend/5xzTM03ydSV3vdNRYAdPSukj8uI=
 github.com/stretchr/testify v1.12.0/go.mod h1:bOYBZb5qJ00vPzWfIqBUZPaxK8jWiXc6d3ErP4Ca9Gw=
-github.com/sttk/stringcase v0.3.0 h1:O0F67PImqZPBAZKc/hAih2H1coeLGMVwXFBw+7z60uI=
-github.com/sttk/stringcase v0.3.0/go.mod h1:o1IEzL6qw8YmFeXvFMxy7cWnL2o6hZ8lggG3acmUxHs=
+github.com/sttk/stringcase v1.0.0 h1:wZK3yOjZ/ZploILaKV8chn9fAwgS8X/Ql26FQN+TSAw=
+github.com/sttk/stringcase v1.0.0/go.mod h1:o1IEzL6qw8YmFeXvFMxy7cWnL2o6hZ8lggG3acmUxHs=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/tklauser/go-sysconf v0.3.16 h1:frioLaCQSsF5Cy1jgRBrzr6t502KIIwQ0MArYICU0nA=

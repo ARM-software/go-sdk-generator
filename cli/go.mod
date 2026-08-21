@@ -8,7 +8,7 @@ tool github.com/dmarkham/enumer
 
 require (
 	github.com/ARM-software/go-sdk-generator/generator v0.46.0
-	github.com/ARM-software/golang-utils/utils v1.170.2
+	github.com/ARM-software/golang-utils/utils v1.170.3
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
@@ -93,13 +93,13 @@ require (
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
 	github.com/shirou/gopsutil/v4 v4.26.7 // indirect
-	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/sirupsen/logrus v1.10.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	github.com/sttk/stringcase v0.3.0 // indirect
+	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
