@@ -30,6 +30,7 @@ func TestGitHubRepositoryHelpers(t *testing.T) {
 	assert.Equal(t, "Arm-Examples/verify-cmsis-example-sdk", repositoryLocationOnGitHub(&spec))
 	assert.Equal(t, "github.com/Arm-Examples/verify-cmsis-example-sdk", repositoryImportPathOnGitHub(&spec))
 	assert.Equal(t, "https://arm-examples.github.io/verify-cmsis-example-sdk", githubPagesURL(&spec))
+	assert.Equal(t, "https://arm-examples.github.io/verify-cmsis-example-sdk/third_party_IP_report.html", githubPagesThirdPartyIPReportURL(&spec))
 	assert.Equal(t, "Arm-Examples/verify-cmsis-example-sdk/actions", projectOwnGitHubActionsLocation(&spec))
 	assert.Equal(t, "git config --global url.\"https://${{ secrets.GIT_SECRET }}:x-oauth-basic@github.com/Arm-Examples\".insteadOf \"https://github.com/Arm-Examples\"", githubAuthenticationForGoPrivateDependencies(&spec))
 	assert.Equal(t, "https://github.com/Arm-Examples/verify-cmsis-example-sdk/issues", githubIssuesURL(&spec))
