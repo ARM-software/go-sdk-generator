@@ -1,1 +1,1 @@
-:bug: Prefix generated Towncrier release titles with `# ` so markdown changelogs keep a proper top-level heading after the Towncrier formatting change.
+:bug: Prefix generated Towncrier release titles with `# ` so markdown changelogs keep a proper top-level heading after the [Towncrier formatting change](https://github.com/twisted/towncrier/issues/758).
