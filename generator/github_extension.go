@@ -27,6 +27,7 @@ var gitHubFuncMap = template.FuncMap{
 	"repositoryLocationOnGitHub":                   repositoryLocationOnGitHub,
 	"repositoryImportPathOnGitHub":                 repositoryImportPathOnGitHub,
 	"githubPagesURL":                               githubPagesURL,
+	"githubPagesThirdPartyIPReportURL":             githubPagesThirdPartyIPReportURL,
 	"projectOwnGitHubActionsLocation":              projectOwnGitHubActionsLocation,
 	"githubIssuesURL":                              githubIssuesURL,
 	"githubPullsURL":                               githubPullsURL,
@@ -121,6 +122,13 @@ func githubPagesURL(spec *SDKSpecification) string {
 		return ""
 	}
 	return fmt.Sprintf("https://%s.github.io/%s", organisation, repoName)
+}
+
+func githubPagesThirdPartyIPReportURL(spec *SDKSpecification) string {
+	if baseURL := githubPagesURL(spec); !reflection.IsEmpty(baseURL) {
+		return fmt.Sprintf("%s/third_party_IP_report.html", baseURL)
+	}
+	return ""
 }
 
 // githubIssuesURL returns the standard GitHub Issues URL for the repository.
