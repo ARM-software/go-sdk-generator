@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install CI/CD tools
-        run: pip install continuous-delivery-scripts>=2.7 && pip list
+        run: pip install continuous-delivery-scripts && pip list
       - name: Install goreleaser
         uses: goreleaser/goreleaser-action@v7
         with:
