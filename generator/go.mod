@@ -11,7 +11,7 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.170.2
+	github.com/ARM-software/golang-utils/utils v1.170.3
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/go-faker/faker/v4 v4.12.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
@@ -77,7 +77,7 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
-	github.com/sttk/stringcase v0.3.0 // indirect
+	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
