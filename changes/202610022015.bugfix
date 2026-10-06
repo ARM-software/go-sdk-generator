@@ -1,1 +1,0 @@
-:bug: Record manual CDS licence approvals for `github.com/stretchr/testify/internal/spew`, `sigs.k8s.io/yaml`, and `github.com/klauspost/compress` so the project's compliance check explains and accepts those permissive dependencies.

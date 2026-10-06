@@ -2,6 +2,34 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.49.0 (2026-10-06)
+
+## Features
+
+- :building_construction: Add generated public-project SBOM publishing and third-party licence compliance CI workflows, and expose the latest SPDX SBOM run from the generated README. (#202610021840)
+
+## Bugfixes
+
+- :bug: Prefix generated Towncrier release titles with `# ` so markdown changelogs keep a proper top-level heading after the [Towncrier formatting change](https://github.com/twisted/towncrier/issues/758). (#202610021955)
+- :bug: Record manual CDS licence approvals for `github.com/stretchr/testify/internal/spew`, `sigs.k8s.io/yaml`, and `github.com/klauspost/compress` so the project's compliance check explains and accepts those permissive dependencies. (#202610022015)
+- Dependency upgrade: testify-1.12.1 (#20260820214537, #20260820214543)
+- Dependency upgrade: mod-0.41.0 (#20260908214459)
+- Dependency upgrade: text-0.42.0 (#20260911214446)
+- Dependency upgrade: v4-4.12.0 (#20260916214526)
+- Dependency upgrade: alpine-3.24.2 (#20260921214543)
+- Dependency upgrade: golang-1.27rc3 (#20261002160300251099622)
+- Dependency upgrade: utils-1.170.3 (#20261006121313596500320)
+- Dependency upgrade: tools-0.50.0 (#20261006121328249371977)
+
+## Misc
+
+- #202610022035
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 "0.48.1" (2026-08-20)
 =====================
 
