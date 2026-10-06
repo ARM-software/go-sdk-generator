@@ -8,7 +8,7 @@ tool github.com/dmarkham/enumer
 
 require (
 	github.com/ARM-software/go-sdk-generator/generator v0.46.0
-	github.com/ARM-software/golang-utils/utils v1.170.2
+	github.com/ARM-software/golang-utils/utils v1.170.7
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
@@ -19,12 +19,12 @@ require (
 
 require (
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 // indirect
-	github.com/DeRuina/timberjack v1.4.6 // indirect
+	github.com/DeRuina/timberjack v1.4.8 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/avast/retry-go/v4 v4.7.0 // indirect
 	github.com/bmatcuk/doublestar/v3 v3.0.0 // indirect
-	github.com/bombsimon/logrusr/v4 v4.1.0 // indirect
+	github.com/bombsimon/logrusr/v4 v4.2.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.1 // indirect
 	github.com/charmbracelet/lipgloss v0.6.0 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20251106190538-99ea45596692 // indirect
@@ -63,7 +63,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.9.2 // indirect
@@ -92,14 +92,14 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.26.7 // indirect
-	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.8 // indirect
+	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	github.com/sttk/stringcase v0.3.0 // indirect
+	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
@@ -107,7 +107,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
 	go.mongodb.org/mongo-driver v1.17.7 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/atomic v1.12.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect

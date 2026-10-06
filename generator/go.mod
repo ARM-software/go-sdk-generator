@@ -11,7 +11,7 @@ tool (
 )
 
 require (
-	github.com/ARM-software/golang-utils/utils v1.170.2
+	github.com/ARM-software/golang-utils/utils v1.170.7
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/go-faker/faker/v4 v4.12.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
@@ -68,7 +68,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.26.7 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.8 // indirect
 	github.com/sosodev/duration v1.4.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -77,14 +77,14 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
-	github.com/sttk/stringcase v0.3.0 // indirect
+	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
 	go.mongodb.org/mongo-driver v1.17.7 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/atomic v1.12.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
