@@ -61,7 +61,6 @@ jobs:
 
   tpip:
     name: Check third-party IP
-    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -71,21 +70,13 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version: ${{ env.go_version }}
+          cache-dependency-path: |
+            go.work.sum
+            generator/go.sum
+            cli/go.sum
       - uses: actions/setup-python@v6
       - name: Install CI/CD tools
-        run: pip install continuous-delivery-scripts>=2.7 && pip list
-      - name: Download Go module dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-          mapfile -t module_dirs < <(find . -name go.mod -not -path '*/vendor/*' -printf '%h\n' | sort -u)
-          for module_dir in "${module_dirs[@]}"; do
-            echo "Downloading dependencies for ${module_dir}"
-            (
-              cd "${module_dir}"
-              go mod download all
-            )
-          done
+        run: pip install continuous-delivery-scripts && pip list
       - name: Check third-party IP
         run: cd-check-licence-compliance
       - name: Report failure if needed
@@ -153,6 +144,13 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version: ${{ env.go_version }}
+          cache-dependency-path: |
+            go.work.sum
+            generator/go.sum
+            cli/go.sum
+      - name: Download Go module dependencies
+        run: go mod download all
+        working-directory: ${{ matrix.go-module }}
       - name: Tidy dependencies
         run: go mod tidy
         if: ${{ startsWith(matrix.os, 'ubuntu') }}

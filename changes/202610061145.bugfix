@@ -1,0 +1,1 @@
+:bug: Enable CDS release-time licence summary generation into `docs/` and use the latest CDS install in the generated public release workflow.
