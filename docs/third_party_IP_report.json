@@ -1,0 +1,4488 @@
+{
+  "licence_assessment_counts": {
+    "ALLOW": 100,
+    "DENY": 0,
+    "MANUALLY_REVIEWED": 0,
+    "REVIEW": 2,
+    "UNKNOWN": 0
+  },
+  "missing_dependencies": [],
+  "packages": {
+    "SDK Generator": {
+      "anchor": "package-6dff7750-3c46-deb2-c50e-aaa0f8490ceb",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": false,
+      "licence": "Apache-2.0",
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [],
+      "licence_source": "configuration",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "SDK Generator",
+      "url": "unknown",
+      "version": "unknown"
+    },
+    "charm.land/lipgloss/v2": {
+      "anchor": "package-1bc00033-1d7c-e4c5-e570-305df9c2a244",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/lipgloss/blob/19329a3e8410/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "charm.land/lipgloss/v2",
+      "url": "https://github.com/charmbracelet/lipgloss/blob/19329a3e8410/LICENSE",
+      "version": "v2.0.0-beta.3.0.20251106193318-19329a3e8410"
+    },
+    "github.com/ARM-software/golang-utils/utils": {
+      "anchor": "package-0b3c75d5-c3b6-0282-e475-64792d1a0d3c",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/v1.170.7/utils/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/v1.170.7/utils/LICENSE",
+      "version": "v1.170.7"
+    },
+    "github.com/DeRuina/timberjack": {
+      "anchor": "package-edb732d7-5ebd-19ff-a723-c8d8c52a7751",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/DeRuina/timberjack/blob/v1.4.8/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/DeRuina/timberjack",
+      "url": "https://github.com/DeRuina/timberjack/blob/v1.4.8/LICENSE",
+      "version": "v1.4.8"
+    },
+    "github.com/OneOfOne/xxhash": {
+      "anchor": "package-4e884669-bc70-1c58-2c06-4559af34c15c",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/OneOfOne/xxhash/blob/v1.2.8/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/OneOfOne/xxhash",
+      "url": "https://github.com/OneOfOne/xxhash/blob/v1.2.8/LICENSE",
+      "version": "v1.2.8"
+    },
+    "github.com/asaskevich/govalidator": {
+      "anchor": "package-3c3e5f59-ee6b-ccd9-6eb0-c04f8f4c3b6f",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/asaskevich/govalidator/blob/f21760c49a8d/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/asaskevich/govalidator",
+      "url": "https://github.com/asaskevich/govalidator/blob/f21760c49a8d/LICENSE",
+      "version": "v0.0.0-20210307081110-f21760c49a8d"
+    },
+    "github.com/avast/retry-go/v4": {
+      "anchor": "package-87ee07ee-7872-f850-dc1b-cdee238c4ea8",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/avast/retry-go/blob/v4.7.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/avast/retry-go/v4",
+      "url": "https://github.com/avast/retry-go/blob/v4.7.0/LICENSE",
+      "version": "v4.7.0"
+    },
+    "github.com/bmatcuk/doublestar/v3": {
+      "anchor": "package-8e9527c8-917a-e2de-862a-50b9a4e05d6a",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/bmatcuk/doublestar/blob/v3.0.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/bmatcuk/doublestar/v3",
+      "url": "https://github.com/bmatcuk/doublestar/blob/v3.0.0/LICENSE",
+      "version": "v3.0.0"
+    },
+    "github.com/bombsimon/logrusr/v4": {
+      "anchor": "package-99e9f8fe-432a-3a42-2a15-d1b27cffaf24",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/bombsimon/logrusr/blob/v4.2.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/bombsimon/logrusr/v4",
+      "url": "https://github.com/bombsimon/logrusr/blob/v4.2.0/LICENSE",
+      "version": "v4.2.0"
+    },
+    "github.com/charmbracelet/colorprofile": {
+      "anchor": "package-2b4274ba-aca2-90c3-008d-b06d63988b3e",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/colorprofile/blob/v0.4.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/colorprofile",
+      "url": "https://github.com/charmbracelet/colorprofile/blob/v0.4.1/LICENSE",
+      "version": "v0.4.1"
+    },
+    "github.com/charmbracelet/fang": {
+      "anchor": "package-930fe440-5bc4-1d43-5a27-400bca95029c",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/fang/blob/v1.0.0/LICENSE.md",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/fang",
+      "url": "https://github.com/charmbracelet/fang/blob/v1.0.0/LICENSE.md",
+      "version": "v1.0.0"
+    },
+    "github.com/charmbracelet/lipgloss": {
+      "anchor": "package-2d4650d3-65d7-0603-0810-7606d6b191ec",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/lipgloss/blob/v0.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/lipgloss",
+      "url": "https://github.com/charmbracelet/lipgloss/blob/v0.6.0/LICENSE",
+      "version": "v0.6.0"
+    },
+    "github.com/charmbracelet/log": {
+      "anchor": "package-9b494db8-1fb4-4ae9-a397-0aa492de36a9",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/log/blob/v0.1.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/log",
+      "url": "https://github.com/charmbracelet/log/blob/v0.1.2/LICENSE",
+      "version": "v0.1.2"
+    },
+    "github.com/charmbracelet/ultraviolet": {
+      "anchor": "package-41b4b640-253e-2fa5-acb9-a33fc3eac0c8",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/ultraviolet/blob/99ea45596692/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/ultraviolet",
+      "url": "https://github.com/charmbracelet/ultraviolet/blob/99ea45596692/LICENSE",
+      "version": "v0.0.0-20251106190538-99ea45596692"
+    },
+    "github.com/charmbracelet/x/ansi": {
+      "anchor": "package-fdd293d3-0509-cec9-3ed4-b0ca6bae90c1",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/x/blob/ansi/v0.11.8/ansi/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/x/ansi",
+      "url": "https://github.com/charmbracelet/x/blob/ansi/v0.11.8/ansi/LICENSE",
+      "version": "v0.11.8"
+    },
+    "github.com/charmbracelet/x/exp/charmtone": {
+      "anchor": "package-34b2d1b7-8139-a85a-1eaf-2a329ab1e0d4",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/x/blob/c31516f43444/exp/charmtone/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/x/exp/charmtone",
+      "url": "https://github.com/charmbracelet/x/blob/c31516f43444/exp/charmtone/LICENSE",
+      "version": "v0.0.0-20250603201427-c31516f43444"
+    },
+    "github.com/charmbracelet/x/term": {
+      "anchor": "package-f17e545c-cbfb-3821-2865-2286065e4d1f",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/x/blob/term/v0.2.2/term/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/x/term",
+      "url": "https://github.com/charmbracelet/x/blob/term/v0.2.2/term/LICENSE",
+      "version": "v0.2.2"
+    },
+    "github.com/charmbracelet/x/termios": {
+      "anchor": "package-99c3432d-256a-5101-90a7-1e38f01a79e8",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/x/blob/termios/v0.1.1/termios/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/x/termios",
+      "url": "https://github.com/charmbracelet/x/blob/termios/v0.1.1/termios/LICENSE",
+      "version": "v0.1.1"
+    },
+    "github.com/charmbracelet/x/windows": {
+      "anchor": "package-c42c3f61-8ec1-a3e1-c05e-1d90a42e6279",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/charmbracelet/x/blob/windows/v0.2.2/windows/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/charmbracelet/x/windows",
+      "url": "https://github.com/charmbracelet/x/blob/windows/v0.2.2/windows/LICENSE",
+      "version": "v0.2.2"
+    },
+    "github.com/clipperhouse/displaywidth": {
+      "anchor": "package-194e9a3a-2b39-72ce-6fe6-215a223061e0",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/clipperhouse/displaywidth/blob/v0.11.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/clipperhouse/displaywidth",
+      "url": "https://github.com/clipperhouse/displaywidth/blob/v0.11.0/LICENSE",
+      "version": "v0.11.0"
+    },
+    "github.com/clipperhouse/uax29/v2/graphemes": {
+      "anchor": "package-bb6e2ad5-486c-711f-8297-31d6fc31f367",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/clipperhouse/uax29/blob/v2.7.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/clipperhouse/uax29/v2/graphemes",
+      "url": "https://github.com/clipperhouse/uax29/blob/v2.7.0/LICENSE",
+      "version": "v2.7.0"
+    },
+    "github.com/deckarep/golang-set/v2": {
+      "anchor": "package-9c4fae1a-2704-9e77-075e-fdd96a6aae37",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/deckarep/golang-set/blob/v2.9.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/deckarep/golang-set/v2",
+      "url": "https://github.com/deckarep/golang-set/blob/v2.9.0/LICENSE",
+      "version": "v2.9.0"
+    },
+    "github.com/djherbis/times": {
+      "anchor": "package-c92d6f9e-2513-538c-1680-570321cb3b5b",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/djherbis/times/blob/v1.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/djherbis/times",
+      "url": "https://github.com/djherbis/times/blob/v1.6.0/LICENSE",
+      "version": "v1.6.0"
+    },
+    "github.com/dolmen-go/contextio": {
+      "anchor": "package-fab99f78-caf3-b805-8ea7-4704e9d86f31",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/dolmen-go/contextio/blob/v1.0.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/dolmen-go/contextio",
+      "url": "https://github.com/dolmen-go/contextio/blob/v1.0.0/LICENSE",
+      "version": "v1.0.0"
+    },
+    "github.com/evanphx/hclogr": {
+      "anchor": "package-f794694b-7ab3-b56c-f5a3-355eef7689a8",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/evanphx/hclogr/blob/v0.2.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/evanphx/hclogr",
+      "url": "https://github.com/evanphx/hclogr/blob/v0.2.0/LICENSE",
+      "version": "v0.2.0"
+    },
+    "github.com/fatih/color": {
+      "anchor": "package-db721560-71ec-e408-b821-eabbca5a8cda",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/fatih/color/blob/v1.16.0/LICENSE.md",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/fatih/color",
+      "url": "https://github.com/fatih/color/blob/v1.16.0/LICENSE.md",
+      "version": "v1.16.0"
+    },
+    "github.com/fsnotify/fsnotify": {
+      "anchor": "package-ef4aeb96-dce8-3d07-5ca3-f6188332e53b",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/fsnotify/fsnotify/blob/v1.9.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/fsnotify/fsnotify",
+      "url": "https://github.com/fsnotify/fsnotify/blob/v1.9.0/LICENSE",
+      "version": "v1.9.0"
+    },
+    "github.com/go-faker/faker/v4": {
+      "anchor": "package-36aa16ad-aa56-cce3-7bc4-eea755b16678",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-faker/faker/blob/v4.12.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-faker/faker/v4",
+      "url": "https://github.com/go-faker/faker/blob/v4.12.0/LICENSE",
+      "version": "v4.12.0"
+    },
+    "github.com/go-logfmt/logfmt": {
+      "anchor": "package-0f81c14d-5c59-9437-d2b2-c3bd101f9dde",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-logfmt/logfmt/blob/v0.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-logfmt/logfmt",
+      "url": "https://github.com/go-logfmt/logfmt/blob/v0.6.0/LICENSE",
+      "version": "v0.6.0"
+    },
+    "github.com/go-logr/logr": {
+      "anchor": "package-f96c14c5-421c-26e5-149a-5edd783f84b5",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-logr/logr/blob/v1.4.4/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-logr/logr",
+      "url": "https://github.com/go-logr/logr/blob/v1.4.4/LICENSE",
+      "version": "v1.4.4"
+    },
+    "github.com/go-logr/stdr": {
+      "anchor": "package-b0af2bab-8c2b-5516-b0d6-c1c26a5e0022",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-logr/stdr/blob/v1.2.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-logr/stdr",
+      "url": "https://github.com/go-logr/stdr/blob/v1.2.2/LICENSE",
+      "version": "v1.2.2"
+    },
+    "github.com/go-logr/zapr": {
+      "anchor": "package-f068b51b-8250-adcb-7765-7fda521d4370",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-logr/zapr/blob/v1.3.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-logr/zapr",
+      "url": "https://github.com/go-logr/zapr/blob/v1.3.0/LICENSE",
+      "version": "v1.3.0"
+    },
+    "github.com/go-ozzo/ozzo-validation/v4": {
+      "anchor": "package-49b295f6-cce1-cc5e-35c7-6c6d45305f13",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-ozzo/ozzo-validation/v4",
+      "url": "https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE",
+      "version": "v4.4.1"
+    },
+    "github.com/go-viper/mapstructure/v2": {
+      "anchor": "package-b985d432-f362-6f35-ba3c-5da8ef88404a",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/go-viper/mapstructure/blob/v2.5.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/go-viper/mapstructure/v2",
+      "url": "https://github.com/go-viper/mapstructure/blob/v2.5.0/LICENSE",
+      "version": "v2.5.0"
+    },
+    "github.com/godbus/dbus/v5": {
+      "anchor": "package-170d89ab-f90c-7ff8-e792-a7d9bc813c2e",
+      "declared_licence": "BSD-2-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-2-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-2-Clause",
+        "discovered_licence": "BSD-2-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-2-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/godbus/dbus/blob/v5.2.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/godbus/dbus/v5",
+      "url": "https://github.com/godbus/dbus/blob/v5.2.2/LICENSE",
+      "version": "v5.2.2"
+    },
+    "github.com/gofrs/uuid/v5": {
+      "anchor": "package-8cfc9391-5e18-a499-f4ae-65043b6f81e6",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/gofrs/uuid/blob/v5.5.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/gofrs/uuid/v5",
+      "url": "https://github.com/gofrs/uuid/blob/v5.5.1/LICENSE",
+      "version": "v5.5.1"
+    },
+    "github.com/gogs/chardet": {
+      "anchor": "package-87c569b7-8a95-0114-d4f3-3342500b0360",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/gogs/chardet/blob/b7413eaefb8f/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/gogs/chardet",
+      "url": "https://github.com/gogs/chardet/blob/b7413eaefb8f/LICENSE",
+      "version": "v0.0.0-20211120154057-b7413eaefb8f"
+    },
+    "github.com/hashicorp/errwrap": {
+      "anchor": "package-512dc576-14a1-d3bf-2568-3b0fa9d3fe5a",
+      "declared_licence": "MPL-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MPL-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "REVIEW",
+        "dependency_licence": "MPL-2.0",
+        "discovered_licence": "MPL-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "Weak copyleft obligations depend on modification, linking and how the work is distributed.",
+        "rule": "weak-copyleft-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MPL-2.0",
+        "source": "built-in",
+        "status": "REVIEW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/hashicorp/errwrap/blob/v1.0.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/hashicorp/errwrap",
+      "url": "https://github.com/hashicorp/errwrap/blob/v1.0.0/LICENSE",
+      "version": "v1.0.0"
+    },
+    "github.com/hashicorp/go-hclog": {
+      "anchor": "package-9d49f903-8bfd-797c-ce11-39809761cadf",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/hashicorp/go-hclog/blob/v1.6.3/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/hashicorp/go-hclog",
+      "url": "https://github.com/hashicorp/go-hclog/blob/v1.6.3/LICENSE",
+      "version": "v1.6.3"
+    },
+    "github.com/hashicorp/go-multierror": {
+      "anchor": "package-5812e8ea-673e-ec04-5158-a48b908a0c89",
+      "declared_licence": "MPL-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MPL-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "REVIEW",
+        "dependency_licence": "MPL-2.0",
+        "discovered_licence": "MPL-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "Weak copyleft obligations depend on modification, linking and how the work is distributed.",
+        "rule": "weak-copyleft-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MPL-2.0",
+        "source": "built-in",
+        "status": "REVIEW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/hashicorp/go-multierror/blob/v1.1.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/hashicorp/go-multierror",
+      "url": "https://github.com/hashicorp/go-multierror/blob/v1.1.1/LICENSE",
+      "version": "v1.1.1"
+    },
+    "github.com/joho/godotenv": {
+      "anchor": "package-b861c2c3-da94-286a-0800-ac4b1f914d3a",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/joho/godotenv/blob/v1.5.1/LICENCE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/joho/godotenv",
+      "url": "https://github.com/joho/godotenv/blob/v1.5.1/LICENCE",
+      "version": "v1.5.1"
+    },
+    "github.com/josharian/intern": {
+      "anchor": "package-5ace8ca9-71e2-6c52-4454-5b687bbb2bdb",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/josharian/intern/blob/v1.0.0/license.md",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/josharian/intern",
+      "url": "https://github.com/josharian/intern/blob/v1.0.0/license.md",
+      "version": "v1.0.0"
+    },
+    "github.com/klauspost/compress": {
+      "anchor": "package-86b05ef1-d1cc-a0cd-a413-287c8ef57e21",
+      "declared_licence": "unknown",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Unknown",
+      "licence_assessment": {
+        "assessed_licence_source": "manual licence review",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "Unknown",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "Assessed using manually verified BSD-3-Clause because the discovered licence was unknown. A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "MIT"
+      ],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment does not meet the configured policy; accepted after manual review: Reviewed the module's packaged BSD-3-Clause licence text because the discovered metadata was Unknown; the dependency is permissive and acceptable for this project..",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "unknown",
+      "manual_check": {
+        "checked": true,
+        "reason": "Reviewed the module's packaged BSD-3-Clause licence text because the discovered metadata was Unknown; the dependency is permissive and acceptable for this project."
+      },
+      "mark_as_problematic": true,
+      "name": "github.com/klauspost/compress",
+      "url": "unknown",
+      "version": "v1.18.7"
+    },
+    "github.com/klauspost/compress/internal/snapref": {
+      "anchor": "package-22ee2112-5d24-cea1-36d5-3c2a4ab97c91",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/internal/snapref/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/klauspost/compress/internal/snapref",
+      "url": "https://github.com/klauspost/compress/blob/v1.18.7/internal/snapref/LICENSE",
+      "version": "v1.18.7"
+    },
+    "github.com/klauspost/compress/zstd/internal/xxhash": {
+      "anchor": "package-3628e521-f274-0a46-036e-3317f37a136d",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/zstd/internal/xxhash/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/klauspost/compress/zstd/internal/xxhash",
+      "url": "https://github.com/klauspost/compress/blob/v1.18.7/zstd/internal/xxhash/LICENSE.txt",
+      "version": "v1.18.7"
+    },
+    "github.com/lucasb-eyer/go-colorful": {
+      "anchor": "package-43d69d1c-97b5-8f13-e886-7c3f11fd5d23",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/lucasb-eyer/go-colorful/blob/v1.4.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/lucasb-eyer/go-colorful",
+      "url": "https://github.com/lucasb-eyer/go-colorful/blob/v1.4.0/LICENSE",
+      "version": "v1.4.0"
+    },
+    "github.com/mailru/easyjson": {
+      "anchor": "package-1d47e61a-8caf-a240-713d-8a0765e0c598",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mailru/easyjson/blob/v0.9.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/mailru/easyjson",
+      "url": "https://github.com/mailru/easyjson/blob/v0.9.2/LICENSE",
+      "version": "v0.9.2"
+    },
+    "github.com/mattn/go-colorable": {
+      "anchor": "package-c06dfafd-d0a5-a5d5-4b38-4a37fe25eaf3",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mattn/go-colorable/blob/v0.1.14/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/mattn/go-colorable",
+      "url": "https://github.com/mattn/go-colorable/blob/v0.1.14/LICENSE",
+      "version": "v0.1.14"
+    },
+    "github.com/mattn/go-isatty": {
+      "anchor": "package-04e24326-bc32-4234-598e-90c94720897e",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mattn/go-isatty/blob/v0.0.20/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/mattn/go-isatty",
+      "url": "https://github.com/mattn/go-isatty/blob/v0.0.20/LICENSE",
+      "version": "v0.0.20"
+    },
+    "github.com/mattn/go-runewidth": {
+      "anchor": "package-d5931aa7-07e5-2056-7ae2-264c61d935da",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mattn/go-runewidth/blob/v0.0.24/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/mattn/go-runewidth",
+      "url": "https://github.com/mattn/go-runewidth/blob/v0.0.24/LICENSE",
+      "version": "v0.0.24"
+    },
+    "github.com/mitchellh/go-homedir": {
+      "anchor": "package-31e269a2-2733-21d5-7d4f-9c682514ab59",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mitchellh/go-homedir/blob/v1.1.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/mitchellh/go-homedir",
+      "url": "https://github.com/mitchellh/go-homedir/blob/v1.1.0/LICENSE",
+      "version": "v1.1.0"
+    },
+    "github.com/muesli/cancelreader": {
+      "anchor": "package-b5fa2506-af3d-92d4-539a-d0905ceef317",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/cancelreader/blob/v0.2.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/cancelreader",
+      "url": "https://github.com/muesli/cancelreader/blob/v0.2.2/LICENSE",
+      "version": "v0.2.2"
+    },
+    "github.com/muesli/mango": {
+      "anchor": "package-2d556191-c546-2bd4-66d6-2511bb388f35",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/mango/blob/v0.1.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/mango",
+      "url": "https://github.com/muesli/mango/blob/v0.1.0/LICENSE",
+      "version": "v0.1.0"
+    },
+    "github.com/muesli/mango-cobra": {
+      "anchor": "package-686a759f-19e3-8008-423c-aef5d7ba1350",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/mango-cobra/blob/v1.2.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/mango-cobra",
+      "url": "https://github.com/muesli/mango-cobra/blob/v1.2.0/LICENSE",
+      "version": "v1.2.0"
+    },
+    "github.com/muesli/mango-pflag": {
+      "anchor": "package-4ca43412-7f6d-ce32-ef3e-4b1cc84abc60",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/mango-pflag/blob/v0.1.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/mango-pflag",
+      "url": "https://github.com/muesli/mango-pflag/blob/v0.1.0/LICENSE",
+      "version": "v0.1.0"
+    },
+    "github.com/muesli/reflow": {
+      "anchor": "package-08305c3d-97c7-94f3-261b-e0eb3d5c0988",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/reflow/blob/9e1d0d53df68/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/reflow",
+      "url": "https://github.com/muesli/reflow/blob/9e1d0d53df68/LICENSE",
+      "version": "v0.2.1-0.20210115123740-9e1d0d53df68"
+    },
+    "github.com/muesli/roff": {
+      "anchor": "package-88da5694-1943-1ac2-107f-3348f3123458",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/roff/blob/v0.1.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/roff",
+      "url": "https://github.com/muesli/roff/blob/v0.1.0/LICENSE",
+      "version": "v0.1.0"
+    },
+    "github.com/muesli/termenv": {
+      "anchor": "package-c2739046-0e75-229e-f23f-aa005224c58e",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/muesli/termenv/blob/5ac8409525e0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/muesli/termenv",
+      "url": "https://github.com/muesli/termenv/blob/5ac8409525e0/LICENSE",
+      "version": "v0.11.1-0.20220204035834-5ac8409525e0"
+    },
+    "github.com/opencontainers/go-digest": {
+      "anchor": "package-7b0c206b-26c1-30ed-ebfa-d3562bd830fa",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/opencontainers/go-digest/blob/v1.0.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/opencontainers/go-digest",
+      "url": "https://github.com/opencontainers/go-digest/blob/v1.0.0/LICENSE",
+      "version": "v1.0.0"
+    },
+    "github.com/opencontainers/image-spec/specs-go": {
+      "anchor": "package-f36b7cad-64b9-f323-dc10-9e1541d244ee",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/opencontainers/image-spec/blob/v1.1.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/opencontainers/image-spec/specs-go",
+      "url": "https://github.com/opencontainers/image-spec/blob/v1.1.1/LICENSE",
+      "version": "v1.1.1"
+    },
+    "github.com/pelletier/go-toml/v2": {
+      "anchor": "package-a03d316d-9573-f53e-648b-8a940e2077b5",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/pelletier/go-toml/blob/v2.2.4/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/pelletier/go-toml/v2",
+      "url": "https://github.com/pelletier/go-toml/blob/v2.2.4/LICENSE",
+      "version": "v2.2.4"
+    },
+    "github.com/petermattis/goid": {
+      "anchor": "package-7ff4886e-28d5-a4a1-2722-604be21c21ed",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/petermattis/goid/blob/a731cc31b4fe/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/petermattis/goid",
+      "url": "https://github.com/petermattis/goid/blob/a731cc31b4fe/LICENSE",
+      "version": "v0.0.0-20250813065127-a731cc31b4fe"
+    },
+    "github.com/pquerna/ffjson": {
+      "anchor": "package-e92b764c-9dc7-0226-acda-d031bbdbbd67",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/pquerna/ffjson/blob/aa0246cd15f7/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/pquerna/ffjson",
+      "url": "https://github.com/pquerna/ffjson/blob/aa0246cd15f7/LICENSE",
+      "version": "v0.0.0-20190930134022-aa0246cd15f7"
+    },
+    "github.com/rifflock/lfshook": {
+      "anchor": "package-3bd104ab-1b91-d967-e9ee-741bbe0663f9",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/rifflock/lfshook/blob/b9218ef580f5/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/rifflock/lfshook",
+      "url": "https://github.com/rifflock/lfshook/blob/b9218ef580f5/LICENSE",
+      "version": "v0.0.0-20180920164130-b9218ef580f5"
+    },
+    "github.com/rivo/uniseg": {
+      "anchor": "package-f16616a2-7eab-0a06-70e5-bd66155ef409",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/rivo/uniseg/blob/v0.4.7/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/rivo/uniseg",
+      "url": "https://github.com/rivo/uniseg/blob/v0.4.7/LICENSE.txt",
+      "version": "v0.4.7"
+    },
+    "github.com/rs/zerolog": {
+      "anchor": "package-f7b0c3d8-48fc-b871-cb33-61c7d4cbf9c9",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/rs/zerolog/blob/v1.35.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/rs/zerolog",
+      "url": "https://github.com/rs/zerolog/blob/v1.35.1/LICENSE",
+      "version": "v1.35.1"
+    },
+    "github.com/sagikazarmark/locafero": {
+      "anchor": "package-f0d4a0bd-e355-01b9-f1dc-acc220d04fbd",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/sagikazarmark/locafero/blob/v0.11.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/sagikazarmark/locafero",
+      "url": "https://github.com/sagikazarmark/locafero/blob/v0.11.0/LICENSE",
+      "version": "v0.11.0"
+    },
+    "github.com/santhosh-tekuri/jsonschema/v6": {
+      "anchor": "package-1ca4e812-a8a4-7791-5fd9-7f7c5f9b666a",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/santhosh-tekuri/jsonschema/blob/v6.0.3/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/santhosh-tekuri/jsonschema/v6",
+      "url": "https://github.com/santhosh-tekuri/jsonschema/blob/v6.0.3/LICENSE",
+      "version": "v6.0.3"
+    },
+    "github.com/sasha-s/go-deadlock": {
+      "anchor": "package-db62a250-692d-4eee-0807-f2c1c93e6bd1",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/sasha-s/go-deadlock/blob/v0.3.9/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/sasha-s/go-deadlock",
+      "url": "https://github.com/sasha-s/go-deadlock/blob/v0.3.9/LICENSE",
+      "version": "v0.3.9"
+    },
+    "github.com/shirou/gopsutil/v4": {
+      "anchor": "package-96059858-327d-ae9d-d9ca-a58eec242098",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/shirou/gopsutil/blob/v4.26.8/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/shirou/gopsutil/v4",
+      "url": "https://github.com/shirou/gopsutil/blob/v4.26.8/LICENSE",
+      "version": "v4.26.8"
+    },
+    "github.com/sirupsen/logrus": {
+      "anchor": "package-2881124d-a3aa-3acb-e08e-2516e4953abb",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/sirupsen/logrus/blob/v1.10.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/sirupsen/logrus",
+      "url": "https://github.com/sirupsen/logrus/blob/v1.10.2/LICENSE",
+      "version": "v1.10.2"
+    },
+    "github.com/sourcegraph/conc": {
+      "anchor": "package-ddc464f1-4957-4626-7636-2b967b987960",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/sourcegraph/conc/blob/5f936abd7ae8/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/sourcegraph/conc",
+      "url": "https://github.com/sourcegraph/conc/blob/5f936abd7ae8/LICENSE",
+      "version": "v0.3.1-0.20240121214520-5f936abd7ae8"
+    },
+    "github.com/spaolacci/murmur3": {
+      "anchor": "package-6c704832-f4c5-db78-fa8c-4d679e690f42",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spaolacci/murmur3/blob/v1.1.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spaolacci/murmur3",
+      "url": "https://github.com/spaolacci/murmur3/blob/v1.1.0/LICENSE",
+      "version": "v1.1.0"
+    },
+    "github.com/spf13/afero": {
+      "anchor": "package-0e269342-4cb5-12af-7108-0e01083dc5ba",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spf13/afero/blob/v1.15.0/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spf13/afero",
+      "url": "https://github.com/spf13/afero/blob/v1.15.0/LICENSE.txt",
+      "version": "v1.15.0"
+    },
+    "github.com/spf13/cast": {
+      "anchor": "package-c8825d3c-1845-bbee-949c-7a3033649417",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spf13/cast/blob/v1.10.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spf13/cast",
+      "url": "https://github.com/spf13/cast/blob/v1.10.0/LICENSE",
+      "version": "v1.10.0"
+    },
+    "github.com/spf13/cobra": {
+      "anchor": "package-0ac0d6fb-0ded-66a5-b747-32ad574b3375",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spf13/cobra/blob/v1.10.2/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spf13/cobra",
+      "url": "https://github.com/spf13/cobra/blob/v1.10.2/LICENSE.txt",
+      "version": "v1.10.2"
+    },
+    "github.com/spf13/pflag": {
+      "anchor": "package-21b264e5-203c-540e-ba92-84649450f986",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spf13/pflag/blob/v1.0.10/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spf13/pflag",
+      "url": "https://github.com/spf13/pflag/blob/v1.0.10/LICENSE",
+      "version": "v1.0.10"
+    },
+    "github.com/spf13/viper": {
+      "anchor": "package-9dfd44d7-afa6-84cf-cad9-5d48ebc6d982",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/spf13/viper/blob/v1.21.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/spf13/viper",
+      "url": "https://github.com/spf13/viper/blob/v1.21.0/LICENSE",
+      "version": "v1.21.0"
+    },
+    "github.com/stretchr/testify": {
+      "anchor": "package-245cb304-f906-c779-d032-88fcd906b9b1",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/stretchr/testify/blob/v1.12.1/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/stretchr/testify",
+      "url": "https://github.com/stretchr/testify/blob/v1.12.1/LICENSE",
+      "version": "v1.12.1"
+    },
+    "github.com/stretchr/testify/internal/difflib": {
+      "anchor": "package-e3185487-d660-90dd-b477-e8529c9dbcbb",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/stretchr/testify/blob/v1.12.1/internal/difflib/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/stretchr/testify/internal/difflib",
+      "url": "https://github.com/stretchr/testify/blob/v1.12.1/internal/difflib/LICENSE",
+      "version": "v1.12.1"
+    },
+    "github.com/stretchr/testify/internal/spew": {
+      "anchor": "package-bf473585-29e4-cf5a-ea51-440577003543",
+      "declared_licence": "ISC",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "ISC",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "ISC",
+        "discovered_licence": "ISC",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "ISC",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment does not meet the configured policy; accepted after manual review: Reviewed the bundled internal/spew ISC licence text under testify and accepted its permissive redistribution terms for test-only use in this project..",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/stretchr/testify/blob/v1.12.1/internal/spew/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": true,
+        "reason": "Reviewed the bundled internal/spew ISC licence text under testify and accepted its permissive redistribution terms for test-only use in this project."
+      },
+      "mark_as_problematic": true,
+      "name": "github.com/stretchr/testify/internal/spew",
+      "url": "https://github.com/stretchr/testify/blob/v1.12.1/internal/spew/LICENSE",
+      "version": "v1.12.1"
+    },
+    "github.com/sttk/stringcase": {
+      "anchor": "package-9072b219-119e-16bc-1b98-3797192d4019",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/sttk/stringcase/blob/v1.0.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/sttk/stringcase",
+      "url": "https://github.com/sttk/stringcase/blob/v1.0.0/LICENSE",
+      "version": "v1.0.0"
+    },
+    "github.com/subosito/gotenv": {
+      "anchor": "package-cd5a5819-b329-faf2-5a09-cb9807a8bae4",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/subosito/gotenv/blob/v1.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/subosito/gotenv",
+      "url": "https://github.com/subosito/gotenv/blob/v1.6.0/LICENSE",
+      "version": "v1.6.0"
+    },
+    "github.com/tklauser/go-sysconf": {
+      "anchor": "package-9e02d811-e6f5-82d5-a768-05a95c478ee9",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/tklauser/go-sysconf/blob/v0.3.16/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/tklauser/go-sysconf",
+      "url": "https://github.com/tklauser/go-sysconf/blob/v0.3.16/LICENSE",
+      "version": "v0.3.16"
+    },
+    "github.com/tklauser/numcpus": {
+      "anchor": "package-2da754ca-4cb3-f189-574e-a98c4e67df40",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/tklauser/numcpus/blob/v0.11.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/tklauser/numcpus",
+      "url": "https://github.com/tklauser/numcpus/blob/v0.11.0/LICENSE",
+      "version": "v0.11.0"
+    },
+    "github.com/xo/terminfo": {
+      "anchor": "package-210bfc06-85af-11f9-3748-504ec19be87d",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/xo/terminfo/blob/abceb7e1c41e/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/xo/terminfo",
+      "url": "https://github.com/xo/terminfo/blob/abceb7e1c41e/LICENSE",
+      "version": "v0.0.0-20220910002029-abceb7e1c41e"
+    },
+    "github.com/zalando/go-keyring": {
+      "anchor": "package-b0f75a23-be6c-a019-8362-4a49b3bbe6e8",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/zalando/go-keyring/blob/v0.2.8/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/zalando/go-keyring",
+      "url": "https://github.com/zalando/go-keyring/blob/v0.2.8/LICENSE",
+      "version": "v0.2.8"
+    },
+    "go.mongodb.org/mongo-driver": {
+      "anchor": "package-f7cacbe0-6e70-aaed-34c8-9367785a14cd",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/mongodb/mongo-go-driver/blob/v1.17.7/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.mongodb.org/mongo-driver",
+      "url": "https://github.com/mongodb/mongo-go-driver/blob/v1.17.7/LICENSE",
+      "version": "v1.17.7"
+    },
+    "go.uber.org/atomic": {
+      "anchor": "package-adcf0471-cf42-7f3e-360a-f189f7dc4a6c",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/uber-go/atomic/blob/v1.12.0/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.uber.org/atomic",
+      "url": "https://github.com/uber-go/atomic/blob/v1.12.0/LICENSE.txt",
+      "version": "v1.12.0"
+    },
+    "go.uber.org/mock/gomock": {
+      "anchor": "package-75683a3f-5a92-6bd4-f191-d9ceef6128d7",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/uber/mock/blob/v0.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.uber.org/mock/gomock",
+      "url": "https://github.com/uber/mock/blob/v0.6.0/LICENSE",
+      "version": "v0.6.0"
+    },
+    "go.uber.org/multierr": {
+      "anchor": "package-35984842-8d04-ba48-4da4-85a032664582",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/uber-go/multierr/blob/v1.10.0/LICENSE.txt",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.uber.org/multierr",
+      "url": "https://github.com/uber-go/multierr/blob/v1.10.0/LICENSE.txt",
+      "version": "v1.10.0"
+    },
+    "go.uber.org/zap": {
+      "anchor": "package-8d5b3bd4-fc20-6f42-2815-08cddb4e2845",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/uber-go/zap/blob/v1.28.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.uber.org/zap",
+      "url": "https://github.com/uber-go/zap/blob/v1.28.0/LICENSE",
+      "version": "v1.28.0"
+    },
+    "go.yaml.in/yaml/v2": {
+      "anchor": "package-69cef494-b032-0af3-3da2-59316d1030d2",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/yaml/go-yaml/blob/v2.4.2/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.yaml.in/yaml/v2",
+      "url": "https://github.com/yaml/go-yaml/blob/v2.4.2/LICENSE",
+      "version": "v2.4.2"
+    },
+    "go.yaml.in/yaml/v3": {
+      "anchor": "package-bb39fc08-127b-1405-2b7f-69a5c3f28e13",
+      "declared_licence": "MIT",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "MIT",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "MIT",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/yaml/go-yaml/blob/v3.0.5/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "go.yaml.in/yaml/v3",
+      "url": "https://github.com/yaml/go-yaml/blob/v3.0.5/LICENSE",
+      "version": "v3.0.5"
+    },
+    "golang.org/x/crypto/blake2b": {
+      "anchor": "package-e93b95da-3f26-87eb-b7e0-c993c7386f5c",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/crypto/+/v0.57.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/crypto/blake2b",
+      "url": "https://cs.opensource.google/go/x/crypto/+/v0.57.0:LICENSE",
+      "version": "v0.57.0"
+    },
+    "golang.org/x/exp/maps": {
+      "anchor": "package-10cdd565-d750-e332-5996-a47e6d88d5d1",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/exp/+/746e56fc:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/exp/maps",
+      "url": "https://cs.opensource.google/go/x/exp/+/746e56fc:LICENSE",
+      "version": "v0.0.0-20260410095643-746e56fc9e2f"
+    },
+    "golang.org/x/mod": {
+      "anchor": "package-8d7a121b-f7b5-b730-849c-fbdd2e0a109d",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/mod/+/v0.41.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/mod",
+      "url": "https://cs.opensource.google/go/x/mod/+/v0.41.0:LICENSE",
+      "version": "v0.41.0"
+    },
+    "golang.org/x/net/idna": {
+      "anchor": "package-2aead2ef-7de2-8d0b-50d8-19fea4eae228",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/net/+/v0.59.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/net/idna",
+      "url": "https://cs.opensource.google/go/x/net/+/v0.59.0:LICENSE",
+      "version": "v0.59.0"
+    },
+    "golang.org/x/sync/errgroup": {
+      "anchor": "package-e052dc72-59f1-da29-2aae-c40ab70887ca",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/sync/+/v0.23.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/sync/errgroup",
+      "url": "https://cs.opensource.google/go/x/sync/+/v0.23.0:LICENSE",
+      "version": "v0.23.0"
+    },
+    "golang.org/x/sys": {
+      "anchor": "package-af39534f-be6f-71bf-ee2f-937b8c05225b",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/sys/+/v0.48.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/sys",
+      "url": "https://cs.opensource.google/go/x/sys/+/v0.48.0:LICENSE",
+      "version": "v0.48.0"
+    },
+    "golang.org/x/text": {
+      "anchor": "package-d21fca5b-b1f8-d72b-9221-0e4500b5b865",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/text/+/v0.42.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/text",
+      "url": "https://cs.opensource.google/go/x/text/+/v0.42.0:LICENSE",
+      "version": "v0.42.0"
+    },
+    "golang.org/x/tools": {
+      "anchor": "package-812182ae-679d-806a-9b88-61a4ef10def8",
+      "declared_licence": "BSD-3-Clause",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "BSD-3-Clause",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "BSD-3-Clause",
+        "discovered_licence": "BSD-3-Clause",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "BSD-3-Clause",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://cs.opensource.google/go/x/tools/+/v0.51.0:LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "golang.org/x/tools",
+      "url": "https://cs.opensource.google/go/x/tools/+/v0.51.0:LICENSE",
+      "version": "v0.51.0"
+    },
+    "sigs.k8s.io/yaml": {
+      "anchor": "package-7d47efe3-d1a3-2a70-3c64-21cac50944e3",
+      "declared_licence": "unknown",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Unknown",
+      "licence_assessment": {
+        "assessed_licence_source": "manual licence review",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "MIT",
+        "discovered_licence": "Unknown",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "Assessed using manually verified MIT because the discovered licence was unknown. A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "MIT",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "MIT"
+      ],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment does not meet the configured policy; accepted after manual review: Reviewed the module's packaged MIT licence file because the discovered metadata was Unknown; the dependency is permissive and acceptable for this project..",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/kubernetes-sigs/yaml/blob/v1.6.0/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "unknown",
+      "manual_check": {
+        "checked": true,
+        "reason": "Reviewed the module's packaged MIT licence file because the discovered metadata was Unknown; the dependency is permissive and acceptable for this project."
+      },
+      "mark_as_problematic": true,
+      "name": "sigs.k8s.io/yaml",
+      "url": "unknown",
+      "version": "v1.6.0"
+    }
+  },
+  "project": {
+    "accepted_licences": [
+      "Apache-2.0",
+      "BSD*",
+      "CC-BY-*",
+      "JSON",
+      "MIT",
+      "Python-2.0",
+      "PSF-2.0",
+      "MPL-2.0"
+    ],
+    "complete": true,
+    "compliance": true,
+    "compliance_details": "The project is licensed under the Apache-2.0 licence. The project and all assessed dependencies meet the configured licence policy, including any documented manual reviews.",
+    "compliance_points": [
+      "The project and all assessed dependencies meet the configured licence policy, including any documented manual reviews."
+    ],
+    "licence": "Apache-2.0",
+    "name": "SDK Generator"
+  },
+  "render_time": "2026-10-06T15:55:28.605862",
+  "undocumented_exemptions": [],
+  "unknown_licences": [
+    "github.com/klauspost/compress",
+    "sigs.k8s.io/yaml"
+  ],
+  "unreviewed_licences": []
+}

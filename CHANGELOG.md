@@ -2,6 +2,17 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.49.1 (2026-10-06)
+
+## Bugfixes
+
+- :bug: Enable CDS release-time licence summary generation into `docs/` and use the latest CDS install in the generated public release workflow. (#202610061145)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.49.0 (2026-10-06)
 
 ## Features
