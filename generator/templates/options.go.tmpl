@@ -30,6 +30,18 @@ import (
 	{{ end -}}
 )
 
+// validateSelectedOption calls embedded validation only for selected values
+// implementing Validator. Pointer- and value-receiver validators are supported.
+func validateSelectedOption(address, value any) error {
+	if validator, ok := address.(configUtils.Validator); ok {
+		return configUtils.ValidateEmbedded(validator)
+	}
+	if validator, ok := value.(configUtils.Validator); ok {
+		return configUtils.ValidateEmbedded(validator)
+	}
+	return nil
+}
+
 {{ $toolName := .Specification.PackageName -}}
 {{ $toolVersion := "0.0.0" -}}
 {{ if .Specification.CommandLineCommands -}}
@@ -40,37 +52,52 @@ import (
 {{ end -}}
 {{ range .CurrentOptionSets }}
 {{ $optionSet := . -}}
+{{ $enabledFieldName := optionEnabledFieldName -}}
 {{ $structName := optionSetStructName .Name -}}
 {{ $optionTypeName := optionSetOptionTypeName .Name -}}
 {{ $builderFunctionName := optionSetBuilderFunctionName .Name -}}
+{{ range .Parameters -}}
+{{ $wrapperTypeName := optionParameterWrapperTypeName $structName . -}}
+{{ goComment "" (printf "%s stores the configured value and whether %s has been set" $wrapperTypeName (.Name | lowerFirst)) }}
+type {{ $wrapperTypeName }} struct {
+	{{ goComment "\t" (printf "%s stores %s" (optionParameterValueFieldName .) (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .EffectiveEnum .Example .Examples) .DeprecationNotice)) }}
+	{{ optionParameterValueFieldName . }} {{ optionParameterType $structName . }} `mapstructure:"{{ optionParameterValueFieldMapstructureTag . }}"`
+	{{ $enabledFieldName }} bool `mapstructure:"{{ $enabledFieldName | lower }}"`
+}
+
+{{ end -}}
 {{ goComment "" (printf "%s stores %s" $structName (descriptionWithDeprecation (.Description | lowerFirst) .DeprecationNotice)) }}
 type {{ $structName }} struct {
 {{ range .Parameters -}}
 	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .EffectiveEnum .Example .Examples) .DeprecationNotice)) }}
-	{{ .Name | toPascal }} {{ optionParameterType $structName . }}
+	{{ .Name | toPascal }} {{ optionParameterWrapperTypeName $structName . }} `mapstructure:"{{ optionParameterMapstructureTag . }}"`
 {{ end }}
 }
 
 func (opt *{{ $structName }}) Validate() (err error) {
-	err = configUtils.ValidateEmbedded(opt)
-	if err != nil {
-		return
+	{{ range .Parameters -}}
+	if {{ optionParameterEnabledSelector . "opt" }} {
+		err = validateSelectedOption(&{{ optionParameterValueSelector . "opt" }}, {{ optionParameterValueSelector . "opt" }})
+		if err != nil {
+			return
+		}
 	}
+	{{ end }}
 
 	{{ if .HasConstraintValidationRules }}err = {{ else }}return validation.ValidateStruct(opt,{{ end }}
 	{{ range .Parameters -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .IsRequired .EffectiveEnum (printf "opt.%s" (.Name | toPascal)) -}}
+	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .IsRequired .EffectiveEnum (optionParameterValueSelector . "opt") -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $effectivePattern := effectivePatternString . -}}
 	{{ if and (not .IsRequired) (usesPresenceGuardForValidation .LangType) }}
-	    validation.Field(&opt.{{ .Name | toPascal }}, validation.When(reflection.IsNotEmpty(opt.{{ .Name | toPascal }}), filesystem.NewOSPathValidationRule(true))),
+	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}, filesystem.NewOSPathValidationRule(true))),
 	{{ else if .IsRequired }}
-	    validation.Field(&opt.{{ .Name | toPascal }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
 	{{ else if .Condition -}}
-	    validation.Field(&opt.{{ .Name | toPascal }}, validation.When(opt.{{ .Condition }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
+	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }} && opt.{{ .Condition }}.{{ $enabledFieldName }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
 	{{ else if or $validation $enumValidation $constraintValidation $effectivePattern -}}
-	    validation.Field(&opt.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
 	{{ end }}
 	{{ end }}
 	)
@@ -95,7 +122,9 @@ func Default{{ $structName }}() (opt *{{ $structName }}) {
 	opt = &{{ $structName }}{
 	{{ range .Parameters -}}
 	{{ if .DefaultValue -}}
-	{{ .Name | toPascal }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName $.CurrentOptionPackage $toolName $toolVersion $structName .Name .LangType .EffectiveEnum (dereferenceString .DefaultValue) .Reference }},
+	{{ .Name | toPascal }}: {{ optionParameterWrapperTypeName $structName . }}{
+		{{ optionParameterValueFieldName . }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName $.CurrentOptionPackage $toolName $toolVersion $structName .Name .LangType .EffectiveEnum (dereferenceString .DefaultValue) .Reference }},
+	},
 	{{ end -}}
 	{{ end -}}
 	}
@@ -144,7 +173,8 @@ func {{ optionFunctionName . }}() {{ $optionTypeName }} {
 		if opt == nil {
 			return
 		}
-		opt.{{ (optionFunctionSingleParameter .).Name | toPascal }} = {{ optionBooleanParameterValueExpression $structName (optionFunctionSingleParameter .) true }}
+		{{ optionParameterValueSelector (optionFunctionSingleParameter .) "opt" }} = {{ optionBooleanParameterValueExpression $structName (optionFunctionSingleParameter .) true }}
+		{{ optionParameterEnabledSelector (optionFunctionSingleParameter .) "opt" }} = true
 	}
 }
 
@@ -153,7 +183,8 @@ func {{ optionWithoutFunctionName . }}() {{ $optionTypeName }} {
 		if opt == nil {
 			return
 		}
-		opt.{{ (optionFunctionSingleParameter .).Name | toPascal }} = {{ optionBooleanParameterValueExpression $structName (optionFunctionSingleParameter .) false }}
+		{{ optionParameterValueSelector (optionFunctionSingleParameter .) "opt" }} = {{ optionBooleanParameterValueExpression $structName (optionFunctionSingleParameter .) false }}
+		{{ optionParameterEnabledSelector (optionFunctionSingleParameter .) "opt" }} = true
 	}
 }
 

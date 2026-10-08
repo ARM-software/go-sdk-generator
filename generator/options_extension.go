@@ -15,7 +15,10 @@ import (
 	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
-const defaultOptionPackage = "options"
+const (
+	defaultOptionPackage   = "options"
+	optionEnabledFieldName = "Enabled"
+)
 
 type generatedOptionIdentifier struct {
 	Name   string
@@ -77,6 +80,109 @@ func optionSetStructName(name string) string {
 
 func optionSetOptionTypeName(name string) string {
 	return fmt.Sprintf("%sOption", toPascalCase(name))
+}
+
+func optionParameterWrapperTypeName(ownerName string, parameter *OptionParameter) string {
+	if parameter == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s%sOption", ownerName, toPascalCase(parameter.Name))
+}
+
+func optionParameterValueFieldName(parameter *OptionParameter) string {
+	if parameter == nil {
+		return "Value"
+	}
+	if parameter.ValueField != nil && reflection.IsNotEmpty(parameter.ValueField.Name) {
+		return toPascalCase(field.OptionalString(parameter.ValueField.Name, ""))
+	}
+	return toPascalCase(parameter.Name)
+}
+
+func optionParameterMapstructureTag(parameter *OptionParameter) string {
+	if parameter == nil {
+		return ""
+	}
+	if reflection.IsNotEmpty(parameter.MapstructureTag) {
+		return field.OptionalString(parameter.MapstructureTag, "")
+	}
+	return toCamelCase(parameter.Name)
+}
+
+func optionParameterValueFieldMapstructureTag(parameter *OptionParameter) string {
+	if parameter != nil && parameter.ValueField != nil && reflection.IsNotEmpty(parameter.ValueField.MapstructureTag) {
+		return field.OptionalString(parameter.ValueField.MapstructureTag, "")
+	}
+	return toSnakeCase(optionParameterValueFieldName(parameter))
+}
+
+func optionParameterValueSelector(parameter *OptionParameter, receiver string) string {
+	if parameter == nil || reflection.IsEmpty(receiver) {
+		return ""
+	}
+	return fmt.Sprintf("%s.%s.%s", receiver, toPascalCase(parameter.Name), optionParameterValueFieldName(parameter))
+}
+
+func optionParameterEnabledSelector(parameter *OptionParameter, receiver string) string {
+	if parameter == nil || reflection.IsEmpty(receiver) {
+		return ""
+	}
+	return fmt.Sprintf("%s.%s.%s", receiver, toPascalCase(parameter.Name), optionEnabledFieldName)
+}
+
+// addOptionCLIEnabledBindings bridges generated functional options and CLI
+// configuration. A parameter such as options.RefineOptionsLLMOption has both a
+// value and an Enabled field, but CLI bindings normally exist only for fields
+// declared explicitly on the command configuration. When that wrapper is used
+// as a CLI field with mapstructure_tag: llm, create a bool binding for Enabled:
+// the flag is --llm and its environment key is llm_enabled. The wrapper's
+// default constructor supplies the value without enabling the option.
+// An explicit Enabled binding is preserved so its arg can rename --llm.
+func addOptionCLIEnabledBindings(spec *SDKSpecification, cfg *FunctionConfigFields) {
+	if spec == nil || cfg == nil {
+		return
+	}
+	enabledTag := strings.ToLower(optionEnabledFieldName)
+	for _, optionSet := range spec.Options {
+		structName := optionSetStructName(optionSet.Name)
+		for _, parameter := range (&optionSet).Parameters() {
+			typeName := fmt.Sprintf("%s.%s", optionPackageName(&optionSet), optionParameterWrapperTypeName(structName, &parameter))
+			if baseLangType(cfg.LangType) != typeName {
+				continue
+			}
+			if reflection.IsEmpty(cfg.DefaultValue) {
+				defaultExpr := fmt.Sprintf("%s.Default%s().%s", optionPackageName(&optionSet), structName, toPascalCase(parameter.Name))
+				if cfg.Reference || isPointerLangType(cfg.LangType) {
+					defaultExpr = "&" + defaultExpr
+				}
+				cfg.DefaultValue = field.ToOptionalString(defaultExpr)
+			}
+			arg := field.OptionalString(cfg.Arg, replaceUnderscores(cfg.MapstructureTag))
+			for i := range cfg.Bindings {
+				if strings.EqualFold(field.OptionalString(cfg.Bindings[i].Name, ""), optionEnabledFieldName) {
+					if reflection.IsEmpty(cfg.Bindings[i].Arg) {
+						cfg.Bindings[i].Arg = field.ToOptionalString(arg)
+					}
+					if cfg.IsRoot && strings.EqualFold(field.OptionalString(cfg.Bindings[i].MapstructureTag, ""), enabledTag) {
+						cfg.Bindings[i].MapstructureTag = field.ToOptionalString(cfg.MapstructureTag + "_" + enabledTag)
+					}
+					return
+				}
+			}
+			bindingTag := enabledTag
+			if cfg.IsRoot {
+				bindingTag = cfg.MapstructureTag + "_" + enabledTag
+			}
+			cfg.Bindings = append(cfg.Bindings, Binding{
+				Name:            field.ToOptionalString(optionEnabledFieldName),
+				LangType:        field.ToOptionalString("bool"),
+				Description:     field.ToOptionalString(fmt.Sprintf("Enable %s", cfg.Description)),
+				MapstructureTag: field.ToOptionalString(bindingTag),
+				Arg:             field.ToOptionalString(arg),
+			})
+			return
+		}
+	}
 }
 
 func optionSetBuilderFunctionName(name string) string {
@@ -153,10 +259,11 @@ func optionParameterCloneStatements(parameter *OptionParameter) string {
 		return ""
 	}
 	fieldName := toPascalCase(parameter.Name)
+	valueFieldName := optionParameterValueFieldName(parameter)
 	if parameter.Reference {
-		return fmt.Sprintf("if opt.%s != nil {\n\t\tvalues := slices.Clone(*opt.%s)\n\t\tclone.%s = &values\n\t}", fieldName, fieldName, fieldName)
+		return fmt.Sprintf("if opt.%s.%s != nil {\n\t\tvalues := slices.Clone(*opt.%s.%s)\n\t\tclone.%s.%s = &values\n\t}", fieldName, valueFieldName, fieldName, valueFieldName, fieldName, valueFieldName)
 	}
-	return fmt.Sprintf("clone.%s = slices.Clone(opt.%s)", fieldName, fieldName)
+	return fmt.Sprintf("clone.%s.%s = slices.Clone(opt.%s.%s)", fieldName, valueFieldName, fieldName, valueFieldName)
 }
 
 func optionFunctionSignature(optionSet *OptionSet, optionFunction *OptionFunction) string {
@@ -189,7 +296,7 @@ func optionFunctionAssignments(optionFunction *OptionFunction) string {
 	}
 	return strings.Join(collection.Map(optionFunction.Parameters, func(parameter OptionParameter) string {
 		copied := parameter
-		return fmt.Sprintf("opt.%s = %s", toPascalCase(copied.Name), optionFunctionArgumentName(optionFunction, &copied))
+		return fmt.Sprintf("%s = %s\n\t\t%s = true", optionParameterValueSelector(&copied, "opt"), optionFunctionArgumentName(optionFunction, &copied), optionParameterEnabledSelector(&copied, "opt"))
 	}), "\n\t\t")
 }
 
@@ -235,6 +342,10 @@ func optionSetIdentifiers(optionSet *OptionSet) []generatedOptionIdentifier {
 	ownerName := optionSetStructName(optionSet.Name)
 	for _, parameter := range optionSet.Parameters() {
 		parameter := parameter
+		identifiers = append(identifiers, generatedOptionIdentifier{
+			Name:   optionParameterWrapperTypeName(ownerName, &parameter),
+			Source: fmt.Sprintf("wrapper type for %q.%s", optionSet.Name, parameter.Name),
+		})
 		if !(&parameter).HasEnum() {
 			continue
 		}

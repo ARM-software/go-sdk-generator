@@ -641,6 +641,9 @@ func (parameter *OptionParameter) Validate() error {
 	if parameter == nil {
 		return commonerrors.UndefinedVariable("option parameter")
 	}
+	if strings.EqualFold(optionParameterValueFieldName(parameter), optionEnabledFieldName) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "option parameter %q cannot use %s as its value field; set value_field.name to a different name", parameter.Name, optionEnabledFieldName)
+	}
 	if err := configUtils.ValidateEmbedded(parameter); err != nil {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in option parameter")
 	}

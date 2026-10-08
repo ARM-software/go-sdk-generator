@@ -29,6 +29,9 @@ import (
 	{{ range additionalTypeImports .Specification "" -}}
 	{{ renderImport .Alias .Path false }}
 	{{ end -}}
+	{{ range optionImports .Specification "" -}}
+	{{ renderImport .Alias .Path false }}
+	{{ end -}}
 	{{ range cliConfigExtraImports .Specification -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}

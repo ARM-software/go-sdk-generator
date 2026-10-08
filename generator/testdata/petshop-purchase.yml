@@ -25,6 +25,9 @@ specification:
             - name: PageToken
               lang_type: string
               description: Continuation token for fetching the next page of products.
+              value_field:
+                name: Token
+                mapstructure_tag: token
         - parameters:
             - name: Tag
               lang_type: string
@@ -246,6 +249,30 @@ specification:
               min_items: 1
               unique_items: true
               at_least_one: true
+          # This generated option wrapper gets --page-token (bound to Enabled)
+          # automatically. The value field has its own explicitly named flag.
+          - name: PageTokenOption
+            lang_type: search.SearchOptionsPageTokenOption
+            mapstructure_tag: page_token
+            description: Use a continuation token for the catalogue search.
+            bindings:
+              - name: Token
+                lang_type: string
+                mapstructure_tag: token
+                arg: page-token-value
+                description: Continuation token value.
+          # This option uses the same Enabled field, but renames its flag from
+          # the default --page-size to --use-paging.
+          - name: PageSizeOption
+            lang_type: search.SearchOptionsPageSizeOption
+            mapstructure_tag: page_size
+            description: Apply the configured page size to catalogue results.
+            bindings:
+              - name: Enabled
+                lang_type: bool
+                mapstructure_tag: enabled
+                arg: use-paging
+                description: Enable paging for catalogue results.
 
       - name: CreateBasket
         description: Create a new basket for a pet shop customer.

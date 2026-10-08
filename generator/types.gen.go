@@ -1144,16 +1144,13 @@ func (j *OptionFunction) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A command argument or code parameter
+// A parameter on a generated functional option collection
 type OptionParameter struct {
 	// The argument to bind to
 	Arg *string `json:"arg,omitempty,omitzero" yaml:"arg,omitempty" mapstructure:"arg,omitempty"`
 
 	// The short version of the argument to bind to
 	ArgShort *string `json:"arg_short,omitempty,omitzero" yaml:"arg_short,omitempty" mapstructure:"arg_short,omitempty"`
-
-	// Bind configuration options to variables
-	Bindings []Binding `json:"bindings,omitempty,omitzero" yaml:"bindings,omitempty" mapstructure:"bindings,omitempty"`
 
 	// A condition in which to require the value. It should be based on one (and one
 	// only) other configuration variable. Condition MUST start with the name of the
@@ -1227,6 +1224,9 @@ type OptionParameter struct {
 	// Whether the parameter contains secret material and should be included in
 	// credentials storage
 	Secret bool `json:"secret,omitempty,omitzero" yaml:"secret,omitempty" mapstructure:"secret,omitempty"`
+
+	// ValueField corresponds to the JSON schema field "value_field".
+	ValueField *OptionValueField `json:"value_field,omitempty,omitzero" yaml:"value_field,omitempty" mapstructure:"value_field,omitempty"`
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
 }
@@ -1352,6 +1352,17 @@ func (j *OptionSet) UnmarshalJSON(value []byte) error {
 
 // A set of functional option collections to export
 type OptionSets []OptionSet
+
+// Optional name and mapstructure tag for the value held by a generated option.
+// Defaults to the option parameter's name and its snake_case form.
+type OptionValueField struct {
+	// The mapstructure tag of the value field; defaults to the snake_case value field
+	// name.
+	MapstructureTag *string `json:"mapstructure_tag,omitempty,omitzero" yaml:"mapstructure_tag,omitempty" mapstructure:"mapstructure_tag,omitempty"`
+
+	// The field name for the option value; defaults to the option parameter's name.
+	Name *string `json:"name,omitempty,omitzero" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
 
 // Validation constraints applying to a parameter.
 // These constraints complement the existing `condition` field rather than
