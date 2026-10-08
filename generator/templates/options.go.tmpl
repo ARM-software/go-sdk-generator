@@ -102,19 +102,20 @@ type {{ $structName }} struct {
 }
 
 func (opt *{{ $structName }}) Validate() (err error) {
-	err = configUtils.ValidateEmbedded(opt)
-	if err != nil {
-		return
+	{{ range .Parameters -}}
+	if err = opt.{{ .Name | toPascal }}.Validate(); err != nil {
+		return err
 	}
+	{{ end }}
 
 	{{ if or (optionSetHasConditionalValidationRules .) .HasConstraintValidationRules }}err = validation.ValidateStruct(opt,
 	{{ range .Parameters -}}
 	{{ if .Condition -}}
 	    validation.Field(&opt.{{ .Name | toPascal }}, validation.When({{ optionParameterConditionExpression $optionSet .Condition "opt" }}, validation.By(func(value any) error {
-		    if {{ optionParameterEnabledSelector . "opt" }} {
-		    	return nil
-		    }
-		    return validation.ErrRequired
+			if !{{ optionParameterEnabledSelector . "opt" }} {
+				return validation.ErrRequired
+			}
+			return validation.Validate({{ optionParameterValueSelector . "opt" }}, validationUtils.Required)
 	    }))),
 	{{ end -}}
 	{{ end -}}
@@ -125,11 +126,24 @@ func (opt *{{ $structName }}) Validate() (err error) {
 	if err != nil {
 		return
 	}
+	// Constraint rules resolve references against the validated struct, so
+	// expose option values and selection flags as direct fields.
+	constraintValues := struct {
+	{{ range .Parameters -}}
+		Value{{ .Name | toPascal }} {{ optionParameterType $structName . }}
+		Enabled{{ .Name | toPascal }} bool
+	{{ end -}}
+	}{
+	{{ range .Parameters -}}
+		Value{{ .Name | toPascal }}: {{ optionParameterValueSelector . "opt" }},
+		Enabled{{ .Name | toPascal }}: {{ optionParameterEnabledSelector . "opt" }},
+	{{ end -}}
+	}
 	err = validationUtils.NewAllRule(
 	{{- range optionSetConstraintValidationRules . }}
 		{{ . }},
 	{{- end }}
-	).Validate(opt)
+	).Validate(&constraintValues)
 	return
 	{{ else if optionSetHasConditionalValidationRules . }}
 	return

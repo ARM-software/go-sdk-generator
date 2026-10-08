@@ -318,7 +318,7 @@ func TestOptionsTemplateGeneratesWrapperValidation(t *testing.T) {
 	assert.Contains(t, output, "return validator.Validate()")
 	assert.Contains(t, output, "func (opt *SearchOptionsConnectionOption) Validate() (err error) {")
 	assert.Contains(t, output, "err = validateOptionValue(&opt.Connection, opt.Connection)")
-	assert.Contains(t, output, "err = configUtils.ValidateEmbedded(opt)")
+	assert.Contains(t, output, "if err = opt.Connection.Validate(); err != nil {")
 	assert.Contains(t, output, "validation.When(opt.NoAPI.Enabled && opt.NoAPI.NoAPI == false, validation.By(func(value any) error {")
 	assert.NotContains(t, output, "validateSelectedOption")
 	assert.NotContains(t, output, "opt.NoAPI == false.Enabled")

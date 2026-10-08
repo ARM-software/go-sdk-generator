@@ -355,9 +355,7 @@ func optionSetConstraintValidationRules(optionSet *OptionSet) []string {
 	if optionSet == nil {
 		return nil
 	}
-	return collection.Map(optionSet.ConstraintValidationRules(), func(rule string) string {
-		return strings.ReplaceAll(rule, "&cfg.", "&opt.")
-	})
+	return optionSet.ConstraintValidationRules()
 }
 
 func optionSetIdentifiers(optionSet *OptionSet) []generatedOptionIdentifier {

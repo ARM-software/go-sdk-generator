@@ -435,8 +435,8 @@ func (parameter *OptionParameter) constrainedOptionParameter() constrainedParame
 		Reference:   parameter.Reference,
 		Enum:        parameter.EffectiveEnum(),
 		Constraints: parameter.Constraints,
-		ValueRef:    fmt.Sprintf("&%s", optionParameterValueSelector(parameter, "opt")),
-		PresenceRef: fmt.Sprintf("&%s", optionParameterEnabledSelector(parameter, "opt")),
+		ValueRef:    fmt.Sprintf("&constraintValues.Value%s", toPascalCase(parameter.Name)),
+		PresenceRef: fmt.Sprintf("&constraintValues.Enabled%s", toPascalCase(parameter.Name)),
 	}
 }
 
