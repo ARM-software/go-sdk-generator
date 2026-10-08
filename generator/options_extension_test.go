@@ -132,6 +132,29 @@ func TestOptionHelpers(t *testing.T) {
 	assert.Equal(t, "opt.Width.Width = width\n\t\topt.Width.Enabled = true\n\t\topt.Height.Height = height\n\t\topt.Height.Enabled = true", optionFunctionAssignments(window))
 }
 
+func TestOptionConditionHelpers(t *testing.T) {
+	t.Parallel()
+	optionSet := &OptionSet{Name: "Search", Functions: []OptionFunction{{Parameters: []OptionParameter{{
+		Name: "UsePaging", LangType: "bool", Description: "Whether paging should be applied.",
+	}}}, {Parameters: []OptionParameter{{
+		Name: "PageToken", LangType: "string", Description: "Continuation token.",
+		Condition:  "UsePaging == true",
+		ValueField: &OptionValueField{Name: field.ToOptionalString("Token")},
+	}}}}}
+
+	assert.True(t, optionSetHasConditionalValidationRules(optionSet))
+	assert.Equal(t, "opt.UsePaging.Enabled && opt.UsePaging.UsePaging == true", optionParameterConditionExpression(optionSet, "UsePaging == true", "opt"))
+	assert.Equal(t, "opt.PageToken.Enabled && opt.PageToken.Token != \"\"", optionParameterConditionExpression(&OptionSet{Name: "Search", Functions: []OptionFunction{{Parameters: []OptionParameter{{
+		Name: "PageToken", LangType: "string", Description: "Continuation token.",
+		Condition:  "PageToken != \"\"",
+		ValueField: &OptionValueField{Name: field.ToOptionalString("Token")},
+	}}}}}, "PageToken != \"\"", "opt"))
+	assert.Equal(t, "opt.Unknown == true", optionParameterConditionExpression(optionSet, "Unknown == true", "opt"))
+	assert.False(t, optionSetHasConditionalValidationRules(&OptionSet{Name: "Search", Functions: []OptionFunction{{Parameters: []OptionParameter{{
+		Name: "UsePaging", LangType: "bool", Description: "Whether paging should be applied.",
+	}}}}}))
+}
+
 func TestOptionCLIEnabledBinding(t *testing.T) {
 	t.Parallel()
 	option := OptionParameter{
@@ -255,6 +278,50 @@ func TestEmbeddedOptionEnumsTemplateUsesTypedFirstConstantOnly(t *testing.T) {
 	assert.Contains(t, output, "BuildOptionsModeFast BuildOptionsMode = iota // fast")
 	assert.Contains(t, output, "BuildOptionsModeSafe // safe")
 	assert.NotContains(t, output, "BuildOptionsModeSafe BuildOptionsMode")
+}
+
+func TestOptionsTemplateGeneratesWrapperValidation(t *testing.T) {
+	t.Parallel()
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/options.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{SDK: SDK{Specification: SDKSpecification{PackageName: "petshop"}}, CurrentOptionPackage: "options", CurrentOptionSets: OptionSets{{
+		Name:        "Search",
+		Description: "Search options.",
+		Functions: []OptionFunction{{
+			Parameters: []OptionParameter{{
+				Name:        "NoAPI",
+				LangType:    "bool",
+				Description: "Whether the API is disabled.",
+			}},
+		}, {
+			Parameters: []OptionParameter{{
+				Name:        "Connection",
+				LangType:    "protectedConnection",
+				Description: "Connection details.",
+				ValueField:  &OptionValueField{Name: field.ToOptionalString("Connection")},
+			}},
+		}, {
+			Parameters: []OptionParameter{{
+				Name:        "APIHost",
+				LangType:    "string",
+				Description: "API host.",
+				Condition:   "NoAPI == false",
+			}},
+		}},
+	}}}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "options.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "func validateOptionValue(address, value any) error {")
+	assert.Contains(t, output, "return validator.Validate()")
+	assert.Contains(t, output, "func (opt *SearchOptionsConnectionOption) Validate() (err error) {")
+	assert.Contains(t, output, "err = validateOptionValue(&opt.Connection, opt.Connection)")
+	assert.Contains(t, output, "err = configUtils.ValidateEmbedded(opt)")
+	assert.Contains(t, output, "validation.When(opt.NoAPI.Enabled && opt.NoAPI.NoAPI == false, validation.By(func(value any) error {")
+	assert.NotContains(t, output, "validateSelectedOption")
+	assert.NotContains(t, output, "opt.NoAPI == false.Enabled")
 }
 
 func TestOptionFunctionValidateRequiresFunctionNameForMultipleParameters(t *testing.T) {

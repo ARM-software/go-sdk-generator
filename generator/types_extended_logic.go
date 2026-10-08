@@ -295,6 +295,13 @@ func (arg *CommandArgument) GetConstraints() *ParameterConstraints {
 	return arg.Constraints
 }
 
+func (arg *CommandArgument) GetCondition() string {
+	if arg == nil {
+		return ""
+	}
+	return arg.Condition
+}
+
 func (fieldDef *EntityField) GetName() string {
 	if fieldDef == nil {
 		return ""
@@ -307,6 +314,13 @@ func (fieldDef *EntityField) GetConstraints() *ParameterConstraints {
 		return nil
 	}
 	return fieldDef.Constraints
+}
+
+func (fieldDef *EntityField) GetCondition() string {
+	if fieldDef == nil {
+		return ""
+	}
+	return fieldDef.Condition
 }
 
 func (cfg *ConfigurationOption) GetName() string {
@@ -323,6 +337,13 @@ func (cfg *ConfigurationOption) GetConstraints() *ParameterConstraints {
 	return cfg.Constraints
 }
 
+func (cfg *ConfigurationOption) GetCondition() string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.Condition
+}
+
 func (cfg *FunctionConfigFields) GetName() string {
 	if cfg == nil {
 		return ""
@@ -337,6 +358,13 @@ func (cfg *FunctionConfigFields) GetConstraints() *ParameterConstraints {
 	return cfg.Constraints
 }
 
+func (cfg *FunctionConfigFields) GetCondition() string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.Condition
+}
+
 func (parameter *OptionParameter) GetName() string {
 	if parameter == nil {
 		return ""
@@ -349,6 +377,17 @@ func (parameter *OptionParameter) GetConstraints() *ParameterConstraints {
 		return nil
 	}
 	return parameter.Constraints
+}
+
+func (parameter *OptionParameter) GetCondition() string {
+	if parameter == nil {
+		return ""
+	}
+	return parameter.Condition
+}
+
+func (parameter *OptionParameter) HasCondition() bool {
+	return parameter != nil && reflection.IsNotEmpty(parameter.Condition)
 }
 
 func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {

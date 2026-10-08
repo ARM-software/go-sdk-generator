@@ -7,6 +7,7 @@ package generator
 import (
 	"fmt"
 	"maps"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -19,6 +20,8 @@ const (
 	defaultOptionPackage   = "options"
 	optionEnabledFieldName = "Enabled"
 )
+
+var optionConditionReferencePattern = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)(.*)$`)
 
 type generatedOptionIdentifier struct {
 	Name   string
@@ -128,6 +131,54 @@ func optionParameterEnabledSelector(parameter *OptionParameter, receiver string)
 		return ""
 	}
 	return fmt.Sprintf("%s.%s.%s", receiver, toPascalCase(parameter.Name), optionEnabledFieldName)
+}
+
+func optionSetHasConditionalValidationRules(optionSet *OptionSet) bool {
+	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
+		return (&parameter).HasCondition()
+	})
+}
+
+// optionParameterConditionExpression rewrites an option parameter condition so it
+// can be evaluated against generated wrapper fields.
+//
+// Option parameter conditions are authored against the logical value name, such
+// as `UsePaging == true`, but generated option structs wrap every parameter in a
+// `{ValueField, Enabled}` pair. This helper rewrites the leading parameter
+// reference to check both that the source option has been selected and that its
+// wrapped value satisfies the original expression.
+//
+// For example, if `PageToken` has condition `UsePaging == true`, the generated
+// validation should evaluate `opt.UsePaging.Enabled && opt.UsePaging.UsePaging == true`
+// rather than incorrectly appending `.Enabled` to the full expression.
+func optionParameterConditionExpression(optionSet *OptionSet, condition, receiver string) string {
+	trimmedCondition := strings.TrimSpace(condition)
+	if reflection.IsEmpty(trimmedCondition) {
+		return ""
+	}
+	fallback := trimmedCondition
+	if reflection.IsNotEmpty(receiver) {
+		fallback = fmt.Sprintf("%s.%s", receiver, trimmedCondition)
+	}
+	if optionSet == nil || reflection.IsEmpty(receiver) {
+		return fallback
+	}
+	matches := optionConditionReferencePattern.FindStringSubmatch(trimmedCondition)
+	if len(matches) != 3 {
+		return fallback
+	}
+	referenceName := matches[1]
+	suffix := matches[2]
+	for functionIndex := range optionSet.Functions {
+		for parameterIndex := range optionSet.Functions[functionIndex].Parameters {
+			parameter := &optionSet.Functions[functionIndex].Parameters[parameterIndex]
+			if !strings.EqualFold(parameter.Name, referenceName) {
+				continue
+			}
+			return fmt.Sprintf("%s && %s%s", optionParameterEnabledSelector(parameter, receiver), optionParameterValueSelector(parameter, receiver), suffix)
+		}
+	}
+	return fallback
 }
 
 // addOptionCLIEnabledBindings bridges generated functional options and CLI

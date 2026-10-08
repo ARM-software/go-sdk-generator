@@ -30,14 +30,14 @@ import (
 	{{ end -}}
 )
 
-// validateSelectedOption calls embedded validation only for selected values
-// implementing Validator. Pointer- and value-receiver validators are supported.
-func validateSelectedOption(address, value any) error {
+// validateOptionValue calls Validate on a selected option value when it
+// implements Validator. Pointer- and value-receiver validators are supported.
+func validateOptionValue(address, value any) error {
 	if validator, ok := address.(configUtils.Validator); ok {
-		return configUtils.ValidateEmbedded(validator)
+		return validator.Validate()
 	}
 	if validator, ok := value.(configUtils.Validator); ok {
-		return configUtils.ValidateEmbedded(validator)
+		return validator.Validate()
 	}
 	return nil
 }
@@ -65,6 +65,33 @@ type {{ $wrapperTypeName }} struct {
 	{{ $enabledFieldName }} bool `mapstructure:"{{ $enabledFieldName | lower }}"`
 }
 
+func (opt *{{ $wrapperTypeName }}) Validate() (err error) {
+	if opt == nil || !opt.{{ $enabledFieldName }} {
+		return nil
+	}
+
+	err = validateOptionValue(&opt.{{ optionParameterValueFieldName . }}, opt.{{ optionParameterValueFieldName . }})
+	if err != nil {
+		return
+	}
+
+	return validation.ValidateStruct(opt,
+	{{ $validation := .LangType | validationLangType -}}
+	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .IsRequired .EffectiveEnum (printf "opt.%s" (optionParameterValueFieldName .)) -}}
+	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
+	{{ $effectivePattern := effectivePatternString . -}}
+	{{ if and (not .IsRequired) (usesPresenceGuardForValidation .LangType) }}
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}, filesystem.NewOSPathValidationRule(true)),
+	{{ else if .IsRequired }}
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	{{ else if or $validation $enumValidation $constraintValidation $effectivePattern -}}
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	{{ else }}
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}),
+	{{ end }}
+	)
+}
+
 {{ end -}}
 {{ goComment "" (printf "%s stores %s" $structName (descriptionWithDeprecation (.Description | lowerFirst) .DeprecationNotice)) }}
 type {{ $structName }} struct {
@@ -75,32 +102,24 @@ type {{ $structName }} struct {
 }
 
 func (opt *{{ $structName }}) Validate() (err error) {
-	{{ range .Parameters -}}
-	if {{ optionParameterEnabledSelector . "opt" }} {
-		err = validateSelectedOption(&{{ optionParameterValueSelector . "opt" }}, {{ optionParameterValueSelector . "opt" }})
-		if err != nil {
-			return
-		}
+	err = configUtils.ValidateEmbedded(opt)
+	if err != nil {
+		return
 	}
-	{{ end }}
 
-	{{ if .HasConstraintValidationRules }}err = {{ else }}return validation.ValidateStruct(opt,{{ end }}
+	{{ if or (optionSetHasConditionalValidationRules .) .HasConstraintValidationRules }}err = validation.ValidateStruct(opt,
 	{{ range .Parameters -}}
-	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .IsRequired .EffectiveEnum (optionParameterValueSelector . "opt") -}}
-	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
-	{{ $effectivePattern := effectivePatternString . -}}
-	{{ if and (not .IsRequired) (usesPresenceGuardForValidation .LangType) }}
-	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}, filesystem.NewOSPathValidationRule(true))),
-	{{ else if .IsRequired }}
-	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
-	{{ else if .Condition -}}
-	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }} && opt.{{ .Condition }}.{{ $enabledFieldName }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
-	{{ else if or $validation $enumValidation $constraintValidation $effectivePattern -}}
-	    validation.Field(&{{ optionParameterValueSelector . "opt" }}, validation.When({{ optionParameterEnabledSelector . "opt" }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }})),
-	{{ end }}
-	{{ end }}
+	{{ if .Condition -}}
+	    validation.Field(&opt.{{ .Name | toPascal }}, validation.When({{ optionParameterConditionExpression $optionSet .Condition "opt" }}, validation.By(func(value any) error {
+		    if {{ optionParameterEnabledSelector . "opt" }} {
+		    	return nil
+		    }
+		    return validation.ErrRequired
+	    }))),
+	{{ end -}}
+	{{ end -}}
 	)
+	{{ end }}
 
 	{{ if .HasConstraintValidationRules }}
 	if err != nil {
@@ -112,7 +131,10 @@ func (opt *{{ $structName }}) Validate() (err error) {
 	{{- end }}
 	).Validate(opt)
 	return
+	{{ else if optionSetHasConditionalValidationRules . }}
+	return
 	{{ else }}
+	return nil
 
 	{{ end }}
 

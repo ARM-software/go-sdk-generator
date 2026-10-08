@@ -59,7 +59,8 @@ x-parameter-properties: &x-parameter-properties
   condition:
     type: string
     default: ""
-    description: A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once
+    pattern: ^$|^[A-Za-z_][A-Za-z0-9_]*\b.*$
+    description: A legacy conditional-required shortcut that bases validation of the current field on the value of one other field in the same parameter collection. Prefer the structured `constraints` block for newer manifests and any more advanced conditional behaviour. Condition MUST start with the name of the other field, mention only that field, and mention it exactly once.
   constraints:
     $ref: "#/$defs/parameter_constraints"
   reference:
