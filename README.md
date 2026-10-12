@@ -482,6 +482,89 @@ As well as native Go types, the generator supports a set of convenience aliases 
 
 Custom project-specific types can also be declared with `additional_types` in the input specification.
 
+### Option definition
+
+Each generated option value is wrapped with an `Enabled bool` (`mapstructure:"enabled"`). A default value prepares the option but does **not** enable it; calling `WithLLM(...)` sets `Enabled` to true, even if the supplied value is empty. For example, define an option in the manifest:
+
+```yaml
+specification:
+  options:
+    - name: Refine
+      description: Options for refining document tags.
+      functions:
+        - parameters:
+            - name: LLM
+              lang_type: protectedConnection
+              description: Connect to an LLM service to refine document tags.
+              default_value: https://openai-api-proxy.geo.arm.com/api/providers/openai/v1
+              # Optional: rename the value field from LLM.
+              value_field:
+                name: Connection
+                mapstructure_tag: connection
+```
+
+This generates an option wrapper with the following shape:
+
+```go
+type RefineOptionsLLMOption struct {
+    Connection httpUtils.RequestConfiguration `mapstructure:"connection"`
+    Enabled    bool                           `mapstructure:"enabled"`
+}
+```
+
+The option definition generates `RefineOptions.LLM.Connection` and `RefineOptions.LLM.Enabled`.
+
+The option parameter's `value_field` customises **only** the value stored in the option wrapper. If omitted, the value field uses the option's own name and a snake_case mapstructure tag. For example, `name: PageToken` generates:
+
+```go
+type SearchOptionsPageTokenOption struct {
+    PageToken string `mapstructure:"page_token"`
+    Enabled   bool   `mapstructure:"enabled"`
+}
+```
+
+To call the value field `Token` instead, set `value_field: {name: Token, mapstructure_tag: token}`. The `mapstructure_tag` is optional; with `name: Token`, it also defaults to `token`. **Breaking change:** option parameters no longer accept `bindings`; replace an option-level `bindings: [{name: Token, mapstructure_tag: token}]` with `value_field: {name: Token, mapstructure_tag: token}`. CLI configuration `bindings` still describes flags and environment mappings.
+
+### CLI arguments
+
+To expose the option in a command, use its generated wrapper type in the CLI configuration:
+
+```yaml
+specification:
+  command_line_commands:
+    functions:
+      - name: Refine
+        description: Refine document tags.
+        configuration:
+          - name: LLM
+            lang_type: options.RefineOptionsLLMOption
+            mapstructure_tag: llm
+            description: LLM refinement.
+```
+
+This generates `LLM options.RefineOptionsLLMOption` in `RefineConfiguration`. The CLI automatically adds `--llm` (and `LLM_ENABLED` under the command's environment prefix) for `LLM.Enabled`. The default configuration is `options.DefaultRefineOptions().LLM`, which retains the connection URL with `Enabled: false`.
+
+**Renaming the enabling CLI flag is optional.** Only add an explicit `Enabled` binding if the default `--llm` argument name does not suit your CLI. Add it to the *CLI configuration field* (the `LLM` entry under `command_line_commands.functions[].configuration`), not to the option's `parameters` entry. For example, replace that CLI `LLM` entry with:
+
+```yaml
+- name: LLM
+  lang_type: options.RefineOptionsLLMOption
+  mapstructure_tag: llm
+  description: LLM refinement.
+  bindings:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      arg: refine-with-llm
+      description: Enable LLM refinement.
+```
+
+This keeps the destination field and environment variable the same (`LLM.Enabled` and `<PREFIX>_LLM_ENABLED`), but replaces `--llm` with `--refine-with-llm`. Omitting this binding restores the default `--llm`. If the CLI should also accept a separate connection value, add another binding for `Connection` with its own `arg`, `lang_type`, and `mapstructure_tag`.
+
+The CLI and option definitions are also exercised together in [`generator/testdata/petshop-purchase.yml`](generator/testdata/petshop-purchase.yml): `value_field.name: Token` creates `SearchOptions.PageToken.Token`, `--page-token-value` sets it, and the default `--page-token` flag enables it. A second option, `PageSizeOption`, explicitly renames its enabling flag to `--use-paging`.
+
+### Default values
+
 The generator also recognises a set of built-in shortcuts for `default_value`. These are mainly intended for string-like defaults, plus a few format-specific cases handled by `defaultValue()`.
 
 | Type                                                                                                                                           | `default_value`                                | Meaning in generated code                                                                                                                   |

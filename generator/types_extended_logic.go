@@ -295,6 +295,13 @@ func (arg *CommandArgument) GetConstraints() *ParameterConstraints {
 	return arg.Constraints
 }
 
+func (arg *CommandArgument) GetCondition() string {
+	if arg == nil {
+		return ""
+	}
+	return arg.Condition
+}
+
 func (fieldDef *EntityField) GetName() string {
 	if fieldDef == nil {
 		return ""
@@ -307,6 +314,13 @@ func (fieldDef *EntityField) GetConstraints() *ParameterConstraints {
 		return nil
 	}
 	return fieldDef.Constraints
+}
+
+func (fieldDef *EntityField) GetCondition() string {
+	if fieldDef == nil {
+		return ""
+	}
+	return fieldDef.Condition
 }
 
 func (cfg *ConfigurationOption) GetName() string {
@@ -323,6 +337,13 @@ func (cfg *ConfigurationOption) GetConstraints() *ParameterConstraints {
 	return cfg.Constraints
 }
 
+func (cfg *ConfigurationOption) GetCondition() string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.Condition
+}
+
 func (cfg *FunctionConfigFields) GetName() string {
 	if cfg == nil {
 		return ""
@@ -337,6 +358,13 @@ func (cfg *FunctionConfigFields) GetConstraints() *ParameterConstraints {
 	return cfg.Constraints
 }
 
+func (cfg *FunctionConfigFields) GetCondition() string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.Condition
+}
+
 func (parameter *OptionParameter) GetName() string {
 	if parameter == nil {
 		return ""
@@ -349,6 +377,17 @@ func (parameter *OptionParameter) GetConstraints() *ParameterConstraints {
 		return nil
 	}
 	return parameter.Constraints
+}
+
+func (parameter *OptionParameter) GetCondition() string {
+	if parameter == nil {
+		return ""
+	}
+	return parameter.Condition
+}
+
+func (parameter *OptionParameter) HasCondition() bool {
+	return parameter != nil && reflection.IsNotEmpty(parameter.Condition)
 }
 
 func (cfg *FunctionConfigFields) SuppressesRequiredValidation() bool {
@@ -386,11 +425,19 @@ func (parameter *OptionParameter) UsesPresenceGuardForValidation() bool {
 	return parameter != nil && !parameter.IsRequired() && (usesPresenceGuardForValidation(parameter.LangType) || parameter.HasEnum())
 }
 
-func (parameter *OptionParameter) constrainedParameter() constrainedParameter {
+func (parameter *OptionParameter) constrainedOptionParameter() constrainedParameter {
 	if parameter == nil {
 		return constrainedParameter{}
 	}
-	return constrainedParameter{Name: parameter.Name, LangType: parameter.LangType, Reference: parameter.Reference, Enum: parameter.EffectiveEnum(), Constraints: parameter.Constraints}
+	return constrainedParameter{
+		Name:        parameter.Name,
+		LangType:    parameter.LangType,
+		Reference:   parameter.Reference,
+		Enum:        parameter.EffectiveEnum(),
+		Constraints: parameter.Constraints,
+		ValueRef:    fmt.Sprintf("&constraintValues.Value%s", toPascalCase(parameter.Name)),
+		PresenceRef: fmt.Sprintf("&constraintValues.Enabled%s", toPascalCase(parameter.Name)),
+	}
 }
 
 func (cfg *FunctionConfigFields) UsesValidationUtilsImport() bool {
@@ -571,7 +618,7 @@ func (optionSet *OptionSet) ConstraintValidationRules() []string {
 		return nil
 	}
 	return parameterConstraintValidationRuleLines(collection.Map(optionSet.Parameters(), func(parameter OptionParameter) constrainedParameter {
-		return (&parameter).constrainedParameter()
+		return (&parameter).constrainedOptionParameter()
 	}), false)
 }
 
@@ -654,6 +701,9 @@ func (optionSet *OptionSet) ValidateOptionParameterNames() error {
 	for i := range optionSet.Functions {
 		for j := range optionSet.Functions[i].Parameters {
 			parameter := optionSet.Functions[i].Parameters[j]
+			if strings.EqualFold(optionParameterValueFieldName(&parameter), optionEnabledFieldName) {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "option parameter %q in option set %q cannot use %s as its value field; set value_field.name to a different name", parameter.Name, optionSet.Name, optionEnabledFieldName)
+			}
 			generatedName := toPascalCase(parameter.Name)
 			key := normaliseKeyNames(generatedName)
 			if existing, found := parametersByName[key]; found {
@@ -1573,6 +1623,8 @@ type constrainedParameter struct {
 	Reference   bool
 	Enum        []string
 	Constraints *ParameterConstraints
+	ValueRef    string
+	PresenceRef string
 }
 
 func (constraints *ParameterConstraints) HasAnyValidationRules() bool {
@@ -1695,24 +1747,25 @@ func (condition *ParameterValueConstraint) expectedLiteral(parameters map[string
 	}
 }
 
-func (condition *ParameterValueConstraint) ValidationRuleLine(refs map[string]string, parameters map[string]constrainedParameter, validatorExpr string, enumValuesAsStrings bool) string {
-	conditionRef := condition.fieldRef(refs)
-	if reflection.IsEmpty(conditionRef) {
+func (condition *ParameterValueConstraint) ValidationRuleLine(valueRefs map[string]string, presenceRefs map[string]string, parameters map[string]constrainedParameter, validatorExpr string, enumValuesAsStrings bool) string {
+	conditionValueRef := condition.fieldRef(valueRefs)
+	conditionPresenceRef := condition.fieldRef(presenceRefs)
+	if reflection.IsEmpty(conditionValueRef) && reflection.IsEmpty(conditionPresenceRef) {
 		return ""
 	}
 	switch condition.operatorOrDefault() {
 	case ParameterValueConstraintOperatorPresent:
-		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterValueConstraintOperatorAbsent:
-		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterValueConstraintOperatorEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterValueConstraintOperatorNotEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterValueConstraintOperatorIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterValueConstraintOperatorNotIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	default:
 		return ""
 	}
@@ -1771,27 +1824,29 @@ func (condition *ParameterRequiredValuesConstraint) expectedLiteral(parameters m
 	}
 }
 
-func (condition *ParameterRequiredValuesConstraint) ValidationRuleLine(source constrainedParameter, refs map[string]string, parameters map[string]constrainedParameter, enumValuesAsStrings bool) string {
-	conditionRef := condition.fieldRef(refs)
-	targetRef := refs[source.Name]
-	if reflection.IsEmpty(conditionRef) || reflection.IsEmpty(targetRef) {
+func (condition *ParameterRequiredValuesConstraint) ValidationRuleLine(source constrainedParameter, valueRefs map[string]string, presenceRefs map[string]string, parameters map[string]constrainedParameter, enumValuesAsStrings bool) string {
+	conditionValueRef := condition.fieldRef(valueRefs)
+	conditionPresenceRef := condition.fieldRef(presenceRefs)
+	targetRef := valueRefs[source.Name]
+	targetPresenceRef := presenceRefs[source.Name]
+	if reflection.IsEmpty(targetRef) || (reflection.IsEmpty(conditionValueRef) && reflection.IsEmpty(conditionPresenceRef)) {
 		return ""
 	}
 	trimmedTargetRef := strings.TrimPrefix(targetRef, "&")
-	validatorExpr := fmt.Sprintf(`validation.By(func(value any) error { return validation.Validate(%s, validationUtils.Enum(%s)) })`, trimmedTargetRef, strings.Join(renderConstraintValueList(source, condition.RequiredValues, enumValuesAsStrings), ", "))
+	validatorExpr := guardValidationByPresence(targetRef, targetPresenceRef, fmt.Sprintf(`validation.By(func(value any) error { return validation.Validate(%s, validationUtils.Enum(%s)) })`, trimmedTargetRef, strings.Join(renderConstraintValueList(source, condition.RequiredValues, enumValuesAsStrings), ", ")))
 	switch condition.operatorOrDefault() {
 	case ParameterRequiredValuesConstraintOperatorPresent:
-		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterRequiredValuesConstraintOperatorAbsent:
-		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterRequiredValuesConstraintOperatorEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterRequiredValuesConstraintOperatorNotEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterRequiredValuesConstraintOperatorIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterRequiredValuesConstraintOperatorNotIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	default:
 		return ""
 	}
@@ -1850,10 +1905,12 @@ func (condition *ParameterForbiddenValuesConstraint) expectedLiteral(parameters 
 	}
 }
 
-func (condition *ParameterForbiddenValuesConstraint) ValidationRuleLine(source constrainedParameter, refs map[string]string, parameters map[string]constrainedParameter, enumValuesAsStrings bool) string {
-	conditionRef := condition.fieldRef(refs)
-	targetRef := refs[source.Name]
-	if reflection.IsEmpty(conditionRef) || reflection.IsEmpty(targetRef) {
+func (condition *ParameterForbiddenValuesConstraint) ValidationRuleLine(source constrainedParameter, valueRefs map[string]string, presenceRefs map[string]string, parameters map[string]constrainedParameter, enumValuesAsStrings bool) string {
+	conditionValueRef := condition.fieldRef(valueRefs)
+	conditionPresenceRef := condition.fieldRef(presenceRefs)
+	targetRef := valueRefs[source.Name]
+	targetPresenceRef := presenceRefs[source.Name]
+	if reflection.IsEmpty(targetRef) || (reflection.IsEmpty(conditionValueRef) && reflection.IsEmpty(conditionPresenceRef)) {
 		return ""
 	}
 	trimmedTargetRef := strings.TrimPrefix(targetRef, "&")
@@ -1867,19 +1924,20 @@ func (condition *ParameterForbiddenValuesConstraint) ValidationRuleLine(source c
 	} else {
 		validatorExpr = fmt.Sprintf(`validation.By(func(value any) error { return validation.Validate(%s, validation.NotIn(%s)) })`, trimmedTargetRef, strings.Join(renderConstraintValueList(source, condition.ForbiddenValues, enumValuesAsStrings), ", "))
 	}
+	validatorExpr = guardValidationByPresence(targetRef, targetPresenceRef, validatorExpr)
 	switch condition.operatorOrDefault() {
 	case ParameterForbiddenValuesConstraintOperatorPresent:
-		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterForbiddenValuesConstraintOperatorAbsent:
-		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionRef, validatorExpr)
+		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, conditionPresenceRef, validatorExpr)
 	case ParameterForbiddenValuesConstraintOperatorEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterForbiddenValuesConstraintOperatorNotEquals:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotEqualsValue(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterForbiddenValuesConstraintOperatorIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	case ParameterForbiddenValuesConstraintOperatorNotIn:
-		return fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr)
+		return guardValidationByPresence(conditionValueRef, conditionPresenceRef, fmt.Sprintf(`validationUtils.WhenFieldNotInValues(%s, %s, %s)`, conditionValueRef, condition.expectedLiteral(parameters, enumValuesAsStrings), validatorExpr))
 	default:
 		return ""
 	}
@@ -1902,12 +1960,14 @@ func parameterValueComparisonValidationRuleLine(comparisonExpr string, message s
 })`, comparisonExpr, message)
 }
 
-func (condition *ParameterValueComparisonConstraint) ValidationRuleLine(source constrainedParameter, refs map[string]string) string {
+func (condition *ParameterValueComparisonConstraint) ValidationRuleLine(source constrainedParameter, valueRefs map[string]string, presenceRefs map[string]string) string {
 	if condition == nil {
 		return ""
 	}
-	targetRef := refs[source.Name]
-	comparisonRef := refs[condition.Parameter]
+	targetRef := valueRefs[source.Name]
+	targetPresenceRef := presenceRefs[source.Name]
+	comparisonRef := valueRefs[condition.Parameter]
+	comparisonPresenceRef := presenceRefs[condition.Parameter]
 	if reflection.IsEmpty(targetRef) || reflection.IsEmpty(comparisonRef) {
 		return ""
 	}
@@ -1927,13 +1987,14 @@ func (condition *ParameterValueComparisonConstraint) ValidationRuleLine(source c
 	if reflection.IsEmpty(line) {
 		return ""
 	}
+	line = guardValidationByPresence(comparisonRef, comparisonPresenceRef, line)
 	switch condition.whenOrDefault() {
 	case ParameterValueComparisonConstraintWhenAlways:
-		return line
+		return guardValidationByPresence(targetRef, targetPresenceRef, line)
 	case ParameterValueComparisonConstraintWhenEmpty:
-		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, targetRef, line)
+		return fmt.Sprintf(`validationUtils.WhenFieldAbsent(%s, %s)`, targetPresenceRef, line)
 	case ParameterValueComparisonConstraintWhenNotEmpty:
-		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, targetRef, line)
+		return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, targetPresenceRef, line)
 	default:
 		return line
 	}
@@ -1970,10 +2031,37 @@ func (fieldDef *EntityField) constrainedParameter() constrainedParameter {
 func parameterRefs(parameters []constrainedParameter) map[string]string {
 	return collection.Reduce(parameters, map[string]string{}, func(acc map[string]string, parameter constrainedParameter) map[string]string {
 		if reflection.IsNotEmpty(parameter.Name) {
-			acc[parameter.Name] = fmt.Sprintf("&cfg.%s", toPascalCase(parameter.Name))
+			if reflection.IsNotEmpty(parameter.ValueRef) {
+				acc[parameter.Name] = parameter.ValueRef
+			} else {
+				acc[parameter.Name] = fmt.Sprintf("&cfg.%s", toPascalCase(parameter.Name))
+			}
 		}
 		return acc
 	})
+}
+
+func parameterPresenceRefs(parameters []constrainedParameter) map[string]string {
+	return collection.Reduce(parameters, map[string]string{}, func(acc map[string]string, parameter constrainedParameter) map[string]string {
+		if reflection.IsNotEmpty(parameter.Name) {
+			switch {
+			case reflection.IsNotEmpty(parameter.PresenceRef):
+				acc[parameter.Name] = parameter.PresenceRef
+			case reflection.IsNotEmpty(parameter.ValueRef):
+				acc[parameter.Name] = parameter.ValueRef
+			default:
+				acc[parameter.Name] = fmt.Sprintf("&cfg.%s", toPascalCase(parameter.Name))
+			}
+		}
+		return acc
+	})
+}
+
+func guardValidationByPresence(valueRef, presenceRef, validatorExpr string) string {
+	if reflection.IsEmpty(validatorExpr) || reflection.IsEmpty(presenceRef) || presenceRef == valueRef {
+		return validatorExpr
+	}
+	return fmt.Sprintf(`validationUtils.WhenFieldPresent(%s, %s)`, presenceRef, validatorExpr)
 }
 
 func parameterByName(parameters []constrainedParameter) map[string]constrainedParameter {
@@ -2015,20 +2103,21 @@ func goLiteral(value any) string {
 }
 
 func parameterConstraintValidationRuleLines(parameters []constrainedParameter, enumValuesAsStrings bool) []string {
-	refs := parameterRefs(parameters)
+	valueRefs := parameterRefs(parameters)
+	presenceRefs := parameterPresenceRefs(parameters)
 	parametersByName := parameterByName(parameters)
 	result := make([]string, 0)
 	collection.ForEach(parameters, func(parameter constrainedParameter) {
 		if !parameter.Constraints.HasAnyValidationRules() {
 			return
 		}
-		targetRef, found := refs[parameter.Name]
+		targetRef, found := presenceRefs[parameter.Name]
 		if !found {
 			return
 		}
 		if reflection.IsNotEmpty(parameter.Constraints.DependentRequired) {
 			dependentRefs := collection.Filter(collection.Map(collection.UniqueBy(parameter.Constraints.DependentRequired, func(name string) string { return name }), func(name string) string {
-				return refs[name]
+				return presenceRefs[name]
 			}), func(ref string) bool { return reflection.IsNotEmpty(ref) })
 			if len(dependentRefs) > 0 {
 				result = append(result, fmt.Sprintf(`validationUtils.FieldDependencyBy(map[any][]any{%s: []any{%s}})`, targetRef, strings.Join(dependentRefs, ", ")))
@@ -2036,30 +2125,30 @@ func parameterConstraintValidationRuleLines(parameters []constrainedParameter, e
 		}
 		if reflection.IsNotEmpty(parameter.Constraints.ConflictsWith) {
 			conflictRefs := collection.Filter(collection.Map(collection.UniqueBy(parameter.Constraints.ConflictsWith, func(name string) string { return name }), func(name string) string {
-				return refs[name]
+				return presenceRefs[name]
 			}), func(ref string) bool { return reflection.IsNotEmpty(ref) })
 			if len(conflictRefs) > 0 {
 				refsWithSource := append([]string{targetRef}, conflictRefs...)
 				result = append(result, fmt.Sprintf(`validationUtils.MutuallyExclusiveFieldsBy(%s)`, strings.Join(refsWithSource, ", ")))
 			}
 		}
-		if line := parameter.Constraints.RequiredWhen.ValidationRuleLine(refs, parametersByName, fmt.Sprintf(`validationUtils.RequiredFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
+		if line := parameter.Constraints.RequiredWhen.ValidationRuleLine(valueRefs, presenceRefs, parametersByName, fmt.Sprintf(`validationUtils.RequiredFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
 			result = append(result, line)
 		}
-		if line := parameter.Constraints.ForbiddenWhen.ValidationRuleLine(refs, parametersByName, fmt.Sprintf(`validationUtils.ForbiddenFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
+		if line := parameter.Constraints.ForbiddenWhen.ValidationRuleLine(valueRefs, presenceRefs, parametersByName, fmt.Sprintf(`validationUtils.ForbiddenFieldsBy(%s)`, targetRef), enumValuesAsStrings); reflection.IsNotEmpty(line) {
 			result = append(result, line)
 		}
 		collection.ForEach(parameter.Constraints.RequiredValuesWhen, func(condition ParameterRequiredValuesConstraint) {
-			if line := (&condition).ValidationRuleLine(parameter, refs, parametersByName, enumValuesAsStrings); reflection.IsNotEmpty(line) {
+			if line := (&condition).ValidationRuleLine(parameter, valueRefs, presenceRefs, parametersByName, enumValuesAsStrings); reflection.IsNotEmpty(line) {
 				result = append(result, line)
 			}
 		})
 		collection.ForEach(parameter.Constraints.ForbiddenValuesWhen, func(condition ParameterForbiddenValuesConstraint) {
-			if line := (&condition).ValidationRuleLine(parameter, refs, parametersByName, enumValuesAsStrings); reflection.IsNotEmpty(line) {
+			if line := (&condition).ValidationRuleLine(parameter, valueRefs, presenceRefs, parametersByName, enumValuesAsStrings); reflection.IsNotEmpty(line) {
 				result = append(result, line)
 			}
 		})
-		if line := parameter.Constraints.ParameterValue.ValidationRuleLine(parameter, refs); reflection.IsNotEmpty(line) {
+		if line := parameter.Constraints.ParameterValue.ValidationRuleLine(parameter, valueRefs, presenceRefs); reflection.IsNotEmpty(line) {
 			result = append(result, line)
 		}
 	})

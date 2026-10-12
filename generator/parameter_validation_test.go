@@ -405,3 +405,118 @@ func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateOptionFuncti
 	errortest.AssertError(t, err, commonerrors.ErrInvalid)
 	errortest.AssertErrorDescription(t, err, `option set "Build" defines duplicate function names [EnableTracing]`)
 }
+
+func TestValidateParameterConditionReference(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		names       []string
+		sourceName  string
+		condition   string
+		wantErrText string
+	}{
+		{name: "empty condition", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: ""},
+		{name: "valid single reference", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: "UseWindow == true"},
+		{name: "does not start with identifier", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: "(UseWindow == true)", wantErrText: "must start with the name of another parameter"},
+		{name: "self reference", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: "WindowPreset != \"\"", wantErrText: "must reference another parameter"},
+		{name: "unknown reference", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: "Missing == true", wantErrText: "starts with unknown parameter \"Missing\""},
+		{name: "multiple parameters", names: []string{"UseWindow", "Verbose", "WindowPreset"}, sourceName: "WindowPreset", condition: "UseWindow == true && Verbose == false", wantErrText: "must depend on exactly one other parameter"},
+		{name: "same parameter mentioned twice", names: []string{"UseWindow", "WindowPreset"}, sourceName: "WindowPreset", condition: "UseWindow == true || UseWindow == false", wantErrText: "must mention parameter \"UseWindow\" exactly once"},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateParameterConditionReference(test.names, test.sourceName, test.condition)
+			if test.wantErrText == "" {
+				require.NoError(t, err)
+				return
+			}
+			errortest.AssertError(t, err, commonerrors.ErrInvalid)
+			errortest.AssertErrorDescription(t, err, test.wantErrText)
+		})
+	}
+}
+
+func TestValidateParameterCollectionConditionReferences(t *testing.T) {
+	t.Parallel()
+
+	parameters := []*OptionParameter{{
+		Name:        "UseWindow",
+		LangType:    "bool",
+		Description: "Use a window preset.",
+	}, {
+		Name:        "Verbose",
+		LangType:    "bool",
+		Description: "Verbose output.",
+	}, {
+		Name:        "WindowPreset",
+		LangType:    "string",
+		Description: "Named window preset.",
+		Condition:   "UseWindow == true",
+	}}
+	require.NoError(t, validateParameterCollectionConditionReferences(parameters))
+
+	parameters[1].Condition = "UseWindow == true && Verbose == false"
+	err := validateParameterCollectionConditionReferences(parameters)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "must depend on exactly one other parameter")
+}
+
+func TestValidateCollectionParametersRejectsConditionThatDoesNotStartWithFieldName(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{Name: "Build", Description: "Build."}}},
+		Options: OptionSets{{
+			Name:        "Build",
+			Description: "Build options.",
+			Functions: []OptionFunction{{Parameters: []OptionParameter{{
+				Name:        "UseWindow",
+				LangType:    "bool",
+				Description: "Use a window preset.",
+			}}}, {Parameters: []OptionParameter{{
+				Name:        "WindowPreset",
+				LangType:    "string",
+				Description: "Named window preset.",
+				Condition:   "(UseWindow == true)",
+			}}}},
+		}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "must start with the name of another parameter")
+}
+
+func TestValidateCollectionParametersRejectsConditionReferencingMultipleFields(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		Interface: Interface{Methods: []InterfaceMethod{{Name: "Build", Description: "Build."}}},
+		Options: OptionSets{{
+			Name:        "Build",
+			Description: "Build options.",
+			Functions: []OptionFunction{{Parameters: []OptionParameter{{
+				Name:        "UseWindow",
+				LangType:    "bool",
+				Description: "Use a window preset.",
+			}}}, {Parameters: []OptionParameter{{
+				Name:        "Verbose",
+				LangType:    "bool",
+				Description: "Verbose output.",
+			}}}, {Parameters: []OptionParameter{{
+				Name:        "WindowPreset",
+				LangType:    "string",
+				Description: "Named window preset.",
+				Condition:   "UseWindow == true && Verbose == false",
+			}}}},
+		}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "must depend on exactly one other parameter")
+}

@@ -24,6 +24,8 @@ import (
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
+var conditionLeadingIdentifierPattern = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)\b`)
+
 func validateParameterShape(name string, langType string, list bool, iterator bool) error {
 	if list && iterator {
 		return commonerrors.Newf(commonerrors.ErrInvalid, "%s cannot set both list and iterator", name)
@@ -641,6 +643,9 @@ func (parameter *OptionParameter) Validate() error {
 	if parameter == nil {
 		return commonerrors.UndefinedVariable("option parameter")
 	}
+	if strings.EqualFold(optionParameterValueFieldName(parameter), optionEnabledFieldName) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "option parameter %q cannot use %s as its value field; set value_field.name to a different name", parameter.Name, optionEnabledFieldName)
+	}
 	if err := configUtils.ValidateEmbedded(parameter); err != nil {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in option parameter")
 	}
@@ -1059,6 +1064,52 @@ func validateParameterConstraintReferences(names []string, sourceName string, co
 	return nil
 }
 
+func conditionReferenceCount(condition, name string) int {
+	if reflection.IsEmpty(condition) || reflection.IsEmpty(name) {
+		return 0
+	}
+	pattern := regexp.MustCompile(`\b` + regexp.QuoteMeta(name) + `\b`)
+	return len(pattern.FindAllStringIndex(condition, -1))
+}
+
+func validateParameterConditionReference(names []string, sourceName, condition string) error {
+	trimmedCondition := strings.TrimSpace(condition)
+	if reflection.IsEmpty(trimmedCondition) {
+		return nil
+	}
+	matches := conditionLeadingIdentifierPattern.FindStringSubmatch(trimmedCondition)
+	if len(matches) != 2 {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares condition %q that must start with the name of another parameter in the same parameter collection", sourceName, condition)
+	}
+	referenceName := matches[1]
+	if referenceName == sourceName {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares condition %q that must reference another parameter in the same parameter collection", sourceName, condition)
+	}
+	if !collection.In(names, referenceName, collection.StringMatch) {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares condition %q that starts with unknown parameter %q", sourceName, condition, referenceName)
+	}
+	if conditionReferenceCount(trimmedCondition, referenceName) != 1 {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares condition %q that must mention parameter %q exactly once", sourceName, condition, referenceName)
+	}
+	referencedNames := collection.Filter(collection.UniqueEntries(names), func(name string) bool {
+		return conditionReferenceCount(trimmedCondition, name) > 0
+	})
+	if len(referencedNames) != 1 || referencedNames[0] != referenceName {
+		return commonerrors.Newf(commonerrors.ErrInvalid, "parameter %q declares condition %q that must depend on exactly one other parameter in the same parameter collection", sourceName, condition)
+	}
+	return nil
+}
+
+func validateParameterCollectionConditionReferences[T interface {
+	GetName() string
+	GetCondition() string
+}](parameters []T) error {
+	names := collection.Map(parameters, func(parameter T) string { return parameter.GetName() })
+	return collection.ForAll(parameters, func(parameter T) error {
+		return validateParameterConditionReference(names, parameter.GetName(), parameter.GetCondition())
+	})
+}
+
 func validateParameterCollectionConstraintReferences[T interface {
 	GetName() string
 	GetConstraints() *ParameterConstraints
@@ -1108,10 +1159,18 @@ func validateCollectionParameters(sdk *SDK) error {
 	if err := validateParameterCollectionConstraintReferences(collection.Map(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) *ConfigurationOption { return &cfg })); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid global configuration constraints")
 	}
+	if err := validateParameterCollectionConditionReferences(collection.Map(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) *ConfigurationOption { return &cfg })); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid global configuration conditions")
+	}
 	if err := collection.ForAll(sdk.Specification.Interface.Methods, func(method InterfaceMethod) error {
 		return validateParameterCollectionConstraintReferences(collection.Map(method.Args, func(arg CommandArgument) *CommandArgument { return &arg }))
 	}); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid interface argument constraints")
+	}
+	if err := collection.ForAll(sdk.Specification.Interface.Methods, func(method InterfaceMethod) error {
+		return validateParameterCollectionConditionReferences(collection.Map(method.Args, func(arg CommandArgument) *CommandArgument { return &arg }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid interface argument conditions")
 	}
 	if sdk.Specification.CommandLineCommands != nil {
 		if err := collection.ForAll(sdk.Specification.CommandLineCommands.Functions, func(fct CliFunction) error {
@@ -1119,16 +1178,31 @@ func validateCollectionParameters(sdk *SDK) error {
 		}); err != nil {
 			return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid CLI configuration constraints")
 		}
+		if err := collection.ForAll(sdk.Specification.CommandLineCommands.Functions, func(fct CliFunction) error {
+			return validateParameterCollectionConditionReferences(collection.Map(fct.Configuration, func(cfg FunctionConfigFields) *FunctionConfigFields { return &cfg }))
+		}); err != nil {
+			return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid CLI configuration conditions")
+		}
 	}
 	if err := collection.ForAll(sdk.Specification.AdditionalTypes, func(typ Type) error {
 		return validateParameterCollectionConstraintReferences(collection.Map(typ.Fields, func(fieldDef EntityField) *EntityField { return &fieldDef }))
 	}); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid additional type constraints")
 	}
+	if err := collection.ForAll(sdk.Specification.AdditionalTypes, func(typ Type) error {
+		return validateParameterCollectionConditionReferences(collection.Map(typ.Fields, func(fieldDef EntityField) *EntityField { return &fieldDef }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid additional type conditions")
+	}
 	if err := collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
 		return validateParameterCollectionConstraintReferences(collection.Map((&optionSet).Parameters(), func(parameter OptionParameter) *OptionParameter { return &parameter }))
 	}); err != nil {
 		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid option parameter constraints")
+	}
+	if err := collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
+		return validateParameterCollectionConditionReferences(collection.Map((&optionSet).Parameters(), func(parameter OptionParameter) *OptionParameter { return &parameter }))
+	}); err != nil {
+		return commonerrors.WrapError(commonerrors.ErrInvalid, err, "invalid option parameter conditions")
 	}
 	return nil
 }
