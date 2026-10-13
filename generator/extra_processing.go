@@ -433,6 +433,9 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 
 		for i := range sdk.Specification.CommandLineCommands.Functions {
 			fct := sdk.Specification.CommandLineCommands.Functions[i]
+			for j := range fct.Configuration {
+				addOptionCLIEnabledBindings(&sdk.Specification, &fct.Configuration[j])
+			}
 			subErr := updateCliFunctionArgumentsToSupportShowConfig(&fct)
 			if subErr != nil {
 				return subErr

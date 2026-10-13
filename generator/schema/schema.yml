@@ -59,7 +59,8 @@ x-parameter-properties: &x-parameter-properties
   condition:
     type: string
     default: ""
-    description: A condition in which to require the value. It should be based on one (and one only) other configuration variable. Condition MUST start with the name of the variable and only mention it once
+    pattern: ^$|^[A-Za-z_][A-Za-z0-9_]*\b.*$
+    description: A legacy conditional-required shortcut that bases validation of the current field on the value of one other field in the same parameter collection. Prefer the structured `constraints` block for newer manifests and any more advanced conditional behaviour. Condition MUST start with the name of the other field, mention only that field, and mention it exactly once.
   constraints:
     $ref: "#/$defs/parameter_constraints"
   reference:
@@ -89,11 +90,6 @@ x-parameter-properties: &x-parameter-properties
       For list or iterator shapes, each example represents one item value.
     items:
       type: string
-  bindings:
-    type: array
-    description: Bind configuration options to variables
-    items:
-      $ref: "#/$defs/binding"
   description: *x-description
   is_root:
     type: boolean
@@ -115,10 +111,18 @@ x-parameter-properties: &x-parameter-properties
     description: Whether the parameter contains secret material and should be included in credentials storage
   deprecation_notice: *x-deprecation-notice-ref
 
+x-parameter-properties-with-bindings: &x-parameter-properties-with-bindings
+  <<: *x-parameter-properties
+  bindings:
+    type: array
+    description: Bind configuration options to variables
+    items:
+      $ref: "#/$defs/binding"
+
 x-parameter: &x-parameter
   description: A command argument or code parameter
   type: object
-  properties: *x-parameter-properties
+  properties: *x-parameter-properties-with-bindings
 $schema: https://json-schema.org/draft/2020-12/schema
 title: SDK
 description: SDK definition
@@ -270,12 +274,30 @@ $defs:
     additionalProperties: false
   option_parameter:
     description: A parameter on a generated functional option collection
-    <<: *x-parameter
+    type: object
     required:
       - name
       - lang_type
       - description
+    properties:
+      <<: *x-parameter-properties
+      value_field:
+        $ref: "#/$defs/option_value_field"
+    not:
+      required:
+        - bindings
     additionalProperties: true
+  option_value_field:
+    description: Optional name and mapstructure tag for the value held by a generated option. Defaults to the option parameter's name and its snake_case form.
+    type: object
+    properties:
+      name:
+        type: string
+        description: The field name for the option value; defaults to the option parameter's name.
+      mapstructure_tag:
+        type: string
+        description: The mapstructure tag of the value field; defaults to the snake_case value field name.
+    additionalProperties: false
   interface:
     description: An interface
     type: object

@@ -74,6 +74,7 @@ Choose a task:
 - [Write a manifest](./guides/write-a-manifest.md)
 - [See what the generator produces](./guides/what-it-generates.md)
 - [Choose types and defaults](./guides/types-and-defaults.md)
+- [Configure functional options](./guides/configure-options.md)
 - [Generate or regenerate a Go project](./guides/generate-a-project.md)
 - [Run the generator in GitHub Actions](./guides/use-github-actions.md)
 - [Manage secrets in a generated CLI](./guides/secret-management.md)
@@ -366,7 +367,7 @@ Secret-marked CLI inputs can be collected into a generated `Credentials` command
 
 ## Capabilities
 
-The generator provides built-in types for common input formats, optional validation through manifest constraints, and computed defaults for selected values. See [types, formats and defaults](./guides/types-and-defaults.md) for the complete `lang_type` and `default_value` reference, or [write a manifest](./guides/write-a-manifest.md) to apply these capabilities in a project.
+The generator provides built-in formats, validation, computed defaults and functional options. See [types, formats and defaults](./guides/types-and-defaults.md) for the `lang_type` and `default_value` reference, [configure functional options](./guides/configure-options.md) for `Enabled`, `value_field` and CLI bindings, or [write a manifest](./guides/write-a-manifest.md) to apply these capabilities in a project.
 
 ## Using this SDK
 

@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 - [Write a manifest](write-a-manifest.md): define a focused project, choose types and constraints, and validate the contract.
 - [What the generator produces](what-it-generates.md): SDK, CLI, action and documentation outputs, and what remains to implement.
 - [Types, formats and defaults](types-and-defaults.md): choose built-in `lang_type` values and generated default behaviour.
+- [Configure functional options](configure-options.md): enable option values and expose them through CLI flags.
 - [Generate and regenerate a project](generate-a-project.md): run generation, implement operations, and preserve handwritten work.
 - [Use the GitHub Actions](use-github-actions.md): run generation in a workflow or install the binary for later steps.
 - [Manage secrets in a generated CLI](secret-management.md): mark secret inputs, use keyring-backed commands and understand security boundaries.

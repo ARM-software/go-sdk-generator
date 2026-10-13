@@ -21,6 +21,8 @@ Use [`generator/schema/schema.yml`](https://github.com/ARM-software/go-sdk-gener
 | `command_line_commands` | Optional binary and commands exposing those operations. |
 | `additional_types` | Optional domain types used by the contract. |
 
+When operations accept functional options, use `specification.options`; see [configure functional options](configure-options.md) for option wrappers, `value_field` and CLI bindings.
+
 A minimal starting shape is:
 
 ```yaml

@@ -20,6 +20,10 @@ specification:
               description: Whether verbose output is enabled.
               default_value: "false"
         - parameters:
+            - name: Connection
+              lang_type: protectedConnection
+              description: Optional protected connection used for remote builds.
+        - parameters:
             - name: Mode
               lang_type: string
               description: Build mode.
@@ -27,6 +31,19 @@ specification:
                 - fast
                 - safe
               default_value: fast
+        - parameters:
+            - name: UseWindow
+              lang_type: bool
+              description: Whether custom window settings should be applied.
+              default_value: "false"
+        - parameters:
+            - name: WindowPreset
+              lang_type: string
+              description: Named window preset applied when custom window settings are enabled.
+              condition: UseWindow == true
+              value_field:
+                name: Preset
+                mapstructure_tag: preset
         - function_name: WithWindow
           parameters:
             - name: Width

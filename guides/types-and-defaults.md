@@ -69,4 +69,4 @@ Most values are emitted as literals. The following shortcuts produce computed de
 | `json` | JSON object text such as `{"key":1}` | Emit a quoted JSON string. |
 | Numeric and boolean types | Literal such as `42`, `3.14`, `false` | Emit the corresponding Go literal. |
 
-Next: [write a manifest](write-a-manifest.md) or [generate a project](generate-a-project.md).
+Next: [configure functional options](configure-options.md), [write a manifest](write-a-manifest.md) or [generate a project](generate-a-project.md).
