@@ -49,7 +49,7 @@ Follow this workflow in order:
 After implementing the change:
 
 1. Build the generator CLI from this repository using `go build` in the `cli` project.
-2. Run the built generator against `generate.yml` as in [generate and regenerate a project](../../../guides/generate-a-project.md). Use the newly built CLI rather than a previous release. Pass the repository's current Go version explicitly via `--go_version` instead of changing the manifest default value.
+2. Run the built generator against `generate.yml` as in [generate and regenerate a project](../../../guides/generate-a-project.md). Use the newly built CLI rather than a previous release. Pass the repository's current Go version explicitly via `--go-version` instead of changing the manifest default value.
 3. Inspect the generated output for regressions in the generator's own SDK and CLI.
 4. Treat dogfooding as a validation step, not as permission to remove repository-local development wiring or handwritten logic that this repository still needs in order to build, test, or develop the generator itself.
 

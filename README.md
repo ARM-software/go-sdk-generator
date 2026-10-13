@@ -235,7 +235,7 @@ Use the repo's own [`generate.yml`](./generate.yml) as a concrete example manife
 Example generation command:
 
 ```bash
-go-sdk-generator generate -i generate.yml -o . -g 1.26.4
+go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
 ```
 
 After generation, run `go mod tidy` and `go generate ./...` inside each generated Go module; this repository's `generator/` and `cli/` directories are separate modules. See [generate and regenerate a project](./guides/generate-a-project.md) for the full sequence.
@@ -244,7 +244,7 @@ Common flags:
 
 - `-i`, `--input`: path to the manifest file
 - `-o`, `--output`: destination directory for generated code
-- `-g`, `--go_version`: target Go version to generate for
+- `-g`, `--go-version`: target Go version to generate for
 - `--overwrite`: regenerate all files, including stateful/generated project files
 
 The `-g` flag should normally match the Go version used by the target project.
