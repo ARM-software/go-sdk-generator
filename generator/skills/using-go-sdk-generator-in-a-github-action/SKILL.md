@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 ---
 name: using-go-sdk-generator-in-a-github-action
-description: "Use and integrate `actions/install-tool` and `actions/<subcommand>` GitHub Actions for installing or running released versions of `go-sdk-generator` in workflows"
+description: "Use `actions/install-tool` and subcommand GitHub Actions with released or source-built `go-sdk-generator` binaries in workflows"
 license: Apache-2.0
 compatibility: opencode
 metadata:
@@ -27,9 +27,9 @@ metadata:
 
 Use this skill when the user wants to:
 - add `go-sdk-generator` to a GitHub Actions workflow
-- install a released version of the tool in CI
+- install a released version or build an unreleased revision of the tool in CI
 - dogfood one of the generated subcommand actions from this repository
-- run `go-sdk-generator` commands without building the CLI from source
+- run `go-sdk-generator` commands through an action or after an install-only step
 
 Prefer the actions when one of them already represents the workflow step that needs to be run.
 Prefer `actions/install-tool` when the workflow only needs the tool to be available for later shell commands, loops, or more complex parallel orchestration.
@@ -61,11 +61,9 @@ uses: ./actions/install-tool
 ## What The Actions Do
 
 Every action:
-- resolves the release version from the action ref
-- downloads the matching GitHub Release assets using `gh`
-- installs the tool natively on Linux when a supported package manager is available
-- otherwise extracts the released archive into the requested working directory
+- installs a published release for a release ref, or builds the CLI from a branch or commit SHA
 - verifies the installation with `--version`
+- exposes a `cmd` output after successful installation
 
 The dedicated install action stops there.
 
@@ -79,6 +77,7 @@ Each command action additionally:
 Every action exposes:
 - `action-repo`
 - `action-ref`
+- `github-token` for access when the default workflow token is insufficient
 - `workdir`
 
 Every action also exposes:
@@ -103,7 +102,7 @@ Commands that support positional operands also expose an `operands` input, with 
 
 ## Version Resolution
 
-The version of the tool follows the GitHub Action ref.
+The action ref chooses an operating mode; `action-ref` overrides that ref.
 
 Rules:
 - `@v0.29.0` installs exactly `v0.29.0`
@@ -111,16 +110,13 @@ Rules:
 - `@v0` installs the latest `v0.x.y` release
 - `@latest` installs the latest release binary
 - branch names and commit SHAs build the CLI from source at that ref
-- no action ref falls back to the latest release
+- no action ref resolves the latest release; a local `uses: ./actions/...` path does not itself select a source build
 
-If no release exists yet:
-- the action prints that the tool has not been officially released yet
-- the action does not fail
-- installation and execution are skipped
+If a release cannot be resolved or installed, the action **fails**: it does not skip execution or fall back to building from source. A missing branch/SHA or unsuccessful source build also fails. Use a branch or SHA explicitly when testing an unreleased revision.
 
 ---
 
-## Platform Behaviour
+## Platform Behaviour for Releases
 
 ### Linux
 
@@ -147,7 +143,7 @@ The action installs from the released archive.
 
 ```yaml
 - name: Install go-sdk-generator
-  uses: Arm-Debug/go-sdk-generator/actions/install-tool@v0
+  uses: ARM-software/go-sdk-generator/actions/install-tool@v0
   with:
     workdir: .tools
 ```
@@ -155,7 +151,7 @@ The action installs from the released archive.
 
 ```yaml
 - name: Run go-sdk-generator generate
-  uses: Arm-Debug/go-sdk-generator/actions/generate@v0
+  uses: ARM-software/go-sdk-generator/actions/generate@v0
   with:
     # provide the required inputs for this subcommand here
 ```
@@ -166,6 +162,8 @@ The action installs from the released archive.
 - name: Dogfood Action
   uses: ./actions/install-tool
 ```
+
+The local action path uses the same ref rules. Set `action-ref` to a branch or SHA when the intention is to build the tool from source.
 
 ---
 

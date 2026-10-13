@@ -1,0 +1,1 @@
+:bug: Correct generated GitHub Action skills to report missing releases as failures and recognise source builds.

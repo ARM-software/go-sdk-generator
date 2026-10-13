@@ -63,4 +63,4 @@ steps:
     run: '"${{ steps.generator.outputs.cmd }}" schema'
 ```
 
-Use the install-only mode when later steps need custom shell processing. For container-based use, see [install and inspect](install-and-inspect.md).
+Use the install-only mode when later steps need custom shell processing. For container-based use, see [install and inspect](install-and-inspect.md). For agent-specific instructions, see the [GitHub Action integration skill](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md).
