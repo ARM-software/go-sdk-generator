@@ -18,6 +18,8 @@ Use this skill when changing generator behaviour that depends on traversing the 
 - small derived maps or lookups
 - rewrite or normalisation passes over nested schema values
 
+For the manifest contract those types represent, see [write a manifest](../../../guides/write-a-manifest.md) and the [schema](../../../generator/schema/schema.yml). If model changes alter user-visible output, update the relevant guide and follow [generate and regenerate a project](../../../guides/generate-a-project.md) when checking generated results.
+
 ## Preferred Pattern
 
 Prefer adding narrowly scoped methods to the generated model types rather than building one large helper with many nested loops.

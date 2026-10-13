@@ -13,6 +13,8 @@ compatibility: opencode
 
 Use this skill when changing the generator, templates, preprocessing, schema, or generated project shape and the repository's integration or regression tests may need updating.
 
+Use [generate and regenerate a project](../../../guides/generate-a-project.md) for the expected user-facing workflow; compare regression output against that workflow before accepting a fixture refresh.
+
 This skill is especially relevant for fixture-backed tests such as `generator/generate_test.go`, where generated output is compared against archived snapshots like:
 
 - `generator/testdata/workspace.zip`

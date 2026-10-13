@@ -25,6 +25,11 @@ func TestEmbeddedAgentSkills(t *testing.T) {
 	assert.Contains(t, skills, "using-go-sdk-generator-in-a-github-action/SKILL.md")
 	assert.Contains(t, skills, "install-go-sdk-generator/SKILL.md")
 	assert.Contains(t, string(skills["run-go-sdk-generator/SKILL.md"]), "name: run-go-sdk-generator")
+	actionSkill := string(skills["using-go-sdk-generator-in-a-github-action/SKILL.md"])
+	assert.Contains(t, actionSkill, "branch names and commit SHAs build the CLI from source")
+	assert.Contains(t, actionSkill, "the action **fails**")
+	assert.NotContains(t, actionSkill, "installation and execution are skipped")
+	assert.Contains(t, actionSkill, "ARM-software/go-sdk-generator/actions/install-tool@v0")
 }
 
 func TestInitialiseAgentSkills(t *testing.T) {

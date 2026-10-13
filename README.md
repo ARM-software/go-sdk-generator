@@ -38,55 +38,22 @@ At a glance, this generator can produce:
 > :construction_worker: The project also provides a [GitHub Action](./DOCUMENTATION.md#github-action) which can ease integration into workflows
 
 
-You can access the man page for the CLI via:
+Start with the [task guides](./guides/index.md) to install the tool, write a manifest, generate a project, or use it in GitHub Actions. For every CLI flag and generated SDK type, see the [command reference](./DOCUMENTATION.md). The [manifest schema](./generator/schema/schema.yml) is authoritative; `go-sdk-generator schema` prints it as JSON.
+
 ```sh
-man go-sdk-generator
+go-sdk-generator --help
+go-sdk-generator generate --help
 ```
 
-or the help
-```bash
-go-sdk-generator -h
-```
+On systems with man pages installed, run `man go-sdk-generator`.
 
 ## Installation
 
-Preferred method: system package manager (e.g. apt/dnf/yum) and specify package `go-sdk-generator`
+On supported Linux distributions, install package `go-sdk-generator` with the configured system package manager (`apt`, `dnf`, or `yum`). See [install and inspect](./guides/install-and-inspect.md) for commands, verification, and container usage.
 
 Released Linux packages also install the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
 
-If you prefer not to install the tool locally, OCI images are also published to `ghcr.io/arm-software/go-sdk-generator`.
-These images are useful for CI, reproducible builds, and container-first workflows.
-
-GitHub documents container-registry authentication and package permissions at:
-`https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry`
-
-On a local machine, if the package is not publicly accessible to the user's
-account yet, log in to `ghcr.io` first. With the GitHub CLI installed and
-already authenticated:
-
-```sh
-gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
-```
-
-If `docker run` or `docker pull` fails with `403 Forbidden`, the GitHub
-credentials usually do not have package-read access. The `read:packages`
-permission is required, including in CI workflows that need to pull the OCI
-image. For local-machine use with GitHub CLI credentials, refresh GitHub CLI
-credentials, then log in to GHCR again:
-
-```sh
-docker logout ghcr.io
-gh auth refresh --scopes read:packages
-gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
-```
-
-Example:
-```sh
-docker run --rm ghcr.io/arm-software/go-sdk-generator:v<version>-alpine --help
-```
-
-
-See the [Agent](#agent) section for skills that describe how to install, run, and integrate `go-sdk-generator`.
+OCI images are also available at `ghcr.io/arm-software/go-sdk-generator` for CI and container-based use. The [installation guide](./guides/install-and-inspect.md) covers image selection, authentication, verification and troubleshooting.
 
 ## Agent
 
@@ -96,10 +63,24 @@ Skills for working with `go-sdk-generator`:
 - [Run `go-sdk-generator`](./.agents/skills/run-go-sdk-generator/SKILL.md)
 - [Integrate the project's GitHub Actions](./.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md)
 
+Repository-maintained skills for [manifest authoring](./.agents/skills/manifest-authoring/SKILL.md), [schema changes](./.agents/skills/change-manifest-schema/SKILL.md), and other development tasks live in [`.agents/skills/`](./.agents/skills/). The three skills above are generated; `go-sdk-generator agent --init` installs the embedded versions into a target repository.
+
 
 ## Documentation
 
-To learn more about the SDK and how to use it, please have a look at [our documentation guide](./DOCUMENTATION.md)
+Choose a task:
+
+- [Install and inspect the generator](./guides/install-and-inspect.md)
+- [Write a manifest](./guides/write-a-manifest.md)
+- [See what the generator produces](./guides/what-it-generates.md)
+- [Choose types and defaults](./guides/types-and-defaults.md)
+- [Configure functional options](./guides/configure-options.md)
+- [Generate or regenerate a Go project](./guides/generate-a-project.md)
+- [Run the generator in GitHub Actions](./guides/use-github-actions.md)
+- [Manage secrets in a generated CLI](./guides/secret-management.md)
+- [Manage breaking changes and deprecation](./guides/evolving-a-contract.md)
+
+The [guide index](./guides/index.md) links the task guides and references. The [`DOCUMENTATION.md`](./DOCUMENTATION.md) file is the generated CLI and Go SDK reference; the [development guide](./DEVELOPMENT.md) is for contributors. At each release, the guides are rendered and published alongside the API reference on GitHub Pages.
 
 ## What "SDK" Means Here
 
@@ -159,12 +140,12 @@ It also helps uniformise how we define CLIs. Argument binding, environment-varia
 
 ## How It Works
 
-1. Write a manifest in YAML or JSON that follows [`generator/schema/schema.yml`](./generator/schema/schema.yml).
+1. [Write a manifest](./guides/write-a-manifest.md) in YAML or JSON that follows [`generator/schema/schema.yml`](./generator/schema/schema.yml).
 2. Describe your package metadata, global configuration, interface methods, and optional CLI commands.
-3. Run `go-sdk-generator generate` against that manifest.
+3. [Run `go-sdk-generator generate`](./guides/generate-a-project.md) against that manifest.
 4. Implement or extend the generated stubs using the project's delegate pattern and normal Go code.
 
-The manifest is the source of truth for generated structure. That makes the project contract-first and easy to regenerate when the SDK surface evolves. When that contract changes incompatibly, follow the deprecation process described in [Breaking Changes And Deprecation](#breaking-changes-and-deprecation).
+The manifest is the source of truth for generated structure. That makes the project contract-first and easy to regenerate when the SDK surface evolves. When that contract changes incompatibly, follow [breaking changes and deprecation](./guides/evolving-a-contract.md).
 
 References:
 
@@ -175,30 +156,7 @@ References:
 
 ## What It Generates
 
-Depending on the manifest, the generator can produce:
-
-- a Go module layout for the SDK
-- exported configuration and domain types
-- interface and implementation scaffolding for SDK operations
-- a [Cobra](https://cobra.dev/)-style CLI surface backed by the same configuration model and [Viper](https://github.com/spf13/viper)-style configuration sources
-- a reusable Go-based entrypoint that can be wrapped by [GitHub Actions](https://docs.github.com/actions) and exercised with normal Go tests
-- generated documentation and supporting project files
-
-It generates boilerplate. It does not replace the domain-specific implementation logic you still want to own.
-
-This is especially useful for automation because the same intent can be exposed at several levels.
-
-- In another Go project, the generated SDK can be imported as a library and called directly.
-- On a laptop, in a developer environment, in scripts, or in a Kubernetes pod, the generated CLI can be invoked as a normal tool.
-- In CI/CD, generated actions can call the generated Go program instead of re-implementing the same logic in shell steps, [composite actions](https://docs.github.com/actions/creating-actions/creating-a-composite-action), or [JavaScript actions](https://docs.github.com/actions/creating-actions/creating-a-javascript-action).
-
-That means one implementation can serve library users, CLI users, and automation systems while remaining testable as ordinary Go code. In practice this usually gives a more robust, reviewable, and maintainable automation surface.
-
-It is important to note that generated GitHub Actions are still only one part of a larger workflow. `go-sdk-generator` can generate an action for one operation or one step, but the surrounding workflow orchestration still lives elsewhere, for example in a [GitHub Actions workflow](https://docs.github.com/actions/using-workflows) or a task runner.
-
-It also improves project quality over time. When the generator learns a new concern such as better documentation, new support files, stronger defaults, CI integration, secret handling, or repository conventions, that improvement can be applied across generated projects instead of being rediscovered one repository at a time. The history of this project has shown that this is one of the main practical benefits of owning the generator.
-
-Because of that, we try hard not to introduce breaking changes in the generator or in the structure it emits without a clear reason. The intention is that projects can keep moving to newer generator versions to pick up the latest improvements, fixes, and features with minimal friction.
+Depending on the manifest, the generator creates a Go SDK and optionally a CLI, actions, documentation and supporting files. The [output guide](./guides/what-it-generates.md) explains each surface, what you implement yourself and how the tool fits into automation.
 
 ## Compared To Scaffolding Tools
 
@@ -272,19 +230,21 @@ In short:
 
 ## Quick Start
 
-Use the repo's own `generate.yml` as a concrete example manifest.
+Use the repo's own [`generate.yml`](./generate.yml) as a concrete example manifest. See [generate and regenerate a project](./guides/generate-a-project.md) for the complete workflow.
 
 Example generation command:
 
 ```bash
-go-sdk-generator generate -i generate.yml -o ./ -g 1.26.4
+go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
 ```
+
+After generation, run `go mod tidy` and `go generate ./...` inside each generated Go module; this repository's `generator/` and `cli/` directories are separate modules. See [generate and regenerate a project](./guides/generate-a-project.md) for the full sequence.
 
 Common flags:
 
 - `-i`, `--input`: path to the manifest file
 - `-o`, `--output`: destination directory for generated code
-- `-g`, `--go_version`: target Go version to generate for
+- `-g`, `--go-version`: target Go version to generate for
 - `--overwrite`: regenerate all files, including stateful/generated project files
 
 The `-g` flag should normally match the Go version used by the target project.
@@ -302,7 +262,7 @@ At a high level, the manifest describes:
 
 At the field and parameter level, a few flags are especially important:
 
-- `lang_type`: the base type or built-in alias to generate from. See [Built-in Types](#formats).
+- `lang_type`: the base type or built-in alias to generate from. See [built-in types and formats](./guides/types-and-defaults.md).
 - `enum`: for string or `*string` shaped values, define a closed set of allowed manifest values that generate Go enums, validation, and clearer CLI help text
 - `constraints`: add explicit validation rules for string shape, numeric range, collection size, path-like values, conditional requirements, and other parameter semantics so invalid values are rejected as early as possible
 - `example` / `examples`: provide representative values for generated documentation, CLI help, GitHub Action input descriptions, and agent-facing skills. For `list` or `iterator` shapes, each example represents one item value.
@@ -331,47 +291,7 @@ Using these rules keeps validation early and consistent across generated Go type
 
 ## Breaking Changes And Deprecation
 
-This process matters for any change that can force existing manifest authors or generated-project consumers to edit working manifests, generated code integrations, or automation unexpectedly. The goal is to keep contract evolution deliberate, reviewable, and migratable rather than surprising.
-
-A breaking change is any manifest or generated-surface change that can force existing manifest authors or generated-project consumers to edit working configurations or code.
-
-Common examples include:
-
-- renaming a manifest field, method, command, parameter, or type
-- removing a manifest field, method, command, parameter, or type
-- changing the meaning of an existing field incompatibly
-- tightening validation so previously valid manifests become invalid
-- changing a value shape such as scalar to list, value to reference, or one type to another incompatible type
-- replacing one concept with several new ones, or merging several old concepts into one new one
-
-A deprecation is the transitional phase before such a breaking removal or incompatible replacement. The old concept still exists, but it is marked as on the way out and points users to the preferred replacement.
-
-Recommended process:
-
-1. Add the replacement or new shape first where possible.
-2. Mark the old field, parameter, method, command, or other concept with `deprecation_notice`.
-3. State the replacement clearly and give a deprecation window with an issue date and, when known, a removal date.
-4. Surface that notice in generated documentation, comments, and CLI help so users encounter it naturally.
-5. Keep the deprecated behaviour working during the deprecation window unless there is a strong safety or correctness reason not to.
-6. Only remove the deprecated concept after that window has been communicated and consumers have had time to migrate.
-
-Semantic versioning and news-file note:
-
-- This repository still follows SemVer conceptually: breaking changes are major in theory, new features are minor, and fixes are patch.
-- The output of `go-sdk-generator` is a Go project, so a true major version bump is not just a version-number change. From `v2` onwards it also requires the Go module path and consumer import paths to change.
-- Because of that, do not treat every breaking change as an automatic normal-path major bump.
-- If the change is breaking but the project is not performing a full Go major-module transition, record it with a `.feature` news file and make the break explicit in the message, for example with a `:boom:` prefix.
-- Only use a `.major` news file when the project is genuinely doing the full Go major-version migration, including the module-path consequences.
-
-References:
-
-- [Semantic Versioning](https://semver.org/)
-- [Go modules major version suffix](https://go.dev/ref/mod#major-version-suffix)
-- [Go Modules: v2 and beyond](https://go.dev/blog/v2-go-modules)
-
-In short: prefer deprecate, document, migrate, then remove. Do not make abrupt deletions or silent incompatible renames when a managed deprecation path is possible.
-
-For a concrete minimal manifest, see the [manifest authoring skill](./.agents/skills/manifest-authoring/SKILL.md) or the repo example [`generate.yml`](./generate.yml).
+Incompatible changes to a published manifest or generated surface need an explicit migration path. Prefer adding a replacement, marking the old concept with `deprecation_notice`, then documenting and allowing time for migration before removal. See [breaking changes and deprecation](./guides/evolving-a-contract.md) for examples, versioning guidance and news-file conventions. For a starting contract, see [write a manifest](./guides/write-a-manifest.md).
 
 ## OpenAPI Analogy
 
@@ -443,155 +363,11 @@ The main trade-off is maintaining the generator and the schema, but that was pre
 
 ## Secret Management In Generated CLI Tools
 
-When CLI parameters are marked as secrets in the manifest, the generator can expose a `Credentials` command for storing those values in the system keyring when supported.
-
-If a `Credentials` command is not already defined, the generator creates one automatically from the secret-marked parameters. If a `Credentials` command already exists, secret-marked parameters from other commands are merged into it.
-
-This keeps routine command-line usage separate from secret entry and makes it easier to manage sensitive configuration without repeatedly passing it as flags.
+Secret-marked CLI inputs can be collected into a generated `Credentials` command for supported system keyrings. See [secret management in generated CLI tools](./guides/secret-management.md) for manifest examples, keyring behaviour and security boundaries.
 
 ## Capabilities
 
-### Formats
-
-As well as native Go types, the generator supports a set of convenience aliases and formats. These can be used in `lang_type` fields and are converted into the corresponding Go types in generated code.
-
-| Type                                          | Go type generated | Notes                                                       |
-| --------------------------------------------- | ----------------- | ----------------------------------------------------------- |
-| `string`                                      | `string`          | Plain string values                                         |
-| `bool`                                        | `bool`            | Boolean values                                              |
-| `int`, `int8`, `int16`, `int32`, `int64`      | same as input     | Signed integers                                             |
-| `uint`, `uint8`, `uint16`, `uint32`, `uint64` | same as input     | Unsigned integers                                           |
-| `float32`, `float64`                          | same as input     | Floating point values                                       |
-| `[]string`                                    | `[]string`        | String list values                                          |
-| `[]byte`                                      | `[]byte`          | Byte slice values                                           |
-| `any`                                         | `any`             | Arbitrary values                                            |
-| `time.Duration`, `duration`                   | `time.Duration`   | Duration values such as `5m` or `5*time.Minute`             |
-| `decimal`                                     | `float64`         | Convenience alias for decimal numbers                       |
-| `datetime`                                    | `string`          | RFC3339-style date/time input with special default handling |
-| `uuid`                                        | `string`          | UUID-formatted string                                       |
-| `json`, `validJSON`                           | `string`          | JSON payload stored as a string; `validJSON` enables strict JSON validation |
-| `url`, `uri`, `host`, `pathParameter`         | `string`          | URL-like string values; `uri` and `pathParameter` use specialised validators |
-| `connection`, `onlineTarget`, `service`, `server`, `protectedConnection`, `protectedService`, `protectedServer`, `behindAuthConnection`, `behindAuthService`, `behindAuthServer`, `serviceBehindAuth`, `serverBehindAuth` | `httpUtils.RequestConfiguration` | HTTP request target configuration; names containing `protected` or `behindAuth` enable authorisation-oriented defaults |
-| `email`                                       | `string`          | Email address string                                        |
-| `ip`                                          | `string`          | IP address string                                           |
-| `version`, `semver`                           | `string`          | Semantic version strings                                    |
-| `port`                                        | `uint32`          | Network port number                                         |
-| `filepath`, `existingFilepath`                | `string`          | Filesystem path strings; `existingFilepath` also requires the path to exist |
-| `hex`                                         | `[]byte`          | Hex-encoded bytes decoded at runtime                        |
-| `base64`, `byte`, `binary`, `regex`           | `string`          | Validated string-based formats                              |
-
-Custom project-specific types can also be declared with `additional_types` in the input specification.
-
-### Option definition
-
-Each generated option value is wrapped with an `Enabled bool` (`mapstructure:"enabled"`). A default value prepares the option but does **not** enable it; calling `WithLLM(...)` sets `Enabled` to true, even if the supplied value is empty. For example, define an option in the manifest:
-
-```yaml
-specification:
-  options:
-    - name: Refine
-      description: Options for refining document tags.
-      functions:
-        - parameters:
-            - name: LLM
-              lang_type: protectedConnection
-              description: Connect to an LLM service to refine document tags.
-              default_value: https://openai-api-proxy.geo.arm.com/api/providers/openai/v1
-              # Optional: rename the value field from LLM.
-              value_field:
-                name: Connection
-                mapstructure_tag: connection
-```
-
-This generates an option wrapper with the following shape:
-
-```go
-type RefineOptionsLLMOption struct {
-    Connection httpUtils.RequestConfiguration `mapstructure:"connection"`
-    Enabled    bool                           `mapstructure:"enabled"`
-}
-```
-
-The option definition generates `RefineOptions.LLM.Connection` and `RefineOptions.LLM.Enabled`.
-
-The option parameter's `value_field` customises **only** the value stored in the option wrapper. If omitted, the value field uses the option's own name and a snake_case mapstructure tag. For example, `name: PageToken` generates:
-
-```go
-type SearchOptionsPageTokenOption struct {
-    PageToken string `mapstructure:"page_token"`
-    Enabled   bool   `mapstructure:"enabled"`
-}
-```
-
-To call the value field `Token` instead, set `value_field: {name: Token, mapstructure_tag: token}`. The `mapstructure_tag` is optional; with `name: Token`, it also defaults to `token`. **Breaking change:** option parameters no longer accept `bindings`; replace an option-level `bindings: [{name: Token, mapstructure_tag: token}]` with `value_field: {name: Token, mapstructure_tag: token}`. CLI configuration `bindings` still describes flags and environment mappings.
-
-### CLI arguments
-
-To expose the option in a command, use its generated wrapper type in the CLI configuration:
-
-```yaml
-specification:
-  command_line_commands:
-    functions:
-      - name: Refine
-        description: Refine document tags.
-        configuration:
-          - name: LLM
-            lang_type: options.RefineOptionsLLMOption
-            mapstructure_tag: llm
-            description: LLM refinement.
-```
-
-This generates `LLM options.RefineOptionsLLMOption` in `RefineConfiguration`. The CLI automatically adds `--llm` (and `LLM_ENABLED` under the command's environment prefix) for `LLM.Enabled`. The default configuration is `options.DefaultRefineOptions().LLM`, which retains the connection URL with `Enabled: false`.
-
-**Renaming the enabling CLI flag is optional.** Only add an explicit `Enabled` binding if the default `--llm` argument name does not suit your CLI. Add it to the *CLI configuration field* (the `LLM` entry under `command_line_commands.functions[].configuration`), not to the option's `parameters` entry. For example, replace that CLI `LLM` entry with:
-
-```yaml
-- name: LLM
-  lang_type: options.RefineOptionsLLMOption
-  mapstructure_tag: llm
-  description: LLM refinement.
-  bindings:
-    - name: Enabled
-      lang_type: bool
-      mapstructure_tag: enabled
-      arg: refine-with-llm
-      description: Enable LLM refinement.
-```
-
-This keeps the destination field and environment variable the same (`LLM.Enabled` and `<PREFIX>_LLM_ENABLED`), but replaces `--llm` with `--refine-with-llm`. Omitting this binding restores the default `--llm`. If the CLI should also accept a separate connection value, add another binding for `Connection` with its own `arg`, `lang_type`, and `mapstructure_tag`.
-
-The CLI and option definitions are also exercised together in [`generator/testdata/petshop-purchase.yml`](generator/testdata/petshop-purchase.yml): `value_field.name: Token` creates `SearchOptions.PageToken.Token`, `--page-token-value` sets it, and the default `--page-token` flag enables it. A second option, `PageSizeOption`, explicitly renames its enabling flag to `--use-paging`.
-
-### Default values
-
-The generator also recognises a set of built-in shortcuts for `default_value`. These are mainly intended for string-like defaults, plus a few format-specific cases handled by `defaultValue()`.
-
-| Type                                                                                                                                           | `default_value`                                | Meaning in generated code                                                                                                                   |
-| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `string` and string-like aliases such as `uuid`, `host`, `url`, `uri`, `email`, `ip`, `version`, `semver`, `base64`, `byte`, `binary`, `regex` | any other value                                | Emitted as a quoted string literal                                                                                                          |
-| `string` and string-like aliases                                                                                                               | `hostname`                                     | Use `os.Hostname()`                                                                                                                         |
-| `string` and string-like aliases                                                                                                               | `uuid`                                         | Generate a UUID with `idgen.GenerateUUID4()`                                                                                                |
-| `string` and string-like aliases                                                                                                               | `temp`, `tempdir`, `temporary`                 | Use `filesystem.TempDirectory()`                                                                                                            |
-| `string` and string-like aliases                                                                                                               | `bin`, `bindir`                                | Use `xdg.BinHome`                                                                                                                           |
-| `string` and string-like aliases                                                                                                               | `cache`, `cachedir`                            | Use `xdg.CacheHome`                                                                                                                         |
-| `string` and string-like aliases                                                                                                               | `config`, `configdir`, `conf`, `configuration` | Use `xdg.ConfigHome`                                                                                                                        |
-| `string` and string-like aliases                                                                                                               | `here`                                         | Use the current working directory from `filesystem.CurrentDirectory()`                                                                      |
-| `string` and string-like aliases                                                                                                               | `home`                                         | Use `os.UserHomeDir()`                                                                                                                      |
-| `string` and string-like aliases                                                                                                               | `<username>'s home`                            | Home directory of a particular user determined from the pattern. Use `platform.GetHomeDirectory("<username>")`, for example `maddie's home` |
-| `string` and string-like aliases                                                                                                               | `random`                                       | Use `rand.Text()`                                                                                                                           |
-| `string` and string-like aliases                                                                                                               | `now`                                          | Use `time.Now().UTC().Format(time.RFC3339)`                                                                                                 |
-| `string` and string-like aliases                                                                                                               | `func()...`                                    | Emitted as-is so custom function defaults can be injected                                                                                   |
-| `datetime`                                                                                                                                     | `now`                                          | Use `time.Now().UTC()`                                                                                                                      |
-| `datetime`                                                                                                                                     | RFC3339 timestamp                              | Parsed with `time.Parse(time.RFC3339, ...)`                                                                                                 |
-| `duration`                                                                                                                                     | `5m`, `1h30m`, etc.                            | Parsed with `time.ParseDuration(...)`                                                                                                       |
-| `duration`                                                                                                                                     | expressions containing `time.`                 | Emitted as-is, for example `5 * time.Minute`                                                                                                |
-| `connection`, `onlineTarget`, `service`, `server`                                                                                              | URL such as `https://some-mcp.org/mcp`         | Build a default `httpUtils.RequestConfiguration`, set `Host`, and use a generated user agent                                               |
-| `protectedConnection`, `protectedService`, `protectedServer`, `behindAuthConnection`, `behindAuthService`, `behindAuthServer`, `serviceBehindAuth`, `serverBehindAuth` | URL such as `https://some-mcp.org/mcp` | Build a default authorised `httpUtils.RequestConfiguration`, set bearer scheme, set `Host`, and use a generated user agent |
-| `hex`                                                                                                                                          | hex text such as `aaffbb77`                    | Decoded with `hex.DecodeString(...)`                                                                                                        |
-| `[]byte`                                                                                                                                       | any string                                     | Emitted as `[]byte("...")`                                                                                                                  |
-| `json`                                                                                                                                         | JSON object text such as `{"key":1}`           | Emitted as a quoted JSON string                                                                                                             |
-| numeric and boolean types                                                                                                                      | literal value such as `42`, `3.14`, `false`    | Emitted as the corresponding Go literal                                                                                                     |
+The generator provides built-in formats, validation, computed defaults and functional options. See [types, formats and defaults](./guides/types-and-defaults.md) for the `lang_type` and `default_value` reference, [configure functional options](./guides/configure-options.md) for `Enabled`, `value_field` and CLI bindings, or [write a manifest](./guides/write-a-manifest.md) to apply these capabilities in a project.
 
 ## Using this SDK
 
@@ -619,6 +395,7 @@ The following describes the major aspects of the project structure:
     cli/ - Definition of the CLI to use the tool directly from a terminal.
     generator/ - Go source files describing the SDK.
     changes/ - Collection of news files for unreleased changes.
+    guides/ - Markdown source for task-based guides rendered into docs/guides/.
     scripts/ - Automation scripts for continuous integration (CI) and package control tasks such as building, validating, and releasing packages.
     .*/ - Configuration for development tooling such as continuous integration, static analysis (linters), and version control (Git).
 ```

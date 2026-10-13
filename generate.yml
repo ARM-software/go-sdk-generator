@@ -4,7 +4,8 @@ specification:
   name: SDK Generator
   description: SDK/CLI generator from a specification following [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml)
   public: true
-  Licence: Apache-2.0
+  licence: Apache-2.0
+  repository_url: https://github.com/ARM-software/go-sdk-generator
   interface:
     notCloseable: true
     namespace: github.com/ARM-software/
