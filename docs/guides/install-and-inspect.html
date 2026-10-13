@@ -1,0 +1,82 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Install and inspect go-sdk-generator</title>
+  <meta name="description" content="Install and inspect go-sdk-generator — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Install and inspect go-sdk-generator</h1>
+<h2>When to use this guide</h2>
+<p>Start here before writing a manifest or running the generator. The CLI is named <code>go-sdk-generator</code>; its package is also named <code>go-sdk-generator</code>.</p>
+<h2>Install on Linux</h2>
+<p>Once the appropriate package repository is configured, use the native package manager:</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Install commands</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Debian or Ubuntu</td>
+<td><code>sudo apt update</code> then <code>sudo apt install go-sdk-generator</code></td>
+</tr>
+<tr>
+<td>Fedora or RHEL with dnf</td>
+<td><code>sudo dnf install go-sdk-generator</code></td>
+</tr>
+<tr>
+<td>RHEL or CentOS with yum</td>
+<td><code>sudo yum install go-sdk-generator</code></td>
+</tr>
+</tbody>
+</table>
+<p>Released Linux packages include agent skills under <code>/etc/go-sdk-generator/.agents/skills</code>. For package upgrades, use your package manager's upgrade command. See the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/install-go-sdk-generator/SKILL.md">installation skill</a> for platform-specific troubleshooting.</p>
+<h2>Run an OCI image</h2>
+<p>For container-based use, choose a published version and image variant:</p>
+<pre><code class="language-sh">docker run --rm ghcr.io/arm-software/go-sdk-generator:v&lt;version&gt;-alpine --help
+</code></pre>
+<p>To generate into the current directory, mount it and set the working directory so input and output paths refer to the mounted files:</p>
+<pre><code class="language-sh">docker run --rm -v &quot;$(pwd):/work&quot; -w /work \
+  ghcr.io/arm-software/go-sdk-generator:v&lt;version&gt;-alpine \
+  generate -i generate.yml -o /work --go-version 1.26.4
+</code></pre>
+<p>Replace <code>&lt;version&gt;</code> with a published version and <code>1.26.4</code> with your target project's Go version.</p>
+<h3>Accessing GHCR</h3>
+<p>If the image is not publicly accessible to your account, authenticate with GHCR first. With the GitHub CLI already authenticated:</p>
+<pre><code class="language-sh">gh auth token | docker login ghcr.io -u &quot;$(gh api user --jq .login)&quot; --password-stdin
+</code></pre>
+<p>If <code>docker pull</code> or <code>docker run</code> returns <code>403 Forbidden</code>, check that your account or CI token has package-read access. Local GitHub CLI credentials may need the <code>read:packages</code> scope; refresh them, then log in again:</p>
+<pre><code class="language-sh">docker logout ghcr.io
+gh auth refresh --scopes read:packages
+gh auth token | docker login ghcr.io -u &quot;$(gh api user --jq .login)&quot; --password-stdin
+</code></pre>
+<p>See <a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry">GitHub's container registry documentation</a> for permissions and authentication details.</p>
+<h2>Check the installation and contract</h2>
+<pre><code class="language-sh">go-sdk-generator --version
+go-sdk-generator --help
+go-sdk-generator generate --help
+go-sdk-generator schema
+</code></pre>
+<p><code>schema</code> prints the embedded manifest schema as JSON, suitable for inspecting allowed fields with other tools. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">schema source</a> is also available in the repository. To install the embedded skills into the current repository, run <code>go-sdk-generator agent --init</code>.</p></main>
+</body>
+</html>

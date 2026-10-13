@@ -1,0 +1,99 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run the generator in GitHub Actions</title>
+  <meta name="description" content="Run the generator in GitHub Actions — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Run the generator in GitHub Actions</h1>
+<p>Choose what the workflow step should do, then choose whether to use a published release or build an unreleased revision. Both actions verify the tool with <code>--version</code> before using it.</p>
+<h2>Choose an action</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Operating mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actions/generate</code></td>
+<td>Install the tool and run <code>go-sdk-generator generate</code> with structured inputs.</td>
+</tr>
+<tr>
+<td><code>actions/install-tool</code></td>
+<td>Install only; return a <code>cmd</code> output for later commands, loops or scripts.</td>
+</tr>
+</tbody>
+</table>
+<p><code>workdir</code> determines where <code>generate</code> runs and how its relative paths are resolved. For install-only use, call the installed tool through the <code>cmd</code> output in subsequent steps.</p>
+<h2>Choose a version mode</h2>
+<p>The action's <code>@ref</code> selects one of these modes. <code>action-ref</code> overrides that ref; <code>action-repo</code> selects a different repository, and <code>github-token</code> supplies access when the default workflow token is insufficient.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Choose</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Published release</strong></td>
+<td>An exact tag such as <code>@v0.47.0</code>, a major/minor ref such as <code>@v0</code> or <code>@v0.47</code>, or <code>@latest</code>.</td>
+<td>Install the matching release. Major/minor refs select the latest matching stable release.</td>
+</tr>
+<tr>
+<td><strong>Unreleased source</strong></td>
+<td>A branch such as <code>@main</code> or a commit SHA.</td>
+<td>Build and install the CLI from that revision, whether or not a release exists.</td>
+</tr>
+</tbody>
+</table>
+<p>With no ref (for example, a local action path without <code>action-ref</code>), the action tries the latest release. Using <code>./actions/generate</code> or <code>./actions/install-tool</code> does <strong>not</strong> by itself select a source build; set <code>action-ref</code> to a branch or SHA for that mode.</p>
+<p><strong>Failure behaviour:</strong> A release ref that cannot be resolved or installed fails the action; it neither skips execution nor switches to a source build. An unavailable branch/SHA or unsuccessful source build likewise fails. Check the ref and, if needed, the <code>github-token</code> permissions.</p>
+<p>The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/actions/_shared/install-and-run.sh">shared installer</a> and <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/actions/generate/action.yml">action metadata</a> define the exact ref resolution and inputs.</p>
+<h2>Generate from a manifest</h2>
+<p>The manifest must exist in the checked-out workspace. This example installs a released binary and runs <code>generate</code>:</p>
+<pre><code class="language-yaml">steps:
+  - uses: actions/checkout@v4
+  - name: Generate Go project
+    uses: ARM-software/go-sdk-generator/actions/generate@v0
+    with:
+      input: generate.yml
+      output: .
+      go-version: '1.26.4'
+</code></pre>
+<p>To build the tool from the current <code>main</code> branch instead of installing a release, replace <code>@v0</code> with <code>@main</code>.</p>
+<p>Set <code>go-version</code> to the <strong>generated project's</strong> target Go version, not the version used to build the action. The action defaults to <code>summary=github</code>, <code>logger=rich</code> and <code>annotation=github</code>; <code>go-version</code> corresponds to the CLI flag <code>--go-version</code> (or <code>-g</code>).</p>
+<h2>Install for later steps</h2>
+<pre><code class="language-yaml">steps:
+  - uses: actions/checkout@v4
+  - name: Install generator
+    id: generator
+    uses: ARM-software/go-sdk-generator/actions/install-tool@v0
+  - name: Inspect schema
+    shell: bash
+    run: '&quot;${{ steps.generator.outputs.cmd }}&quot; schema'
+</code></pre>
+<p>Use the install-only mode when later steps need custom shell processing. For container-based use, see <a href="install-and-inspect.html">install and inspect</a>. For agent-specific instructions, see the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md">GitHub Action integration skill</a>.</p></main>
+</body>
+</html>

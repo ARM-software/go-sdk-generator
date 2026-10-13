@@ -2,6 +2,28 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.50.0 (2026-10-13)
+
+## Features
+
+- :boom: Generated option values now default to the option name and snake_case tag; replace option-level bindings with value_field to customise them (old option-level bindings are no longer accepted). (#20261007170813587457600)
+- :sparkles: Add an Enabled field to generated functional options so callers and CLI users can explicitly enable or disable individual options without relying on empty values. (#20261008112438055755700)
+- Validate manifest `condition` definitions so invalid condition shapes are rejected during manifest validation. (#20261008165000000000000)
+
+## Bugfixes
+
+- :bug: Correct generated GitHub Action skills to report missing releases as failures and recognise source builds. (#20261013)
+- :bug: Preserve the correct licence and repository links when regenerating this project's agent skills. (#2026101301)
+
+## Improved Documentation
+
+- :book: Add linked generator guides for installation, outputs, types, defaults, functional options, secret management and contract evolution, with task-specific agent skills. (#20261012)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.49.1 (2026-10-06)
 
 ## Bugfixes

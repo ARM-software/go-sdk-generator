@@ -1,0 +1,52 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Breaking changes and deprecation</title>
+  <meta name="description" content="Breaking changes and deprecation — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Breaking changes and deprecation</h1>
+<p>Use this guide when changing an existing <a href="write-a-manifest.html">generator manifest</a> or a generated SDK, CLI or automation surface that consumers already use. The aim is to make contract evolution reviewable and migratable.</p>
+<h2>Identify a breaking change</h2>
+<p>A change is breaking when existing manifest authors or generated-project consumers must edit a working configuration, integration or workflow. Examples include:</p>
+<ul>
+<li>renaming or removing a field, method, command, parameter or type;</li>
+<li>changing the meaning of an existing field incompatibly;</li>
+<li>tightening validation so previously valid manifests become invalid;</li>
+<li>changing a value shape from scalar to list, value to reference, or one incompatible type to another;</li>
+<li>replacing one concept with several new ones, or merging several existing concepts into one.</li>
+</ul>
+<h2>Deprecate before removing</h2>
+<p>A deprecation is a transition: the old concept still works but points users to its replacement. Where practical:</p>
+<ol>
+<li>Add the replacement first.</li>
+<li>Mark the old concept with <code>deprecation_notice</code> in the manifest.</li>
+<li>Name the replacement and state when deprecation begins and, when known, when removal is planned.</li>
+<li>Surface the notice in generated documentation, comments and CLI help.</li>
+<li>Keep the deprecated behaviour working during the transition unless safety or correctness requires otherwise.</li>
+<li>Remove it only after the announced window and a migration opportunity.</li>
+</ol>
+<h2>Versioning and news files</h2>
+<p>This repository follows <a href="https://semver.org/">Semantic Versioning</a> conceptually: breaking changes are major in theory, features minor and fixes patch. A true <code>v2+</code> release of a Go project also changes its module and consumer import paths; it is not merely a version-number bump (<a href="https://go.dev/ref/mod#major-version-suffix">Go modules</a>, <a href="https://go.dev/blog/v2-go-modules">Go Modules: v2 and beyond</a>).</p>
+<p>Do not treat every breaking manifest change as an automatic major-module migration. If a change breaks consumers without a full Go major-module transition, describe the break explicitly in a <code>.feature</code> news file, for example with a <code>:boom:</code> prefix. Reserve <code>.major</code> news files for a genuine major Go module migration, including its import-path consequences. See the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/CONTRIBUTING.md#news-files">contribution guide</a> for news-file conventions.</p>
+<p>In short: <strong>deprecate, document, migrate, then remove</strong>. For detailed authoring checks, use the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md">manifest-authoring skill</a>.</p></main>
+</body>
+</html>

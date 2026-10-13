@@ -1,0 +1,48 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generate and regenerate a Go project</title>
+  <meta name="description" content="Generate and regenerate a Go project — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Generate and regenerate a Go project</h1>
+<h2>Inputs and first run</h2>
+<p>You need a manifest that follows the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">schema</a>, an output directory, and a target Go version matching the project. From the project directory:</p>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
+</code></pre>
+<p>Replace the Go version with the version your project uses. <code>-i</code>/<code>--input</code> selects the manifest, <code>-o</code>/<code>--output</code> selects the destination, and <code>-g</code>/<code>--go-version</code> selects the target Go version. Use <code>go-sdk-generator generate --help</code> for current options. The generator validates the manifest before producing files.</p>
+<p>After generation, run these commands from each directory containing a generated <code>go.mod</code>:</p>
+<pre><code class="language-sh">go mod tidy
+go generate ./...
+go test ./...
+</code></pre>
+<p><code>go mod tidy</code> resolves dependencies; <code>go generate ./...</code> runs generated directives, such as mock generation. Implement the generated operation stubs in Go and test the resulting behaviour. The manifest is the source of truth for the <em>surface</em>, not an implementation of the operations.</p>
+<p>For a multi-module workspace, repeat the commands in each generated module rather than running <code>go mod tidy</code> from the workspace root. See <a href="what-it-generates.html">what the generator produces</a> for the distinction between generated scaffolding and handwritten logic.</p>
+<h2>Change the contract later</h2>
+<ol>
+<li>Edit the manifest, checking <a href="write-a-manifest.html">manifest authoring</a> for type and compatibility guidance.</li>
+<li>Re-run <code>go-sdk-generator generate</code> with the same input, output, and Go version.</li>
+<li>Review the file diff before accepting it. Generation preserves stateful files by default; <code>--overwrite</code> also regenerates them, including files such as <code>go.mod</code>. Use it only when you intend to replace and review that state.</li>
+<li>Run <code>go mod tidy</code>, <code>go generate ./...</code>, and the project's tests again in each affected Go module. Keep handwritten operation logic and project-specific wiring when resolving changes.</li>
+</ol>
+<p>This repository generates parts of itself from <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml"><code>generate.yml</code></a>. Its <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DEVELOPMENT.md#code-generation">development guide</a> covers the repository-specific workflow. For CLI configuration, logging, and the full generated interface, consult <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md"><code>DOCUMENTATION.md</code></a>.</p></main>
+</body>
+</html>

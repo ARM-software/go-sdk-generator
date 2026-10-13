@@ -1,0 +1,92 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Write a generator manifest</title>
+  <meta name="description" content="Write a generator manifest — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Write a generator manifest</h1>
+<h2>When to use this guide</h2>
+<p>Write a YAML or JSON manifest to define one coherent set of user-facing Go operations. The manifest controls the generated SDK surface, optional CLI, configuration, documentation, and supporting files. Domain-specific operation logic is implemented afterwards in Go.</p>
+<h2>Start from the contract</h2>
+<p>Use <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml"><code>generator/schema/schema.yml</code></a> for the complete field definitions, or print the schema as JSON with <code>go-sdk-generator schema</code>. The repository's <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml"><code>generate.yml</code></a> shows a real input. The key sections under <code>specification</code> are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>package_name</code>, <code>main_module</code>, <code>name</code>, <code>description</code></td>
+<td>Project and SDK identity.</td>
+</tr>
+<tr>
+<td><code>interface</code></td>
+<td>Public Go operations and their arguments and results.</td>
+</tr>
+<tr>
+<td><code>global_configuration</code></td>
+<td>Values shared across the SDK and CLI.</td>
+</tr>
+<tr>
+<td><code>command_line_commands</code></td>
+<td>Optional binary and commands exposing those operations.</td>
+</tr>
+<tr>
+<td><code>additional_types</code></td>
+<td>Optional domain types used by the contract.</td>
+</tr>
+</tbody>
+</table>
+<p>When operations accept functional options, use <code>specification.options</code>; see <a href="configure-options.html">configure functional options</a> for option wrappers, <code>value_field</code> and CLI bindings.</p>
+<p>A minimal starting shape is:</p>
+<pre><code class="language-yaml">specification:
+  package_name: example-tool
+  main_module: example
+  name: Example
+  description: Verify an example project.
+  licence: Apache-2.0
+  interface:
+    notCloseable: true
+    namespace: github.com/example/
+    methods:
+      - name: Verify
+        description: Verify an example project.
+        returns:
+          - name: err
+            lang_type: error
+            description: Verification failure, if any.
+  global_configuration: []
+</code></pre>
+<p>This describes a library surface. Add <code>command_line_commands</code> if users also need a CLI; see the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml">repository manifest</a> for commands, flags, and shared configuration. Adapt the namespace, name, operation, and licence to your project. <a href="what-it-generates.html">What the generator produces</a> explains the resulting project structure.</p>
+<h2>Model values deliberately</h2>
+<ul>
+<li>Use specific <code>lang_type</code> aliases such as <code>duration</code>, <code>uuid</code>, <code>filepath</code>, or <code>service</code> where they match the value. See <a href="types-and-defaults.html">types, formats and defaults</a> for the complete built-in reference. Prefer <code>reference: true</code>, <code>list: true</code>, or <code>iterator: true</code> to encoding shapes into the type string; <code>list</code> and <code>iterator</code> cannot be combined.</li>
+<li>Use <code>enum</code> for closed string choices, <code>constraints</code> for validation and relationships, and <code>example</code> or <code>examples</code> for representative values. These feed generated validation, help, documentation, and action inputs.</li>
+<li>Keep truly shared values in <code>global_configuration</code>; put operation-specific values on that command. Mark credentials with <code>secret: true</code> and follow <a href="secret-management.html">secret management in generated CLI tools</a> for storage and loading behaviour.</li>
+<li>Give operations verb names and write descriptions from a user's perspective. Avoid defining a transport endpoint as an entire operation if the intended action is a higher-level workflow.</li>
+<li>For incompatible changes to a published contract, document a replacement with <code>deprecation_notice</code> before removing the old surface. Follow <a href="evolving-a-contract.html">breaking changes and deprecation</a>.</li>
+</ul>
+<p>The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md">manifest-authoring skill</a> contains a detailed checklist for agents and maintainers.</p></main>
+</body>
+</html>

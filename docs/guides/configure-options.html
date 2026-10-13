@@ -1,0 +1,80 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configure functional options</title>
+  <meta name="description" content="Configure functional options — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Configure functional options</h1>
+<p>Use <code>specification.options</code> in a <a href="write-a-manifest.html">generator manifest</a> to define optional settings for an SDK operation and, where needed, expose them in the generated CLI. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml">repository's pet shop manifest</a> exercises the option and CLI configuration together.</p>
+<h2>Define an option and its value field</h2>
+<p>Each generated option value has an <code>Enabled bool</code> field with <code>mapstructure:"enabled"</code>. A <code>default_value</code> prepares its value but does <strong>not</strong> enable the option. Calling a generated <code>With…(...)</code> helper enables it, even if the supplied value is empty. The <code>value_field</code> setting changes the name and mapstructure tag of the value held by the option; it does not rename the enabling flag.</p>
+<p>For example, within <code>specification</code>:</p>
+<pre><code class="language-yaml">options:
+  - name: Search
+    package: search
+    description: Functional options for product catalogue searches.
+    functions:
+      - parameters:
+          - name: PageToken
+            lang_type: string
+            description: Continuation token for the next page.
+            value_field:
+              name: Token
+              mapstructure_tag: token
+</code></pre>
+<p>This defines a wrapper with a separate enabling state:</p>
+<pre><code class="language-go">type SearchOptionsPageTokenOption struct {
+    Token   string `mapstructure:&quot;token&quot;`
+    Enabled bool   `mapstructure:&quot;enabled&quot;`
+}
+</code></pre>
+<p>Without <code>value_field</code>, the value is named <code>PageToken</code> with a <code>page_token</code> mapstructure tag. With <code>name: Token</code>, <code>mapstructure_tag</code> is optional and also defaults to <code>token</code>.</p>
+<p><strong>Migration:</strong> Option parameters no longer accept <code>bindings</code>. Replace an option-level <code>bindings: [{name: Token, mapstructure_tag: token}]</code> with <code>value_field: {name: Token, mapstructure_tag: token}</code>. CLI configuration <code>bindings</code> still control flags and environment mappings. For other incompatible changes, see <a href="evolving-a-contract.html">breaking changes and deprecation</a>.</p>
+<h2>Expose the option in a CLI command</h2>
+<p>Use the generated wrapper as a command configuration field. For example, within <code>specification.command_line_commands.functions[].configuration</code>:</p>
+<pre><code class="language-yaml">- name: PageTokenOption
+  lang_type: search.SearchOptionsPageTokenOption
+  mapstructure_tag: page_token
+  description: Use a continuation token for the catalogue search.
+  bindings:
+    - name: Token
+      lang_type: string
+      mapstructure_tag: token
+      arg: page-token-value
+      description: Continuation token value.
+</code></pre>
+<p>The generated CLI binds <code>--page-token-value</code> to the option's <code>Token</code> value. It also creates <code>--page-token</code> to set <code>Enabled</code>, with an environment binding for <code>PAGE_TOKEN_ENABLED</code> under the command's environment prefix. The generated default configuration retains the option's default value, if any, with <code>Enabled: false</code>.</p>
+<p>You can rename the enabling CLI flag by adding an <code>Enabled</code> binding to the <strong>CLI configuration field</strong>, not the option parameter:</p>
+<pre><code class="language-yaml">- name: PageSizeOption
+  lang_type: search.SearchOptionsPageSizeOption
+  mapstructure_tag: page_size
+  description: Apply the configured page size.
+  bindings:
+    - name: Enabled
+      lang_type: bool
+      mapstructure_tag: enabled
+      arg: use-paging
+      description: Enable paging.
+</code></pre>
+<p>This changes the default <code>--page-size</code> flag to <code>--use-paging</code> while retaining the <code>PageSizeOption.Enabled</code> destination and its environment binding. Omit the binding to keep the default flag name. See the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml">pet shop manifest</a> for the complete option and CLI definitions.</p></main>
+</body>
+</html>

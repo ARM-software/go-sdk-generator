@@ -1,0 +1,50 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Go SDK Generator: task guides</title>
+  <meta name="description" content="Go SDK Generator: task guides — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Go SDK Generator: task guides</h1>
+<p><code>go-sdk-generator</code> turns a validated YAML or JSON operation contract into a Go SDK, an optional CLI, and supporting project files. Use these guides to move from a manifest to a working project. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md">generated command reference</a> lists every CLI option; the guides explain when and how to use them.</p>
+<h2>Choose a task</h2>
+<ul>
+<li><a href="install-and-inspect.html">Install and inspect the tool</a>: choose a package or OCI image, check the CLI, and inspect the schema.</li>
+<li><a href="write-a-manifest.html">Write a manifest</a>: define a focused project, choose types and constraints, and validate the contract.</li>
+<li><a href="what-it-generates.html">What the generator produces</a>: SDK, CLI, action and documentation outputs, and what remains to implement.</li>
+<li><a href="types-and-defaults.html">Types, formats and defaults</a>: choose built-in <code>lang_type</code> values and generated default behaviour.</li>
+<li><a href="configure-options.html">Configure functional options</a>: enable option values and expose them through CLI flags.</li>
+<li><a href="generate-a-project.html">Generate and regenerate a project</a>: run generation, implement operations, and preserve handwritten work.</li>
+<li><a href="use-github-actions.html">Use the GitHub Actions</a>: run generation in a workflow or install the binary for later steps.</li>
+<li><a href="secret-management.html">Manage secrets in a generated CLI</a>: mark secret inputs, use keyring-backed commands and understand security boundaries.</li>
+<li><a href="evolving-a-contract.html">Evolve a contract safely</a>: deprecate incompatible manifest and generated-surface changes.</li>
+</ul>
+<h2>Further reference</h2>
+<ul>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">Schema source</a>: authoritative manifest field definitions.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml">This repository's manifest</a>: a real generator input.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md">Generated SDK and CLI reference</a>: configuration, commands, and Go interfaces.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/README.md">Repository README</a>: purpose, quick start and design decisions.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/tree/main/.agents/skills">Maintained agent skills</a>: task-specific instructions for agents working in this repository. The tool can also install its embedded skills with <code>go-sdk-generator agent --init</code>.</li>
+</ul>
+<p>The Markdown in <code>guides/</code> is the source. <code>cd-generate-docs</code> renders it alongside the API documentation in <code>docs/guides/</code> when documentation is rebuilt; edit the Markdown rather than the rendered output.</p></main>
+</body>
+</html>

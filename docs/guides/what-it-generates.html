@@ -1,0 +1,47 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What the generator produces</title>
+  <meta name="description" content="What the generator produces — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>What the generator produces</h1>
+<p>The <a href="write-a-manifest.html">manifest</a> defines one concern and the user-facing operations around it. Depending on that contract, <code>go-sdk-generator</code> can create:</p>
+<ul>
+<li>a Go module layout for the SDK, with exported configuration and domain types;</li>
+<li>interfaces and implementation scaffolding for SDK operations;</li>
+<li>an optional <a href="https://cobra.dev/">Cobra</a>-style CLI backed by the same configuration model and <a href="https://github.com/spf13/viper">Viper</a>-style configuration sources;</li>
+<li>a reusable Go-based entrypoint for step-level <a href="use-github-actions.html">GitHub Actions</a>;</li>
+<li>generated documentation and supporting project files.</li>
+</ul>
+<p>The <a href="types-and-defaults.html">types and defaults reference</a> describes built-in value formats. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md">generated command reference</a> covers this repository's Go SDK and CLI interfaces.</p>
+<h2>What you still implement</h2>
+<p>Generation provides structure and boilerplate, not the domain-specific logic behind each operation. Implement the generated stubs in Go, then <a href="generate-a-project.html">regenerate and review the project</a> when its contract changes.</p>
+<h2>One operation, several ways to use it</h2>
+<ul>
+<li>Import the generated SDK in another Go project and call its methods directly.</li>
+<li>Run the generated CLI locally, in scripts or in a container.</li>
+<li>Use a generated action in CI to invoke the same Go tool rather than duplicating its logic in shell or JavaScript.</li>
+</ul>
+<p>The same implementation can serve library users, command-line users and automation while remaining testable as Go code. A generated action represents an operation or a step; a <a href="https://docs.github.com/actions/using-workflows">GitHub Actions workflow</a> or task runner still defines how multiple steps fit together. See <a href="use-github-actions.html">use GitHub Actions</a> for workflow examples.</p>
+<p>As the generator gains improvements to documentation, support files, defaults and repository conventions, regenerated projects can adopt them. Review regenerated files, preserve handwritten implementation logic and <a href="evolving-a-contract.html">manage incompatible contract changes</a> deliberately.</p></main>
+</body>
+</html>

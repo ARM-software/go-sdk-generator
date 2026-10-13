@@ -1,0 +1,286 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Types, formats and default values</title>
+  <meta name="description" content="Types, formats and default values — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Types, formats and default values</h1>
+<p>Use this reference when choosing <code>lang_type</code>, value shapes and <code>default_value</code> in a <a href="write-a-manifest.html">generator manifest</a>. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">schema</a> defines the contract; this page explains what the built-in types produce.</p>
+<h2>Built-in types and formats</h2>
+<p>The generator accepts native Go types and convenience aliases in <code>lang_type</code>.</p>
+<table>
+<thead>
+<tr>
+<th><code>lang_type</code></th>
+<th>Generated Go type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>string</code></td>
+<td><code>string</code></td>
+<td>Plain string values.</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>bool</code></td>
+<td>Boolean values.</td>
+</tr>
+<tr>
+<td><code>int</code>, <code>int8</code>, <code>int16</code>, <code>int32</code>, <code>int64</code></td>
+<td>Same as input</td>
+<td>Signed integers.</td>
+</tr>
+<tr>
+<td><code>uint</code>, <code>uint8</code>, <code>uint16</code>, <code>uint32</code>, <code>uint64</code></td>
+<td>Same as input</td>
+<td>Unsigned integers.</td>
+</tr>
+<tr>
+<td><code>float32</code>, <code>float64</code></td>
+<td>Same as input</td>
+<td>Floating-point values.</td>
+</tr>
+<tr>
+<td><code>[]string</code></td>
+<td><code>[]string</code></td>
+<td>String list values.</td>
+</tr>
+<tr>
+<td><code>[]byte</code></td>
+<td><code>[]byte</code></td>
+<td>Byte slice values.</td>
+</tr>
+<tr>
+<td><code>any</code></td>
+<td><code>any</code></td>
+<td>Arbitrary values.</td>
+</tr>
+<tr>
+<td><code>time.Duration</code>, <code>duration</code></td>
+<td><code>time.Duration</code></td>
+<td>Durations such as <code>5m</code> or <code>5*time.Minute</code>.</td>
+</tr>
+<tr>
+<td><code>decimal</code></td>
+<td><code>float64</code></td>
+<td>Convenience alias for decimal numbers.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td><code>string</code></td>
+<td>RFC3339-style date/time input with special default handling.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>string</code></td>
+<td>UUID-formatted string.</td>
+</tr>
+<tr>
+<td><code>json</code>, <code>validJSON</code></td>
+<td><code>string</code></td>
+<td>JSON payload stored as a string; <code>validJSON</code> enables strict JSON validation.</td>
+</tr>
+<tr>
+<td><code>url</code>, <code>uri</code>, <code>host</code>, <code>pathParameter</code></td>
+<td><code>string</code></td>
+<td>URL-like strings; <code>uri</code> and <code>pathParameter</code> use specialised validators.</td>
+</tr>
+<tr>
+<td><code>connection</code>, <code>onlineTarget</code>, <code>service</code>, <code>server</code></td>
+<td><code>httpUtils.RequestConfiguration</code></td>
+<td>HTTP request target configuration.</td>
+</tr>
+<tr>
+<td><code>protectedConnection</code>, <code>protectedService</code>, <code>protectedServer</code>, <code>behindAuthConnection</code>, <code>behindAuthService</code>, <code>behindAuthServer</code>, <code>serviceBehindAuth</code>, <code>serverBehindAuth</code></td>
+<td><code>httpUtils.RequestConfiguration</code></td>
+<td>Request target configuration with authorisation-oriented defaults.</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>string</code></td>
+<td>Email address string.</td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td><code>string</code></td>
+<td>IP address string.</td>
+</tr>
+<tr>
+<td><code>version</code>, <code>semver</code></td>
+<td><code>string</code></td>
+<td>Semantic version strings.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td><code>uint32</code></td>
+<td>Network port number.</td>
+</tr>
+<tr>
+<td><code>filepath</code>, <code>existingFilepath</code></td>
+<td><code>string</code></td>
+<td>Filesystem paths; <code>existingFilepath</code> also requires the path to exist.</td>
+</tr>
+<tr>
+<td><code>hex</code></td>
+<td><code>[]byte</code></td>
+<td>Hex-encoded bytes decoded at runtime.</td>
+</tr>
+<tr>
+<td><code>base64</code>, <code>byte</code>, <code>binary</code>, <code>regex</code></td>
+<td><code>string</code></td>
+<td>Validated string-based formats.</td>
+</tr>
+</tbody>
+</table>
+<p>Declare project-specific types with <code>specification.additional_types</code>. For a pointer, list or iterator, prefer the manifest's <code>reference</code>, <code>list</code> and <code>iterator</code> flags to embedding Go syntax in <code>lang_type</code>. <code>list</code> and <code>iterator</code> cannot be combined. A final method argument marked <code>list: true</code> becomes variadic (<code>...T</code>). Use <code>enum</code> for closed string-like choices.</p>
+<h2>Built-in <code>default_value</code> shortcuts</h2>
+<p>Most values are emitted as literals. The following shortcuts produce computed defaults; use them only when their behaviour suits the contract.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th><code>default_value</code></th>
+<th>Generated behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>string</code> and string-like aliases such as <code>uuid</code>, <code>host</code>, <code>url</code>, <code>uri</code>, <code>email</code>, <code>ip</code>, <code>version</code>, <code>semver</code>, <code>base64</code>, <code>byte</code>, <code>binary</code>, <code>regex</code></td>
+<td>Any other value</td>
+<td>Emit a quoted string literal.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>hostname</code></td>
+<td>Use <code>os.Hostname()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>uuid</code></td>
+<td>Generate a UUID with <code>idgen.GenerateUUID4()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>temp</code>, <code>tempdir</code>, <code>temporary</code></td>
+<td>Use <code>filesystem.TempDirectory()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>bin</code>, <code>bindir</code></td>
+<td>Use <code>xdg.BinHome</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>cache</code>, <code>cachedir</code></td>
+<td>Use <code>xdg.CacheHome</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>config</code>, <code>configdir</code>, <code>conf</code>, <code>configuration</code></td>
+<td>Use <code>xdg.ConfigHome</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>here</code></td>
+<td>Use the working directory from <code>filesystem.CurrentDirectory()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>home</code></td>
+<td>Use <code>os.UserHomeDir()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>&lt;username&gt;'s home</code></td>
+<td>Use <code>platform.GetHomeDirectory("&lt;username&gt;")</code>, for example <code>maddie's home</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>random</code></td>
+<td>Use <code>rand.Text()</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>now</code></td>
+<td>Use <code>time.Now().UTC().Format(time.RFC3339)</code>.</td>
+</tr>
+<tr>
+<td>String-like aliases</td>
+<td><code>func()...</code></td>
+<td>Emit the custom function default as-is.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td><code>now</code></td>
+<td>Use <code>time.Now().UTC()</code>.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td>RFC3339 timestamp</td>
+<td>Parse with <code>time.Parse(time.RFC3339, ...)</code>.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>5m</code>, <code>1h30m</code>, etc.</td>
+<td>Parse with <code>time.ParseDuration(...)</code>.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Expression containing <code>time.</code></td>
+<td>Emit as-is, for example <code>5 * time.Minute</code>.</td>
+</tr>
+<tr>
+<td><code>connection</code>, <code>onlineTarget</code>, <code>service</code>, <code>server</code></td>
+<td>URL such as <code>https://some-mcp.org/mcp</code></td>
+<td>Build a default <code>httpUtils.RequestConfiguration</code>, set <code>Host</code> and use a generated user agent.</td>
+</tr>
+<tr>
+<td>Protected and <code>behindAuth</code> connection/service/server aliases</td>
+<td>URL such as <code>https://some-mcp.org/mcp</code></td>
+<td>Build an authorised <code>httpUtils.RequestConfiguration</code>, set the bearer scheme and <code>Host</code>, and use a generated user agent.</td>
+</tr>
+<tr>
+<td><code>hex</code></td>
+<td>Hex text such as <code>aaffbb77</code></td>
+<td>Decode with <code>hex.DecodeString(...)</code>.</td>
+</tr>
+<tr>
+<td><code>[]byte</code></td>
+<td>Any string</td>
+<td>Emit as <code>[]byte("...")</code>.</td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td>JSON object text such as <code>{"key":1}</code></td>
+<td>Emit a quoted JSON string.</td>
+</tr>
+<tr>
+<td>Numeric and boolean types</td>
+<td>Literal such as <code>42</code>, <code>3.14</code>, <code>false</code></td>
+<td>Emit the corresponding Go literal.</td>
+</tr>
+</tbody>
+</table></main>
+</body>
+</html>
