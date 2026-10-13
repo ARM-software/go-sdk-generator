@@ -34,5 +34,3 @@ Commands configured to load from the keyring use non-empty stored values ahead o
 - Keep actual secret values out of manifests, `default_value`, committed `.env` files and generated source: secret marking describes how an input is handled, but does not remove a literal value supplied in the contract.
 - Prefer the system keyring for local credential storage where supported. For CI, supply credentials through the CI system's secret mechanism; see [GitHub Actions integration](use-github-actions.md).
 - Generated `secretutil.ProtectedString` is currently a Go `string` alias. It does not itself encrypt values in memory or prevent a caller from logging them; handle values in handwritten operation code accordingly.
-
-For the broader project workflow, return to [what the generator produces](what-it-generates.md) or [generate a project](generate-a-project.md).

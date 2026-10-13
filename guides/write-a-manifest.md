@@ -55,4 +55,4 @@ This describes a library surface. Add `command_line_commands` if users also need
 - Give operations verb names and write descriptions from a user's perspective. Avoid defining a transport endpoint as an entire operation if the intended action is a higher-level workflow.
 - For incompatible changes to a published contract, document a replacement with `deprecation_notice` before removing the old surface. Follow [breaking changes and deprecation](evolving-a-contract.md).
 
-The [manifest-authoring skill](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md) contains a detailed checklist for agents and maintainers. Next: [generate a project](generate-a-project.md).
+The [manifest-authoring skill](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md) contains a detailed checklist for agents and maintainers.

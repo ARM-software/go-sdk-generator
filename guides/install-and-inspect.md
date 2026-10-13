@@ -67,5 +67,3 @@ go-sdk-generator schema
 ```
 
 `schema` prints the embedded manifest schema as JSON, suitable for inspecting allowed fields with other tools. The [schema source](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml) is also available in the repository. To install the embedded skills into the current repository, run `go-sdk-generator agent --init`.
-
-Next: [write a manifest](write-a-manifest.md) or [generate a project](generate-a-project.md).

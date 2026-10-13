@@ -76,5 +76,3 @@ You can rename the enabling CLI flag by adding an `Enabled` binding to the **CLI
 ```
 
 This changes the default `--page-size` flag to `--use-paging` while retaining the `PageSizeOption.Enabled` destination and its environment binding. Omit the binding to keep the default flag name. See the [pet shop manifest](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml) for the complete option and CLI definitions.
-
-Next: [choose types and defaults](types-and-defaults.md) or [generate a project](generate-a-project.md).
