@@ -13,6 +13,8 @@ compatibility: opencode
 
 Use this skill when the user wants to add, remove, or change fields or behaviour in the generator manifest schema in `schema.yml`.
 
+Read [write a manifest](../../../guides/write-a-manifest.md) for the user-facing contract and [generate and regenerate a project](../../../guides/generate-a-project.md) for the consumer workflow. Keep those guides accurate if the schema changes how users author or generate projects.
+
 ## Required Workflow
 
 Follow this workflow in order:
@@ -26,7 +28,7 @@ Follow this workflow in order:
 7. Regenerate generated files using `go generate ./...`.
 8. Never edit generated files matching `*.gen.*` manually.
 9. Build the updated generator using `go build` in the `cli` project.
-10. Dogfood the updated generator against this repository's own manifest `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release.
+10. Dogfood the updated generator against this repository's own manifest `generate.yml`. Follow [generate and regenerate a project](../../../guides/generate-a-project.md), using the newly built CLI rather than a previous release.
 
 ## Implementation Rules
 
@@ -47,7 +49,7 @@ Follow this workflow in order:
 After implementing the change:
 
 1. Build the generator CLI from this repository using `go build` in the `cli` project.
-2. Run the built generator against `generate.yml`. The `generator` skill may be useful for that process, although the newly built CLI tool should be used rather than a previous release. When doing this in this repository, pass the repository's current Go version explicitly via `--go_version` instead of changing the manifest default value.
+2. Run the built generator against `generate.yml` as in [generate and regenerate a project](../../../guides/generate-a-project.md). Use the newly built CLI rather than a previous release. Pass the repository's current Go version explicitly via `--go_version` instead of changing the manifest default value.
 3. Inspect the generated output for regressions in the generator's own SDK and CLI.
 4. Treat dogfooding as a validation step, not as permission to remove repository-local development wiring or handwritten logic that this repository still needs in order to build, test, or develop the generator itself.
 

@@ -13,6 +13,8 @@ compatibility: opencode
 
 Use this skill when creating or updating a generator manifest such as `generate.yml`, `verify.yml`, `agent.yml`, or another YAML/JSON file that follows `generator/schema/schema.yml`.
 
+Start with [write a manifest](../../../guides/write-a-manifest.md) for the contract shape and minimal example; use [generate and regenerate a project](../../../guides/generate-a-project.md) for the CLI workflow. This skill adds authoring and review detail. Check the [schema](../../../generator/schema/schema.yml) for the definitive field definitions.
+
 ## Goal
 
 Write manifests that are:
@@ -51,6 +53,7 @@ Before finalising a manifest, check:
 - If the project has several commands, do some naturally produce structured results while others do not?
 - Does the manifest use the generator features that help keep the generated project structure consistent?
 - Does the manifest express validation as thoroughly as the real project contract allows?
+- Does it validate against the current schema, and does a generation run produce the intended SDK and CLI surface?
 
 When a manifest definition needs to be more thorough, prefer using richer manifest features where they naturally fit, such as:
 

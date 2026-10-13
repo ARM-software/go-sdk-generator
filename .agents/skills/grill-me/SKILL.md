@@ -13,6 +13,8 @@ compatibility: opencode
 
 Use this skill when the user wants to stress-test a plan against the generator's existing decisions and code.
 
+For proposed changes to user-facing generator behaviour, check the [guide index](../../../guides/index.md) and the [manifest contract guide](../../../guides/write-a-manifest.md) before questioning established behaviour.
+
 This skill is influenced by [Matt Pocock's equivalent skill](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md), but adapted for the generator.
 
 ## What To Do
