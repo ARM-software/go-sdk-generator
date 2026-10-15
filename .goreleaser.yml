@@ -31,6 +31,8 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+    files:
+      - LICENSE
 sboms:
   - artifacts: binary
 checksum:
@@ -54,6 +56,8 @@ nfpms:
     description: |-
       SDK/CLI generator from a specification following [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml)
     contents:
+      - src: ./LICENSE
+        dst: /etc/go-sdk-generator/LICENSE
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
@@ -71,6 +75,8 @@ nfpms:
       # FIXME: nfpm currently produces APK archives that apk-tools rejects when a
       # contents entry uses `type: tree`, so APK packaging lists the skill files
       # explicitly instead of packaging the whole directory as a tree.
+      - src: ./LICENSE
+        dst: /etc/go-sdk-generator/LICENSE
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree

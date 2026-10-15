@@ -1,0 +1,1 @@
+:green_heart: Run TPIP compliance in generated public CI, declare the root LICENSE for CDS, and include the licence file in released tool packages under `/etc/<tool>/LICENSE` on Linux.
