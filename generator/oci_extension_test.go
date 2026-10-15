@@ -39,6 +39,7 @@ func TestOCIHelpers(t *testing.T) {
 	assert.True(t, publishesOCIToGHCR(&spec))
 	assert.Equal(t, "ghcr.io/arm-examples/verify-cmsis-example-sdk", ghcrImageName(&spec))
 	assert.Equal(t, "/etc/verify-cmsis-example-sdk/.agents/skills", toolSkillsInstallPath(&spec))
+	assert.Equal(t, "/etc/verify-cmsis-example-sdk/LICENSE", toolLicenceInstallPath(&spec))
 
 	labels := ociLabels(&spec)
 	assert.Contains(t, labels, OciMetadata{Name: "com.example.label", Value: "true"})
