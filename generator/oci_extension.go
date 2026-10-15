@@ -58,7 +58,7 @@ func precomputeOCIImageDistribution(spec *SDKSpecification) OCIImageDistribution
 }
 
 type DistributionInfo struct {
-	ToolSkillsPath string
+	ToolSkillsPath  string
 	ToolLicencePath string
 }
 
