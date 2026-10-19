@@ -1233,6 +1233,20 @@ _ = someCmd.Flags().MarkDeprecated(someArg, "use replacement instead; deprecated
 	})
 }
 
+func TestCliFlagTypeAndZeroValue(t *testing.T) {
+	t.Run("built-in type keeps its cobra flag type", func(t *testing.T) {
+		flagType, zeroVal := cliFlagTypeAndZeroValue("[]string")
+		assert.Equal(t, "StringSlice", flagType)
+		assert.Equal(t, "[]string{}", zeroVal)
+	})
+
+	t.Run("custom type falls back to string flag", func(t *testing.T) {
+		flagType, zeroVal := cliFlagTypeAndZeroValue("models.FileEntry")
+		assert.Equal(t, "String", flagType)
+		assert.Equal(t, `""`, zeroVal)
+	})
+}
+
 func TestCliRootLevelCallCloud(t *testing.T) {
 	t.Run("nil CommandLineCommands does not panic", func(t *testing.T) {
 

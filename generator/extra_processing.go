@@ -849,8 +849,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 		return
 	}
 
-	flagType := argFlagType(langType)
-	zeroVal := determineZeroValue(langType)
+	flagType, zeroVal := cliFlagTypeAndZeroValue(langType)
 
 	description := binding.Description
 	if cfg.IsRoot {
@@ -896,8 +895,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 		return
 	}
 
-	flagType := argFlagType(langType)
-	zeroVal := determineZeroValue(langType)
+	flagType, zeroVal := cliFlagTypeAndZeroValue(langType)
 
 	desc, err := determineName(cfg.Description, "description")
 	if err != nil {
@@ -925,6 +923,13 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 	flagString = fmt.Sprintf("%v.Flags().Lookup(%v)", funcName, argName)
 
 	return
+}
+
+func cliFlagTypeAndZeroValue(langType string) (flagType string, zeroVal string) {
+	if !isBuiltInManifestLangType(langType) {
+		return "String", `""`
+	}
+	return argFlagType(langType), determineZeroValue(langType)
 }
 
 func preComputeArgNames(cmds *CommandLineCommands, isRoot bool) (out []ArgDefinition, err error) {
