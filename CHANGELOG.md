@@ -2,6 +2,19 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.50.1 (2026-10-19)
+
+## Bugfixes
+
+- :green_heart: Run TPIP compliance in generated public CI, declare the root LICENSE for CDS, and include the licence file in released tool packages under `/etc/<tool>/LICENSE` on Linux. (#202610151230)
+- Dependency upgrade: golang-1.27.1 (#20261014060409694259825)
+- Dependency upgrade: tools-0.52.0 (#20261014060412873157088)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.50.0 (2026-10-13)
 
 ## Features

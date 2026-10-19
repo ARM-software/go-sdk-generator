@@ -348,6 +348,8 @@ func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string,
 		relativePath, err := filesystem.FilePathRel(localFs, expectedDir, path)
 		assert.NoError(t, err)
 
+		relativePath = normaliseFixtureRelativePath(localFs, relativePath)
+
 		expectedFilePath := filesystem.FilePathJoin(localFs, actualDir, relativePath)
 
 		if info.IsDir() {
@@ -366,6 +368,16 @@ func checkFilesAreEqual(t assert.TestingT, actualDir string, expectedDir string,
 		return nil
 	})
 	assert.NoError(t, err)
+}
+
+func normaliseFixtureRelativePath(localFs filesystem.FS, relativePath string) string {
+	parts := strings.FieldsFunc(relativePath, func(r rune) bool {
+		return r == '/' || r == '\\'
+	})
+	if len(parts) == 0 {
+		return relativePath
+	}
+	return filesystem.FilePathJoin(localFs, parts...)
 }
 
 func TestGenerate(t *testing.T) {
