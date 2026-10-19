@@ -7,7 +7,7 @@ go 1.26.0
 tool github.com/dmarkham/enumer
 
 require (
-	github.com/ARM-software/go-sdk-generator/generator v0.46.0
+	github.com/ARM-software/go-sdk-generator/generator v0.50.0
 	github.com/ARM-software/golang-utils/utils v1.170.7
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2

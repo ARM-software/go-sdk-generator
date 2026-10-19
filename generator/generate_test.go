@@ -568,6 +568,24 @@ func TestGenerate(t *testing.T) {
 		assert.NoFileExists(t, filesystem.FilePathJoin(localFs, tmpDir, ".agents", "skills", "using-fpga-service-agent-in-a-github-action", "SKILL.md"))
 	})
 
+	t.Run("CLI go.mod pins and replaces the sibling SDK module", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		ctx := context.Background()
+		cfg := config.DefaultSDKGeneratorManagerConfiguration()
+		cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "cli-package.yml")
+		cfg.Output = tmpDir
+
+		err := Generate(ctx, cfg)
+		require.NoError(t, err)
+
+		goModPath := filesystem.FilePathJoin(localFs, tmpDir, "tools", "go.mod")
+		goModContent, err := filesystem.ReadFile(goModPath)
+		require.NoError(t, err)
+
+		assert.Contains(t, string(goModContent), "github.com/Arm-Debug/cli-package-sdk/clipackage v0.0.0")
+		assert.Contains(t, string(goModContent), "replace github.com/Arm-Debug/cli-package-sdk/clipackage => ../clipackage")
+	})
+
 }
 func TestCompareGoVersions(t *testing.T) {
 	assert.Equal(t, 0, compareGoVersions("1.24.6", "1.24.6"))
