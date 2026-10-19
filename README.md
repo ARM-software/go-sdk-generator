@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest](https://img.shields.io/badge/Manifest-generate.yml-blue)](https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml)
 [![GHCR version](https://img.shields.io/github/v/release/ARM-software/go-sdk-generator?label=container)](https://github.com/orgs/ARM-software/packages/container/package/go-sdk-generator)
+[![Documentation](https://badgen.net/badge/Documentation/GitHub%20Pages/blue?icon=github)](https://arm-software.github.io/go-sdk-generator/)
 [![Licence compliance](https://badgen.net/badge/License%20Report/compliant/green?icon=libraries)](https://arm-software.github.io/go-sdk-generator/third_party_IP_report.html)
 [![SPDX SBOM](https://img.shields.io/badge/SPDX%20SBOM-latest-blue)](https://github.com/ARM-software/go-sdk-generator/actions/workflows/sbom.yml)
 
