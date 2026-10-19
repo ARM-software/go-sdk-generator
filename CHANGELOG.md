@@ -2,6 +2,25 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.51.0 (2026-10-19)
+
+## Features
+
+- :sparkles: Generate CLI module `go.mod` files with a versioned local `replace` to the sibling SDK module so coordinated multi-module CDS releases can update both modules together. (#202610191215)
+
+## Bugfixes
+
+- Dependency upgrade: golang-1.27.2 (#20261019141945539296000)
+
+## Improved Documentation
+
+- :book: Add a GitHub Pages documentation badge to the README. (#202610191305)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.50.1 (2026-10-19)
 
 ## Bugfixes
