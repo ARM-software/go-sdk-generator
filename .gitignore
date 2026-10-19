@@ -27,5 +27,5 @@
 # used in build step
 dist
 .manpages
+.sboms
 go-sdk-generator
-

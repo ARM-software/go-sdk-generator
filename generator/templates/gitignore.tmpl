@@ -27,5 +27,8 @@
 # used in build step
 dist
 .manpages
+{{- if .Specification.Public }}
+.sboms
+{{- end }}
 {{ .Specification.CommandLineCommands.Binary }}
 {{ end }}

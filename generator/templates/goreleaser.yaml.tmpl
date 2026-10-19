@@ -58,6 +58,11 @@ nfpms:
     contents:
       - src: ./LICENSE
         dst: {{ .Distribution.ToolLicencePath }}
+{{- if .Specification.Public }}
+      - src: ./.sboms/
+        dst: {{ .Distribution.ToolSBOMsPath }}/
+        type: tree
+{{- end }}
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
@@ -77,6 +82,11 @@ nfpms:
       # explicitly instead of packaging the whole directory as a tree.
       - src: ./LICENSE
         dst: {{ .Distribution.ToolLicencePath }}
+{{- if .Specification.Public }}
+      - src: ./.sboms/
+        dst: {{ .Distribution.ToolSBOMsPath }}/
+        type: tree
+{{- end }}
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree

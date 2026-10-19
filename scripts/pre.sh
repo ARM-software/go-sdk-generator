@@ -16,3 +16,6 @@ cd cli || exit 1
 go build -o go-sdk-generator .
 mkdir -p ../.manpages
 ./go-sdk-generator man >../.manpages/go-sdk-generator.1
+cd .. || exit 1
+mkdir -p .sboms
+cd-generate-spdx -o .sboms -v
