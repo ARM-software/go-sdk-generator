@@ -60,12 +60,14 @@ func precomputeOCIImageDistribution(spec *SDKSpecification) OCIImageDistribution
 type DistributionInfo struct {
 	ToolSkillsPath  string
 	ToolLicencePath string
+	ToolSBOMsPath   string
 }
 
 func precomputeDistribution(spec *SDKSpecification) DistributionInfo {
 	return DistributionInfo{
 		ToolSkillsPath:  toolSkillsInstallPath(spec),
 		ToolLicencePath: toolLicenceInstallPath(spec),
+		ToolSBOMsPath:   toolSBOMsInstallPath(spec),
 	}
 }
 
@@ -144,6 +146,19 @@ func toolLicenceInstallPath(spec *SDKSpecification) string {
 	}
 
 	return fmt.Sprintf("/etc/%s/LICENSE", binary)
+}
+
+func toolSBOMsInstallPath(spec *SDKSpecification) string {
+	if spec == nil {
+		return ""
+	}
+
+	packageName := strings.TrimSpace(spec.PackageName)
+	if reflection.IsEmpty(packageName) {
+		return ""
+	}
+
+	return fmt.Sprintf("/etc/%s/sboms", packageName)
 }
 
 func ociLabels(spec *SDKSpecification) []OciMetadata {

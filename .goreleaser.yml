@@ -58,6 +58,9 @@ nfpms:
     contents:
       - src: ./LICENSE
         dst: /etc/go-sdk-generator/LICENSE
+      - src: ./.sboms/
+        dst: /etc/go-sdk-generator/sboms/
+        type: tree
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
@@ -77,6 +80,9 @@ nfpms:
       # explicitly instead of packaging the whole directory as a tree.
       - src: ./LICENSE
         dst: /etc/go-sdk-generator/LICENSE
+      - src: ./.sboms/
+        dst: /etc/go-sdk-generator/sboms/
+        type: tree
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree

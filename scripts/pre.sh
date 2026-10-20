@@ -16,3 +16,10 @@ cd cli || exit 1
 go build -o go-sdk-generator .
 mkdir -p ../.manpages
 ./go-sdk-generator man >../.manpages/go-sdk-generator.1
+cd .. || exit 1
+mkdir -p .sboms
+if command -v cd-generate-spdx >/dev/null 2>&1; then
+  cd-generate-spdx -o .sboms -v
+else
+  echo "cd-generate-spdx not found; skipping CDS SPDX generation"
+fi
