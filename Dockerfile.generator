@@ -17,7 +17,7 @@ RUN --mount=type=secret,id=build-secrets . /run/secrets/build-secrets &&\
 
 RUN CGO_ENABLED=0 go build -o /output/generator
 
-FROM alpine:3.24.2
+FROM alpine:3.24.3
 
 RUN addgroup -S app && adduser -S -G app app
 
