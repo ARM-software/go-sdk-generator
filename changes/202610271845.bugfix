@@ -1,0 +1,1 @@
+:green_heart: Update generated public CI workflows to reuse shared `golang-utils` actions via `@latest` and rename the cross-platform build-only job to match its behaviour.
