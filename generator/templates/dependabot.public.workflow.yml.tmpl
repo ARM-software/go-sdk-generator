@@ -34,8 +34,9 @@ jobs:
           PR_URL: ${{ "{{" }}github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ "{{" }}secrets.GITHUB_TOKEN }}
       - name: Assert news
-        run: cd-assert-news -b ${{ "{{" }} github.head_ref || github.ref_name }}
+        run: cd-assert-news -b "$GIT_BRANCH"
         env:
+          GIT_BRANCH: ${{ "{{" }} github.head_ref || github.ref_name }}
           GIT_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN }}
       - name: Auto-merge the PR
         run: |
