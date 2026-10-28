@@ -364,10 +364,12 @@ func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {
 		originalStdout := os.Stdout
 		reader, writer, err := os.Pipe()
 		require.NoError(t, err)
-		os.Stdout = writer
-		defer func() {
+		t.Cleanup(func() {
 			os.Stdout = originalStdout
-		}()
+			_ = reader.Close()
+			_ = writer.Close()
+		})
+		os.Stdout = writer
 
 		annotationLogger, err := resolveAnnotationLogger(baseLogger, config.GenerateAnnotationGithub.String())
 		require.NoError(t, err)
