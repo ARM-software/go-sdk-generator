@@ -77,6 +77,7 @@ const (
 	qltyTemplateFile             = "templates/qlty.toml.tmpl"
 	ciWorkflowFile               = "templates/ci.yml.tmpl"
 	ciWorkflowPublicFile         = "templates/ci.public.yml.tmpl"
+	lintActionsWorkflowFile      = "templates/lint-actions.yml.tmpl"
 	upgradeGeneratorWorkflowFile = "templates/upgrade-generator.yml.tmpl"
 	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
 	dependabotWorkflowPublicFile = "templates/dependabot.public.workflow.yml.tmpl"
@@ -436,6 +437,9 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	}
 
 	generateAction := len(generatedActions) > 0
+	if onGithub && generateAction {
+		templatesToPopulate.addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), cfg.Overwrite, true)
+	}
 
 	if sdk.Specification.CommandLineCommands != nil {
 		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
