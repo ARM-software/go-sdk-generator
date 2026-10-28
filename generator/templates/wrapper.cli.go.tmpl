@@ -29,8 +29,8 @@ import (
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/safeio"
 	{{ if .Specification.CommandLineCommands.UsesResult -}}
-	jsonserialisation "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
-	yamlserialisation "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell
+	jsonserialisation "github.com/ARM-software/golang-utils/utils/serialisation/json"
+	yamlserialisation "github.com/ARM-software/golang-utils/utils/serialisation/yaml"
 	{{ end -}}
 	valueUtils "github.com/ARM-software/golang-utils/utils/value"
 	richlog "github.com/charmbracelet/log"

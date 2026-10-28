@@ -8,7 +8,22 @@ tool github.com/dmarkham/enumer
 
 require (
 	github.com/ARM-software/go-sdk-generator/generator v0.51.0
-	github.com/ARM-software/golang-utils/utils v1.170.7
+	github.com/ARM-software/golang-utils/utils/collection v1.171.2
+	github.com/ARM-software/golang-utils/utils/commonerrors v1.171.2
+	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.171.2
+	github.com/ARM-software/golang-utils/utils/config v1.171.2
+	github.com/ARM-software/golang-utils/utils/environment v1.171.2
+	github.com/ARM-software/golang-utils/utils/field v1.171.2
+	github.com/ARM-software/golang-utils/utils/filesystem v1.171.2
+	github.com/ARM-software/golang-utils/utils/hashing v1.171.2
+	github.com/ARM-software/golang-utils/utils/logs v1.171.2
+	github.com/ARM-software/golang-utils/utils/logs/annotations v1.171.2
+	github.com/ARM-software/golang-utils/utils/logs/summary v1.171.2
+	github.com/ARM-software/golang-utils/utils/parallelisation v1.171.2
+	github.com/ARM-software/golang-utils/utils/reflection v1.171.2
+	github.com/ARM-software/golang-utils/utils/semver v1.171.2
+	github.com/ARM-software/golang-utils/utils/validation v1.171.2
+	github.com/ARM-software/golang-utils/utils/value v1.171.2
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
@@ -19,7 +34,27 @@ require (
 
 require (
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251106193318-19329a3e8410 // indirect
-	github.com/DeRuina/timberjack v1.4.8 // indirect
+	github.com/ARM-software/golang-utils/utils/charset v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/diodes v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/encoding v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/idgen v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/keyring v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/logs/logrimp v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/maps v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/platform v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/proc v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/ptr v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/resource v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/safecast v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/safeio v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/serialisation v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/strings v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/subprocess/command v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/units/multiplication v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/units/size v1.171.2 // indirect
+	github.com/ARM-software/golang-utils/utils/url v1.171.2 // indirect
+	github.com/DeRuina/timberjack v1.4.9 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/avast/retry-go/v4 v4.7.0 // indirect
@@ -40,7 +75,7 @@ require (
 	github.com/djherbis/times v1.6.0 // indirect
 	github.com/dmarkham/enumer v1.6.3 // indirect
 	github.com/dolmen-go/contextio v1.0.0 // indirect
-	github.com/ebitengine/purego v0.10.2 // indirect
+	github.com/ebitengine/purego v0.11.1 // indirect
 	github.com/evanphx/hclogr v0.2.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
@@ -83,7 +118,7 @@ require (
 	github.com/pascaldekloe/name v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/petermattis/goid v0.0.0-20250813065127-a731cc31b4fe // indirect
-	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/power-devops/perfstat v0.0.0-20260805114148-88456608a4f6 // indirect
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7 // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -92,7 +127,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sasha-s/go-deadlock v0.3.9 // indirect
 	github.com/scjalliance/comshim v0.0.0-20190308082608-cf06d2532c4e // indirect
-	github.com/shirou/gopsutil/v4 v4.26.8 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.9 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -101,8 +136,8 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tklauser/go-sysconf v0.3.16 // indirect
-	github.com/tklauser/numcpus v0.11.0 // indirect
+	github.com/tklauser/go-sysconf v0.4.0 // indirect
+	github.com/tklauser/numcpus v0.12.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zalando/go-keyring v0.2.8 // indirect
@@ -113,7 +148,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
-	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
+	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect

@@ -204,8 +204,9 @@ Annotation modes:
 Logging and annotations are independent concerns. For example:
 
 - `logger=rich` with `annotation=none` gives richer human-readable terminal logging without CI annotations.
-- `logger=rich` with `annotation=github` gives richer terminal logging together with GitHub-compatible annotations.
+- `logger=rich` with `annotation=github` gives richer terminal logging together with GitHub-compatible annotations, which fall back to standard output.
 - `logger=none` with `annotation=github` suppresses normal logs while still allowing advanced GitHub annotations.
+
 
 {{ if $primaryCommand }}
 Usage examples:

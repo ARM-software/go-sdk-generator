@@ -23,7 +23,7 @@ const (
 	fieldImportPath              = "github.com/ARM-software/golang-utils/utils/field"
 	filesystemImportPath         = "github.com/ARM-software/golang-utils/utils/filesystem"
 	httpUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/http"
-	jsonUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell // canonical import path
+	jsonUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/serialisation/json" // canonical import path
 	platformImportPath           = "github.com/ARM-software/golang-utils/utils/platform"
 	validationUtilsImportPath    = "github.com/ARM-software/golang-utils/utils/validation"
 	xdgImportPath                = "github.com/adrg/xdg"

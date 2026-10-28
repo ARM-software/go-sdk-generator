@@ -9,8 +9,8 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
-	jsonutils "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell
-	yamlutils "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell
+	jsonutils "github.com/ARM-software/golang-utils/utils/serialisation/json"
+	yamlutils "github.com/ARM-software/golang-utils/utils/serialisation/yaml"
 	jsonschemavalidation "github.com/ARM-software/golang-utils/utils/validation/jsonschema"
 )
 

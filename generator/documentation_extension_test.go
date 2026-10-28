@@ -531,8 +531,8 @@ func TestWrapperTemplateIncludesResultOutputHelpers(t *testing.T) {
 	var b strings.Builder
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "wrapper.cli.go.tmpl", data))
 	output := b.String()
-	assert.Contains(t, output, `jsonserialisation "github.com/ARM-software/golang-utils/utils/serialization/json" //nolint:misspell`) //nolint:misspell
-	assert.Contains(t, output, `yamlserialisation "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell`) //nolint:misspell
+	assert.Contains(t, output, `jsonserialisation "github.com/ARM-software/golang-utils/utils/serialisation/json"`)
+	assert.Contains(t, output, `yamlserialisation "github.com/ARM-software/golang-utils/utils/serialisation/yaml"`)
 	assert.Contains(t, output, "type IResultWriter interface {")
 	assert.Contains(t, output, "Write(result any) error")
 	assert.Contains(t, output, "type HumanWriter struct {")
