@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -350,7 +351,7 @@ func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {
 		assert.Contains(t, stringLogger.GetLogContent(), "::error::broken")
 	})
 
-	t.Run("github annotations remain workflow commands with rich logging", func(t *testing.T) {
+	t.Run("github annotations fall back to stdout with rich logging", func(t *testing.T) {
 		var output bytes.Buffer
 		baseLogger := &RichLoggerAdapter{
 			logger: richlog.New(
@@ -360,10 +361,24 @@ func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {
 			),
 		}
 
+		originalStdout := os.Stdout
+		reader, writer, err := os.Pipe()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			os.Stdout = originalStdout
+			_ = reader.Close()
+			_ = writer.Close()
+		})
+		os.Stdout = writer
+
 		annotationLogger, err := resolveAnnotationLogger(baseLogger, config.GenerateAnnotationGithub.String())
 		require.NoError(t, err)
 		require.NoError(t, annotationLogger.WriteError("broken"))
-		assert.True(t, strings.HasPrefix(strings.TrimSpace(output.String()), "::error::broken"), output.String())
+		require.NoError(t, writer.Close())
+		stdout, err := io.ReadAll(reader)
+		require.NoError(t, err)
+		assert.Contains(t, output.String(), "the chosen logger does not provide support for annotations, stdout will be used for annotations")
+		assert.True(t, strings.HasPrefix(strings.TrimSpace(string(stdout)), "::error::broken"), string(stdout))
 	})
 
 	t.Run("none annotations fall back to plain logger output", func(t *testing.T) {

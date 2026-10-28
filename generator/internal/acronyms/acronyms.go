@@ -12,7 +12,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
-	yamlserialization "github.com/ARM-software/golang-utils/utils/serialization/yaml" //nolint:misspell
+	yamlserialisation "github.com/ARM-software/golang-utils/utils/serialisation/yaml"
 	"github.com/ARM-software/golang-utils/utils/strings/casing"
 	validationjsonschema "github.com/ARM-software/golang-utils/utils/validation/jsonschema"
 )
@@ -87,7 +87,7 @@ func loadRules(ctx context.Context) (*casing.Replacer, error) {
 	}
 
 	var specialWords SpecialWordsSchemaJSON
-	if err = yamlserialization.UnmarshallWithContext(ctx, raw, &specialWords); err != nil {
+	if err = yamlserialisation.UnmarshallWithContext(ctx, raw, &specialWords); err != nil {
 		return nil, commonerrors.WrapError(commonerrors.ErrMarshalling, err, "failed to decode embedded acronym list")
 	}
 	rules := collection.MapRef[SpecialWordsSchemaJSONAcronymsElem, casing.Rule](specialWords.Acronyms, func(entry *SpecialWordsSchemaJSONAcronymsElem) *casing.Rule {
