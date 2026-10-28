@@ -2,6 +2,31 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.52.0 (2026-10-28)
+
+## Features
+
+- :sparkles: Bundle CDS-generated SPDX and third-party IP artefacts into Linux packages under `/etc/<package-name>/sboms` for public generated repositories. (#202610191605)
+- :building_construction: Generate a `lint-actions.yml` workflow for projects that generate GitHub Actions so local actions are linted alongside workflows. (#202610281700)
+
+## Bugfixes
+
+- :green_heart: Fix generated public CI workflows to run checks across all Go modules with or without a `go.work`, while allowing CLI packages with no tests. (#202610201430)
+- :green_heart: Update generated public CI workflows to reuse shared `golang-utils` actions via `@latest` and rename the cross-platform build-only job to match its behaviour. (#202610271845)
+- :camel: Upgrade `github.com/ARM-software/golang-utils/utils` in both the generated CLI and SDK modules. (#202610281536)
+- :recycle: Move generated CLI and SDK imports from `github.com/ARM-software/golang-utils/utils/serialization` to `github.com/ARM-software/golang-utils/utils/serialisation`. (#202610281537)
+- Dependency upgrade: alpine-3.24.3 (#20261026224621766456371)
+- Dependency upgrade: golang-1.27.3 (#20261026224628046010845)
+
+## Improved Documentation
+
+- :book: Clarify that generated `logger=rich` plus `annotation=github` output falls back to standard output for GitHub annotation commands, and refresh the related generated regression fixtures. (#202610281535)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.51.0 (2026-10-19)
 
 ## Features

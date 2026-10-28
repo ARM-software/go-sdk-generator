@@ -1,1 +1,0 @@
-:book: Clarify that generated `logger=rich` plus `annotation=github` output falls back to standard output for GitHub annotation commands, and refresh the related generated regression fixtures.

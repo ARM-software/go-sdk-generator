@@ -1,1 +1,0 @@
-:green_heart: Fix generated public CI workflows to run checks across all Go modules with or without a `go.work`, while allowing CLI packages with no tests.

@@ -1,6 +1,6 @@
 {
   "licence_assessment_counts": {
-    "ALLOW": 100,
+    "ALLOW": 134,
     "DENY": 0,
     "MANUALLY_REVIEWED": 0,
     "REVIEW": 2,
@@ -71,8 +71,8 @@
       "url": "https://github.com/charmbracelet/lipgloss/blob/19329a3e8410/LICENSE",
       "version": "v2.0.0-beta.3.0.20251106193318-19329a3e8410"
     },
-    "github.com/ARM-software/golang-utils/utils": {
-      "anchor": "package-0b3c75d5-c3b6-0282-e475-64792d1a0d3c",
+    "github.com/ARM-software/golang-utils/utils/charset": {
+      "anchor": "package-9c6f07e0-5e9e-aab4-da74-deef449f0ea7",
       "declared_licence": "Apache-2.0",
       "is_compliant": true,
       "is_dependency": true,
@@ -100,7 +100,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/ARM-software/golang-utils/blob/utils/v1.170.7/utils/LICENSE",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/charset/v1.171.2/utils/charset/LICENSE",
           "text": ""
         }
       ],
@@ -110,9 +110,1471 @@
         "reason": ""
       },
       "mark_as_problematic": false,
-      "name": "github.com/ARM-software/golang-utils/utils",
-      "url": "https://github.com/ARM-software/golang-utils/blob/utils/v1.170.7/utils/LICENSE",
-      "version": "v1.170.7"
+      "name": "github.com/ARM-software/golang-utils/utils/charset",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/charset/v1.171.2/utils/charset/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/collection": {
+      "anchor": "package-5d8ebae1-4f27-10ca-0b0e-104d8e677928",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/collection/v1.171.2/utils/collection/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/collection",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/collection/v1.171.2/utils/collection/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/commonerrors": {
+      "anchor": "package-9de7c4a8-6029-e422-b43d-8ecd595d7e72",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/commonerrors/v1.171.2/utils/commonerrors/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/commonerrors",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/commonerrors/v1.171.2/utils/commonerrors/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/config": {
+      "anchor": "package-8cdfaaf9-e467-c220-5937-4f323bbe7370",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/config/v1.171.2/utils/config/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/config",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/config/v1.171.2/utils/config/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/diodes": {
+      "anchor": "package-72addb96-9ba5-e681-3c27-3e4b2ae5d577",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/diodes/v1.171.2/utils/diodes/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/diodes",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/diodes/v1.171.2/utils/diodes/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/encoding/base64": {
+      "anchor": "package-2141e07b-0fa6-49af-e4c3-d4e45e24b5d5",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/encoding/v1.171.2/utils/encoding/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/encoding/base64",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/encoding/v1.171.2/utils/encoding/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/environment": {
+      "anchor": "package-5af10e07-481d-d207-ca39-1e7bd2d0424f",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/environment/v1.171.2/utils/environment/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/environment",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/environment/v1.171.2/utils/environment/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/field": {
+      "anchor": "package-24676c30-1cd1-e992-eba9-d560d3a3000b",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/field/v1.171.2/utils/field/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/field",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/field/v1.171.2/utils/field/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/filesystem": {
+      "anchor": "package-c83d8d78-cb0b-f572-c944-9c3db3ea683f",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/filesystem/v1.171.2/utils/filesystem/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/filesystem",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/filesystem/v1.171.2/utils/filesystem/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/hashing": {
+      "anchor": "package-c4ce792c-2271-cec7-9197-4235a265c6ac",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/hashing/v1.171.2/utils/hashing/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/hashing",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/hashing/v1.171.2/utils/hashing/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/idgen": {
+      "anchor": "package-933033a6-4f34-9eb4-e362-f4ea284933f9",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/idgen/v1.171.2/utils/idgen/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/idgen",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/idgen/v1.171.2/utils/idgen/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/keyring": {
+      "anchor": "package-74151651-4793-03a9-6b4c-ad05f7cee29b",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/keyring/v1.171.2/utils/keyring/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/keyring",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/keyring/v1.171.2/utils/keyring/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/logs": {
+      "anchor": "package-cbcb6a93-d878-1049-370f-825f9443cd9b",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/v1.171.2/utils/logs/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/logs",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/v1.171.2/utils/logs/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/logs/annotations": {
+      "anchor": "package-246b553e-a341-9842-9073-1499656bdd5a",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.171.2/utils/logs/annotations/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/logs/annotations",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.171.2/utils/logs/annotations/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/logs/logrimp": {
+      "anchor": "package-c8498a39-9367-a010-f59c-4480f987b058",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/logrimp/v1.171.2/utils/logs/logrimp/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/logs/logrimp",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/logrimp/v1.171.2/utils/logs/logrimp/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/logs/summary": {
+      "anchor": "package-06627089-4c8a-4028-317a-fbee1656b2dd",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/summary/v1.171.2/utils/logs/summary/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/logs/summary",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/summary/v1.171.2/utils/logs/summary/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/maps": {
+      "anchor": "package-b78fcfbc-8335-9cca-58b0-92d2b2e480a2",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/maps/v1.171.2/utils/maps/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/maps",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/maps/v1.171.2/utils/maps/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/parallelisation": {
+      "anchor": "package-d3ebb9ad-d946-ce54-8081-d437100a166b",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/parallelisation/v1.171.2/utils/parallelisation/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/parallelisation",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/parallelisation/v1.171.2/utils/parallelisation/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/platform": {
+      "anchor": "package-934fc225-4633-92e1-5b0e-c9566f50d955",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/platform/v1.171.2/utils/platform/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/platform",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/platform/v1.171.2/utils/platform/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/proc": {
+      "anchor": "package-35a38d85-09b2-549b-e9f0-1e064a417601",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/proc/v1.171.2/utils/proc/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/proc",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/proc/v1.171.2/utils/proc/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/ptr": {
+      "anchor": "package-3ff27f68-95a6-a4a6-6309-cff4f84c51e4",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/ptr/v1.171.2/utils/ptr/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/ptr",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/ptr/v1.171.2/utils/ptr/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/reflection": {
+      "anchor": "package-f3c130ad-e97b-e0db-8e60-81d67eea0d10",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/reflection/v1.171.2/utils/reflection/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/reflection",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/reflection/v1.171.2/utils/reflection/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/resource": {
+      "anchor": "package-4327757e-a014-494c-89ac-b793f0e2f909",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/resource/v1.171.2/utils/resource/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/resource",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/resource/v1.171.2/utils/resource/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/safecast": {
+      "anchor": "package-cfcf4a15-5f76-a0eb-6e7a-00173334177f",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/safecast/v1.171.2/utils/safecast/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/safecast",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/safecast/v1.171.2/utils/safecast/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/safeio": {
+      "anchor": "package-a72b1716-9837-a3b3-e338-3aaa0c0a1527",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/safeio/v1.171.2/utils/safeio/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/safeio",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/safeio/v1.171.2/utils/safeio/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/semver": {
+      "anchor": "package-8942b7b7-d19b-756b-dc9c-a246011a4bf0",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/semver/v1.171.2/utils/semver/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/semver",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/semver/v1.171.2/utils/semver/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/serialisation": {
+      "anchor": "package-286e005d-77dc-7a49-f370-ebbfa2600871",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/serialisation/v1.171.2/utils/serialisation/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/serialisation",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/serialisation/v1.171.2/utils/serialisation/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/strings": {
+      "anchor": "package-6b412ec8-79b4-ee7d-8b63-2b8d86443263",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/strings/v1.171.2/utils/strings/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/strings",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/strings/v1.171.2/utils/strings/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/strings/casing": {
+      "anchor": "package-58c5a2f2-57f9-9129-a1c8-6ac62d89d222",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.171.2/utils/strings/casing/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/strings/casing",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.171.2/utils/strings/casing/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/subprocess/command": {
+      "anchor": "package-13626777-0feb-8a75-3693-85ff65c85ff4",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/subprocess/command/v1.171.2/utils/subprocess/command/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/subprocess/command",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/subprocess/command/v1.171.2/utils/subprocess/command/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/units/multiplication": {
+      "anchor": "package-6e18bf13-618f-1135-d420-aa88ec21eb63",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/units/multiplication/v1.171.2/utils/units/multiplication/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/units/multiplication",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/units/multiplication/v1.171.2/utils/units/multiplication/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/units/size": {
+      "anchor": "package-ce79d92e-80d7-2587-a8b8-f0a8c613a0cb",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/units/size/v1.171.2/utils/units/size/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/units/size",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/units/size/v1.171.2/utils/units/size/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/url": {
+      "anchor": "package-54a73b5e-e089-bc64-d536-75060f0c6d32",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/url/v1.171.2/utils/url/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/url",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/url/v1.171.2/utils/url/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/validation": {
+      "anchor": "package-b70f849f-94b8-ad7f-1696-e6b03222374f",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/validation/v1.171.2/utils/validation/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/validation",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/validation/v1.171.2/utils/validation/LICENSE",
+      "version": "v1.171.2"
+    },
+    "github.com/ARM-software/golang-utils/utils/value": {
+      "anchor": "package-5b2cbcf0-dfd3-f6bd-30d0-ca34dd2cbedd",
+      "declared_licence": "Apache-2.0",
+      "is_compliant": true,
+      "is_dependency": true,
+      "licence": "Apache-2.0",
+      "licence_assessment": {
+        "assessed_licence_source": "discovered metadata",
+        "automatic_status": "ALLOW",
+        "dependency_licence": "Apache-2.0",
+        "discovered_licence": "Apache-2.0",
+        "manual_review": {
+          "reason": "",
+          "reviewed": false
+        },
+        "project_licence": "Apache-2.0",
+        "reason": "A permissive dependency generally permits redistribution; retain its notices and conditions.",
+        "rule": "permissive-dependency",
+        "scancode_licences": [],
+        "selected_licence": "Apache-2.0",
+        "source": "built-in",
+        "status": "ALLOW"
+      },
+      "licence_candidates": [],
+      "licence_classifiers": [],
+      "licence_compliance_details": "Automatic licence assessment meets the configured policy.",
+      "licence_evidence": [
+        {
+          "kind": "licence",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/value/v1.171.2/utils/value/LICENSE",
+          "text": ""
+        }
+      ],
+      "licence_source": "tool",
+      "manual_check": {
+        "checked": false,
+        "reason": ""
+      },
+      "mark_as_problematic": false,
+      "name": "github.com/ARM-software/golang-utils/utils/value",
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/value/v1.171.2/utils/value/LICENSE",
+      "version": "v1.171.2"
     },
     "github.com/DeRuina/timberjack": {
       "anchor": "package-edb732d7-5ebd-19ff-a723-c8d8c52a7751",
@@ -143,7 +1605,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/DeRuina/timberjack/blob/v1.4.8/LICENSE",
+          "path": "https://github.com/DeRuina/timberjack/blob/v1.4.9/LICENSE",
           "text": ""
         }
       ],
@@ -154,8 +1616,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/DeRuina/timberjack",
-      "url": "https://github.com/DeRuina/timberjack/blob/v1.4.8/LICENSE",
-      "version": "v1.4.8"
+      "url": "https://github.com/DeRuina/timberjack/blob/v1.4.9/LICENSE",
+      "version": "v1.4.9"
     },
     "github.com/OneOfOne/xxhash": {
       "anchor": "package-4e884669-bc70-1c58-2c06-4559af34c15c",
@@ -2995,7 +4457,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/shirou/gopsutil/blob/v4.26.8/LICENSE",
+          "path": "https://github.com/shirou/gopsutil/blob/v4.26.9/LICENSE",
           "text": ""
         }
       ],
@@ -3006,8 +4468,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/shirou/gopsutil/v4",
-      "url": "https://github.com/shirou/gopsutil/blob/v4.26.8/LICENSE",
-      "version": "v4.26.8"
+      "url": "https://github.com/shirou/gopsutil/blob/v4.26.9/LICENSE",
+      "version": "v4.26.9"
     },
     "github.com/sirupsen/logrus": {
       "anchor": "package-2881124d-a3aa-3acb-e08e-2516e4953abb",
@@ -3597,7 +5059,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/tklauser/go-sysconf/blob/v0.3.16/LICENSE",
+          "path": "https://github.com/tklauser/go-sysconf/blob/v0.4.0/LICENSE",
           "text": ""
         }
       ],
@@ -3608,8 +5070,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/tklauser/go-sysconf",
-      "url": "https://github.com/tklauser/go-sysconf/blob/v0.3.16/LICENSE",
-      "version": "v0.3.16"
+      "url": "https://github.com/tklauser/go-sysconf/blob/v0.4.0/LICENSE",
+      "version": "v0.4.0"
     },
     "github.com/tklauser/numcpus": {
       "anchor": "package-2da754ca-4cb3-f189-574e-a98c4e67df40",
@@ -3640,7 +5102,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/tklauser/numcpus/blob/v0.11.0/LICENSE",
+          "path": "https://github.com/tklauser/numcpus/blob/v0.12.0/LICENSE",
           "text": ""
         }
       ],
@@ -3651,8 +5113,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/tklauser/numcpus",
-      "url": "https://github.com/tklauser/numcpus/blob/v0.11.0/LICENSE",
-      "version": "v0.11.0"
+      "url": "https://github.com/tklauser/numcpus/blob/v0.12.0/LICENSE",
+      "version": "v0.12.0"
     },
     "github.com/xo/terminfo": {
       "anchor": "package-210bfc06-85af-11f9-3748-504ec19be87d",
@@ -4113,7 +5575,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://cs.opensource.google/go/x/exp/+/746e56fc:LICENSE",
+          "path": "https://cs.opensource.google/go/x/exp/+/055de637:LICENSE",
           "text": ""
         }
       ],
@@ -4124,8 +5586,8 @@
       },
       "mark_as_problematic": false,
       "name": "golang.org/x/exp/maps",
-      "url": "https://cs.opensource.google/go/x/exp/+/746e56fc:LICENSE",
-      "version": "v0.0.0-20260410095643-746e56fc9e2f"
+      "url": "https://cs.opensource.google/go/x/exp/+/055de637:LICENSE",
+      "version": "v0.0.0-20260603202125-055de637280b"
     },
     "golang.org/x/mod": {
       "anchor": "package-8d7a121b-f7b5-b730-849c-fbdd2e0a109d",
@@ -4479,7 +5941,7 @@
     "licence_href": "https://github.com/ARM-software/go-sdk-generator/blob/main/LICENSE",
     "name": "SDK Generator"
   },
-  "render_time": "2026-10-19T15:20:27.199371",
+  "render_time": "2026-10-28T16:40:39.210192",
   "undocumented_exemptions": [],
   "unknown_licences": [
     "github.com/klauspost/compress",

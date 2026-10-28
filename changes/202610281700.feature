@@ -1,1 +1,0 @@
-:building_construction: Generate a `lint-actions.yml` workflow for projects that generate GitHub Actions so local actions are linted alongside workflows.
