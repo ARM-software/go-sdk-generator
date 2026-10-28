@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "::error:: News file missing (See CONTRIBUTING.md guide for details)."
           echo "## :warning: CI failure" >> "$GITHUB_STEP_SUMMARY"
-          echo "News file missing. See \\`CONTRIBUTING.md\\` for the expected news file format and location." >> "$GITHUB_STEP_SUMMARY"
+          echo "News file missing. See CONTRIBUTING.md for the expected news file format and location." >> "$GITHUB_STEP_SUMMARY"
 
   detect-secrets:
     name: Check for secrets
@@ -239,7 +239,7 @@ jobs:
         if: ${{ failure() }}
         run: |
           echo "## :warning: CI failure" >> "$GITHUB_STEP_SUMMARY"
-          echo "Build failed for module \\`${{ matrix.go-module }}\\` on runner \\`${{ matrix.os }}\\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "Build failed for module ${{ matrix.go-module }} on runner ${{ matrix.os }}." >> "$GITHUB_STEP_SUMMARY"
   dogfood-action:
     name: Dogfood Action
     runs-on: ubuntu-latest

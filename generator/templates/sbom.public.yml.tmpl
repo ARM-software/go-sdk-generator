@@ -67,8 +67,8 @@ jobs:
             echo
             echo "Generated third-party IP reports and SPDX tag-value documents with CDS."
             echo
-            echo "- HTML report: \`third_party_IP_report.html\`"
-            echo "- Download: available from the \`cds-spdx\` workflow artifact for this run"
+            echo "- HTML report: third_party_IP_report.html"
+            echo "- Download: available from the cds-spdx workflow artifact for this run"
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload CDS SPDX artifact
@@ -114,6 +114,6 @@ jobs:
             echo
             echo "Generated an SPDX JSON SBOM with Syft."
             echo
-            echo "- Filename: \`sbom.spdx.json\`"
-            echo "- Download: available from the \`spdx-sbom\` workflow artifact for this run"
+            echo "- Filename: sbom.spdx.json"
+            echo "- Download: available from the spdx-sbom workflow artifact for this run"
           } >> "${GITHUB_STEP_SUMMARY}"

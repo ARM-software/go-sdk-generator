@@ -2,7 +2,7 @@ name: Action integration tests
 
 # Cancel in-progress jobs or runs for the current workflow
 concurrency:
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ inputs.branch || github.head_ref || github.ref }}
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 on:
