@@ -26,7 +26,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/value v1.171.2
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
-	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
+	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
