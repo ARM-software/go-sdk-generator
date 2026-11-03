@@ -3,6 +3,7 @@ specification:
   main_module: enumtest
   name: EnumTest
   description: Test manifest ensuring string enums generate validation, constants, and CLI help text.
+  update_copyright_headers: false
 
   interface:
     methods:

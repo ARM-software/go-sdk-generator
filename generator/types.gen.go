@@ -2142,6 +2142,26 @@ type SDKSpecification struct {
 	// Other forges are not currently supported for GitHub-specific outputs.
 	//
 	RepositoryUrl *string `json:"repository_url,omitempty,omitzero" yaml:"repository_url,omitempty" mapstructure:"repository_url,omitempty"`
+
+	// Automatically maintain a `latest` tag pointing to the most recent stable
+	// release.
+	// Consumers can follow published releases without changing their references,
+	// rather than tracking a development branch.
+	// This convenience sacrifices reproducibility and may introduce breaking changes.
+	//
+	TagLatest bool `json:"tag_latest,omitempty,omitzero" yaml:"tag_latest,omitempty" mapstructure:"tag_latest,omitempty"`
+
+	// Automatically maintain source-file copyright headers, which identify copyright
+	// holders,
+	// applicable years and SPDX licence identifiers. These headers establish
+	// attribution,
+	// clarify licensing terms and support automated licence checks.
+	// On GitHub, enabling this adds a workflow that updates headers on pull requests
+	// and
+	// periodically proposes maintenance changes; generator upgrades also refresh
+	// headers.
+	//
+	UpdateCopyrightHeaders bool `json:"update_copyright_headers,omitempty,omitzero" yaml:"update_copyright_headers,omitempty" mapstructure:"update_copyright_headers,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -2172,6 +2192,12 @@ func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["public"]; !ok || v == nil {
 		plain.Public = false
+	}
+	if v, ok := raw["tag_latest"]; !ok || v == nil {
+		plain.TagLatest = false
+	}
+	if v, ok := raw["update_copyright_headers"]; !ok || v == nil {
+		plain.UpdateCopyrightHeaders = true
 	}
 	*j = SDKSpecification(plain)
 	return nil

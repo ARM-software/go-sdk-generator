@@ -3,6 +3,7 @@ specification:
   main_module: portalentities
   name: PortalEntities
   description: Test manifest ensuring custom lang_type values are normalised to generated type casing.
+  update_copyright_headers: false
 
   interface:
     methods:

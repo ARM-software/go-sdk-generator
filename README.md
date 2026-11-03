@@ -256,10 +256,13 @@ At a high level, the manifest describes:
 
 - `specification.package_name`: the generated module or package identity
 - `specification.main_module`: the main generated Go module within the project
+- `specification.repository_url` and `specification.public`: repository location and public/private status for generated project metadata and hosting integrations
 - `specification.interface`: the SDK methods users call from Go
 - `specification.command_line_commands`: the CLI binary, commands, and flags
 - `specification.global_configuration`: shared configuration used across SDK and CLI
 - `specification.additional_types`: extra exported types the generated SDK should expose
+- `specification.tag_latest`: optionally keep a moving `latest` tag on the newest stable release (defaults to `false`); pin a version for reproducible builds
+- `specification.update_copyright_headers`: keep source-file attribution, years and SPDX licence identifiers current automatically (defaults to `true`)
 
 At the field and parameter level, a few flags are especially important:
 
