@@ -4,9 +4,6 @@ name: Licensing
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
   schedule:
     - cron: '17 3 * * *'
 

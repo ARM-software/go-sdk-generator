@@ -135,7 +135,7 @@ Stable releases also maintain a `latest` tag. It lets consumers follow published
 
 {{ end -}}
 {{ if .Specification.UpdateCopyrightHeaders -}}
-Copyright headers identify source-file ownership, years and SPDX licence identifiers. {{ if isHostedOnGitHub .Specification }}The generated workflow maintains these headers on pull requests and proposes updates on scheduled or manual runs.{{ end }}
+Copyright headers identify source-file ownership, years and SPDX licence identifiers. {{ if isHostedOnGitHub .Specification }}The generated CI workflow refreshes them after PR regeneration, and the generated licensing workflow proposes updates on scheduled or manual runs.{{ end }}
 
 {{ end -}}
 # Detecting secrets

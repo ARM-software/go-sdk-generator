@@ -129,7 +129,7 @@ The version number will be automatically calculated, based on the news files.
 
 Stable releases also maintain a `latest` tag. It lets consumers follow published releases without updating references, but the moving tag is not reproducible and may introduce breaking changes; pin a version where stability matters.
 
-Copyright headers identify source-file ownership, years and SPDX licence identifiers. When `specification.update_copyright_headers` is enabled, the generated GitHub workflow maintains these headers on pull requests and proposes updates on scheduled or manual runs.
+Copyright headers identify source-file ownership, years and SPDX licence identifiers. When `specification.update_copyright_headers` is enabled, the generated CI workflow refreshes these headers after PR regeneration, and the generated licensing workflow proposes updates on scheduled or manual runs.
 
 # Detecting secrets
 
