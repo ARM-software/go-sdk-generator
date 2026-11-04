@@ -8,6 +8,7 @@
 .github/dependabot.yml linguist-generated=true
 .github/workflows/ci.yml linguist-generated=true
 .github/workflows/dependabot.yml linguist-generated=true
+.github/workflows/licensing.yml linguist-generated=true
 .github/workflows/lint-actions.yml linguist-generated=true
 .github/workflows/release.yml linguist-generated=true
 .github/workflows/sbom.yml linguist-generated=true

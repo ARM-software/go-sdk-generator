@@ -16,10 +16,12 @@ Use [`generator/schema/schema.yml`](https://github.com/ARM-software/go-sdk-gener
 | Field | Purpose |
 | --- | --- |
 | `package_name`, `main_module`, `name`, `description` | Project and SDK identity. |
+| `repository_url`, `public` | Repository location and whether the project is public; used across generated project metadata and hosting integrations. |
 | `interface` | Public Go operations and their arguments and results. |
 | `global_configuration` | Values shared across the SDK and CLI. |
 | `command_line_commands` | Optional binary and commands exposing those operations. |
 | `additional_types` | Optional domain types used by the contract. |
+| `tag_latest`, `update_copyright_headers` | Optional release tagging and copyright-header maintenance settings. |
 
 When operations accept functional options, use `specification.options`; see [configure functional options](configure-options.md) for option wrappers, `value_field` and CLI bindings.
 
@@ -46,6 +48,11 @@ specification:
 ```
 
 This describes a library surface. Add `command_line_commands` if users also need a CLI; see the [repository manifest](https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml) for commands, flags, and shared configuration. Adapt the namespace, name, operation, and licence to your project. [What the generator produces](what-it-generates.md) explains the resulting project structure.
+
+Repository-level automation can also be controlled from the top level of `specification`:
+
+- `tag_latest` defaults to `false`. Set it to `true` to keep a `latest` tag pointing to the most recent stable release. Consumers can follow published releases without updating their references or tracking a development branch. Because the tag moves, builds that use it are not reproducible and can pick up breaking changes; pin a version when that matters. See [Docker's guidance on tags and aliases](https://github.com/docker-library/official-images#tags-and-aliases) and [pinning image versions](https://docs.docker.com/build/building/best-practices/#pin-base-image-versions), and [GitHub's guidance on managing action versions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions).
+- `update_copyright_headers` defaults to `true`. Copyright headers identify the copyright holders and ownership of source files, often with applicable years and an SPDX licence identifier. They support attribution, clear licensing terms, and automated licence checks. For GitHub-hosted projects, enabling this setting generates a workflow that updates headers on pull requests and proposes a maintenance pull request on scheduled or manual runs. Generator upgrades refresh headers too. Set it to `false` to opt out. See the [REUSE specification](https://reuse.software/spec-3.3/) and [GNU copyright notice guidance](https://www.gnu.org/prep/maintain/html_node/Copyright-Notices.html).
 
 ## Model values deliberately
 

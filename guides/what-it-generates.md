@@ -11,7 +11,7 @@ The [manifest](write-a-manifest.md) defines one concern and the user-facing oper
 - interfaces and implementation scaffolding for SDK operations;
 - an optional [Cobra](https://cobra.dev/)-style CLI backed by the same configuration model and [Viper](https://github.com/spf13/viper)-style configuration sources;
 - a reusable Go-based entrypoint for step-level [GitHub Actions](use-github-actions.md);
-- generated documentation and supporting project files.
+- generated documentation, release configuration in `pyproject.toml`, and supporting project files.
 
 The [types and defaults reference](types-and-defaults.md) describes built-in value formats. The [generated command reference](https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md) covers this repository's Go SDK and CLI interfaces.
 
@@ -26,5 +26,7 @@ Generation provides structure and boilerplate, not the domain-specific logic beh
 - Use a generated action in CI to invoke the same Go tool rather than duplicating its logic in shell or JavaScript.
 
 The same implementation can serve library users, command-line users and automation while remaining testable as Go code. A generated action represents an operation or a step; a [GitHub Actions workflow](https://docs.github.com/actions/using-workflows) or task runner still defines how multiple steps fit together. See [use GitHub Actions](use-github-actions.md) for workflow examples.
+
+For GitHub-hosted repositories, those supporting files include repository workflows such as CI, release automation, dependency updates, and optional copyright-header maintenance when `specification.update_copyright_headers` is enabled.
 
 As the generator gains improvements to documentation, support files, defaults and repository conventions, regenerated projects can adopt them. Review regenerated files, preserve handwritten implementation logic and [manage incompatible contract changes](evolving-a-contract.md) deliberately.

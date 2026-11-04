@@ -43,11 +43,14 @@ jobs:
           overwrite: ${{ "{{" }} github.event.inputs.overwrite || 'false' }}
           go-version: {{ .TargetedGoVersion }}
 
+{{ if .Specification.UpdateCopyrightHeaders }}
       - name: Refresh licence files
         shell: bash
         run: |
           python -m pip install continuous-delivery-scripts
           cd-license-files
+
+{{ end }}
 
       - name: Detect generated changes
         id: generated-changes
