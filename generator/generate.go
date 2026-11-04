@@ -82,6 +82,7 @@ const (
 	dependabotWorkflowFile       = "templates/dependabot.workflow.yml.tmpl"
 	dependabotWorkflowPublicFile = "templates/dependabot.public.workflow.yml.tmpl"
 	sbomWorkflowPublicFile       = "templates/sbom.public.yml.tmpl"
+	licensingWorkflowFile        = "templates/licensing.yml.tmpl"
 	releaseWorkflowFile          = "templates/release.yml.tmpl"
 	releaseWorkflowPublicFile    = "templates/release.public.yml.tmpl"
 	goreleaserFile               = "templates/goreleaser.yaml.tmpl"
@@ -423,6 +424,9 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), cfg.Overwrite, true)
 		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), cfg.Overwrite, true)
+		if sdk.Specification.UpdateCopyrightHeaders {
+			templatesToPopulate.addStateFile(licensingWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "licensing.yml"), cfg.Overwrite, true)
+		}
 		if sdk.Specification.Public {
 			templatesToPopulate.addStateFile(sbomWorkflowPublicFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "sbom.yml"), cfg.Overwrite, true)
 		}

@@ -101,6 +101,7 @@ specification:
   main_module: agent
   name: FPGAServiceAgent
   description: The FPGA Service Agent manages the FPGA host tools and the connection to the FPGA serial connection
+  update_copyright_headers: false
 
   additional_types:
     - name: AuthenticationPayload

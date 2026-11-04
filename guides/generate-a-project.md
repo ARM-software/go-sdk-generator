@@ -25,6 +25,8 @@ go test ./...
 
 `go mod tidy` resolves dependencies; `go generate ./...` runs generated directives, such as mock generation. Implement the generated operation stubs in Go and test the resulting behaviour. The manifest is the source of truth for the *surface*, not an implementation of the operations.
 
+Also review generated repository automation files such as `pyproject.toml` and `.github/workflows/`. Top-level manifest settings like `tag_latest` and `update_copyright_headers` change those outputs. On an existing project, use `--overwrite` to update stateful generated files such as `pyproject.toml` and the workflows. If you turn off automatic copyright maintenance, remove any previously generated licensing workflow that remains in the project.
+
 For a multi-module workspace, repeat the commands in each generated module rather than running `go mod tidy` from the workspace root. See [what the generator produces](what-it-generates.md) for the distinction between generated scaffolding and handwritten logic.
 
 ## Change the contract later

@@ -160,6 +160,22 @@ properties:
         description: |
           Whether the project is public.
           Public projects are expected not to rely on private dependencies or need access to private resources.
+      tag_latest:
+        type: boolean
+        default: false
+        description: |
+          Automatically maintain a `latest` tag pointing to the most recent stable release.
+          Consumers can follow published releases without changing their references, rather than tracking a development branch.
+          This convenience sacrifices reproducibility and may introduce breaking changes.
+      update_copyright_headers:
+        type: boolean
+        default: true
+        description: |
+          Automatically maintain source-file copyright headers, which identify copyright holders,
+          applicable years and SPDX licence identifiers. These headers establish attribution,
+          clarify licensing terms and support automated licence checks.
+          On GitHub, enabling this adds a workflow that updates headers on pull requests and
+          periodically proposes maintenance changes; generator upgrades also refresh headers.
       licence:
         type: string
         description: The licence SPDX identifier (https://spdx.org/licenses/) for the SDK

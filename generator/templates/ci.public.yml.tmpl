@@ -94,7 +94,7 @@ jobs:
   update-generated-files:
     name: Update generated files
     runs-on: ubuntu-latest
-    if: ${{ "{{" }} github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    if: ${{ "{{" }} github.actor != 'github-actions[bot]' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     permissions:
       contents: write
     steps:
@@ -154,6 +154,13 @@ jobs:
       - name: Sync workspace
         if: ${{ "{{" }} hashFiles('go.work') != '' }}
         uses: ARM-software/golang-utils/actions/sync-go-workspace@latest
+{{ if .Specification.UpdateCopyrightHeaders }}
+      - uses: actions/setup-python@v6
+      - name: Install CI/CD tools
+        run: pip install 'continuous-delivery-scripts>=4.8.0' && pip list
+      - name: Update copyright headers after generation
+        run: cd-license-files
+{{ end }}
       - name: Commit generated changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
