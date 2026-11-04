@@ -17,24 +17,10 @@ The interface that this project provides, including what CLI commands are availa
 
 ##### On Linux
 
-On Debian based systems:
+Install `go-sdk-generator` using whichever method your environment supports:
 
-1. Make the dependencies available on the host:
- * `echo "deb [trusted=yes] http://$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD@localhost:80/artifactory/cmsis-tools bionic main" | sudo tee /etc/apt/sources.list.d/artifactory.list && echo "deb [trusted=yes] https://$ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD@$ARTIFACTORY_HOST/artifactory/cmsis-tools bionic main" | sudo tee /etc/apt/sources.list.d/artifactory.list`
-2. Run `sudo apt install go-sdk-generator`
-
-On Red Hat based systems:
-
-1. Make the dependencies available on the host:
-    * Create a source file such as `/etc/yum.repos.d/fpga-artifactory.repo`
-    * Add the following content:
-    ```
-    [ArmToolsArtifactory]
-    name=Arm Tools Artifactory
-    baseurl=https://artifactory.internal.tools.arm.com/artifactory/fpga-service-rpm
-    enabled=1
-    ```
-2. Run `sudo yum install go-sdk-generator`
+1. If your distribution package repositories already provide the tool, install it with the system package manager such as `apt`, `dnf`, or `yum`.
+2. Otherwise, install it from the project's published release artefacts.
 
 ##### Other systems
 
@@ -81,25 +67,24 @@ To run individual hooks use `pre-commit run <hook_id>`.
 
 # GitHub Secrets Configuration
 
-> :information_source: **For CI/CD only** - local builds use your personal GitHub credentials.
+> :information_source: **For CI/CD only**. Local builds normally use the credentials already available in your development environment.
 
-This project depends on private Arm repositories (e.g., `github.com/ARM-software/golang-utils`). GitHub Actions CI requires authentication to download these dependencies.
+Some workflows may require repository secrets when they need to fetch private dependencies, download private release assets, or create automated pull requests.
 
-## Setup Required: `GIT_SECRET`
+## When secrets are needed
 
-Add `GIT_SECRET` in **both** of the following locations (required for both normal CI and Dependabot):
+1. Review the workflow files under `.github/workflows/` to see which secrets, if any, are expected.
+2. Add those secrets only where needed:
+   - **Actions:** Settings -> Secrets and variables -> Actions
+   - **Dependabot:** Settings -> Secrets and variables -> Dependabot
+3. Use least-privilege credentials with only the scopes required for the workflow.
 
-1. **Actions:** Settings → Secrets and variables → Actions → New repository secret
-2. **Dependabot:** Settings → Secrets and variables → Dependabot → New repository secret
-
-**Secret value:** Retrieve from [Arm Secret Server](https://arm.secretservercloud.co.uk/app/#/secrets/4634/general)
-
-> :warning: If not configured in both places, CI will fail with authentication errors when downloading private dependencies.
+If the repository and all of its dependencies are public, no extra secret configuration may be required.
 
 # Dependency upgrades
 
-For dependency upgrades, dependabot is relied upon and news files are auto-generated in order to document such change.
-For this to work though, the secret described above needs to be set
+For dependency upgrades, Dependabot is used and news files are auto-generated to document the change.
+If your upgrade workflows require access to private resources, configure the necessary secrets before enabling that automation.
 
 # Releasing
 
