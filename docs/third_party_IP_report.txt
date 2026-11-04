@@ -1,6 +1,6 @@
                                 3rd party IP report for SDK Generator
 
-                                         2026-10-28 16:40:39.210192
+                                         2026-11-04 19:00:20.485944
 
 # Summary:
     Licence compliance: Compliant
@@ -1168,12 +1168,12 @@
 - github.com/go-ozzo/ozzo-validation/v4:
     [X] Compliant?
     [X] Dependency?
-    URL: https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE
+    URL: https://github.com/go-ozzo/ozzo-validation/blob/v4.5.0/LICENSE
     Licence: MIT
     Licence source: tool
     Declared licence: MIT
     Licence classifiers: None
-    Evidence: licence: https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE
+    Evidence: licence: https://github.com/go-ozzo/ozzo-validation/blob/v4.5.0/LICENSE
     Licence compliance: Automatic licence assessment meets the configured policy.
     Licence assessment: ALLOW (automatic: ALLOW) — A permissive dependency generally permits redistribution; retain its notices and conditions.
 

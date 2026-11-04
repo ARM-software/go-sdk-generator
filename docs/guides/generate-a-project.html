@@ -35,6 +35,7 @@ go generate ./...
 go test ./...
 </code></pre>
 <p><code>go mod tidy</code> resolves dependencies; <code>go generate ./...</code> runs generated directives, such as mock generation. Implement the generated operation stubs in Go and test the resulting behaviour. The manifest is the source of truth for the <em>surface</em>, not an implementation of the operations.</p>
+<p>Also review generated repository automation files such as <code>pyproject.toml</code> and <code>.github/workflows/</code>. Top-level manifest settings like <code>tag_latest</code> and <code>update_copyright_headers</code> change those outputs. On an existing project, use <code>--overwrite</code> to update stateful generated files such as <code>pyproject.toml</code> and the workflows. If you turn off automatic copyright maintenance, remove any previously generated licensing workflow that remains in the project.</p>
 <p>For a multi-module workspace, repeat the commands in each generated module rather than running <code>go mod tidy</code> from the workspace root. See <a href="what-it-generates.html">what the generator produces</a> for the distinction between generated scaffolding and handwritten logic.</p>
 <h2>Change the contract later</h2>
 <ol>

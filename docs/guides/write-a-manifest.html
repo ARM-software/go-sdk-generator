@@ -41,6 +41,10 @@ SPDX-License-Identifier: Apache-2.0
 <td>Project and SDK identity.</td>
 </tr>
 <tr>
+<td><code>repository_url</code>, <code>public</code></td>
+<td>Repository location and whether the project is public; used across generated project metadata and hosting integrations.</td>
+</tr>
+<tr>
 <td><code>interface</code></td>
 <td>Public Go operations and their arguments and results.</td>
 </tr>
@@ -55,6 +59,10 @@ SPDX-License-Identifier: Apache-2.0
 <tr>
 <td><code>additional_types</code></td>
 <td>Optional domain types used by the contract.</td>
+</tr>
+<tr>
+<td><code>tag_latest</code>, <code>update_copyright_headers</code></td>
+<td>Optional release tagging and copyright-header maintenance settings.</td>
 </tr>
 </tbody>
 </table>
@@ -79,6 +87,11 @@ SPDX-License-Identifier: Apache-2.0
   global_configuration: []
 </code></pre>
 <p>This describes a library surface. Add <code>command_line_commands</code> if users also need a CLI; see the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml">repository manifest</a> for commands, flags, and shared configuration. Adapt the namespace, name, operation, and licence to your project. <a href="what-it-generates.html">What the generator produces</a> explains the resulting project structure.</p>
+<p>Repository-level automation can also be controlled from the top level of <code>specification</code>:</p>
+<ul>
+<li><code>tag_latest</code> defaults to <code>false</code>. Set it to <code>true</code> to keep a <code>latest</code> tag pointing to the most recent stable release. Consumers can follow published releases without updating their references or tracking a development branch. Because the tag moves, builds that use it are not reproducible and can pick up breaking changes; pin a version when that matters. See <a href="https://github.com/docker-library/official-images#tags-and-aliases">Docker's guidance on tags and aliases</a> and <a href="https://docs.docker.com/build/building/best-practices/#pin-base-image-versions">pinning image versions</a>, and <a href="https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions">GitHub's guidance on managing action versions</a>.</li>
+<li><code>update_copyright_headers</code> defaults to <code>true</code>. Copyright headers identify the copyright holders and ownership of source files, often with applicable years and an SPDX licence identifier. They support attribution, clear licensing terms, and automated licence checks. For GitHub-hosted projects, enabling this setting generates a workflow that updates headers on pull requests and proposes a maintenance pull request on scheduled or manual runs. Generator upgrades refresh headers too. Set it to <code>false</code> to opt out. See the <a href="https://reuse.software/spec-3.3/">REUSE specification</a> and <a href="https://www.gnu.org/prep/maintain/html_node/Copyright-Notices.html">GNU copyright notice guidance</a>.</li>
+</ul>
 <h2>Model values deliberately</h2>
 <ul>
 <li>Use specific <code>lang_type</code> aliases such as <code>duration</code>, <code>uuid</code>, <code>filepath</code>, or <code>service</code> where they match the value. See <a href="types-and-defaults.html">types, formats and defaults</a> for the complete built-in reference. Prefer <code>reference: true</code>, <code>list: true</code>, or <code>iterator: true</code> to encoding shapes into the type string; <code>list</code> and <code>iterator</code> cannot be combined.</li>

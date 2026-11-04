@@ -2852,7 +2852,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE",
+          "path": "https://github.com/go-ozzo/ozzo-validation/blob/v4.5.0/LICENSE",
           "text": ""
         }
       ],
@@ -2863,8 +2863,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/go-ozzo/ozzo-validation/v4",
-      "url": "https://github.com/go-ozzo/ozzo-validation/blob/v4.4.1/LICENSE",
-      "version": "v4.4.1"
+      "url": "https://github.com/go-ozzo/ozzo-validation/blob/v4.5.0/LICENSE",
+      "version": "v4.5.0"
     },
     "github.com/go-viper/mapstructure/v2": {
       "anchor": "package-b985d432-f362-6f35-ba3c-5da8ef88404a",
@@ -5941,7 +5941,7 @@
     "licence_href": "https://github.com/ARM-software/go-sdk-generator/blob/main/LICENSE",
     "name": "SDK Generator"
   },
-  "render_time": "2026-10-28T16:40:39.210192",
+  "render_time": "2026-11-04T19:00:20.485944",
   "undocumented_exemptions": [],
   "unknown_licences": [
     "github.com/klauspost/compress",

@@ -2,6 +2,25 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.0 (2026-11-04)
+
+## Features
+
+- :sparkles: Add manifest options for latest release tagging and automatic copyright header maintenance. (#20261103112202131315200)
+
+## Bugfixes
+
+- Dependency upgrade: v4-4.5.0 (#20261030224509761994040, #20261030224520822560694)
+
+## Misc
+
+- #20261103114009475549097
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.52.0 (2026-10-28)
 
 ## Features

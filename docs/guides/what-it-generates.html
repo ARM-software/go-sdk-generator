@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 <li>interfaces and implementation scaffolding for SDK operations;</li>
 <li>an optional <a href="https://cobra.dev/">Cobra</a>-style CLI backed by the same configuration model and <a href="https://github.com/spf13/viper">Viper</a>-style configuration sources;</li>
 <li>a reusable Go-based entrypoint for step-level <a href="use-github-actions.html">GitHub Actions</a>;</li>
-<li>generated documentation and supporting project files.</li>
+<li>generated documentation, release configuration in <code>pyproject.toml</code>, and supporting project files.</li>
 </ul>
 <p>The <a href="types-and-defaults.html">types and defaults reference</a> describes built-in value formats. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md">generated command reference</a> covers this repository's Go SDK and CLI interfaces.</p>
 <h2>What you still implement</h2>
@@ -42,6 +42,7 @@ SPDX-License-Identifier: Apache-2.0
 <li>Use a generated action in CI to invoke the same Go tool rather than duplicating its logic in shell or JavaScript.</li>
 </ul>
 <p>The same implementation can serve library users, command-line users and automation while remaining testable as Go code. A generated action represents an operation or a step; a <a href="https://docs.github.com/actions/using-workflows">GitHub Actions workflow</a> or task runner still defines how multiple steps fit together. See <a href="use-github-actions.html">use GitHub Actions</a> for workflow examples.</p>
+<p>For GitHub-hosted repositories, those supporting files include repository workflows such as CI, release automation, dependency updates, and optional copyright-header maintenance when <code>specification.update_copyright_headers</code> is enabled.</p>
 <p>As the generator gains improvements to documentation, support files, defaults and repository conventions, regenerated projects can adopt them. Review regenerated files, preserve handwritten implementation logic and <a href="evolving-a-contract.html">manage incompatible contract changes</a> deliberately.</p></main>
 </body>
 </html>
