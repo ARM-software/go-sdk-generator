@@ -4,8 +4,6 @@ module github.com/ARM-software/go-sdk-generator/cli
 
 go 1.27.3
 
-toolchain go1.27.3
-
 tool github.com/dmarkham/enumer
 
 require (
