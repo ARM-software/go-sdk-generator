@@ -11,16 +11,15 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/go-faker/faker/v4"
-	"github.com/go-faker/faker/v4/pkg/options"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/go-faker/faker/v4"
+	"github.com/go-faker/faker/v4/pkg/options"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -2096,7 +2095,6 @@ func TestBuildFlagLine(t *testing.T) {
 		result := buildFlagLine(true, true, "someCmd", "Bool", "someArg", "a", "false", "normal flag", "")
 
 		expected := `rootCmd.PersistentFlags().BoolP(someArg, "a", false, "normal flag")
-
 _ = rootCmd.PersistentFlags().MarkHidden(someArg)`
 
 		assert.Equal(t, expected, result)
@@ -2108,7 +2106,6 @@ _ = rootCmd.PersistentFlags().MarkHidden(someArg)`
 		result := buildFlagLine(false, false, "someCmd", "String", "someArg", "", `""`, "normal flag", "use replacement instead; deprecated since 2026-07-24T00:00:00Z")
 
 		expected := `someCmd.Flags().String(someArg, "", "normal flag")
-
 _ = someCmd.Flags().MarkDeprecated(someArg, "use replacement instead; deprecated since 2026-07-24T00:00:00Z")`
 
 		assert.Equal(t, expected, result)
