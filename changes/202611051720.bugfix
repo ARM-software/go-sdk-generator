@@ -1,1 +1,0 @@
-:lock: Reject unsafe manifest path segments for generated module and binary names, and document the constraints in the schema.

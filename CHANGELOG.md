@@ -2,6 +2,21 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.1 (2026-11-05)
+
+## Bugfixes
+
+- :book: Add a generated SECURITY.md template and generalise security reporting guidance for public release readiness. (#202611051640)
+- :lock: Reject unsafe manifest path segments for generated module and binary names, and document the constraints in the schema. (#202611051720)
+- :camel: Upgrade golang-1.27.3 (#202611051810)
+- :camel: Upgrade alpine-3.24.3 (#202611051811)
+- :gear: Ignore Qlty warnings and errors for generated files in generated projects. (#202611051930)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.0 (2026-11-04)
 
 ## Features

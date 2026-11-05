@@ -5941,7 +5941,7 @@
     "licence_href": "https://github.com/ARM-software/go-sdk-generator/blob/main/LICENSE",
     "name": "SDK Generator"
   },
-  "render_time": "2026-11-04T19:00:20.485944",
+  "render_time": "2026-11-05T15:26:35.832962",
   "undocumented_exemptions": [],
   "unknown_licences": [
     "github.com/klauspost/compress",

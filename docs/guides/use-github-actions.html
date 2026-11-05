@@ -80,7 +80,7 @@ SPDX-License-Identifier: Apache-2.0
     with:
       input: generate.yml
       output: .
-      go-version: '1.26.4'
+      go-version: '1.27.3'
 </code></pre>
 <p>To build the tool from the current <code>main</code> branch instead of installing a release, replace <code>@v0</code> with <code>@main</code>.</p>
 <p>Set <code>go-version</code> to the <strong>generated project's</strong> target Go version, not the version used to build the action. The action defaults to <code>summary=github</code>, <code>logger=rich</code> and <code>annotation=github</code>; <code>go-version</code> corresponds to the CLI flag <code>--go-version</code> (or <code>-g</code>).</p>

@@ -58,9 +58,9 @@ SPDX-License-Identifier: Apache-2.0
 <p>To generate into the current directory, mount it and set the working directory so input and output paths refer to the mounted files:</p>
 <pre><code class="language-sh">docker run --rm -v &quot;$(pwd):/work&quot; -w /work \
   ghcr.io/arm-software/go-sdk-generator:v&lt;version&gt;-alpine \
-  generate -i generate.yml -o /work --go-version 1.26.4
+  generate -i generate.yml -o /work --go-version 1.27.3
 </code></pre>
-<p>Replace <code>&lt;version&gt;</code> with a published version and <code>1.26.4</code> with your target project's Go version.</p>
+<p>Replace <code>&lt;version&gt;</code> with a published version and <code>1.27.3</code> with your target project's Go version.</p>
 <h3>Accessing GHCR</h3>
 <p>If the image is not publicly accessible to your account, authenticate with GHCR first. With the GitHub CLI already authenticated:</p>
 <pre><code class="language-sh">gh auth token | docker login ghcr.io -u &quot;$(gh api user --jq .login)&quot; --password-stdin

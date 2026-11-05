@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
 <h1>Generate and regenerate a Go project</h1>
 <h2>Inputs and first run</h2>
 <p>You need a manifest that follows the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">schema</a>, an output directory, and a target Go version matching the project. From the project directory:</p>
-<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 </code></pre>
 <p>Replace the Go version with the version your project uses. <code>-i</code>/<code>--input</code> selects the manifest, <code>-o</code>/<code>--output</code> selects the destination, and <code>-g</code>/<code>--go-version</code> selects the target Go version. Use <code>go-sdk-generator generate --help</code> for current options. The generator validates the manifest before producing files.</p>
 <p>After generation, run these commands from each directory containing a generated <code>go.mod</code>:</p>
