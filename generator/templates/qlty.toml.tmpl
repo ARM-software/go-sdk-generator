@@ -21,6 +21,9 @@ exclude_patterns = [
 "**/vendor/**",
 "**/*.gen*",
 "**/gen/**",
+{{- range .GeneratedFiles }}
+"{{ . }}",
+{{- end }}
 ]
 
 test_patterns = ["**/*_test.go", "**/spec/**"]
@@ -68,3 +71,14 @@ name = "trufflehog"
 
 [[plugin]]
 name = "yamllint"
+
+# Generated GitHub Action metadata uses long descriptions and shell commands.
+[[triage]]
+match.rules = ["yamllint:line-length"]
+match.file_patterns = ["actions/**/*.yml", "actions/**/*.yaml", ".github/workflows/*.yml", ".github/workflows/*.yaml", ".goreleaser.yml", ".pre-commit-config.yaml"]
+set.ignored = true
+
+# Prettier is the Markdown formatting authority; keep Markdownlint's content rules.
+[[triage]]
+match.rules = ["markdownlint:fmt"]
+set.ignored = true

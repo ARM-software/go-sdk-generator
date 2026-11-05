@@ -957,6 +957,30 @@ func TestGenerate(t *testing.T) {
 
 }
 
+func TestGenerateQltyConfigIgnoresGeneratedFiles(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+	ctx := context.Background()
+	tmpDir := t.TempDir()
+
+	cfg := config.DefaultSDKGeneratorManagerConfiguration()
+	cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "verify.yml")
+	cfg.Output = tmpDir
+	cfg.ToolVersion = field.ToOptionalString("0.31.0")
+
+	require.NoError(t, Generate(ctx, cfg))
+
+	qltyConfig, err := localFs.ReadFile(filesystem.FilePathJoin(localFs, tmpDir, ".qlty", "qlty.toml"))
+	require.NoError(t, err)
+
+	content := string(qltyConfig)
+	assert.Contains(t, content, "\".qlty/qlty.toml\"")
+	assert.Contains(t, content, "\"cli/cmd/verify.go\"")
+	assert.NotContains(t, content, "\"cli/cmd/verify/implementations.go\"")
+	assert.Contains(t, content, "match.rules = [\"yamllint:line-length\"]")
+	assert.Contains(t, content, "match.rules = [\"markdownlint:fmt\"]")
+	assert.Contains(t, content, "set.ignored = true")
+}
+
 func TestCompareGoVersions(t *testing.T) {
 
 	assert.Equal(t, 0, compareGoVersions("1.24.6", "1.24.6"))

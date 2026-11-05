@@ -26,6 +26,57 @@ exclude_patterns = [
 "**/vendor/**",
 "**/*.gen*",
 "**/gen/**",
+".agents/skills/install-go-sdk-generator/SKILL.md",
+".agents/skills/run-go-sdk-generator/SKILL.md",
+".agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md",
+".editorconfig",
+".gitattributes",
+".github/PULL_REQUEST_TEMPLATE.md",
+".github/copilot-instructions.md",
+".github/dependabot.yml",
+".github/workflows/ci.yml",
+".github/workflows/dependabot.yml",
+".github/workflows/licensing.yml",
+".github/workflows/lint-actions.yml",
+".github/workflows/release.yml",
+".github/workflows/sbom.yml",
+".github/workflows/upgrade-generator.yml",
+".golangci.pre-commit.yaml",
+".golangci.yaml",
+".goreleaser.yml",
+".pre-commit-config.yaml",
+".qlty/qlty.toml",
+"CODE_OF_CONDUCT.md",
+"CONTRIBUTING.md",
+"DEVELOPMENT.md",
+"DOCUMENTATION.md",
+"Dockerfile.generator",
+"Dockerfile.oci.alpine",
+"Dockerfile.oci.ubuntu",
+"KNOWN_ISSUES.md",
+"actions/_shared/install-and-run.sh",
+"actions/generate/action.yml",
+"actions/install-tool/action.yml",
+"agent.md",
+"cli/cmd/config/enums.go",
+"cli/cmd/config/generator.go",
+"cli/cmd/config/generator_test.go",
+"cli/cmd/generator.go",
+"cli/cmd/generator/wrappers.go",
+"cli/cmd/module.properties",
+"cli/cmd/root.go",
+"cli/go.mod",
+"cli/main.go",
+"generator/config/generator.go",
+"generator/generator.go",
+"generator/go.mod",
+"generator/interfaces.go",
+"generator/skills/install-go-sdk-generator/SKILL.md",
+"generator/skills/run-go-sdk-generator/SKILL.md",
+"generator/skills/using-go-sdk-generator-in-a-github-action/SKILL.md",
+"go.work",
+"pyproject.toml",
+"scripts/pre.sh",
 ]
 
 test_patterns = ["**/*_test.go", "**/spec/**"]
@@ -73,3 +124,14 @@ name = "trufflehog"
 
 [[plugin]]
 name = "yamllint"
+
+# Generated GitHub Action metadata uses long descriptions and shell commands.
+[[triage]]
+match.rules = ["yamllint:line-length"]
+match.file_patterns = ["actions/**/*.yml", "actions/**/*.yaml", ".github/workflows/*.yml", ".github/workflows/*.yaml", ".goreleaser.yml", ".pre-commit-config.yaml"]
+set.ignored = true
+
+# Prettier is the Markdown formatting authority; keep Markdownlint's content rules.
+[[triage]]
+match.rules = ["markdownlint:fmt"]
+set.ignored = true

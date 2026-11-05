@@ -392,7 +392,6 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(qltyTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml"), cfg.Overwrite, true) // See https://docs.qlty.sh/qlty-toml
 	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
@@ -640,8 +639,25 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 
 		generated = append(generated, sharedActionOutput.output)
 	}
+	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
+	generated = append(generated, qltyPath)
+	err = generateQltyFile(ctx, cfg, generated)
+	if err != nil {
+		return
+	}
 	err = generateGitAttributesFile(ctx, cfg, generated)
 	return
+}
+
+func relativeGeneratedFiles(outputDir string, generated []string) (relative []string, err error) {
+	localFs := filesystem.GetGlobalFileSystem()
+	relative, err = localFs.ConvertToRelativePath(outputDir, generated...)
+	if err != nil {
+		return nil, commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not convert generated files to path relative to output directory '%v'", outputDir)
+	}
+	relative = filesystem.FilePathsToSlash(localFs, relative...)
+	slices.Sort(relative)
+	return relative, nil
 }
 
 func resolveManifestFileName(localFs filesystem.FS, inputPath string) string {
@@ -766,13 +782,10 @@ func (t *templates) addStateFile(templateFile, dest string, overwrite bool, mark
 }
 
 func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
-	generated, err = filesystem.GetGlobalFileSystem().ConvertToRelativePath(cfg.Output, generated...)
+	generated, err = relativeGeneratedFiles(cfg.Output, generated)
 	if err != nil {
-		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not convert generated files to path relative to output directory '%v'", cfg.Output)
 		return
 	}
-	generated = filesystem.FilePathsToSlash(filesystem.GetGlobalFileSystem(), generated...)
-	slices.Sort(generated)
 
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
@@ -784,4 +797,28 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	}
 
 	return
+}
+
+func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+	localFs := filesystem.GetGlobalFileSystem()
+	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
+	if localFs.Exists(qltyPath) && !cfg.Overwrite {
+		return nil
+	}
+
+	generated, err = relativeGeneratedFiles(cfg.Output, generated)
+	if err != nil {
+		return
+	}
+
+	err = populateTemplate(ctx, &GenerationOutput{
+		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
+		GeneratedFiles: generated,
+	}, qltyTemplateFile, qltyPath)
+	if err != nil {
+		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .qlty/qlty.toml file")
+		return
+	}
+
+	return nil
 }
