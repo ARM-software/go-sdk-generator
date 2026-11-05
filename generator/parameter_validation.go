@@ -762,6 +762,9 @@ func (cmds *CommandLineCommands) Validate() error {
 		return commonerrors.DescribeCircumstance(err, "failed to validate embedded fields in command line commands")
 	}
 	err := validation.ValidateStruct(cmds,
+		validation.Field(&cmds.Binary, validation.By(func(value any) error {
+			return validateGeneratedBinaryName(field.OptionalString(cmds.Binary, ""))
+		})),
 		validation.Field(&cmds.Package, validation.By(func(value any) error {
 			return validateCLIPackageName(cmds.Package)
 		})),
@@ -1125,6 +1128,9 @@ func validateCollectionParameters(sdk *SDK) error {
 		return commonerrors.UndefinedVariable("generator configuration")
 	}
 	err := validation.ValidateStruct(&sdk.Specification,
+		validation.Field(&sdk.Specification.MainModule, validationUtils.Required, validation.By(func(value any) error {
+			return validateGeneratedMainModuleName(sdk.Specification.MainModule)
+		})),
 		validation.Field(&sdk.Specification.GlobalConfiguration, validation.By(func(value any) error {
 			return collection.ForAll(sdk.Specification.GlobalConfiguration, func(cfg ConfigurationOption) error {
 				return (&cfg).Validate()

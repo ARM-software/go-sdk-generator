@@ -375,6 +375,20 @@ func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateCLIConfigura
 	errortest.AssertErrorDescription(t, err, `cli function "Run" defines duplicate configuration names [Mode]`)
 }
 
+func TestValidateCollectionParametersRejectsInvalidMainModuleSegment(t *testing.T) {
+	t.Parallel()
+
+	sdk := &SDK{Specification: SDKSpecification{
+		MainModule: "../verify",
+		Interface:  Interface{Methods: []InterfaceMethod{{Name: "Build", Description: "Build."}}},
+	}}
+
+	err := validateCollectionParameters(sdk)
+	errortest.AssertError(t, err, commonerrors.ErrInvalid)
+	errortest.AssertErrorDescription(t, err, "main module \"../verify\" must be a single package segment")
+	errortest.AssertErrorDescription(t, err, "invalid manifest parameter shape")
+}
+
 func TestValidateCollectionParametersRejectsCaseInsensitiveDuplicateOptionFunctionNames(t *testing.T) {
 	t.Parallel()
 

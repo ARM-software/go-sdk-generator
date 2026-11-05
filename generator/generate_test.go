@@ -643,4 +643,21 @@ func TestValidateManifest(t *testing.T) {
 		require.Error(t, validationErr)
 		assert.True(t, commonerrors.Any(validationErr, commonerrors.ErrInvalid))
 	})
+
+	t.Run("invalid main_module path segment", func(t *testing.T) {
+		manifest := `specification:
+  package_name: example-sdk
+  main_module: ../example
+  global_configuration: []
+  interface:
+    methods: []
+`
+		manifestPath := filesystem.FilePathJoin(localFs, t.TempDir(), "invalid-main-module.yml")
+		require.NoError(t, filesystem.WriteFile(manifestPath, []byte(manifest), 0600))
+
+		validationErr, err := Validate(context.Background(), manifestPath)
+		require.NoError(t, err)
+		require.Error(t, validationErr)
+		assert.True(t, commonerrors.Any(validationErr, commonerrors.ErrInvalid))
+	})
 }
