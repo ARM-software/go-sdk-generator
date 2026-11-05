@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
 You need a manifest that follows the [schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml), an output directory, and a target Go version matching the project. From the project directory:
 
 ```sh
-go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
+go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 ```
 
 Replace the Go version with the version your project uses. `-i`/`--input` selects the manifest, `-o`/`--output` selects the destination, and `-g`/`--go-version` selects the target Go version. Use `go-sdk-generator generate --help` for current options. The generator validates the manifest before producing files.

@@ -62,6 +62,7 @@ const (
 	goModSdkFile                 = "templates/go.mod.sdk.tmpl"
 	goModCliFile                 = "templates/go.mod.cli.tmpl"
 	codeOfConductFile            = "templates/CODE_OF_CONDUCT.md.tmpl"
+	securityFile                 = "templates/SECURITY.md.tmpl"
 	dockerFile                   = "templates/Dockerfile.tmpl"
 	ociDockerfileAlpineFile      = "templates/Dockerfile.oci.alpine.tmpl"
 	ociDockerfileUbuntuFile      = "templates/Dockerfile.oci.ubuntu.tmpl"
@@ -384,6 +385,7 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(securityFile, filesystem.FilePathJoin(localFs, cfg.Output, "SECURITY.md"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), cfg.Overwrite, true)

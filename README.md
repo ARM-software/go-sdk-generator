@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # GO SDK Generator
 
-[![Go Badge](https://img.shields.io/badge/go-v1.26.4-blue)](https://golang.org/)
+[![Go Badge](https://img.shields.io/badge/go-v1.27.3-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest](https://img.shields.io/badge/Manifest-generate.yml-blue)](https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml)
 [![GHCR version](https://img.shields.io/github/v/release/ARM-software/go-sdk-generator?label=container)](https://github.com/orgs/ARM-software/packages/container/package/go-sdk-generator)
@@ -236,7 +236,7 @@ Use the repo's own [`generate.yml`](./generate.yml) as a concrete example manife
 Example generation command:
 
 ```bash
-go-sdk-generator generate -i generate.yml -o . --go-version 1.26.4
+go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 ```
 
 After generation, run `go mod tidy` and `go generate ./...` inside each generated Go module; this repository's `generator/` and `cli/` directories are separate modules. See [generate and regenerate a project](./guides/generate-a-project.md) for the full sequence.

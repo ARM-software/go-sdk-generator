@@ -11,10 +11,13 @@ import (
 	"slices"
 	"strings"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
 const (
@@ -40,6 +43,11 @@ type generatedAdditionalTypeReference struct {
 	ExplicitPointer bool
 }
 
+var (
+	generatedPackageSegmentPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+	generatedBinarySegmentPattern  = regexp.MustCompile(`^[A-Za-z0-9_][A-Za-z0-9_-]*$`)
+)
+
 func normaliseAdditionalTypePackageName(value string) string {
 	if reflection.IsEmpty(value) {
 		return defaultAdditionalTypePackage
@@ -60,8 +68,30 @@ func validateGeneratedPackageName(value string) error {
 		return nil
 	}
 	trimmed := strings.TrimSpace(value)
-	if strings.Contains(trimmed, "/") || strings.Contains(trimmed, "\\") || strings.Contains(trimmed, ".") {
-		return commonerrors.Newf(commonerrors.ErrInvalid, "package %q must be a single package segment, not a nested path", value)
+	if err := validation.Validate(trimmed, validationUtils.Pattern(generatedPackageSegmentPattern)); err != nil {
+		return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "package %q must be a single package segment containing only letters, numbers, and underscores", value)
+	}
+	return nil
+}
+
+func validateGeneratedBinaryName(value string) error {
+	if reflection.IsEmpty(value) {
+		return nil
+	}
+	trimmed := strings.TrimSpace(value)
+	if err := validation.Validate(trimmed, validationUtils.Pattern(generatedBinarySegmentPattern)); err != nil {
+		return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "binary %q must be a single executable segment containing only letters, numbers, underscores, or hyphens", value)
+	}
+	return nil
+}
+
+func validateGeneratedMainModuleName(value string) error {
+	if reflection.IsEmpty(value) {
+		return nil
+	}
+	trimmed := strings.TrimSpace(value)
+	if err := validation.Validate(trimmed, validationUtils.Pattern(generatedPackageSegmentPattern)); err != nil {
+		return commonerrors.WrapErrorf(commonerrors.ErrInvalid, err, "main module %q must be a single package segment containing only letters, numbers, and underscores", value)
 	}
 	return nil
 }

@@ -2,7 +2,7 @@
 
 module github.com/ARM-software/go-sdk-generator/cli
 
-go 1.26.0
+go 1.27.3
 
 tool github.com/dmarkham/enumer
 

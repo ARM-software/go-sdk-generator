@@ -43,7 +43,7 @@ steps:
     with:
       input: generate.yml
       output: .
-      go-version: '1.26.4'
+      go-version: '1.27.3'
 ```
 
 To build the tool from the current `main` branch instead of installing a release, replace `@v0` with `@main`.
