@@ -18,6 +18,10 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/ARM-software/go-sdk-generator/generator/config"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
@@ -25,10 +29,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/hashing"
 	"github.com/ARM-software/golang-utils/utils/reflection"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	"github.com/ARM-software/go-sdk-generator/generator/config"
 )
 
 func generatedModuleDirectories(ctx context.Context, t *testing.T, localFs filesystem.FS, generatedDir string) []string {

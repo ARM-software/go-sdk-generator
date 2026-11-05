@@ -11,12 +11,13 @@ import (
 	"slices"
 	"strings"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 const (
