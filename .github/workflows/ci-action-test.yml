@@ -15,7 +15,7 @@ on:
       - main
 
 env:
-  go_version: "1.26.2"
+  go_version: "1.27.3"
 
 jobs:
   test-action-github-runner:
@@ -33,7 +33,7 @@ jobs:
           github-token: ${{ github.token }}
           input: generate.yml
           output: ./tmp/action-test-local-gh
-          go-version: 1.26.2
+          go-version: 1.27.3
 
       - name: Verify local action generated files are present
         shell: bash
@@ -66,7 +66,7 @@ jobs:
           github-token: ${{ github.token }}
           input: generate.yml
           output: ./tmp/action-test-source-gh
-          go-version: 1.26.2
+          go-version: 1.27.3
 
       - name: Verify source generated files match repository
         shell: bash
