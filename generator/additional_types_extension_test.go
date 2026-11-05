@@ -152,6 +152,15 @@ func TestCommandLineCommandsValidateRejectsNestedPackage(t *testing.T) {
 	require.Error(t, cmds.Validate())
 }
 
+func TestCommandLineCommandsValidateRejectsInvalidBinarySegment(t *testing.T) {
+	t.Parallel()
+	cmds := &CommandLineCommands{
+		Binary:    field.ToOptionalString("../tool"),
+		Functions: []CliFunction{{Name: "Run", Description: "run", Configuration: []FunctionConfigFields{}}},
+	}
+	require.Error(t, cmds.Validate())
+}
+
 func TestFilterExtraImportsByPath(t *testing.T) {
 	t.Parallel()
 

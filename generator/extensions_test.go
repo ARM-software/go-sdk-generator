@@ -89,7 +89,7 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, "56", defaultValue("port", 56))
 	assert.Equal(t, `"bf095257-14b5-4e4d-ac40-2134fe27f331"`, defaultValue("uuid", "bf095257-14b5-4e4d-ac40-2134fe27f331"))
 	assert.Equal(t, `"https://blah.com"`, defaultValue("host", "https://blah.com"))
-	assert.Equal(t, `"adrien.cabarbaye@arm.com"`, defaultValue("email", "adrien.cabarbaye@arm.com"))
+	assert.Equal(t, `"adrian.cabarbaye@arm.com"`, defaultValue("email", "adrian.cabarbaye@arm.com"))
 	assert.Equal(t, `""`, defaultValue("string", ""))
 	assert.Equal(t, `func() string{return ""}`, defaultValue("string", `func() string{return ""}`))
 	assert.Equal(t, "0.0", defaultValue("float64", "0.0"))

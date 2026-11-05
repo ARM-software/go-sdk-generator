@@ -34,10 +34,10 @@ To generate into the current directory, mount it and set the working directory s
 ```sh
 docker run --rm -v "$(pwd):/work" -w /work \
   ghcr.io/arm-software/go-sdk-generator:v<version>-alpine \
-  generate -i generate.yml -o /work --go-version 1.26.4
+  generate -i generate.yml -o /work --go-version 1.27.3
 ```
 
-Replace `<version>` with a published version and `1.26.4` with your target project's Go version.
+Replace `<version>` with a published version and `1.27.3` with your target project's Go version.
 
 ### Accessing GHCR
 

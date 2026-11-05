@@ -15,7 +15,7 @@ on:
       - main
 
 env:
-  go_version: "1.26.5"
+  go_version: "1.27.3"
 
 jobs:
   assert-news:

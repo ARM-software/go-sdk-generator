@@ -467,7 +467,7 @@ func (j *CommandArgument) UnmarshalJSON(value []byte) error {
 
 // A CLI command
 type CommandLineCommands struct {
-	// Name of the executable
+	// Name of the executable.
 	Binary *string `json:"binary,omitempty,omitzero" yaml:"binary,omitempty" mapstructure:"binary,omitempty"`
 
 	// Whether all functions need to call the Arm Cloud hosted online services.
@@ -494,7 +494,6 @@ type CommandLineCommands struct {
 
 	// The package the generated CLI project is defined in.
 	// Defaults to `cli`.
-	// This must resolve to a single package segment, not a nested path.
 	//
 	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 
@@ -516,11 +515,19 @@ func (j *CommandLineCommands) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
+	if plain.Binary != nil {
+		if matched, _ := regexp.MatchString(`^[A-Za-z0-9_][A-Za-z0-9_-]*$`, string(*plain.Binary)); !matched {
+			return fmt.Errorf("field %s pattern match: must match %s", "Binary", `^[A-Za-z0-9_][A-Za-z0-9_-]*$`)
+		}
+	}
 	if v, ok := raw["no_actions"]; !ok || v == nil {
 		plain.NoActions = false
 	}
 	if v, ok := raw["package"]; !ok || v == nil {
 		plain.Package = "cli"
+	}
+	if matched, _ := regexp.MatchString(`^[A-Za-z_][A-Za-z0-9_]*$`, string(plain.Package)); !matched {
+		return fmt.Errorf("field %s pattern match: must match %s", "Package", `^[A-Za-z_][A-Za-z0-9_]*$`)
 	}
 	*j = CommandLineCommands(plain)
 	return nil
@@ -1336,7 +1343,6 @@ type OptionSet struct {
 
 	// The package the functional option collection is defined in.
 	// Defaults to `options`.
-	// This must resolve to a single package segment, not a nested path.
 	//
 	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 
@@ -1368,6 +1374,9 @@ func (j *OptionSet) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["package"]; !ok || v == nil {
 		plain.Package = "options"
+	}
+	if matched, _ := regexp.MatchString(`^[A-Za-z_][A-Za-z0-9_]*$`, string(plain.Package)); !matched {
+		return fmt.Errorf("field %s pattern match: must match %s", "Package", `^[A-Za-z_][A-Za-z0-9_]*$`)
 	}
 	st := reflect.TypeOf(Plain{})
 	for i := range st.NumField() {
@@ -2115,7 +2124,7 @@ type SDKSpecification struct {
 	// The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
 	Licence string `json:"licence,omitempty,omitzero" yaml:"licence,omitempty" mapstructure:"licence,omitempty"`
 
-	// The module within the package
+	// The main generated module and package directory within the project.
 	MainModule string `json:"main_module" yaml:"main_module" mapstructure:"main_module"`
 
 	// The name of the SDK to expose (used for the interface and its implementations)
@@ -2194,6 +2203,9 @@ func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["licence"]; !ok || v == nil {
 		plain.Licence = "Proprietary"
+	}
+	if matched, _ := regexp.MatchString(`^[A-Za-z_][A-Za-z0-9_]*$`, string(plain.MainModule)); !matched {
+		return fmt.Errorf("field %s pattern match: must match %s", "MainModule", `^[A-Za-z_][A-Za-z0-9_]*$`)
 	}
 	if v, ok := raw["public"]; !ok || v == nil {
 		plain.Public = false
@@ -2338,7 +2350,6 @@ type Type struct {
 
 	// The package the type is defined in.
 	// Defaults to `types`.
-	// This must resolve to a single package segment, not a nested path.
 	//
 	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 }
@@ -2365,6 +2376,9 @@ func (j *Type) UnmarshalJSON(value []byte) error {
 	}
 	if v, ok := raw["package"]; !ok || v == nil {
 		plain.Package = "types"
+	}
+	if matched, _ := regexp.MatchString(`^[A-Za-z_][A-Za-z0-9_]*$`, string(plain.Package)); !matched {
+		return fmt.Errorf("field %s pattern match: must match %s", "Package", `^[A-Za-z_][A-Za-z0-9_]*$`)
 	}
 	*j = Type(plain)
 	return nil
