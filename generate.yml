@@ -86,10 +86,6 @@ specification:
       default_value: "1.24.6"
       required: true
 
-  release_to_artifactory: true
-  release_to_public_artifactory:
-    artifactory_host: https://arm.jfrog.io
-    registry: tools-tools-local-deb
   distribute_oci:
     description: OCI image for running go-sdk-generator in CI and reproducible containerised workflows.
     labels:
