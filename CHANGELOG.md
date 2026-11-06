@@ -2,6 +2,17 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.2 (2026-11-06)
+
+## Bugfixes
+
+- :bug: Fix generated skill credentials guidance and make generator template tests pass on Windows. (#202611060901)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.1 (2026-11-05)
 
 ## Bugfixes

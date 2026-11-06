@@ -7,7 +7,7 @@ go 1.27.3
 tool github.com/dmarkham/enumer
 
 require (
-	github.com/ARM-software/go-sdk-generator/generator v0.53.1
+	github.com/ARM-software/go-sdk-generator/generator v0.53.2
 	github.com/ARM-software/golang-utils/utils/collection v1.171.2
 	github.com/ARM-software/golang-utils/utils/commonerrors v1.171.2
 	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.171.2
