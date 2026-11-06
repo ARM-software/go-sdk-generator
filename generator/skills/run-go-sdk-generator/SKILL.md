@@ -44,8 +44,6 @@ Supported sources:
 - `.env`
 - system keyring (when supported)
 
-Use the `go-sdk-generator credentials` command to securely store secrets in the keyring when available.
-
 OCI distribution is also available at `ghcr.io/arm-software/go-sdk-generator`.
 This is useful for CI, reproducible builds, and users who prefer not to install the tool locally.
 
@@ -237,7 +235,6 @@ Defaults:
 - Prefer keyring for secrets when supported
 - Use shared/global configuration for repeated values across commands
 - Use JSON output when structured parsing is needed (look for `--as-json` flag)
-- Use `go-sdk-generator credentials` to manage secrets
 - Use `go-sdk-generator -h` for command help
 - Use `go-sdk-generator -v` to check version
 - When a command supports summaries, prefer `summary=output` for local runs and `summary=github` in GitHub Actions

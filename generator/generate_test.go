@@ -471,7 +471,8 @@ func TestPopulateTemplate(t *testing.T) {
 
 		require.NoError(t, err)
 
-		assert.Equal(t, "package main\n\nfunc main() {\n\tfmt.Println(\"Hello World\")\n}\n", string(content))
+		expected := "package main\n\nfunc main() {\n\tfmt.Println(\"Hello World\")\n}\n"
+		assert.Equal(t, expected, strings.ReplaceAll(string(content), "\r\n", "\n"))
 
 	})
 

@@ -44,7 +44,10 @@ Supported sources:
 - `.env`
 - system keyring (when supported)
 
-Use the `{{ $cli.Binary }} credentials` command to securely store secrets in the keyring when available.
+{{- if hasSecretStringParameters $cli }}
+This tool may expose a `{{ $cli.Binary }} credentials` command when its manifest defines secret inputs. If present, use it to securely store secrets in the keyring when available.
+
+{{- end }}
 
 {{ if $.OCI.PublishesToGHCR -}}
 OCI distribution is also available at `{{ $.OCI.ImageName }}`.
@@ -85,9 +88,14 @@ Linux packages installed via native package managers include the skills related 
 This tool interacts with cloud services and requires credentials.
 
 Recommended workflow:
+{{- if hasSecretStringParameters $cli }}
 1. Store credentials using `{{ $cli.Binary }} credentials`
 2. Reuse credentials from the keyring (default behaviour when supported)
 3. Override using flags or environment variables only when necessary
+{{- else }}
+1. Provide credentials using the supported flags, environment variables, or `.env` file
+2. Override using flags or environment variables only when necessary
+{{- end }}
 
 Security guidelines:
 - store secrets in keyring when possible
@@ -235,7 +243,9 @@ Defaults:
 - Prefer keyring for secrets when supported
 - Use shared/global configuration for repeated values across commands
 - Use JSON output when structured parsing is needed (look for `--as-json` flag)
+{{- if hasSecretStringParameters $cli }}
 - Use `{{ $cli.Binary }} credentials` to manage secrets
+{{- end }}
 - Use `{{ $cli.Binary }} -h` for command help
 - Use `{{ $cli.Binary }} -v` to check version
 - When a command supports summaries, prefer `summary=output` for local runs and `summary=github` in GitHub Actions

@@ -132,6 +132,44 @@ func TestEmbeddedCLISkillTemplateIncludesExamples(t *testing.T) {
 	var b strings.Builder
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
 	assert.Contains(t, b.String(), `Example: "https://example.com".`)
+	assert.NotContains(t, b.String(), "example-tool credentials")
+}
+
+func TestEmbeddedCLISkillTemplateIncludesCredentialsGuidanceWhenManifestDefinesSecretInputs(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/cli.skill.md.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("Example"),
+				Description: field.ToOptionalString("Example CLI skill."),
+				PackageName: "example-tool",
+				MainModule:  "example",
+				Licence:     "MIT",
+				CommandLineCommands: &CommandLineCommands{
+					Binary:             field.ToOptionalString("example-tool"),
+					RootEnvironmentVar: field.ToOptionalString("EXAMPLE"),
+					Functions: []CliFunction{{
+						Name:        "Verify",
+						Description: "Verify output.",
+						Configuration: []FunctionConfigFields{{
+							Name:            "Token",
+							LangType:        stringLangType,
+							MapstructureTag: "token",
+							Description:     "Token to verify.",
+							Secret:          true,
+						}},
+					}},
+				},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
+	assert.Contains(t, b.String(), "This tool may expose a `example-tool credentials` command when its manifest defines secret inputs.")
+	assert.Contains(t, b.String(), "- Use `example-tool credentials` to manage secrets")
 }
 
 func TestEmbeddedCLISkillTemplateIncludesResultOutputCombinationTable(t *testing.T) {
