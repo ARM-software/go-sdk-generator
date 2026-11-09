@@ -5,8 +5,8 @@ github.com/ARM-software/golang-utils/utils/charset v1.171.2 h1:XQ0rNCAMJvqtvsxLA
 github.com/ARM-software/golang-utils/utils/charset v1.171.2/go.mod h1:R3DQFPPismGK3hiq0pqo+/Uv2Vv1CkLrFJPon6TXkbk=
 github.com/ARM-software/golang-utils/utils/collection v1.171.2 h1:oNHMrV4PUeSsCB54RRo1zSHAvbaWHj+T4y/TLkNXkCg=
 github.com/ARM-software/golang-utils/utils/collection v1.171.2/go.mod h1:BLtIf+vS5s8OHV8Hffou7zgiDQlJXW+yKWTcKKIsIJY=
-github.com/ARM-software/golang-utils/utils/commonerrors v1.171.2 h1:hzgXhikYcwWlN3M5ceBAkUPlfFoRDdxwL7HTQ4MNO74=
-github.com/ARM-software/golang-utils/utils/commonerrors v1.171.2/go.mod h1:w+tMR4/mXbDsJ1bN+IFa5cp0E34Qpdp2a2hGu+Qkvus=
+github.com/ARM-software/golang-utils/utils/commonerrors v1.172.0 h1:UJ7xT4eEXMDpqMjFt67WXG5Gxn8mGHRh1x9SVWgX4fU=
+github.com/ARM-software/golang-utils/utils/commonerrors v1.172.0/go.mod h1:w+tMR4/mXbDsJ1bN+IFa5cp0E34Qpdp2a2hGu+Qkvus=
 github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.171.2 h1:pxIoipgNR2FBLzKIPi03vbDGcmwLdYGlknJDLisUmbk=
 github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.171.2/go.mod h1:TPS99UDjFWxun6DLknRDLewc+mICJq35CZj5lr2NaQY=
 github.com/ARM-software/golang-utils/utils/config v1.171.2 h1:S/HqNtN3JiDJ4VUwigox+P+HKhKhvNkUuutxUNjMQic=
