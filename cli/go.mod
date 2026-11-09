@@ -9,8 +9,8 @@ tool github.com/dmarkham/enumer
 require (
 	github.com/ARM-software/go-sdk-generator/generator v0.53.3
 	github.com/ARM-software/golang-utils/utils/collection v1.171.2
-	github.com/ARM-software/golang-utils/utils/commonerrors v1.171.2
-	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.171.2
+	github.com/ARM-software/golang-utils/utils/commonerrors v1.172.0
+	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.172.0
 	github.com/ARM-software/golang-utils/utils/config v1.171.2
 	github.com/ARM-software/golang-utils/utils/environment v1.171.2
 	github.com/ARM-software/golang-utils/utils/field v1.171.2
@@ -23,7 +23,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/reflection v1.171.2
 	github.com/ARM-software/golang-utils/utils/semver v1.171.2
 	github.com/ARM-software/golang-utils/utils/validation v1.171.2
-	github.com/ARM-software/golang-utils/utils/value v1.171.2
+	github.com/ARM-software/golang-utils/utils/value v1.172.0
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
