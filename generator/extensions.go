@@ -164,6 +164,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"optionImports":                            optionImports,
 	"configExtraImports":                       configExtraImports,
 	"cliConfigExtraImports":                    cliConfigExtraImports,
+	"interfaceExtraImports":                    interfaceExtraImports,
 	"typesExtraImports":                        typesExtraImports,
 	"groupAdditionalTypesByPackage":            groupAdditionalTypesByPackage,
 	"hasSingleDefaultTypesPackage":             hasSingleDefaultTypesPackage,
@@ -622,21 +623,6 @@ func replaceUnderscores(value string) string {
 	return strings.ReplaceAll(value, "_", "-")
 }
 
-func renderImport(alias, importPath string, applyMisspellException bool) string {
-	alias = strings.TrimSpace(alias)
-	importPath = strings.TrimSpace(importPath)
-	if reflection.IsEmpty(importPath) {
-		return ""
-	}
-	comment := ""
-	if applyMisspellException {
-		comment = " //nolint:misspell"
-	}
-	if reflection.IsEmpty(alias) || alias == path.Base(importPath) {
-		return fmt.Sprintf("%q%s", importPath, comment)
-	}
-	return fmt.Sprintf("%s %q%s", alias, importPath, comment)
-}
 func defaultValue(s string, dValue any) string {
 	dValueStr := fmt.Sprintf("%v", dValue)
 	dValueStr = strings.TrimSpace(dValueStr)

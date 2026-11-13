@@ -15,8 +15,8 @@ github.com/ARM-software/golang-utils/utils/diodes v1.172.0 h1:8JNM3+RksUnMg7n44M
 github.com/ARM-software/golang-utils/utils/diodes v1.172.0/go.mod h1:OiMN1DMQKfj51XBSsyKD8px1oJNE1fmmxspCGstEw+s=
 github.com/ARM-software/golang-utils/utils/encoding v1.172.0 h1:X/74Na7XxWVdKyNMGwIArLEAuIKhSnxaXPBBC4fk/GM=
 github.com/ARM-software/golang-utils/utils/encoding v1.172.0/go.mod h1:AOhdisYp+ZiFwjs1pOQ1JkjE8WQ2/I7gv+ERu536gzI=
-github.com/ARM-software/golang-utils/utils/environment v1.171.2 h1:H963byqNfDJC5+QDXxuyQQQKEi+7io+vENHp0vB2wkc=
-github.com/ARM-software/golang-utils/utils/environment v1.171.2/go.mod h1:or/HhXRgMyAHkLfisP+HroL5A/Pk0sUDAq3vLP5tlh8=
+github.com/ARM-software/golang-utils/utils/environment v1.172.0 h1:IuRaFNsKEnI7ENOwVpEwKhWPUTGIsBAWyFW4E82X2NM=
+github.com/ARM-software/golang-utils/utils/environment v1.172.0/go.mod h1:3GtDmm8hANadd5liAzAhYCWmw9lEXFS87on7O4zTJpw=
 github.com/ARM-software/golang-utils/utils/field v1.172.0 h1:s/wNKjrSY97L25ZFzahRJFKotCR2v+peccSJcI9NRxk=
 github.com/ARM-software/golang-utils/utils/field v1.172.0/go.mod h1:9DvsgyC4ESJ4j0ssWSfYap2vMUeuaAUP90bjHVFhD2E=
 github.com/ARM-software/golang-utils/utils/filesystem v1.172.0 h1:fhph5Z0vQnAsxZOLT7qvMImo8B0WX+ZdiOFGtDRAFgI=
@@ -57,8 +57,8 @@ github.com/ARM-software/golang-utils/utils/safecast v1.172.0 h1:gDXyYIx/s9HFiYBL
 github.com/ARM-software/golang-utils/utils/safecast v1.172.0/go.mod h1:dIK/qEab63ZrXRI3uUtCXV8YdomrmYrc/omckOtEv+M=
 github.com/ARM-software/golang-utils/utils/safeio v1.172.0 h1:FUDGngr/mvdEoeeHRAUIpmZG+1xfeHLo3PR/rRnYAGo=
 github.com/ARM-software/golang-utils/utils/safeio v1.172.0/go.mod h1:Amq4v63QolrK3o3C1O8LTHBR0yRhCOVQZ6Mr1w88jtI=
-github.com/ARM-software/golang-utils/utils/semver v1.171.2 h1:bI1Ruq2QcrRAKZxZ4DIs11w1eFY4jVvyFCsgY7AmHkg=
-github.com/ARM-software/golang-utils/utils/semver v1.171.2/go.mod h1:sEsYSZrXPapArWQufIu9fwBNs11K1Ke3OLSzvGWICXU=
+github.com/ARM-software/golang-utils/utils/semver v1.172.0 h1:d732SG6EZxMbEJVlnOT8qKa65gEME2QdfdNgwMwgwNQ=
+github.com/ARM-software/golang-utils/utils/semver v1.172.0/go.mod h1:IRA2PGkMa7At/CWu9IY7Cm3akClAGQsBFeDHGeKFrm0=
 github.com/ARM-software/golang-utils/utils/serialisation v1.172.0 h1:SI4MfP2BSZ/Q2xW3eosbQm+wa3lv6HcH4W1/P2cAA9Y=
 github.com/ARM-software/golang-utils/utils/serialisation v1.172.0/go.mod h1:Juuxs7mSQUzsk1JOc48+90XyiRape16h29Oenj6uqbY=
 github.com/ARM-software/golang-utils/utils/serialisation/maps/testing v1.172.0 h1:Ch1SRJWnGpytaJXgE7XcgwW2ZNzbe18tfl4suc1/tNc=
