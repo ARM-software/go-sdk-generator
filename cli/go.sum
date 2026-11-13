@@ -35,8 +35,8 @@ github.com/ARM-software/golang-utils/utils/logs/logrimp v1.172.0 h1:AJsPuUItAn+B
 github.com/ARM-software/golang-utils/utils/logs/logrimp v1.172.0/go.mod h1:zivn54brVBmbQ4iMLSZ5WcVq6J8/uO1ncJ/uSNadnag=
 github.com/ARM-software/golang-utils/utils/logs/logstest v1.172.0 h1:YhIdQxtylc/EkfzQHDWgBmzXJUEFPGwEkQolH/f8dzY=
 github.com/ARM-software/golang-utils/utils/logs/logstest v1.172.0/go.mod h1:23IT6mhohpxRp86zTjTRxyq+dMliCAGRXk56DjTJuN0=
-github.com/ARM-software/golang-utils/utils/logs/summary v1.171.2 h1:Pa0aHicw92IYXu+W4CmcWiTj6yh6Z5dMwz4ootWKGLM=
-github.com/ARM-software/golang-utils/utils/logs/summary v1.171.2/go.mod h1:/gEN0G9BZEAX7HMYB2ZtUPp2tikugHWi8txGq4T9duA=
+github.com/ARM-software/golang-utils/utils/logs/summary v1.172.0 h1:KYEpzy6+eR+sAILQQUYfIgsix3Jh9ov21kPXfb4D9lo=
+github.com/ARM-software/golang-utils/utils/logs/summary v1.172.0/go.mod h1:UYeE8pudUtvAr236SujSwCvbt0Jp1yVq9iqd/OGTXXU=
 github.com/ARM-software/golang-utils/utils/maps v1.172.0 h1:hQXIuMiKtzBgP3oPQrmItHv80/lJiKVGL4SvzHcTChs=
 github.com/ARM-software/golang-utils/utils/maps v1.172.0/go.mod h1:MacxThe2zcKMU/RtsV1KEqV4xjpFZRxzehUJf64HN58=
 github.com/ARM-software/golang-utils/utils/parallelisation v1.172.0 h1:8vPC283muSLNpkmHTC2Yg0r3+LtFXiWd0l6nk/C/+8A=
