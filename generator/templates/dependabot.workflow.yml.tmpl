@@ -16,6 +16,6 @@ jobs:
     secrets: inherit
     with: # we call update-client so need these inputs
       branch: ${{ "{{" }} github.head_ref || github.ref }}
-      dockerfile: Dockerfile
-      go_module: utils
+      dockerfile: Dockerfile.{{ .Specification.MainModule }}
+      go_module: {{ .Specification.MainModule }}
       pr_url: ${{ "{{" }}github.event.pull_request.html_url}}
