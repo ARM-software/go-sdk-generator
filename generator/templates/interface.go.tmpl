@@ -6,6 +6,8 @@
 package {{ $packageName }}
 
 import (
+	"context"
+
     {{ if not .Specification.Interface.NotCloseable -}}
 	"io"
 
@@ -17,7 +19,7 @@ import (
 {{ range optionImports .Specification "" -}}
 	{{ renderImport .Alias .Path false }}
 {{ end -}}
-{{ range .Specification.ExtraImports -}}
+{{ range interfaceExtraImports .Specification -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 {{ end -}}
 )

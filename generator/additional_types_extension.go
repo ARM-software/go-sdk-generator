@@ -23,19 +23,7 @@ import (
 const (
 	defaultAdditionalTypePackage = "types"
 	defaultCLIPackage            = "cli"
-	fieldImportPath              = "github.com/ARM-software/golang-utils/utils/field"
-	filesystemImportPath         = "github.com/ARM-software/golang-utils/utils/filesystem"
-	httpUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/http"
-	jsonUtilsImportPath          = "github.com/ARM-software/golang-utils/utils/serialisation/json" // canonical import path
-	platformImportPath           = "github.com/ARM-software/golang-utils/utils/platform"
-	validationUtilsImportPath    = "github.com/ARM-software/golang-utils/utils/validation"
-	xdgImportPath                = "github.com/adrg/xdg"
 )
-
-type additionalTypeImport struct {
-	Alias string
-	Path  string
-}
 
 type generatedAdditionalTypeReference struct {
 	TypeName        string
@@ -190,115 +178,6 @@ func localAdditionalTypeDefaultValue(additionalTypesPackages map[string]string, 
 		return constructor, true
 	}
 	return fmt.Sprintf("*%s", constructor), true
-}
-
-func additionalTypeImports(spec *SDKSpecification, currentPackage string) []additionalTypeImport {
-	if spec == nil {
-		return nil
-	}
-	return collection.FilterRef(collection.Map(sortedAdditionalTypePackages(spec.AdditionalTypes), func(pkg string) additionalTypeImport {
-		return additionalTypeImport{
-			Alias: pkg,
-			Path:  fmt.Sprintf("%s/%s", sdkModuleRoot(spec), pkg),
-		}
-	}), func(i *additionalTypeImport) bool { return i.Alias != currentPackage })
-}
-
-// filterExtraImportsByPath removes explicit import paths that a template already
-// emits directly, so generated files do not end up with duplicate imports.
-func filterExtraImportsByPath(extraImports ExtraImports, excludedPaths ...string) ExtraImports {
-	excluded := collection.Filter(collection.Map(excludedPaths, strings.TrimSpace), func(path string) bool {
-		return reflection.IsNotEmpty(path)
-	})
-	if len(excluded) == 0 {
-		return extraImports
-	}
-	return collection.FilterRef(extraImports, func(extraImport *ExtraImport) bool {
-		if extraImport == nil {
-			return false
-		}
-		importPath := strings.TrimSpace(field.OptionalString(extraImport.ImportUrl, ""))
-		return !slices.Contains(excluded, importPath)
-	})
-}
-
-// configExtraImports returns extra imports for manager configuration templates
-// after removing paths that the template already imports explicitly.
-func configExtraImports(spec *SDKSpecification) ExtraImports {
-	if spec == nil {
-		return nil
-	}
-	excluded := []string{}
-	excluded = append(excluded, validationUtilsImportPath)
-	if !spec.GlobalConfiguration.UsesFilesystemValidationAlias() {
-		excluded = append(excluded, filesystemImportPath)
-	}
-	if !spec.GlobalConfiguration.UsesJSONValidationAlias() {
-		excluded = append(excluded, jsonUtilsImportPath)
-	}
-	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
-}
-
-// cliConfigExtraImports returns extra imports for CLI configuration templates
-// after removing paths that the template already imports explicitly.
-func cliConfigExtraImports(spec *SDKSpecification) ExtraImports {
-	if spec == nil || spec.CommandLineCommands == nil {
-		return nil
-	}
-	excluded := []string{}
-	if !spec.CommandLineCommands.UsesValidationUtilsImport() {
-		excluded = append(excluded, validationUtilsImportPath)
-	}
-	if !spec.CommandLineCommands.UsesFilesystemValidationAlias() {
-		excluded = append(excluded, filesystemImportPath)
-	}
-	if !spec.CommandLineCommands.UsesJSONValidationAlias() {
-		excluded = append(excluded, jsonUtilsImportPath)
-	}
-	excluded = append(excluded, collection.Filter([]string{httpUtilsImportPath, platformImportPath, xdgImportPath}, func(importPath string) bool {
-		return !cliConfigUsesImportPath(spec, importPath)
-	})...)
-	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
-}
-func cliConfigUsesImportPath(spec *SDKSpecification, importPath string) bool {
-	if spec == nil || spec.CommandLineCommands == nil {
-		return false
-	}
-	return collection.AnyFunc(spec.CommandLineCommands.Functions, func(fct CliFunction) bool {
-		return collection.AnyFunc(fct.Configuration, func(cfg FunctionConfigFields) bool {
-			if reflection.IsEmpty(cfg.DefaultValue) {
-				return false
-			}
-			expr := defaultFieldValue(nil, "", "tool", defaultGeneratedToolVersion, "", cfg.Name, cfg.LangType, cfg.EffectiveEnum(), field.OptionalString(cfg.DefaultValue, ""), isReferenceLikeSecretField(cfg))
-			switch importPath {
-			case httpUtilsImportPath:
-				return strings.Contains(expr, "httpUtils.")
-			case platformImportPath:
-				return strings.Contains(expr, "platform.")
-			case xdgImportPath:
-				return strings.Contains(expr, "xdg.")
-			default:
-				return false
-			}
-		})
-	})
-}
-
-// typesExtraImports returns extra imports for generated additional-type Go files
-// after removing paths that the template already imports explicitly.
-func typesExtraImports(spec *SDKSpecification) ExtraImports {
-	if spec == nil {
-		return nil
-	}
-	excluded := []string{}
-	excluded = append(excluded, validationUtilsImportPath)
-	if !spec.AdditionalTypes.UsesFilesystemValidationAlias() {
-		excluded = append(excluded, filesystemImportPath)
-	}
-	if !spec.AdditionalTypes.UsesJSONValidationAlias() {
-		excluded = append(excluded, jsonUtilsImportPath)
-	}
-	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
 }
 
 func rewriteGeneratedAdditionalTypeReference(value string, currentPackage string, additionalTypesPackages map[string]string) string {
