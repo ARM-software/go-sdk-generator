@@ -51,8 +51,8 @@ github.com/ARM-software/golang-utils/utils/serialisation/maps/testing v1.172.0 h
 github.com/ARM-software/golang-utils/utils/serialisation/maps/testing v1.172.0/go.mod h1:wW3uStcVlFGQzINKasnxwgCT+vvzpdd5NQvuRWnu0v8=
 github.com/ARM-software/golang-utils/utils/strings v1.172.0 h1:OgJjuiJpRmKkfd2VwutVVh2wVYTjCKvPRIh76Y2Thq4=
 github.com/ARM-software/golang-utils/utils/strings v1.172.0/go.mod h1:WXSp5+eg3Y99/JW0EH5kyCpp6bB6OOFCZYg0qRoXClc=
-github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2 h1:wWGLFuoGHltAqB8lkL1hHV+AO4IaA6Lmh+J/7hgoz+A=
-github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2/go.mod h1:C2MaicFYddCAJiwX+3wzeZMFJVQMvjl63t0n7rLw6KM=
+github.com/ARM-software/golang-utils/utils/strings/casing v1.172.0 h1:6JQo5qAc1kwCATJu7BkX77sOn/Q6FWbWHnF0XNad5+E=
+github.com/ARM-software/golang-utils/utils/strings/casing v1.172.0/go.mod h1:8M3LLG/V2e4WEk1oDluyGu3klfA7/mguONCO2FilX2U=
 github.com/ARM-software/golang-utils/utils/subprocess/command v1.172.0 h1:go+SDZ82FmEXdVt14BnMazDBW9iV5t5G9Acvjn2x2nc=
 github.com/ARM-software/golang-utils/utils/subprocess/command v1.172.0/go.mod h1:uLUGYDqtTlWEaztQH7MypOGXcNS8D67UsDI1QnvDxBA=
 github.com/ARM-software/golang-utils/utils/units/multiplication v1.172.0 h1:rmSk/CSS6A++ImUkeYdw8Hs7N5GmccKQ9CVceSKCNjQ=

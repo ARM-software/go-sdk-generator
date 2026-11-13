@@ -25,7 +25,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/reflection v1.172.0
 	github.com/ARM-software/golang-utils/utils/semver v1.172.0
 	github.com/ARM-software/golang-utils/utils/serialisation v1.172.0
-	github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2
+	github.com/ARM-software/golang-utils/utils/strings/casing v1.172.0
 	github.com/ARM-software/golang-utils/utils/validation v1.172.0
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/go-faker/faker/v4 v4.12.0
