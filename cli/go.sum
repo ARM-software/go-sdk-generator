@@ -15,8 +15,8 @@ github.com/ARM-software/golang-utils/utils/diodes v1.172.0 h1:8JNM3+RksUnMg7n44M
 github.com/ARM-software/golang-utils/utils/diodes v1.172.0/go.mod h1:OiMN1DMQKfj51XBSsyKD8px1oJNE1fmmxspCGstEw+s=
 github.com/ARM-software/golang-utils/utils/encoding v1.172.0 h1:X/74Na7XxWVdKyNMGwIArLEAuIKhSnxaXPBBC4fk/GM=
 github.com/ARM-software/golang-utils/utils/encoding v1.172.0/go.mod h1:AOhdisYp+ZiFwjs1pOQ1JkjE8WQ2/I7gv+ERu536gzI=
-github.com/ARM-software/golang-utils/utils/environment v1.171.2 h1:H963byqNfDJC5+QDXxuyQQQKEi+7io+vENHp0vB2wkc=
-github.com/ARM-software/golang-utils/utils/environment v1.171.2/go.mod h1:or/HhXRgMyAHkLfisP+HroL5A/Pk0sUDAq3vLP5tlh8=
+github.com/ARM-software/golang-utils/utils/environment v1.172.0 h1:IuRaFNsKEnI7ENOwVpEwKhWPUTGIsBAWyFW4E82X2NM=
+github.com/ARM-software/golang-utils/utils/environment v1.172.0/go.mod h1:3GtDmm8hANadd5liAzAhYCWmw9lEXFS87on7O4zTJpw=
 github.com/ARM-software/golang-utils/utils/field v1.172.0 h1:s/wNKjrSY97L25ZFzahRJFKotCR2v+peccSJcI9NRxk=
 github.com/ARM-software/golang-utils/utils/field v1.172.0/go.mod h1:9DvsgyC4ESJ4j0ssWSfYap2vMUeuaAUP90bjHVFhD2E=
 github.com/ARM-software/golang-utils/utils/filesystem v1.172.0 h1:fhph5Z0vQnAsxZOLT7qvMImo8B0WX+ZdiOFGtDRAFgI=
