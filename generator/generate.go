@@ -14,7 +14,6 @@ import (
 	"text/template"
 
 	modsemver "golang.org/x/mod/semver"
-	"golang.org/x/tools/imports"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
 	"github.com/ARM-software/golang-utils/utils/collection"
@@ -134,35 +133,6 @@ func (t *templates) Populate(ctx context.Context, data *DataModel) (files []stri
 	return
 }
 
-func formatImports(ctx context.Context, path string) (bytes []byte, err error) {
-	err = parallelisation.DetermineContextError(ctx)
-	if err != nil {
-		return
-	}
-
-	src, err := filesystem.ReadFile(path)
-	if err != nil {
-		err = commonerrors.WrapErrorf(commonerrors.ErrNotFound, err, "file '%v' doesn't exist", path)
-		return
-	}
-
-	// FIXME It would be great to also simplify code as part of the process (gofmt -s). However, this is not possible in current go implementation https://github.com/golang/go/issues/21476
-	cleanedSrc, err := imports.Process(path, src, &imports.Options{
-		Comments:   true,
-		TabIndent:  true,
-		TabWidth:   4,
-		Fragment:   true,
-		FormatOnly: false,
-	})
-	if err != nil {
-		err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not cleanup imports for file '%v'", path)
-		return
-	}
-
-	bytes = cleanedSrc
-	return
-}
-
 type DataModel struct {
 	SchemaFileName   string
 	ManifestFileName string
@@ -249,7 +219,13 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	}
 
 	if filesystem.FilePathExt(localFs, output) == ".go" {
-		cleaned, subErr := formatImports(ctx, output)
+		localPrefix := ""
+		switch typed := any(data).(type) {
+		case *DataModel:
+			localPrefix = importPrefix(&typed.Specification)
+		}
+
+		cleaned, subErr := formatImports(ctx, output, localPrefix)
 		if subErr != nil {
 			err = subErr
 			return

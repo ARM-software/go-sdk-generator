@@ -329,7 +329,7 @@ func TestFormatImports(t *testing.T) {
 
 		require.NoError(t, err)
 
-		cleaned, err := formatImports(context.Background(), tmpFile)
+		cleaned, err := formatImports(context.Background(), tmpFile, "")
 
 		assert.NoError(t, err)
 
@@ -349,7 +349,7 @@ func TestFormatImports(t *testing.T) {
 
 		require.NoError(t, err)
 
-		cleaned, err := formatImports(context.Background(), tmpFile)
+		cleaned, err := formatImports(context.Background(), tmpFile, "")
 
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 
@@ -363,7 +363,7 @@ func TestFormatImports(t *testing.T) {
 
 		tmpFile := filesystem.FilePathJoin(localFs, tmpDir, "test.go")
 
-		cleaned, err := formatImports(context.Background(), tmpFile)
+		cleaned, err := formatImports(context.Background(), tmpFile, "")
 
 		errortest.AssertError(t, err, commonerrors.ErrNotFound)
 
@@ -381,7 +381,7 @@ func TestFormatImports(t *testing.T) {
 
 		cancel()
 
-		cleaned, err := formatImports(ctx, tmpFile)
+		cleaned, err := formatImports(ctx, tmpFile, "")
 
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 
