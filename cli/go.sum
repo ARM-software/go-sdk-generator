@@ -29,8 +29,8 @@ github.com/ARM-software/golang-utils/utils/keyring v1.172.0 h1:3XaEqw0jZ9b8bJ7x7
 github.com/ARM-software/golang-utils/utils/keyring v1.172.0/go.mod h1:v656nzAFeT6dr27wLToqtDlCy2C1u7Vx/kbr38ZNLfc=
 github.com/ARM-software/golang-utils/utils/logs v1.172.0 h1:Fpyp4vvzIXtP3TXtaKG++jyia42BvjIR6QqpKwjzN5s=
 github.com/ARM-software/golang-utils/utils/logs v1.172.0/go.mod h1:bdZdL+gO4YVXllZ/lqjg3uCmMRzRqScsUIzM1xPPk4w=
-github.com/ARM-software/golang-utils/utils/logs/annotations v1.171.2 h1:xcNBK5GyeswISqvfGzKW7sWoLpZi1wsW4Q9scgXrczo=
-github.com/ARM-software/golang-utils/utils/logs/annotations v1.171.2/go.mod h1:NILy6BMTMq9frCLUBwlFvRJ7AwyppDI6KQgbCDOHULc=
+github.com/ARM-software/golang-utils/utils/logs/annotations v1.172.0 h1:hDFyS8R1uUAisMgKFoND0yda7L1Dg6koenaZgCKzKus=
+github.com/ARM-software/golang-utils/utils/logs/annotations v1.172.0/go.mod h1:vBQ3uUdlX/hAoFk1HEjSUcBsaHLmnUhyE2rT8rz8JkM=
 github.com/ARM-software/golang-utils/utils/logs/logrimp v1.172.0 h1:AJsPuUItAn+Br2Kl2ohf6hSHfpzjy4je8SC53bgQUmM=
 github.com/ARM-software/golang-utils/utils/logs/logrimp v1.172.0/go.mod h1:zivn54brVBmbQ4iMLSZ5WcVq6J8/uO1ncJ/uSNadnag=
 github.com/ARM-software/golang-utils/utils/logs/logstest v1.172.0 h1:YhIdQxtylc/EkfzQHDWgBmzXJUEFPGwEkQolH/f8dzY=
