@@ -3,7 +3,7 @@
 name: Dependabot
 on:
   pull_request_target:
-    branches: dependabot/**
+    branches: [ main ]
 permissions:
   pull-requests: write
   issues: write
@@ -11,10 +11,11 @@ permissions:
   contents: write
 jobs:
   dependabot:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'monty-bot'
     uses: Arm-Debug/OTG-Services-Workflows/.github/workflows/dependabot.yml@latest
     secrets: inherit
     with: # we call update-client so need these inputs
       branch: ${{ "{{" }} github.head_ref || github.ref }}
-      dockerfile: Dockerfile.{{ .Specification.MainModule }}
-      go_module: {{ .Specification.MainModule }}
+      dockerfile: Dockerfile
+      go_module: utils
       pr_url: ${{ "{{" }}github.event.pull_request.html_url}}
