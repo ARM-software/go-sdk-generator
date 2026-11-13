@@ -21,7 +21,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/logs/summary v1.171.2
 	github.com/ARM-software/golang-utils/utils/parallelisation v1.172.0
 	github.com/ARM-software/golang-utils/utils/reflection v1.172.0
-	github.com/ARM-software/golang-utils/utils/semver v1.171.2
+	github.com/ARM-software/golang-utils/utils/semver v1.172.0
 	github.com/ARM-software/golang-utils/utils/validation v1.172.0
 	github.com/ARM-software/golang-utils/utils/value v1.172.0
 	github.com/charmbracelet/fang v1.0.0
