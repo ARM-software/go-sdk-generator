@@ -23,7 +23,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/parallelisation v1.172.0
 	github.com/ARM-software/golang-utils/utils/ptr v1.172.0
 	github.com/ARM-software/golang-utils/utils/reflection v1.172.0
-	github.com/ARM-software/golang-utils/utils/semver v1.171.2
+	github.com/ARM-software/golang-utils/utils/semver v1.172.0
 	github.com/ARM-software/golang-utils/utils/serialisation v1.172.0
 	github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2
 	github.com/ARM-software/golang-utils/utils/validation v1.172.0
