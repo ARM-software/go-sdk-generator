@@ -2,6 +2,36 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.4 (2026-11-13)
+
+## Bugfixes
+
+- :building_construction: Update generated CODEOWNERS and Dependabot workflow templates to improve dependency management. (#202611130959)
+- :bug: Fix generated Go imports so interface and CLI root files include the imports they actually use and group project-local imports consistently with the generated golangci configuration. (#202611131655)
+- Dependency upgrade: go-sdk-generator-0.53.3 (#20261106131720168600332)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.52.0. (#20261106131909042582525, #20261113165609220772326)
+- Dependency upgrade: login-action-4 (#20261109224621827161531)
+- Dependency upgrade: commonerrors-1.172.0 (#20261109224636856217661)
+- Dependency upgrade: collection-1.172.0 (#20261109224639616130853)
+- Dependency upgrade: filesystem-1.172.0 (#20261109224644941081989, #20261109224645863935104)
+- Dependency upgrade: maps-1.172.0 (#20261109224649198711885)
+- Dependency upgrade: environment-1.172.0 (#20261109224649670151545)
+- Dependency upgrade: summary-1.172.0 (#20261109224652652615947)
+- Dependency upgrade: validation-1.172.0 (#20261109224655361239694)
+- Dependency upgrade: reflection-1.172.0 (#20261109224655814149510)
+- Dependency upgrade: config-1.172.0 (#20261109224656350388911)
+- Dependency upgrade: hashing-1.172.0 (#20261109224702858930891)
+- Dependency upgrade: field-1.172.0 (#20261109224709188827449)
+- Dependency upgrade: serialisation-1.172.0 (#20261109224711018362308)
+- Dependency upgrade: alpine-3.24.4 (#20261111224439051150561)
+- Dependency upgrade: semver-1.172.0 (#20261113104723594614019)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.53.3. (#20261113172854672534019, #20261113180631646109990, #20261113184047123001703, #20261113184825670531536)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.3 (2026-11-06)
 
 ## Bugfixes

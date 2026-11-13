@@ -1,1 +1,0 @@
-:bug: Fix generated Go imports so interface and CLI root files include the imports they actually use and group project-local imports consistently with the generated golangci configuration.

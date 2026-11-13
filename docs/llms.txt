@@ -1,0 +1,18 @@
+# SDK Generator
+
+> Documentation for SDK Generator.
+
+## Documentation
+
+- [Overview](https://ARM-software.github.io/go-sdk-generator/)
+- [Go SDK Generator: task guides](https://ARM-software.github.io/go-sdk-generator/guides/index.html)
+- [Configure functional options](https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html)
+- [Breaking changes and deprecation](https://ARM-software.github.io/go-sdk-generator/guides/evolving-a-contract.html)
+- [Generate and regenerate a Go project](https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html)
+- [Install and inspect go-sdk-generator](https://ARM-software.github.io/go-sdk-generator/guides/install-and-inspect.html)
+- [Secret management in generated CLI tools](https://ARM-software.github.io/go-sdk-generator/guides/secret-management.html)
+- [Types, formats and default values](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html)
+- [Run the generator in GitHub Actions](https://ARM-software.github.io/go-sdk-generator/guides/use-github-actions.html)
+- [What the generator produces](https://ARM-software.github.io/go-sdk-generator/guides/what-it-generates.html)
+- [Write a generator manifest](https://ARM-software.github.io/go-sdk-generator/guides/write-a-manifest.html)
+- [API reference](https://ARM-software.github.io/go-sdk-generator/api.html)

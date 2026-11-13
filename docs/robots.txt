@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ARM-software.github.io/go-sdk-generator/sitemap.xml

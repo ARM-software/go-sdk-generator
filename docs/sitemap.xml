@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+  -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/api.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/config/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/internal/acronyms/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/internal/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/mocks/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/evolving-a-contract.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/install-and-inspect.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/secret-management.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/use-github-actions.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/what-it-generates.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/write-a-manifest.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/</loc>
+  </url>
+</urlset>
