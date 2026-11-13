@@ -2,6 +2,24 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.3 (2026-11-06)
+
+## Bugfixes
+
+- Dependency upgrade: setup-qemu-action-4 (#20261106131715022958763)
+- Dependency upgrade: git-auto-commit-action-7 (#20261106131723612747280)
+- Dependency upgrade: setup-buildx-action-4 (#20261106131731738890575)
+- Dependency upgrade: setup-python-7 (#20261106131734885922433)
+
+## Improved Documentation
+
+- :book: Remove unused public Artifactory release settings from the repository manifest. (#202611061130)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.2 (2026-11-06)
 
 ## Bugfixes

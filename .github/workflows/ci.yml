@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
       - name: Install CI/CD tools
         run: pip install continuous-delivery-scripts && pip list
       - name: Assert news
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
       - name: Install CI/CD tools
         run: pip install continuous-delivery-scripts && pip list
       - name: Detect secrets
@@ -73,7 +73,7 @@ jobs:
           cache-dependency-path: |
             go.work.sum
             **/go.sum
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
       - name: Install CI/CD tools
         run: pip install continuous-delivery-scripts>=2.7 && pip list
       - name: Sync workspace
@@ -154,13 +154,13 @@ jobs:
       - name: Sync workspace
         if: ${{ hashFiles('go.work') != '' }}
         uses: ARM-software/golang-utils/actions/sync-go-workspace@latest
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
       - name: Install CI/CD tools
         run: pip install 'continuous-delivery-scripts>=4.8.0' && pip list
       - name: Update copyright headers after generation
         run: cd-license-files
       - name: Commit generated changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: regenerate generated files"
       - name: Report failure if needed
