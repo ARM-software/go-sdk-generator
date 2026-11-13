@@ -25,7 +25,7 @@ require (
 	github.com/ARM-software/golang-utils/utils/reflection v1.172.0
 	github.com/ARM-software/golang-utils/utils/semver v1.172.0
 	github.com/ARM-software/golang-utils/utils/serialisation v1.172.0
-	github.com/ARM-software/golang-utils/utils/strings/casing v1.171.2
+	github.com/ARM-software/golang-utils/utils/strings/casing v1.172.0
 	github.com/ARM-software/golang-utils/utils/validation v1.172.0
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/go-faker/faker/v4 v4.12.0
@@ -34,7 +34,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
-	golang.org/x/mod v0.42.0
+	golang.org/x/mod v0.43.0
 	golang.org/x/text v0.44.0
 	golang.org/x/tools v0.52.0
 	sigs.k8s.io/yaml v1.6.0
