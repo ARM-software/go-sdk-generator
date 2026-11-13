@@ -160,4 +160,3 @@ func TestCommandLineCommandsValidateRejectsInvalidBinarySegment(t *testing.T) {
 	}
 	require.Error(t, cmds.Validate())
 }
-

@@ -11,12 +11,12 @@ import (
 	"embed"
 	"os"
 
-	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	configUtils "github.com/ARM-software/golang-utils/utils/config"
+	"github.com/ARM-software/golang-utils/utils/semver"
 	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
 )
 

@@ -220,8 +220,7 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 
 	if filesystem.FilePathExt(localFs, output) == ".go" {
 		localPrefix := ""
-		switch typed := any(data).(type) {
-		case *DataModel:
+		if typed, ok := any(data).(*DataModel); ok {
 			localPrefix = importPrefix(&typed.Specification)
 		}
 
