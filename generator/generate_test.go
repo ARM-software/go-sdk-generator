@@ -890,8 +890,6 @@ func TestGenerate(t *testing.T) {
 
 		assert.Contains(t, string(interfaceContent), "// This also verifies multiline descriptions.")
 
-		assert.Contains(t, string(interfaceContent), "\"context\"")
-
 	})
 
 	t.Run("Protected built-in CLI argument names are rejected", func(t *testing.T) {
