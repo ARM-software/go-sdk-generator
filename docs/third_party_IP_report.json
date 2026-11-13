@@ -659,7 +659,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.171.2/utils/logs/annotations/LICENSE",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.172.0/utils/logs/annotations/LICENSE",
           "text": ""
         }
       ],
@@ -670,8 +670,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/ARM-software/golang-utils/utils/logs/annotations",
-      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.171.2/utils/logs/annotations/LICENSE",
-      "version": "v1.171.2"
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/logs/annotations/v1.172.0/utils/logs/annotations/LICENSE",
+      "version": "v1.172.0"
     },
     "github.com/ARM-software/golang-utils/utils/logs/logrimp": {
       "anchor": "package-c8498a39-9367-a010-f59c-4480f987b058",
@@ -1304,7 +1304,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.171.2/utils/strings/casing/LICENSE",
+          "path": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.172.0/utils/strings/casing/LICENSE",
           "text": ""
         }
       ],
@@ -1315,8 +1315,8 @@
       },
       "mark_as_problematic": false,
       "name": "github.com/ARM-software/golang-utils/utils/strings/casing",
-      "url": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.171.2/utils/strings/casing/LICENSE",
-      "version": "v1.171.2"
+      "url": "https://github.com/ARM-software/golang-utils/blob/utils/strings/casing/v1.172.0/utils/strings/casing/LICENSE",
+      "version": "v1.172.0"
     },
     "github.com/ARM-software/golang-utils/utils/subprocess/command": {
       "anchor": "package-13626777-0feb-8a75-3693-85ff65c85ff4",
@@ -5618,7 +5618,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://cs.opensource.google/go/x/mod/+/v0.42.0:LICENSE",
+          "path": "https://cs.opensource.google/go/x/mod/+/v0.43.0:LICENSE",
           "text": ""
         }
       ],
@@ -5629,8 +5629,8 @@
       },
       "mark_as_problematic": false,
       "name": "golang.org/x/mod",
-      "url": "https://cs.opensource.google/go/x/mod/+/v0.42.0:LICENSE",
-      "version": "v0.42.0"
+      "url": "https://cs.opensource.google/go/x/mod/+/v0.43.0:LICENSE",
+      "version": "v0.43.0"
     },
     "golang.org/x/net/idna": {
       "anchor": "package-2aead2ef-7de2-8d0b-50d8-19fea4eae228",
@@ -5704,7 +5704,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://cs.opensource.google/go/x/sync/+/v0.24.0:LICENSE",
+          "path": "https://cs.opensource.google/go/x/sync/+/v0.25.0:LICENSE",
           "text": ""
         }
       ],
@@ -5715,8 +5715,8 @@
       },
       "mark_as_problematic": false,
       "name": "golang.org/x/sync/errgroup",
-      "url": "https://cs.opensource.google/go/x/sync/+/v0.24.0:LICENSE",
-      "version": "v0.24.0"
+      "url": "https://cs.opensource.google/go/x/sync/+/v0.25.0:LICENSE",
+      "version": "v0.25.0"
     },
     "golang.org/x/sys": {
       "anchor": "package-af39534f-be6f-71bf-ee2f-937b8c05225b",
@@ -5790,7 +5790,7 @@
       "licence_evidence": [
         {
           "kind": "licence",
-          "path": "https://cs.opensource.google/go/x/text/+/v0.43.0:LICENSE",
+          "path": "https://cs.opensource.google/go/x/text/+/v0.44.0:LICENSE",
           "text": ""
         }
       ],
@@ -5801,8 +5801,8 @@
       },
       "mark_as_problematic": false,
       "name": "golang.org/x/text",
-      "url": "https://cs.opensource.google/go/x/text/+/v0.43.0:LICENSE",
-      "version": "v0.43.0"
+      "url": "https://cs.opensource.google/go/x/text/+/v0.44.0:LICENSE",
+      "version": "v0.44.0"
     },
     "golang.org/x/tools": {
       "anchor": "package-812182ae-679d-806a-9b88-61a4ef10def8",
@@ -5941,7 +5941,7 @@
     "licence_href": "https://github.com/ARM-software/go-sdk-generator/blob/main/LICENSE",
     "name": "SDK Generator"
   },
-  "render_time": "2026-11-13T19:15:21.717330",
+  "render_time": "2026-11-13T21:42:03.732706",
   "undocumented_exemptions": [],
   "unknown_licences": [
     "github.com/klauspost/compress",

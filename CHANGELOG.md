@@ -2,6 +2,20 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.5 (2026-11-13)
+
+## Bugfixes
+
+- Dependency upgrade: text-0.44.0 (#20261113205624431724365)
+- Dependency upgrade: annotations-1.172.0 (#20261113205635390978524)
+- Dependency upgrade: casing-1.172.0 (#20261113205636132845769)
+- Dependency upgrade: mod-0.43.0 (#20261113205638818363355)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.4 (2026-11-13)
 
 ## Bugfixes
