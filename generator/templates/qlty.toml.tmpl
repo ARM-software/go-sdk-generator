@@ -82,3 +82,9 @@ set.ignored = true
 [[triage]]
 match.rules = ["markdownlint:fmt"]
 set.ignored = true
+
+# README formatting is maintained outside Qlty.
+[[triage]]
+match.plugins = ["prettier"]
+match.file_patterns = ["README.md", "**/README.md"]
+set.ignored = true

@@ -979,6 +979,8 @@ func TestGenerateQltyConfigIgnoresGeneratedFiles(t *testing.T) {
 	assert.NotContains(t, content, "\"cli/cmd/verify/implementations.go\"")
 	assert.Contains(t, content, "match.rules = [\"yamllint:line-length\"]")
 	assert.Contains(t, content, "match.rules = [\"markdownlint:fmt\"]")
+	assert.Contains(t, content, "match.plugins = [\"prettier\"]")
+	assert.Contains(t, content, "match.file_patterns = [\"README.md\", \"**/README.md\"]")
 	assert.Contains(t, content, "set.ignored = true")
 }
 
