@@ -56,7 +56,7 @@ func (m *MockISDKGeneratorManager) Generate(ctx context.Context, logger logs.Log
 }
 
 // Generate indicates an expected call of Generate.
-func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx any, logger any) *gomock.Call {
+func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx, logger any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*MockISDKGeneratorManager)(nil).Generate), ctx, logger)
 }
