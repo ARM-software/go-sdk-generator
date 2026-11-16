@@ -10,6 +10,7 @@ import (
 	"context"
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/logs"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
 )
@@ -28,17 +29,19 @@ Input arguments:
 
   - ctx: A context to pass into the method. Can be used to cancel long-running tasks
 
+  - logger: Logger to use for informational generation messages
+
 Return values:
 
   - err: Whether the generation failed or not
 */
-func (imp *SDKGeneratorManager) Generate(ctx context.Context) (err error) {
+func (imp *SDKGeneratorManager) Generate(ctx context.Context, logger logs.Loggers) (err error) {
 	if imp.Delegate == nil {
 		err = commonerrors.UndefinedVariable("delegate")
 		return
 	}
 
-	return imp.Delegate.Generate(ctx)
+	return imp.Delegate.Generate(ctx, logger)
 }
 
 // GetConfig returns the configuration for SDKGenerator

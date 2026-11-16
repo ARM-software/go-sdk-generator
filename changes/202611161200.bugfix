@@ -1,0 +1,1 @@
+:bug: Preserve existing generated `module.properties` files during overwrite regeneration and warn instead of resetting version metadata.

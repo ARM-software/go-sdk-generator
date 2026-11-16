@@ -31,7 +31,7 @@ func updateRegressionFixture(t *testing.T, repoRoot string, fixture struct {
 	cfg.Output = outputDir
 	cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
-	require.NoError(t, Generate(context.Background(), cfg))
+	require.NoError(t, Generate(context.Background(), nil, cfg))
 	buildGeneratedModules(context.Background(), localFs, outputDir, t)
 
 	zipPath := filepath.Join(repoRoot, "testdata", fixture.zip)

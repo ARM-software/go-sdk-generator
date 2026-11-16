@@ -20,6 +20,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/semver"
@@ -239,7 +240,7 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	return
 }
 
-func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration) (err error) {
+func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGeneratorManagerConfiguration) (err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
@@ -466,7 +467,7 @@ func Generate(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration)
 	} else {
 		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.CommandLineCommands.Package, "cmd", "module.properties")
 	}
-	templatesToPopulate.addStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true)
+	templatesToPopulate.addProtectedStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true, logger)
 	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)
 
 	flagRegs, cliEnvVarBindings, err := PreComputeFlagsAndBindings(sdk.Specification.CommandLineCommands)
@@ -754,6 +755,21 @@ func (t *templates) addStateFile(templateFile, dest string, overwrite bool, mark
 			NewTemplateToPopulate(templateFile, dest),
 		)
 	}
+}
+
+func (t *templates) addProtectedStateFile(templateFile, dest string, overwrite bool, markAsGenerated bool, logger logs.Loggers) {
+	if markAsGenerated {
+		t.toTrack = append(t.toTrack, dest)
+	}
+	if filesystem.Exists(dest) {
+		if overwrite && logger != nil {
+			logger.Log(fmt.Sprintf("preserving existing %s; it was not touched even though overwrite was requested", dest))
+		}
+		return
+	}
+	t.toGenerate = append(t.toGenerate,
+		NewTemplateToPopulate(templateFile, dest),
+	)
 }
 
 func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
