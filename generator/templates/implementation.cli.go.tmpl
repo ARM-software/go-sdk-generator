@@ -19,7 +19,7 @@ import (
 	{{ renderImport .Alias .Path false }}
 	{{ end -}}
 
-	{{ range .Specification.ExtraImports -}}
+	{{ range cliImplementationExtraImports .Specification -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}
 )

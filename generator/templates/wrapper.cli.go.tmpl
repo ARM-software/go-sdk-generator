@@ -40,7 +40,7 @@ import (
 	{{ renderImport .Alias .Path false }}
 	{{ end -}}
 
-	{{ range .Specification.ExtraImports -}}
+	{{ range cliWrapperExtraImports .Specification -}}
 	{{ renderImport (dereferenceString .ImportRef) (dereferenceString .ImportUrl) false }}
 	{{ end -}}
 )

@@ -28,6 +28,9 @@ const (
 	filesystemImportPath      = "github.com/ARM-software/golang-utils/utils/filesystem"
 	httpUtilsImportPath       = "github.com/ARM-software/golang-utils/utils/http"
 	jsonUtilsImportPath       = "github.com/ARM-software/golang-utils/utils/serialisation/json" // canonical import path
+	logsImportPath            = "github.com/ARM-software/golang-utils/utils/logs"
+	annotationsImportPath     = "github.com/ARM-software/golang-utils/utils/logs/annotations"
+	summaryImportPath         = "github.com/ARM-software/golang-utils/utils/logs/summary"
 	platformImportPath        = "github.com/ARM-software/golang-utils/utils/platform"
 	validationUtilsImportPath = "github.com/ARM-software/golang-utils/utils/validation"
 	xdgImportPath             = "github.com/adrg/xdg"
@@ -125,6 +128,24 @@ func cliConfigExtraImports(spec *SDKSpecification) ExtraImports {
 		return !cliConfigUsesImportPath(spec, importPath)
 	})...)
 	return filterExtraImportsByPath(spec.ExtraImports, excluded...)
+}
+
+// cliImplementationExtraImports returns extra imports for generated CLI
+// implementation templates after removing paths the template already imports.
+func cliImplementationExtraImports(spec *SDKSpecification) ExtraImports {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return nil
+	}
+	return filterExtraImportsByPath(spec.ExtraImports, logsImportPath, annotationsImportPath, summaryImportPath)
+}
+
+// cliWrapperExtraImports returns extra imports for generated CLI wrapper
+// templates after removing paths the template already imports explicitly.
+func cliWrapperExtraImports(spec *SDKSpecification) ExtraImports {
+	if spec == nil || spec.CommandLineCommands == nil {
+		return nil
+	}
+	return filterExtraImportsByPath(spec.ExtraImports, logsImportPath, annotationsImportPath, summaryImportPath)
 }
 
 func cliConfigUsesImportPath(spec *SDKSpecification, importPath string) bool {

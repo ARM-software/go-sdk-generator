@@ -95,6 +95,48 @@ func TestCLIConfigExtraImportsKeepsExplicitTemplateImportsWhenUsed(t *testing.T)
 	assert.Equal(t, validationUtilsImportPath, field.OptionalString(filtered[3].ImportUrl, ""))
 }
 
+func TestCLIImplementationExtraImportsSkipsTemplateLoggerImports(t *testing.T) {
+	t.Parallel()
+
+	spec := &SDKSpecification{
+		ExtraImports: ExtraImports{
+			{ImportRef: field.ToOptionalString("logs"), ImportUrl: field.ToOptionalString(logsImportPath)},
+			{ImportRef: field.ToOptionalString("annotations"), ImportUrl: field.ToOptionalString(annotationsImportPath)},
+			{ImportRef: field.ToOptionalString("summary"), ImportUrl: field.ToOptionalString(summaryImportPath)},
+			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+		},
+		CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
+			Name:        "Generate",
+			Description: "Generate.",
+		}}},
+	}
+
+	filtered := cliImplementationExtraImports(spec)
+	assert.Len(t, filtered, 1)
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+}
+
+func TestCLIWrapperExtraImportsSkipsTemplateLoggerImports(t *testing.T) {
+	t.Parallel()
+
+	spec := &SDKSpecification{
+		ExtraImports: ExtraImports{
+			{ImportRef: field.ToOptionalString("logs"), ImportUrl: field.ToOptionalString(logsImportPath)},
+			{ImportRef: field.ToOptionalString("annotations"), ImportUrl: field.ToOptionalString(annotationsImportPath)},
+			{ImportRef: field.ToOptionalString("summary"), ImportUrl: field.ToOptionalString(summaryImportPath)},
+			{ImportRef: field.ToOptionalString("custom"), ImportUrl: field.ToOptionalString("example.com/custom")},
+		},
+		CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
+			Name:        "Generate",
+			Description: "Generate.",
+		}}},
+	}
+
+	filtered := cliWrapperExtraImports(spec)
+	assert.Len(t, filtered, 1)
+	assert.Equal(t, "example.com/custom", field.OptionalString(filtered[0].ImportUrl, ""))
+}
+
 func TestTypesExtraImportsKeepsExplicitTemplateImportsWhenUsed(t *testing.T) {
 	t.Parallel()
 
