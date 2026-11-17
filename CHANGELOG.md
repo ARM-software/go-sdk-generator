@@ -2,6 +2,20 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.53.6 (2026-11-17)
+
+## Bugfixes
+
+- :gear: Ignore README formatting findings from Qlty's Prettier checks and refresh the generated regression fixtures. (#202611141006)
+- :bug: Preserve existing generated `module.properties` files during overwrite regeneration and warn instead of resetting version metadata. (#202611161200)
+- Dependency upgrade: go-sdk-generator-0.53.5 (#20261116224551259407568)
+- :camel: Regenerate project output after upgrading go-sdk-generator version 0.53.5. (#20261117102620455153739)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.5 (2026-11-13)
 
 ## Bugfixes

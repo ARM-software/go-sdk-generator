@@ -3298,6 +3298,21 @@
           "kind": "licence",
           "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
           "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
+        },
+        {
+          "kind": "licence",
+          "path": "https://github.com/klauspost/compress/blob/v1.18.7/LICENSE",
+          "text": ""
         }
       ],
       "licence_source": "unknown",
@@ -5941,7 +5956,7 @@
     "licence_href": "https://github.com/ARM-software/go-sdk-generator/blob/main/LICENSE",
     "name": "SDK Generator"
   },
-  "render_time": "2026-11-13T21:42:03.732706",
+  "render_time": "2026-11-17T11:29:41.134147",
   "undocumented_exemptions": [],
   "unknown_licences": [
     "github.com/klauspost/compress",

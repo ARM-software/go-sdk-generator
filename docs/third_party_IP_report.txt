@@ -1,6 +1,6 @@
                                 3rd party IP report for SDK Generator
 
-                                         2026-11-13 21:42:03.732706
+                                         2026-11-17 11:29:41.134147
 
 # Summary:
     Licence compliance: Compliant
@@ -1353,7 +1353,7 @@
     Licence source: unknown
     Declared licence: unknown
     Licence classifiers: None
-    Evidence: licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE
+    Evidence: licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE; licence: https://github.com/klauspost/compress/blob/v1.18.7/LICENSE
     Licence compliance: Automatic licence assessment does not meet the configured policy; accepted after manual review: Reviewed the module's packaged BSD-3-Clause licence text because the discovered metadata was Unknown; the dependency is permissive and acceptable for this project..
     Licence assessment: ALLOW (automatic: ALLOW) — Assessed using manually verified BSD-3-Clause because the discovered licence was unknown. A permissive dependency generally permits redistribution; retain its notices and conditions.
     Manually verified assessment licence: BSD-3-Clause (discovered: Unknown)
