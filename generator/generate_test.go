@@ -28,6 +28,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/hashing"
+	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 )
 
@@ -780,7 +781,7 @@ func TestGenerate(t *testing.T) {
 
 			cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
-			err := Generate(ctx, cfg)
+			err := Generate(ctx, nil, cfg)
 
 			if test.err != nil {
 
@@ -804,7 +805,7 @@ func TestGenerate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err := Generate(ctx, nil)
+		err := Generate(ctx, nil, nil)
 
 		errortest.AssertError(t, err, commonerrors.ErrUndefined)
 
@@ -823,7 +824,7 @@ func TestGenerate(t *testing.T) {
 			Output: "aaaa",
 		}
 
-		err := Generate(ctx, cfg)
+		err := Generate(ctx, nil, cfg)
 
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 
@@ -840,7 +841,7 @@ func TestGenerate(t *testing.T) {
 			Output: "bbb",
 		}
 
-		err := Generate(ctx, cfg)
+		err := Generate(ctx, nil, cfg)
 
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected, commonerrors.ErrNotFound)
 
@@ -858,7 +859,7 @@ func TestGenerate(t *testing.T) {
 
 		cfg.Output = tmpDir
 
-		err := Generate(ctx, cfg)
+		err := Generate(ctx, nil, cfg)
 
 		assert.NoError(t, err, "Code generation should succeed with multiline YAML defaults")
 
@@ -918,7 +919,7 @@ func TestGenerate(t *testing.T) {
 
 		cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
-		err := Generate(ctx, cfg)
+		err := Generate(ctx, nil, cfg)
 
 		require.NoError(t, err)
 
@@ -940,7 +941,7 @@ func TestGenerate(t *testing.T) {
 
 		cfg.Output = tmpDir
 
-		err := Generate(ctx, cfg)
+		err := Generate(ctx, nil, cfg)
 
 		require.NoError(t, err)
 
@@ -968,7 +969,7 @@ func TestGenerateQltyConfigIgnoresGeneratedFiles(t *testing.T) {
 	cfg.Output = tmpDir
 	cfg.ToolVersion = field.ToOptionalString("0.31.0")
 
-	require.NoError(t, Generate(ctx, cfg))
+	require.NoError(t, Generate(ctx, nil, cfg))
 
 	qltyConfig, err := localFs.ReadFile(filesystem.FilePathJoin(localFs, tmpDir, ".qlty", "qlty.toml"))
 	require.NoError(t, err)
@@ -1029,6 +1030,56 @@ func TestAddStateFileFollowsOverwriteFlag(t *testing.T) {
 	assert.Equal(t, existingFile, tmpls.toGenerate[0].output)
 
 	assert.Equal(t, []string{existingFile}, tmpls.toTrack)
+
+}
+
+func TestAddProtectedStateFilePreservesExistingFileAndWarnsOnOverwrite(t *testing.T) {
+
+	tmpls := &templates{}
+
+	existingFile := filesystem.FilePathJoin(filesystem.NewStandardFileSystem(), t.TempDir(), "module.properties")
+
+	require.NoError(t, filesystem.WriteFile(existingFile, []byte("Version=9.9.9\n"), 0644))
+
+	logger, err := logs.NewPlainStringLogger()
+	require.NoError(t, err)
+
+	tmpls.addProtectedStateFile("template", existingFile, true, true, logger)
+
+	assert.Empty(t, tmpls.toGenerate)
+
+	assert.Equal(t, []string{existingFile}, tmpls.toTrack)
+
+	assert.Contains(t, logger.GetLogContent(), "it was not touched even though overwrite was requested")
+
+	assert.Contains(t, logger.GetLogContent(), existingFile)
+
+}
+
+func TestGeneratePreservesExistingModulePropertiesOnOverwrite(t *testing.T) {
+
+	localFs := filesystem.NewStandardFileSystem()
+	ctx := context.Background()
+	tmpDir := t.TempDir()
+
+	cfg := config.DefaultSDKGeneratorManagerConfiguration()
+	cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "verify.yml")
+	cfg.Output = tmpDir
+	cfg.Overwrite = true
+	logger, err := logs.NewPlainStringLogger()
+	require.NoError(t, err)
+
+	modulePropertiesPath := filesystem.FilePathJoin(localFs, tmpDir, "cli", "cmd", "module.properties")
+	require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, modulePropertiesPath)))
+	require.NoError(t, localFs.WriteFile(modulePropertiesPath, []byte("Version=9.9.9\nCommitHash=keepme\n"), 0644))
+
+	require.NoError(t, Generate(ctx, logger, cfg))
+
+	content, err := localFs.ReadFile(modulePropertiesPath)
+	require.NoError(t, err)
+	assert.Equal(t, "Version=9.9.9\nCommitHash=keepme\n", string(content))
+	assert.Contains(t, logger.GetLogContent(), "it was not touched even though overwrite was requested")
+	assert.Contains(t, logger.GetLogContent(), modulePropertiesPath)
 
 }
 

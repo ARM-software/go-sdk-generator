@@ -47,7 +47,7 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 	if err != nil {
 		return
 	}
-	err = rootgenerator.NewSDKGeneratorWithDelegate(g).Generate(ctx)
+	err = rootgenerator.NewSDKGeneratorWithDelegate(g).Generate(ctx, logger)
 	if err != nil {
 		_ = summaryLogger.WriteStringF("Failed to generate SDK with `go-sdk-generator` %s from `%s` into `%s`: %s", toolVersion, cfg.Input, cfg.Output, err.Error())
 		_ = logger.WriteError(fmt.Sprintf("Failed to generate SDK with error: %v", err.Error()))

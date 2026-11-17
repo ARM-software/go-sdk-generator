@@ -19,6 +19,7 @@ import (
 	reflect "reflect"
 
 	config "github.com/ARM-software/go-sdk-generator/generator/config"
+	logs "github.com/ARM-software/golang-utils/utils/logs"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -47,17 +48,17 @@ func (m *MockISDKGeneratorManager) EXPECT() *MockISDKGeneratorManagerMockRecorde
 }
 
 // Generate mocks base method.
-func (m *MockISDKGeneratorManager) Generate(ctx context.Context) error {
+func (m *MockISDKGeneratorManager) Generate(ctx context.Context, logger logs.Loggers) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Generate", ctx)
+	ret := m.ctrl.Call(m, "Generate", ctx, logger)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Generate indicates an expected call of Generate.
-func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx any) *gomock.Call {
+func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx, logger any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*MockISDKGeneratorManager)(nil).Generate), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*MockISDKGeneratorManager)(nil).Generate), ctx, logger)
 }
 
 // GetConfig mocks base method.

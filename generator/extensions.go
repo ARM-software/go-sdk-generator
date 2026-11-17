@@ -164,6 +164,8 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"optionImports":                            optionImports,
 	"configExtraImports":                       configExtraImports,
 	"cliConfigExtraImports":                    cliConfigExtraImports,
+	"cliImplementationExtraImports":            cliImplementationExtraImports,
+	"cliWrapperExtraImports":                   cliWrapperExtraImports,
 	"interfaceExtraImports":                    interfaceExtraImports,
 	"typesExtraImports":                        typesExtraImports,
 	"groupAdditionalTypesByPackage":            groupAdditionalTypesByPackage,

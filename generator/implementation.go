@@ -9,6 +9,7 @@ import (
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
+	"github.com/ARM-software/golang-utils/utils/logs"
 )
 
 type sdkGenerator struct {
@@ -19,8 +20,8 @@ func (g *sdkGenerator) GetConfig() *config.SDKGeneratorManagerConfiguration {
 	return g.cfg
 }
 
-func (g *sdkGenerator) Generate(ctx context.Context) error {
-	return Generate(ctx, g.GetConfig())
+func (g *sdkGenerator) Generate(ctx context.Context, logger logs.Loggers) error {
+	return Generate(ctx, logger, g.GetConfig())
 }
 
 func NewSDKGenerator(cfg *config.SDKGeneratorManagerConfiguration) (g ISDKGeneratorManager, err error) {
