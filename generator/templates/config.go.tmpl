@@ -59,7 +59,7 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $fieldName := .Name | toPascal | title -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRuleWithShape $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" $fieldName) -}}
+	{{ $enumValidation := fieldEnumValidationRule $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" $fieldName) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "global-configuration" "" .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) -}}

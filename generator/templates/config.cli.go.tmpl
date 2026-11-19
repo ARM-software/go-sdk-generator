@@ -91,7 +91,7 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	{{ range .Configuration -}}
 	{{ if not .Bindings -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumStringValidationRuleWithShape $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $enumValidation := fieldEnumStringValidationRule $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "cli-configuration" $configName .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) -}}

@@ -24,12 +24,12 @@ func TestEnumStringValidationRuleUsesStringValues(t *testing.T) {
 }
 
 func TestFieldEnumValidationRuleWithShapeUsesArrayItemsForList(t *testing.T) {
-	rule := fieldEnumValidationRuleWithShape("Generate", "Mode", string(BuiltInLangTypeString), false, true, false, false, []string{"fast", "safe"}, "cfg.Mode")
+	rule := fieldEnumValidationRule("Generate", "Mode", string(BuiltInLangTypeString), false, true, false, false, []string{"fast", "safe"}, "cfg.Mode")
 	assert.Equal(t, ", validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.ArrayItems(validationUtils.Enum(\"fast\", \"safe\")))", rule)
 }
 
 func TestFieldEnumValidationRuleWithShapeUsesArrayItemsForIterator(t *testing.T) {
-	rule := fieldEnumValidationRuleWithShape("Generate", "Mode", string(BuiltInLangTypeString), false, false, true, false, []string{"fast", "safe"}, "cfg.Mode")
+	rule := fieldEnumValidationRule("Generate", "Mode", string(BuiltInLangTypeString), false, false, true, false, []string{"fast", "safe"}, "cfg.Mode")
 	assert.Equal(t, ", validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.ArrayItems(validationUtils.Enum(\"fast\", \"safe\")))", rule)
 }
 

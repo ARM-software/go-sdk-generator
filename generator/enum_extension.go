@@ -76,11 +76,7 @@ func enumValidationRule(ownerName, fieldName, langType string, reference bool, e
 	return fmt.Sprintf(", validationUtils.Enum(%s)", enumConstRefs(ownerName, fieldName, langType, enum))
 }
 
-func fieldEnumValidationRule(ownerName, fieldName, langType string, reference bool, required bool, enum []string, fieldExpr string) string {
-	return fieldEnumValidationRuleWithShape(ownerName, fieldName, langType, reference, false, false, required, enum, fieldExpr)
-}
-
-func fieldEnumValidationRuleWithShape(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
+func fieldEnumValidationRule(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
 	if !hasEnum(enum) {
 		return ""
 	}
@@ -101,11 +97,7 @@ func enumStringValidationRule(ownerName, fieldName, langType string, reference b
 	return fmt.Sprintf(", validationUtils.Enum(%s)", enumStringConstRefs(ownerName, fieldName, langType, enum))
 }
 
-func fieldEnumStringValidationRule(ownerName, fieldName, langType string, reference bool, required bool, enum []string, fieldExpr string) string {
-	return fieldEnumStringValidationRuleWithShape(ownerName, fieldName, langType, reference, false, false, required, enum, fieldExpr)
-}
-
-func fieldEnumStringValidationRuleWithShape(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
+func fieldEnumStringValidationRule(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
 	if !hasEnum(enum) {
 		return ""
 	}

@@ -77,7 +77,7 @@ func (opt *{{ $wrapperTypeName }}) Validate() (err error) {
 
 	return validation.ValidateStruct(opt,
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRuleWithShape $structName .Name .LangType .Reference .List .Iterator .IsRequired .EffectiveEnum (printf "opt.%s" (optionParameterValueFieldName .)) -}}
+	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .List .Iterator .IsRequired .EffectiveEnum (printf "opt.%s" (optionParameterValueFieldName .)) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $effectivePattern := effectivePatternString . -}}
 	{{ if and (not .IsRequired) (usesPresenceGuardForValidation .LangType) }}
