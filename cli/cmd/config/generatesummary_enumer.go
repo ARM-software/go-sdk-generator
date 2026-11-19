@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-const _GenerateSummaryName = "filegithuboutput"
+const _GenerateSummaryName = "filegithuboutputnone"
 
-var _GenerateSummaryIndex = [...]uint8{0, 4, 10, 16}
+var _GenerateSummaryIndex = [...]uint8{0, 4, 10, 16, 20}
 
-const _GenerateSummaryLowerName = "filegithuboutput"
+const _GenerateSummaryLowerName = "filegithuboutputnone"
 
 func (i GenerateSummary) String() string {
 	if i < 0 || i >= GenerateSummary(len(_GenerateSummaryIndex)-1) {
@@ -33,9 +33,10 @@ func _GenerateSummaryNoOp() {
 	_ = x[GenerateSummaryFile-(0)]
 	_ = x[GenerateSummaryGithub-(1)]
 	_ = x[GenerateSummaryOutput-(2)]
+	_ = x[GenerateSummaryNone-(3)]
 }
 
-var _GenerateSummaryValues = []GenerateSummary{GenerateSummaryFile, GenerateSummaryGithub, GenerateSummaryOutput}
+var _GenerateSummaryValues = []GenerateSummary{GenerateSummaryFile, GenerateSummaryGithub, GenerateSummaryOutput, GenerateSummaryNone}
 
 var _GenerateSummaryNameToValueMap = map[string]GenerateSummary{
 	_GenerateSummaryName[0:4]:        GenerateSummaryFile,
@@ -44,12 +45,15 @@ var _GenerateSummaryNameToValueMap = map[string]GenerateSummary{
 	_GenerateSummaryLowerName[4:10]:  GenerateSummaryGithub,
 	_GenerateSummaryName[10:16]:      GenerateSummaryOutput,
 	_GenerateSummaryLowerName[10:16]: GenerateSummaryOutput,
+	_GenerateSummaryName[16:20]:      GenerateSummaryNone,
+	_GenerateSummaryLowerName[16:20]: GenerateSummaryNone,
 }
 
 var _GenerateSummaryNames = []string{
 	_GenerateSummaryName[0:4],
 	_GenerateSummaryName[4:10],
 	_GenerateSummaryName[10:16],
+	_GenerateSummaryName[16:20],
 }
 
 // GenerateSummaryString retrieves an enum value from the enum constants string name.

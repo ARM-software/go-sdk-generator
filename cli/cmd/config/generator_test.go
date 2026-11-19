@@ -138,4 +138,11 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 
 		require.NoError(t, cfg.Validate())
 	})
+
+	t.Run("summary none is accepted", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Summary = GenerateSummaryNone.String()
+
+		require.NoError(t, cfg.Validate())
+	})
 }

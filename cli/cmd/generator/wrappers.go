@@ -16,6 +16,7 @@ import (
 
 	richlog "github.com/charmbracelet/log"
 
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
@@ -27,7 +28,6 @@ import (
 	"github.com/ARM-software/golang-utils/utils/parallelisation"
 	"github.com/ARM-software/golang-utils/utils/reflection"
 	valueUtils "github.com/ARM-software/golang-utils/utils/value"
-	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
 )
 
 func DetermineCommandConfigurationEnvironmentVariablesForPrinting(ctx context.Context, envVarPrefix string, cfg any) (envVars []environmentUtils.IEnvironmentVariable, err error) {
@@ -292,7 +292,7 @@ func ResolveRuntimeLoggerAndAnnotations(loggerType string, loggerFile string, an
 // SummaryLoggerFactory creates a summary logger for any summary-enabled command.
 // The option is typed as `any` because each generated command has its own enum type,
 // and this shared factory needs to accept all of them. This relies on every generated
-// summary enum having the same definition and order (`file`, `github`, `output`), so
+// summary enum having the same definition and order (`file`, `github`, `output`, `none`), so
 // corresponding enum values remain interchangeable across summary enum types.
 func SummaryLoggerFactory(option any, filepath string, logger logs.Loggers) summary.ISummaryLogger {
 	noopLogger, _ := logs.NewNoopLogger("summary")
@@ -311,6 +311,8 @@ func SummaryLoggerFactory(option any, filepath string, logger logs.Loggers) summ
 		if fileSummaryLogger, err := summary.NewFileSummaryLogger(filepath, "summary"); err == nil {
 			summaryLogger = fileSummaryLogger
 		}
+	case config.GenerateSummaryNone:
+		return summaryLogger
 	}
 
 	return summaryLogger

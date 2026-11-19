@@ -32,6 +32,7 @@ const (
 	GenerateSummaryFile   GenerateSummary = iota // file
 	GenerateSummaryGithub                        // github
 	GenerateSummaryOutput                        // output
+	GenerateSummaryNone                          // none
 )
 
 //go:generate go tool enumer -type=SchemaAnnotation -linecomment -text -json -yaml

@@ -132,6 +132,13 @@ func Test{{ $configName }}ConfigurationValidateSummaryRules(t *testing.T) {
 
 		require.NoError(t, cfg.Validate())
 	})
+
+	t.Run("summary none is accepted", func(t *testing.T) {
+		cfg := valid{{ $configName }}Configuration()
+		cfg.Summary = {{ $configName }}SummaryNone.String()
+
+		require.NoError(t, cfg.Validate())
+	})
 }
 
 {{ end -}}
