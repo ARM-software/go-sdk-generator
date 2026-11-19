@@ -154,6 +154,126 @@ func TestFunctionConfigFieldsValidateRejectsExactlyOneOnScalar(t *testing.T) {
 
 }
 
+func TestConfigurationOptionValidateAcceptsEnumList(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Mode",
+		LangType:        "string",
+		List:            true,
+		MapstructureTag: "mode",
+		Description:     "Modes.",
+		Enum:            []string{"fast", "safe"},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsEnumIterator(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Mode",
+		LangType:        "string",
+		Iterator:        true,
+		MapstructureTag: "mode",
+		Description:     "Modes.",
+		Enum:            []string{"fast", "safe"},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsPatternAndStringConstraintsOnList(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Modes",
+		LangType:        "string",
+		List:            true,
+		MapstructureTag: "modes",
+		Description:     "Modes.",
+		Pattern:         field.ToOptionalString(`^(fast|safe)$`),
+		Constraints: &ParameterConstraints{
+			NotEmpty:    true,
+			Contains:    field.ToOptionalString("a"),
+			NotContains: field.ToOptionalString("tmp"),
+			Prefix:      field.ToOptionalString("f"),
+			Suffix:      field.ToOptionalString("t"),
+			MinLength:   field.ToOptional(4),
+			MaxLength:   field.ToOptional(4),
+		},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsPatternAndStringConstraintsOnIterator(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "StreamedModes",
+		LangType:        "string",
+		Iterator:        true,
+		MapstructureTag: "streamed_modes",
+		Description:     "Streamed modes.",
+		Pattern:         field.ToOptionalString(`^(fast|safe)$`),
+		Constraints: &ParameterConstraints{
+			NotEmpty:    true,
+			Contains:    field.ToOptionalString("a"),
+			NotContains: field.ToOptionalString("tmp"),
+			Prefix:      field.ToOptionalString("f"),
+			Suffix:      field.ToOptionalString("t"),
+			MinLength:   field.ToOptional(4),
+			MaxLength:   field.ToOptional(4),
+		},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsNumericConstraintsOnList(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Ports",
+		LangType:        "int",
+		List:            true,
+		MapstructureTag: "ports",
+		Description:     "Ports.",
+		Constraints: &ParameterConstraints{
+			Minimum:          field.ToOptional(float64(1)),
+			Maximum:          field.ToOptional(float64(65535)),
+			ExclusiveMinimum: field.ToOptional(float64(0)),
+			ExclusiveMaximum: field.ToOptional(float64(70000)),
+			MultipleOf:       field.ToOptional(float64(1)),
+		},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsNumericConstraintsOnIterator(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "StreamedPorts",
+		LangType:        "int",
+		Iterator:        true,
+		MapstructureTag: "streamed_ports",
+		Description:     "Streamed ports.",
+		Constraints: &ParameterConstraints{
+			Minimum:          field.ToOptional(float64(1)),
+			Maximum:          field.ToOptional(float64(65535)),
+			ExclusiveMinimum: field.ToOptional(float64(0)),
+			ExclusiveMaximum: field.ToOptional(float64(70000)),
+			MultipleOf:       field.ToOptional(float64(1)),
+		},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
 func TestConfigurationOptionValidateRejectsConflictingConstraintEnumAlias(t *testing.T) {
 
 	t.Parallel()

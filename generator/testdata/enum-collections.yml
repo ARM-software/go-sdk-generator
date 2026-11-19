@@ -1,0 +1,71 @@
+specification:
+  package_name: enum-collections-sdk
+  main_module: enumcollections
+  name: EnumCollections
+  description: Test manifest ensuring enum validation works for list and iterator shapes.
+  update_copyright_headers: false
+
+  interface:
+    methods:
+      - name: Filter
+        description: Filter values by mode.
+        args:
+          - name: Modes
+            lang_type: string
+            list: true
+            enum:
+              - fast
+              - safe
+            description: Accepted modes.
+        returns:
+          - name: Result
+            lang_type: string
+            iterator: true
+            enum:
+              - accepted
+              - rejected
+            description: Streamed filter results.
+          - name: err
+            lang_type: error
+            description: Whether filtering failed.
+
+  global_configuration:
+    - name: Modes
+      lang_type: string
+      list: true
+      mapstructure_tag: modes
+      description: Allowed execution modes.
+      enum:
+        - fast
+        - safe
+    - name: StreamedModes
+      lang_type: string
+      iterator: true
+      mapstructure_tag: streamed_modes
+      description: Streamed execution modes.
+      enum:
+        - fast
+        - safe
+
+  additional_types:
+    - name: ResultBatch
+      description: Batch of streamed results.
+      fields:
+        - name: States
+          lang_type: string
+          list: true
+          json_tag: states
+          mapstructure_tag: states
+          description: Result states.
+          enum:
+            - accepted
+            - rejected
+        - name: Stream
+          lang_type: string
+          iterator: true
+          json_tag: stream
+          mapstructure_tag: stream
+          description: Streamed result states.
+          enum:
+            - accepted
+            - rejected

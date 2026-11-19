@@ -43,7 +43,7 @@ import (
 type {{ $structName  }} struct {
 {{ range .Fields -}}
 	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples) .DeprecationNotice)) }}
-	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $structName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $structName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 }
 
@@ -56,17 +56,18 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ if .HasConstraintValidationRules }}err = {{ else }}return {{ end }}validation.ValidateStruct(cfg,
 	{{ range .Fields -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $patternValidation := patternValidationRule .Pattern .List .Iterator -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "additional-type" $structName .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) }}
 	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(reflection.IsNotEmpty(cfg.{{ .Name | toPascal }}), filesystem.NewOSPathValidationRule(true))),
 	{{ else if .Required }}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ else if .Condition -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
-	{{ else if or $validation $enumValidation $constraintValidation .Pattern -}}
-	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }})),
+	{{ else if or $validation $enumValidation $constraintValidation $patternValidation -}}
+	    validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ end }}
 	{{ end }}
 	)

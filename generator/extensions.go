@@ -120,11 +120,13 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	},
 	"suppressesRequiredValidation":   suppressesRequiredValidation,
 	"enumTypeName":                   enumTypeName,
+	"enumValueType":                  enumValueType,
 	"enumConstName":                  enumConstName,
 	"enumValidationRule":             enumValidationRule,
 	"fieldEnumValidationRule":        fieldEnumValidationRule,
 	"enumStringValidationRule":       enumStringValidationRule,
 	"fieldEnumStringValidationRule":  fieldEnumStringValidationRule,
+	"patternValidationRule":          patternValidationRule,
 	"constraintValidationRule":       constraintValidationRule,
 	"usesPresenceGuardForValidation": usesPresenceGuardForValidation,
 	"effectivePatternString":         effectivePatternStringTemplateValue,
@@ -134,6 +136,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"deprecationNoticeDetails":       deprecationNoticeDetails,
 	"cobraDeprecationMessage":        cobraDeprecationMessage,
 	"hasEnum":                        hasEnum,
+	"hasGeneratedEnumType":           hasGeneratedEnumType,
 	"parameterType":                  parameterType,
 	"documentedAdditionalTypeFieldType": func(typeName string, fieldDef EntityField) string {
 		return documentedAdditionalTypeFieldType(typeName, &fieldDef)

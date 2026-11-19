@@ -64,7 +64,7 @@ type {{ $configName }}Configuration struct {
 }
 
 	{{ range .Configuration -}}
-	{{ if hasEnum .Enum }}
+	{{ if hasGeneratedEnumType .List .Iterator .Enum }}
 func (cfg *{{ $configName }}Configuration) Get{{ .Name | toPascal }}() ({{ enumTypeName $configName .Name .LangType .Enum }}, error) {
 	if cfg == nil || reflection.IsEmpty({{ cliConfigEnumGetterValueExpr "cfg" . }}) {
 		return 0, commonerrors.UndefinedVariable("{{ .Name | toPascal }}")
@@ -91,20 +91,21 @@ func (cfg *{{ $configName }}Configuration) Validate() error {
 	{{ range .Configuration -}}
 	{{ if not .Bindings -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumStringValidationRule $configName .Name .LangType .Reference .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $enumValidation := fieldEnumStringValidationRule $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $patternValidation := patternValidationRule .Pattern .List .Iterator -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "cli-configuration" $configName .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) -}}
 		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(reflection.IsNotEmpty(cfg.{{ .Name | toPascal }}), filesystem.NewOSPathValidationRule(true))),
 	{{ else -}}
 	{{ if and .Required .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validationUtils.Required{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}, validationUtils.Required{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }})),
 	{{ else if .Required -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ else if .Condition -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }})),
-	{{ else if or $validation $enumValidation $constraintValidation .Pattern -}}
-		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ if .Pattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ .Pattern }}`)){{ end }}{{ $constraintValidation }}),
+		validation.Field(&cfg.{{ .Name | toPascal }}, validation.When(cfg.{{ .Condition }}{{ if not $suppressRequired }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }})),
+	{{ else if or $validation $enumValidation $constraintValidation $patternValidation -}}
+		validation.Field(&cfg.{{ .Name | toPascal }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ end -}}
 	{{ end -}}
 	{{ end -}}
@@ -133,7 +134,7 @@ func Default{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	{{ range .Configuration -}}
 	{{ if not .Bindings }}
 	{{ if .DefaultValue -}}
-	{{ if hasEnum .Enum -}}
+	{{ if hasGeneratedEnumType .List .Iterator .Enum -}}
 	{{ .Name | toPascal }}: {{ cliConfigFieldDefaultValue $configName . }},
 	{{ else -}}
 	{{ .Name | toPascal }}: {{ defaultFieldValue $.AdditionalTypesPackagesByName "" $toolName $toolVersion $configName .Name .LangType .Enum (dereferenceString .DefaultValue) .Reference }},
