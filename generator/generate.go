@@ -95,7 +95,20 @@ const (
 	gitAttributesFile            = "templates/gitattributes.tmpl"
 	checkovFile                  = "templates/checkov.yaml.tmpl"
 	yamlLintFile                 = "templates/yamllint.tmpl"
+	overwriteExcludeGroupCI      = "ci"
+	overwriteExcludeGroupLinters = "linters"
+	overwriteExcludeGroupGoMod   = "gomod"
+	overwriteExcludeGroupCLI     = "cli"
+	overwriteExcludeGroupReadme  = "readme"
 )
+
+var supportedOverwriteExcludeGroups = []string{
+	overwriteExcludeGroupCI,
+	overwriteExcludeGroupLinters,
+	overwriteExcludeGroupGoMod,
+	overwriteExcludeGroupCLI,
+	overwriteExcludeGroupReadme,
+}
 
 //go:embed templates
 var fs embed.FS
@@ -164,6 +177,193 @@ type DataModel struct {
 type GenerationOutput struct {
 	ToolVersion    string
 	GeneratedFiles []string
+}
+
+type overwriteExclusionMatcher struct {
+	outputDir             string
+	explicitBasenames     map[string]struct{}
+	explicitRelativePaths map[string]struct{}
+	groupRelativePaths    map[string]struct{}
+}
+
+func normaliseGeneratedOutputRelativePath(outputDir string, filePath string) (relative string, err error) {
+	localFs := filesystem.GetGlobalFileSystem()
+	relativePaths, err := localFs.ConvertToRelativePath(outputDir, filePath)
+	if err != nil {
+		return "", commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not convert %q to a path relative to %q", filePath, outputDir)
+	}
+	if len(relativePaths) == 0 || reflection.IsEmpty(relativePaths[0]) {
+		return "", commonerrors.Newf(commonerrors.ErrInvalid, "could not determine path relative to output directory for %q", filePath)
+	}
+	return strings.TrimPrefix(path.Clean(filesystem.FilePathsToSlash(localFs, relativePaths[0])[0]), "./"), nil
+}
+
+func looksLikeAbsolutePath(value string) bool {
+	if strings.HasPrefix(value, "/") {
+		return true
+	}
+	if len(value) >= 2 && ((value[0] >= 'A' && value[0] <= 'Z') || (value[0] >= 'a' && value[0] <= 'z')) && value[1] == ':' {
+		return true
+	}
+	return false
+}
+
+func normaliseExplicitOverwriteFileSelector(raw string) (selector string, pathLike bool, err error) {
+	trimmed := strings.TrimSpace(raw)
+	if reflection.IsEmpty(trimmed) {
+		return "", false, nil
+	}
+	normalised := strings.ReplaceAll(trimmed, "\\", "/")
+	pathLike = strings.Contains(normalised, "/")
+	if looksLikeAbsolutePath(normalised) {
+		return "", false, commonerrors.Newf(commonerrors.ErrInvalid, "exclude_files entry %q must be a filename or output-relative path, not an absolute path", raw)
+	}
+	cleaned := path.Clean(normalised)
+	if cleaned == "." {
+		return "", false, commonerrors.Newf(commonerrors.ErrInvalid, "exclude_files entry %q must not resolve to the output directory itself", raw)
+	}
+	if cleaned == ".." || strings.HasPrefix(cleaned, "../") {
+		return "", false, commonerrors.Newf(commonerrors.ErrInvalid, "exclude_files entry %q escapes the output directory", raw)
+	}
+	return strings.TrimPrefix(cleaned, "./"), pathLike, nil
+}
+
+func generatedOverwriteExclusionGroupPaths(sdk *SDK, generatedActions []GeneratedAction, onGithub bool) map[string][]string {
+	if sdk == nil {
+		return nil
+	}
+	groups := map[string][]string{
+		overwriteExcludeGroupCLI: {},
+		overwriteExcludeGroupLinters: {
+			".editorconfig",
+			".golangci.yaml",
+			".golangci.pre-commit.yaml",
+			".pre-commit-config.yaml",
+			".checkov.yaml",
+			".yamllint",
+			".qlty/qlty.toml",
+		},
+		overwriteExcludeGroupReadme: {"README.md"},
+		overwriteExcludeGroupCI:     {".goreleaser.yml"},
+		overwriteExcludeGroupGoMod:  {path.Join(sdk.Specification.MainModule, "go.mod")},
+	}
+	if onGithub {
+		groups[overwriteExcludeGroupCI] = append(groups[overwriteExcludeGroupCI],
+			".github/workflows/ci.yml",
+			".github/workflows/upgrade-generator.yml",
+			".github/workflows/dependabot.yml",
+			".github/workflows/release.yml",
+		)
+		if sdk.Specification.UpdateCopyrightHeaders {
+			groups[overwriteExcludeGroupCI] = append(groups[overwriteExcludeGroupCI], ".github/workflows/licensing.yml")
+		}
+		if sdk.Specification.Public {
+			groups[overwriteExcludeGroupCI] = append(groups[overwriteExcludeGroupCI], ".github/workflows/sbom.yml")
+		}
+	}
+	if len(generatedActions) > 0 {
+		groups[overwriteExcludeGroupCI] = append(groups[overwriteExcludeGroupCI], ".github/workflows/lint-actions.yml", "actions/_shared/install-and-run.sh")
+		for _, action := range generatedActions {
+			groups[overwriteExcludeGroupCI] = append(groups[overwriteExcludeGroupCI], path.Join("actions", action.DirectoryName, "action.yml"))
+		}
+	}
+	if sdk.Specification.CommandLineCommands != nil {
+		cliDir := sdk.Specification.CommandLineCommands.Package
+		groups[overwriteExcludeGroupGoMod] = append(groups[overwriteExcludeGroupGoMod], "go.work", path.Join(cliDir, "go.mod"))
+		groups[overwriteExcludeGroupCLI] = []string{
+			path.Join(cliDir, "main.go"),
+			path.Join(cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)),
+			path.Join(cliDir, "cmd", "root.go"),
+			path.Join(cliDir, "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)),
+			path.Join(cliDir, "cmd", sdk.Specification.MainModule, "wrappers.go"),
+			path.Join(cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"),
+		}
+		if sdk.Specification.CommandLineCommands.HasSummaryValidationTests() {
+			groups[overwriteExcludeGroupCLI] = append(groups[overwriteExcludeGroupCLI], path.Join(cliDir, "cmd", "config", fmt.Sprintf("%v_test.go", sdk.Specification.MainModule)))
+		}
+		if hasCLIConfigEnums(sdk.Specification.CommandLineCommands) {
+			groups[overwriteExcludeGroupCLI] = append(groups[overwriteExcludeGroupCLI], path.Join(cliDir, "cmd", "config", "enums.go"))
+		}
+		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {
+			groups[overwriteExcludeGroupCLI] = append(groups[overwriteExcludeGroupCLI], path.Join(cliDir, "internal", "secretutil", "secret.go"))
+		}
+	}
+	return groups
+}
+
+func newOverwriteExclusionMatcher(outputDir string, excludeGroups []string, excludeFiles []string, groupPaths map[string][]string) (matcher *overwriteExclusionMatcher, err error) {
+	matcher = &overwriteExclusionMatcher{
+		outputDir:             outputDir,
+		explicitBasenames:     map[string]struct{}{},
+		explicitRelativePaths: map[string]struct{}{},
+		groupRelativePaths:    map[string]struct{}{},
+	}
+	for _, rawGroup := range excludeGroups {
+		group := strings.ToLower(strings.TrimSpace(rawGroup))
+		if reflection.IsEmpty(group) {
+			continue
+		}
+		paths, found := groupPaths[group]
+		if !found {
+			return nil, commonerrors.Newf(commonerrors.ErrInvalid, "unsupported exclude_groups value %q (expected one of %s)", rawGroup, strings.Join(supportedOverwriteExcludeGroups, ", "))
+		}
+		for _, candidate := range paths {
+			matcher.groupRelativePaths[strings.TrimPrefix(path.Clean(strings.ReplaceAll(candidate, "\\", "/")), "./")] = struct{}{}
+		}
+	}
+	for _, rawFile := range excludeFiles {
+		selector, pathLike, subErr := normaliseExplicitOverwriteFileSelector(rawFile)
+		if subErr != nil {
+			return nil, subErr
+		}
+		if reflection.IsEmpty(selector) {
+			continue
+		}
+		if pathLike {
+			matcher.explicitRelativePaths[selector] = struct{}{}
+			continue
+		}
+		matcher.explicitBasenames[selector] = struct{}{}
+	}
+	if len(matcher.explicitBasenames) == 0 && len(matcher.explicitRelativePaths) == 0 && len(matcher.groupRelativePaths) == 0 {
+		return nil, nil
+	}
+	return matcher, nil
+}
+
+func (matcher *overwriteExclusionMatcher) ShouldExclude(filePath string) bool {
+	if matcher == nil {
+		return false
+	}
+	relativePath, err := normaliseGeneratedOutputRelativePath(matcher.outputDir, filePath)
+	if err != nil || reflection.IsEmpty(relativePath) || relativePath == ".." || strings.HasPrefix(relativePath, "../") {
+		return false
+	}
+	if _, found := matcher.groupRelativePaths[relativePath]; found {
+		return true
+	}
+	if _, found := matcher.explicitRelativePaths[relativePath]; found {
+		return true
+	}
+	_, found := matcher.explicitBasenames[path.Base(relativePath)]
+	return found
+}
+
+func shouldGenerateFile(dest string, overwrite bool, overwriteRequested bool, matcher *overwriteExclusionMatcher, logger logs.Loggers) bool {
+	localFs := filesystem.GetGlobalFileSystem()
+	if !localFs.Exists(dest) {
+		return true
+	}
+	if !overwrite {
+		return false
+	}
+	if overwriteRequested && matcher != nil && matcher.ShouldExclude(dest) {
+		if logger != nil {
+			logger.Log(fmt.Sprintf("preserving existing %s; it was excluded from overwrite regeneration", dest))
+		}
+		return false
+	}
+	return true
 }
 
 func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data *T, templateFile string, output string) (err error) {
@@ -347,37 +547,62 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 
 	onGithub := isHostedOnGitHub(&sdk.Specification)
 
+	var generatedActions []GeneratedAction
+	if sdk.Specification.CommandLineCommands != nil && !sdk.Specification.CommandLineCommands.NoActions {
+		generatedActions, err = BuildGeneratedActions(&sdk)
+		if err != nil {
+			return
+		}
+	}
+	generateAction := len(generatedActions) > 0
+
+	matcher, err := newOverwriteExclusionMatcher(cfg.Output, cfg.ExcludeGroups, cfg.ExcludeFiles, generatedOverwriteExclusionGroupPaths(&sdk, generatedActions, onGithub))
+	if err != nil {
+		return
+	}
+
+	effectiveOverwrite := func(dest string, overwrite bool) bool {
+		return shouldGenerateFile(dest, overwrite, cfg.Overwrite, matcher, logger)
+	}
+
 	var templatesToPopulate templates
-	templatesToPopulate.addStateFile(implementationFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
-	templatesToPopulate.addStateFile(interfaceFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "interfaces.go"), true, true)
+	addStateFile := func(templateFile, dest string, overwrite bool, markAsGenerated bool) {
+		templatesToPopulate.addStateFile(templateFile, dest, effectiveOverwrite(dest, overwrite), markAsGenerated)
+	}
+	addProtectedStateFile := func(templateFile, dest string, overwrite bool, markAsGenerated bool) {
+		templatesToPopulate.addProtectedStateFile(templateFile, dest, effectiveOverwrite(dest, overwrite), markAsGenerated, logger)
+	}
+
+	addStateFile(implementationFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+	addStateFile(interfaceFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "interfaces.go"), true, true)
 	if hasInterfaceEnums(&sdk.Specification) {
-		templatesToPopulate.addStateFile(interfaceEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "enums.go"), true, true)
+		addStateFile(interfaceEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "enums.go"), true, true)
 	}
-	templatesToPopulate.addStateFile(configFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+	addStateFile(configFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 	if hasConfigEnums(&sdk.Specification) {
-		templatesToPopulate.addStateFile(configEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", "enums.go"), true, true)
+		addStateFile(configEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", "enums.go"), true, true)
 	}
-	templatesToPopulate.addStateFile(documentationFile, filesystem.FilePathJoin(localFs, cfg.Output, "DOCUMENTATION.md"), true, true)
-	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(securityFile, filesystem.FilePathJoin(localFs, cfg.Output, "SECURITY.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
+	addStateFile(documentationFile, filesystem.FilePathJoin(localFs, cfg.Output, "DOCUMENTATION.md"), true, true)
+	addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
+	addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
+	addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), cfg.Overwrite, true)
+	addStateFile(securityFile, filesystem.FilePathJoin(localFs, cfg.Output, "SECURITY.md"), cfg.Overwrite, true)
+	addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), cfg.Overwrite, true)
+	addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), cfg.Overwrite, true)
+	addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), cfg.Overwrite, true)
+	addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), cfg.Overwrite, true)
+	addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), cfg.Overwrite, true)
+	addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), cfg.Overwrite, false)
+	addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
+	addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
+	addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
+	addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
 
 	updateGoVersion := shouldRegenerateVersionSensitiveStateFile(cfg.Overwrite, defaultGoVersion, requestedGoVersion)
-	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
+	addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
 	if sdk.Specification.CommandLineCommands != nil && sdk.Specification.DistributeOci != nil {
-		templatesToPopulate.addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), updateGoVersion, true)
-		templatesToPopulate.addStateFile(ociDockerfileUbuntuFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.ubuntu"), updateGoVersion, true)
+		addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), updateGoVersion, true)
+		addStateFile(ociDockerfileUbuntuFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.ubuntu"), updateGoVersion, true)
 	}
 
 	selectedDependabotFile := dependabotFile
@@ -392,73 +617,64 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 
 	if onGithub {
-		templatesToPopulate.addStateFile(selectedDependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), cfg.Overwrite, true)
+		addStateFile(selectedDependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
+		addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), cfg.Overwrite, true)
 		if !sdk.Specification.Public {
-			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
+			addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
 		}
-		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), cfg.Overwrite, true)
+		addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), cfg.Overwrite, true)
+		addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
+		addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), cfg.Overwrite, true)
+		addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), cfg.Overwrite, true)
 		if sdk.Specification.UpdateCopyrightHeaders {
-			templatesToPopulate.addStateFile(licensingWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "licensing.yml"), cfg.Overwrite, true)
+			addStateFile(licensingWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "licensing.yml"), cfg.Overwrite, true)
 		}
 		if sdk.Specification.Public {
-			templatesToPopulate.addStateFile(sbomWorkflowPublicFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "sbom.yml"), cfg.Overwrite, true)
+			addStateFile(sbomWorkflowPublicFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "sbom.yml"), cfg.Overwrite, true)
 		}
 	}
 
-	var generatedActions []GeneratedAction
-	if sdk.Specification.CommandLineCommands != nil && !sdk.Specification.CommandLineCommands.NoActions {
-		generatedActions, err = BuildGeneratedActions(&sdk)
-		if err != nil {
-			return
-		}
-	}
-
-	generateAction := len(generatedActions) > 0
 	if onGithub && generateAction {
-		templatesToPopulate.addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), cfg.Overwrite, true)
+		addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), cfg.Overwrite, true)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
-		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
+		addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	} else {
-		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
+		addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
 		cliDir := sdk.Specification.CommandLineCommands.Package
-		templatesToPopulate.addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
+		addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
 		if onGithub {
-			templatesToPopulate.addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
+			addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
 		}
 		binary := field.OptionalString(sdk.Specification.CommandLineCommands.Binary, "")
-		templatesToPopulate.addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
-		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), cfg.Overwrite, true)
+		addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
+		addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), cfg.Overwrite, true)
 		if generateAction {
-			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
+			addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
 		}
-		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
-		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
-		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
-		templatesToPopulate.addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
+		addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
+		addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
+		addStateFile(configCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 		if sdk.Specification.CommandLineCommands.HasSummaryValidationTests() {
-			templatesToPopulate.addStateFile(configCLITestFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v_test.go", sdk.Specification.MainModule)), true, true)
+			addStateFile(configCLITestFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", fmt.Sprintf("%v_test.go", sdk.Specification.MainModule)), true, true)
 		}
 		if hasCLIConfigEnums(sdk.Specification.CommandLineCommands) {
-			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", "enums.go"), true, true)
+			addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", "enums.go"), true, true)
 		}
-		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
-		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
+		addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
+		addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
 		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {
-			templatesToPopulate.addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "internal", "secretutil", "secret.go"), true, true)
+			addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "internal", "secretutil", "secret.go"), true, true)
 		}
 
-		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
-		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "go.mod"), cfg.Overwrite, true)
+		addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
+		addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)
+		addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "go.mod"), cfg.Overwrite, true)
 	}
 
 	var modulePropertiesFilePath string
@@ -467,8 +683,8 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	} else {
 		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.CommandLineCommands.Package, "cmd", "module.properties")
 	}
-	templatesToPopulate.addProtectedStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true, logger)
-	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)
+	addProtectedStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true)
+	addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)
 
 	flagRegs, cliEnvVarBindings, err := PreComputeFlagsAndBindings(sdk.Specification.CommandLineCommands)
 	if err != nil {
@@ -534,17 +750,21 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 			packageData.CurrentAdditionalTypes = groupedTypes[pkg]
 
 			typeOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
-			if subErr := populateTemplate(ctx, &packageData, typesFile, typeOutput); subErr != nil {
-				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate types template")
-			}
 			generated = append(generated, typeOutput)
+			if shouldGenerateFile(typeOutput, true, cfg.Overwrite, matcher, logger) {
+				if subErr := populateTemplate(ctx, &packageData, typesFile, typeOutput); subErr != nil {
+					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate types template")
+				}
+			}
 
 			if groupedTypes[pkg].HasEnum() {
 				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
-				if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput); subErr != nil {
-					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate type enums template")
-				}
 				generated = append(generated, enumOutput)
+				if shouldGenerateFile(enumOutput, true, cfg.Overwrite, matcher, logger) {
+					if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput); subErr != nil {
+						return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate type enums template")
+					}
+				}
 			}
 			return nil
 		})
@@ -561,17 +781,21 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 			packageData.CurrentOptionSets = groupedOptionSets[pkg]
 
 			optionOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
-			if subErr := populateTemplate(ctx, &packageData, optionsFile, optionOutput); subErr != nil {
-				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate options template")
-			}
 			generated = append(generated, optionOutput)
+			if shouldGenerateFile(optionOutput, true, cfg.Overwrite, matcher, logger) {
+				if subErr := populateTemplate(ctx, &packageData, optionsFile, optionOutput); subErr != nil {
+					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate options template")
+				}
+			}
 
 			if groupedOptionSets[pkg].HasEnum() {
 				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
-				if subErr := populateTemplate(ctx, &packageData, optionsEnumFile, enumOutput); subErr != nil {
-					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate option enums template")
-				}
 				generated = append(generated, enumOutput)
+				if shouldGenerateFile(enumOutput, true, cfg.Overwrite, matcher, logger) {
+					if subErr := populateTemplate(ctx, &packageData, optionsEnumFile, enumOutput); subErr != nil {
+						return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate option enums template")
+					}
+				}
 			}
 			return nil
 		})
@@ -581,7 +805,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 
 	if sdk.Specification.PackageName == "go-sdk-generator" {
-		generated, err = copyGoSDKGeneratorSkillsForEmbedding(cfg.Output, generated)
+		generated, err = copyGoSDKGeneratorSkillsForEmbedding(cfg.Output, generated, cfg.Overwrite, matcher, logger)
 		if err != nil {
 			return
 		}
@@ -597,31 +821,33 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		}
 
 		for _, actionOutput := range actionOutputs {
-			if err = actionOutput.Populate(ctx, &actionData); err != nil {
-				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not populate action %q", action.DirectoryName)
-				return
-			}
-
 			generated = append(generated, actionOutput.output)
+			if shouldGenerateFile(actionOutput.output, true, cfg.Overwrite, matcher, logger) {
+				if err = actionOutput.Populate(ctx, &actionData); err != nil {
+					err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not populate action %q", action.DirectoryName)
+					return
+				}
+			}
 		}
 	}
 
 	if generateAction {
 		sharedActionOutput := NewTemplateToPopulate(actionSharedScriptFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "_shared", "install-and-run.sh"))
-		if err = sharedActionOutput.Populate(ctx, data); err != nil {
-			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate shared action runtime")
-			return
-		}
-
 		generated = append(generated, sharedActionOutput.output)
+		if shouldGenerateFile(sharedActionOutput.output, true, cfg.Overwrite, matcher, logger) {
+			if err = sharedActionOutput.Populate(ctx, data); err != nil {
+				err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate shared action runtime")
+				return
+			}
+		}
 	}
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
 	generated = append(generated, qltyPath)
-	err = generateQltyFile(ctx, cfg, generated)
+	err = generateQltyFile(ctx, cfg, generated, matcher, logger)
 	if err != nil {
 		return
 	}
-	err = generateGitAttributesFile(ctx, cfg, generated)
+	err = generateGitAttributesFile(ctx, cfg, generated, matcher, logger)
 	return
 }
 
@@ -691,7 +917,7 @@ func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
 	return ""
 }
 
-func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) (updatedGenerated []string, err error) {
+func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string, overwriteRequested bool, matcher *overwriteExclusionMatcher, logger logs.Loggers) (updatedGenerated []string, err error) {
 	updatedGenerated = generated
 	localFs := filesystem.GetGlobalFileSystem()
 
@@ -713,6 +939,10 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 		}
 
 		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
+		updatedGenerated = append(updatedGenerated, embeddedPath)
+		if !shouldGenerateFile(embeddedPath, true, overwriteRequested, matcher, logger) {
+			continue
+		}
 		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
 		if !localFs.Exists(embeddedDir) {
 			err = localFs.MkDir(embeddedDir)
@@ -728,7 +958,6 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 			return
 		}
 
-		updatedGenerated = append(updatedGenerated, embeddedPath)
 	}
 
 	return
@@ -772,7 +1001,12 @@ func (t *templates) addProtectedStateFile(templateFile, dest string, overwrite b
 	)
 }
 
-func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, matcher *overwriteExclusionMatcher, logger logs.Loggers) (err error) {
+	gitAttributesPath := filesystem.FilePathJoin(filesystem.GetGlobalFileSystem(), cfg.Output, ".gitattributes")
+	if !shouldGenerateFile(gitAttributesPath, true, cfg.Overwrite, matcher, logger) {
+		return nil
+	}
+
 	generated, err = relativeGeneratedFiles(cfg.Output, generated)
 	if err != nil {
 		return
@@ -781,7 +1015,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
 		GeneratedFiles: generated,
-	}, gitAttributesFile, filesystem.FilePathJoin(filesystem.GetGlobalFileSystem(), cfg.Output, ".gitattributes"))
+	}, gitAttributesFile, gitAttributesPath)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .gitattributes file")
 		return
@@ -790,10 +1024,10 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	return
 }
 
-func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, matcher *overwriteExclusionMatcher, logger logs.Loggers) (err error) {
 	localFs := filesystem.GetGlobalFileSystem()
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
-	if localFs.Exists(qltyPath) && !cfg.Overwrite {
+	if !shouldGenerateFile(qltyPath, cfg.Overwrite, cfg.Overwrite, matcher, logger) {
 		return nil
 	}
 

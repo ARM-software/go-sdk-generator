@@ -100,6 +100,33 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 		require.NoError(t, cfg.Validate())
 	})
 
+	t.Run("exclude groups require overwrite", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.ExcludeGroups = []string{"ci", "linters"}
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "ExcludeGroups")
+	})
+
+	t.Run("exclude files require overwrite", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.ExcludeFiles = []string{"README.md"}
+
+		err := cfg.Validate()
+		require.Error(t, err)
+		errortest.AssertErrorDescription(t, err, "ExcludeFiles")
+	})
+
+	t.Run("exclude options are allowed during overwrite", func(t *testing.T) {
+		cfg := validGenerateConfiguration()
+		cfg.Generate = true
+		cfg.ExcludeGroups = []string{"ci", "linters"}
+		cfg.ExcludeFiles = []string{"README.md", ".github/workflows/ci.yml"}
+
+		require.NoError(t, cfg.Validate())
+	})
+
 	t.Run("summary file path must be valid when provided", func(t *testing.T) {
 		cfg := validGenerateConfiguration()
 		cfg.SummaryFile = "bad\npath"

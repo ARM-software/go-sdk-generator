@@ -247,6 +247,8 @@ Common flags:
 - `-o`, `--output`: destination directory for generated code
 - `-g`, `--go-version`: target Go version to generate for
 - `--overwrite`: regenerate all files, including stateful/generated project files
+- `--exclude-groups`: preserve generated file groups such as `ci`, `linters`, `gomod`, `cli`, or `readme` during an overwrite run
+- `--exclude-files`: preserve specific filenames or output-relative paths during an overwrite run, for example `README.md,.github/workflows/ci.yml`
 
 The `-g` flag should normally match the Go version used by the target project.
 

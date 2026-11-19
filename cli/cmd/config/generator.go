@@ -12,8 +12,8 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
@@ -25,6 +25,10 @@ const (
 type GenerateConfiguration struct {
 	// Annotation is select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.
 	Annotation string `mapstructure:"annotation"`
+	// ExcludeFiles is comma-separated filenames or output-relative paths to preserve when `overwrite` is enabled. A basename such as `README.md` matches generated files with that exact filename. A relative path such as `.github/workflows/ci.yml` matches that exact generated output path.
+	ExcludeFiles []string `mapstructure:"exclude_files"`
+	// ExcludeGroups is comma-separated generated file groups to preserve when `overwrite` is enabled. Supported values: `ci`, `linters`, `gomod`, `cli`, `readme`.
+	ExcludeGroups []string `mapstructure:"exclude_groups"`
 	// Generate is regenerate all files
 	Generate bool `mapstructure:"overwrite"`
 	// Input is path to tool definition file
@@ -95,6 +99,8 @@ func (cfg *GenerateConfiguration) Validate() error {
 
 	err = validation.ValidateStruct(cfg,
 		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(GenerateAnnotationGithub.String(), GenerateAnnotationNone.String()))),
+		validation.Field(&cfg.ExcludeFiles),
+		validation.Field(&cfg.ExcludeGroups),
 		validation.Field(&cfg.Input, validationUtils.Required),
 		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerRich.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String()))),
 		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
@@ -107,8 +113,18 @@ func (cfg *GenerateConfiguration) Validate() error {
 	if err != nil {
 		return err
 	}
+	if !cfg.Generate {
+		if len(cfg.ExcludeGroups) > 0 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%q is only valid when overwrite is enabled", "ExcludeGroups")
+		}
+		if len(cfg.ExcludeFiles) > 0 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%q is only valid when overwrite is enabled", "ExcludeFiles")
+		}
+	}
 
 	err = validationUtils.NewAllRule(
+		validationUtils.WhenFieldEqualsValue(&cfg.Generate, false, validationUtils.ForbiddenFieldsBy(&cfg.ExcludeGroups)),
+		validationUtils.WhenFieldEqualsValue(&cfg.Generate, false, validationUtils.ForbiddenFieldsBy(&cfg.ExcludeFiles)),
 		validationUtils.WhenFieldEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile)),
 		validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile)),
 		validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}}),

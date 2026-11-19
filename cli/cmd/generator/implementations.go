@@ -38,6 +38,8 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 		toolVersion = *cfg.ToolVersion
 	}
 	gCfg := generatorConfig.DefaultSDKGeneratorManagerConfiguration()
+	gCfg.ExcludeFiles = cfg.ExcludeFiles
+	gCfg.ExcludeGroups = cfg.ExcludeGroups
 	gCfg.Input = cfg.Input
 	gCfg.Output = cfg.Output
 	gCfg.Overwrite = cfg.Generate

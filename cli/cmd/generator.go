@@ -16,22 +16,24 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/generator"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/semver"
-	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
-	"github.com/ARM-software/go-sdk-generator/cli/cmd/generator"
 )
 
 const (
-	agentInitArg           = "init"
-	generateGenerateArg    = "overwrite"
-	generateInputArg       = "input"
-	generateOutputArg      = "output"
-	generateSummaryArg     = "summary"
-	generateSummaryFileArg = "summary-file"
-	generateTargetedGoArg  = "go-version"
+	generateExcludeFilesArg  = "exclude-files"
+	generateExcludeGroupsArg = "exclude-groups"
+	agentInitArg             = "init"
+	generateGenerateArg      = "overwrite"
+	generateInputArg         = "input"
+	generateOutputArg        = "output"
+	generateSummaryArg       = "summary"
+	generateSummaryFileArg   = "summary-file"
+	generateTargetedGoArg    = "go-version"
 )
 
 func addInterruptHandlerToContext(ctx context.Context) (cancellableCtx context.Context, cancel context.CancelCauseFunc) {
@@ -192,6 +194,8 @@ var agentCmd = &cobra.Command{
 
 func init() {
 	generateCmd.Flags().BoolP(generateGenerateArg, "a", false, "regenerate all files")
+	generateCmd.Flags().StringSlice(generateExcludeGroupsArg, []string{}, "Comma-separated generated file groups to preserve when overwrite is enabled. Supported values: ci, linters, gomod, cli, readme.")
+	generateCmd.Flags().StringSlice(generateExcludeFilesArg, []string{}, "Comma-separated filenames or output-relative paths to preserve when overwrite is enabled. A basename such as README.md matches generated files with that exact filename, while a relative path such as .github/workflows/ci.yml matches that exact generated output path.")
 	generateCmd.Flags().StringP(generateInputArg, "i", "", "path to tool definition file")
 	generateCmd.Flags().StringP(generateOutputArg, "o", "", "destination of the generated code")
 	generateCmd.Flags().String(generateSummaryArg, "", "Write a human-readable summary to the selected destination. Allowed values: file, github, output.")
@@ -199,6 +203,8 @@ func init() {
 	generateCmd.Flags().StringP(generateTargetedGoArg, "g", "", "targeted go version for the tool")
 	agentCmd.Flags().Bool(agentInitArg, false, "install the embedded skills into the current repository")
 
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "exclude_files", generateCmd.Flags().Lookup(generateExcludeFilesArg))
+	_ = configUtils.BindFlagToEnv(viperSession, config.App, "exclude_groups", generateCmd.Flags().Lookup(generateExcludeGroupsArg))
 	_ = configUtils.BindFlagToEnv(viperSession, config.App, "go_version", generateCmd.Flags().Lookup(generateTargetedGoArg))
 	_ = configUtils.BindFlagToEnv(viperSession, config.App, "init", agentCmd.Flags().Lookup(agentInitArg))
 	_ = configUtils.BindFlagToEnv(viperSession, config.App, "input", generateCmd.Flags().Lookup(generateInputArg))

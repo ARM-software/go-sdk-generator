@@ -27,13 +27,18 @@ go test ./...
 
 Also review generated repository automation files such as `pyproject.toml` and `.github/workflows/`. Top-level manifest settings like `tag_latest` and `update_copyright_headers` change those outputs. On an existing project, use `--overwrite` to update stateful generated files such as `pyproject.toml` and the workflows. If you turn off automatic copyright maintenance, remove any previously generated licensing workflow that remains in the project.
 
+When you need to preserve specific generated files during an overwrite run, use one or both exclusion options:
+
+- `--exclude-groups=ci,linters` preserves supported generated file groups such as GitHub workflow/action files and linter configuration.
+- `--exclude-files=README.md,.github/workflows/ci.yml` preserves exact generated filenames or output-relative paths.
+
 For a multi-module workspace, repeat the commands in each generated module rather than running `go mod tidy` from the workspace root. See [what the generator produces](what-it-generates.md) for the distinction between generated scaffolding and handwritten logic.
 
 ## Change the contract later
 
 1. Edit the manifest, checking [manifest authoring](write-a-manifest.md) for type and compatibility guidance.
 2. Re-run `go-sdk-generator generate` with the same input, output, and Go version.
-3. Review the file diff before accepting it. Generation preserves stateful files by default; `--overwrite` also regenerates them, including files such as `go.mod`. Use it only when you intend to replace and review that state.
+3. Review the file diff before accepting it. Generation preserves stateful files by default; `--overwrite` also regenerates them, including files such as `go.mod`. Use `--exclude-groups` and `--exclude-files` when you want to keep selected generated files unchanged during that overwrite pass.
 4. Run `go mod tidy`, `go generate ./...`, and the project's tests again in each affected Go module. Keep handwritten operation logic and project-specific wiring when resolving changes.
 
 This repository generates parts of itself from [`generate.yml`](https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml). Its [development guide](https://github.com/ARM-software/go-sdk-generator/blob/main/DEVELOPMENT.md#code-generation) covers the repository-specific workflow. For CLI configuration, logging, and the full generated interface, consult [`DOCUMENTATION.md`](https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md).

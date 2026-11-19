@@ -104,6 +104,8 @@ Required:
 
 Optional:
 - `annotation`: Select the implementation used for structured annotations such as errors, warnings, and notices.
+- `exclude_files`: Comma-separated filenames or output-relative paths to preserve when `overwrite` is enabled.
+- `exclude_groups`: Comma-separated generated file groups to preserve when `overwrite` is enabled. Supported values: `ci`, `linters`, `gomod`, `cli`, `readme`.
 - `overwrite`: regenerate all files
 - `logger`: Select the implementation used for normal runtime logs.
 - `logger_file`: Path to write normal runtime logs when logger is set to file.
@@ -126,6 +128,10 @@ Logging and annotation support:
 - `annotation=github` enables GitHub-compatible structured annotations
 - `annotation=none` disables structured annotation output
 - CLI defaults: `logger=console`, `annotation=none`
+
+Overwrite exclusions:
+- `exclude_groups=ci,linters` preserves matching generated file groups during an overwrite run
+- `exclude_files=README.md,.github/workflows/ci.yml` preserves exact generated filenames or output-relative paths during an overwrite run
 
 
 Defaults:

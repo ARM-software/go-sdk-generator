@@ -10,12 +10,17 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 
+	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
 // SDKGeneratorManagerConfiguration provides some configuration data object for SDK Generator
 type SDKGeneratorManagerConfiguration struct {
+	// ExcludeFiles is comma-separated filenames or output-relative paths to preserve when `overwrite` is enabled. A basename such as `README.md` matches generated files with that exact filename. A relative path such as `.github/workflows/ci.yml` matches that exact generated output path.
+	ExcludeFiles []string `mapstructure:"exclude_files"`
+	// ExcludeGroups is comma-separated generated file groups to preserve when `overwrite` is enabled. Supported values: `ci`, `linters`, `gomod`, `cli`, `readme`.
+	ExcludeGroups []string `mapstructure:"exclude_groups"`
 	// Input is path to tool definition file
 	Input string `mapstructure:"input"`
 	// Output is destination of the generated code
@@ -35,12 +40,36 @@ func (cfg *SDKGeneratorManagerConfiguration) Validate() error {
 		return err
 	}
 
-	return validation.ValidateStruct(cfg,
+	err = validation.ValidateStruct(cfg,
+		validation.Field(&cfg.ExcludeFiles),
+		validation.Field(&cfg.ExcludeGroups),
 		validation.Field(&cfg.Input, validationUtils.Required),
 		validation.Field(&cfg.Output, validationUtils.Required),
 		validation.Field(&cfg.Overwrite),
 		validation.Field(&cfg.TargetedGoVersion, validationUtils.Required, is.Semver),
 	)
+
+	if err != nil {
+		return err
+	}
+	if !cfg.Overwrite {
+		if len(cfg.ExcludeGroups) > 0 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%q is only valid when overwrite is enabled", "ExcludeGroups")
+		}
+		if len(cfg.ExcludeFiles) > 0 {
+			return commonerrors.Newf(commonerrors.ErrInvalid, "%q is only valid when overwrite is enabled", "ExcludeFiles")
+		}
+	}
+
+	err = validationUtils.NewAllRule(
+		validationUtils.WhenFieldEqualsValue(&cfg.Overwrite, false, validationUtils.ForbiddenFieldsBy(&cfg.ExcludeGroups)),
+		validationUtils.WhenFieldEqualsValue(&cfg.Overwrite, false, validationUtils.ForbiddenFieldsBy(&cfg.ExcludeFiles)),
+	).Validate(cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 

@@ -89,7 +89,7 @@ func TestCopyGoSDKGeneratorSkillsForEmbedding(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	generated, err := copyGoSDKGeneratorSkillsForEmbedding(outputDir, nil)
+	generated, err := copyGoSDKGeneratorSkillsForEmbedding(outputDir, nil, false, nil, nil)
 	require.NoError(t, err)
 	assert.Contains(t, generated, filesystem.FilePathJoin(localFs, outputDir, "generator", "skills", "run-go-sdk-generator", "SKILL.md"))
 

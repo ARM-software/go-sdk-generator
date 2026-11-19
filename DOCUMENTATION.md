@@ -312,6 +312,10 @@ SDK_GENERATOR_ANNOTATION=<value> go-sdk-generator generate
 
 | `Annotation` (shared) | `--annotation` | - | `SDK_GENERATOR_ANNOTATION` | no | Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. |
 
+| `ExcludeFiles` | `--exclude-files` | - | `SDK_GENERATOR_EXCLUDE_FILES` | no | Comma-separated filenames or output-relative paths to preserve when `overwrite` is enabled. A basename such as `README.md` matches generated files with that exact filename. A relative path such as `.github/workflows/ci.yml` matches that exact generated output path. |
+
+| `ExcludeGroups` | `--exclude-groups` | - | `SDK_GENERATOR_EXCLUDE_GROUPS` | no | Comma-separated generated file groups to preserve when `overwrite` is enabled. Supported values: `ci`, `linters`, `gomod`, `cli`, `readme`. |
+
 | `Logger` (shared) | `--logger` | - | `SDK_GENERATOR_LOGGER` | no | Select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom. |
 
 | `LoggerFile` (shared) | `--logger-file` | - | `SDK_GENERATOR_LOGGER_FILE` | no | Path to write normal runtime logs when logger is set to file. |
@@ -340,6 +344,8 @@ Configuration type:
 ```go
 type GenerateConfiguration struct {
 	Annotation GenerateAnnotation `mapstructure:"annotation"`
+	ExcludeFiles []string `mapstructure:"exclude_files"`
+	ExcludeGroups []string `mapstructure:"exclude_groups"`
 	Generate bool `mapstructure:"overwrite"`
 	Input string `mapstructure:"input"`
 	Logger GenerateLogger `mapstructure:"logger"`
@@ -356,6 +362,10 @@ Fields:
 
 
 - **`Annotation : GenerateAnnotation`** - Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. 
+
+- **`ExcludeFiles : []string`** - Comma-separated filenames or output-relative paths to preserve when `overwrite` is enabled. A basename such as `README.md` matches generated files with that exact filename. A relative path such as `.github/workflows/ci.yml` matches that exact generated output path. Example values: `README.md`, `.golangci.yaml`, `.github/workflows/ci.yml`. 
+
+- **`ExcludeGroups : []string`** - Comma-separated generated file groups to preserve when `overwrite` is enabled. Supported values: `ci`, `linters`, `gomod`, `cli`, `readme`. Example values: `ci`, `linters`, `gomod`, `cli`, `readme`. 
 
 - **`Generate : bool`** - regenerate all files 
 

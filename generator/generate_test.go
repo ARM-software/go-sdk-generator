@@ -1007,6 +1007,37 @@ func TestShouldRegenerateVersionSensitiveStateFile(t *testing.T) {
 
 }
 
+func TestOverwriteExclusionMatcherShouldExclude(t *testing.T) {
+	localFs := filesystem.NewStandardFileSystem()
+	outputDir := t.TempDir()
+	matcher, err := newOverwriteExclusionMatcher(outputDir, []string{overwriteExcludeGroupCI}, []string{"README.md", `cli\cmd\root.go`, ".github/workflows/release.yml"}, map[string][]string{
+		overwriteExcludeGroupCI:      []string{".github/workflows/ci.yml"},
+		overwriteExcludeGroupCLI:     []string{},
+		overwriteExcludeGroupGoMod:   []string{},
+		overwriteExcludeGroupLinters: []string{},
+		overwriteExcludeGroupReadme:  []string{},
+	})
+	require.NoError(t, err)
+
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{name: "group match", path: filesystem.FilePathJoin(localFs, outputDir, ".github", "workflows", "ci.yml"), want: true},
+		{name: "basename match", path: filesystem.FilePathJoin(localFs, outputDir, "docs", "README.md"), want: true},
+		{name: "relative path match", path: filesystem.FilePathJoin(localFs, outputDir, "cli", "cmd", "root.go"), want: true},
+		{name: "exact relative path without partial match", path: filesystem.FilePathJoin(localFs, outputDir, ".github", "workflows", "release-candidate.yml"), want: false},
+		{name: "no exclusion applies", path: filesystem.FilePathJoin(localFs, outputDir, "generator", "config", "generator.go"), want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, matcher.ShouldExclude(tt.path))
+		})
+	}
+}
+
 func TestAddStateFileFollowsOverwriteFlag(t *testing.T) {
 
 	tmpls := &templates{}
