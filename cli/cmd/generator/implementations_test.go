@@ -400,6 +400,66 @@ func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {
 		require.NoError(t, logger.Check())
 	})
 
+	t.Run("plain logger resolves successfully", func(t *testing.T) {
+		logger, annotationLogger, err := ResolveRuntimeLoggerAndAnnotations(config.GenerateLoggerPlain.String(), "", config.GenerateAnnotationNone.String(), "Generate")
+		require.NoError(t, err)
+		require.NotNil(t, logger)
+		require.NotNil(t, annotationLogger)
+		require.NoError(t, logger.Check())
+	})
+
+	t.Run("json logger writes structured output", func(t *testing.T) {
+		originalStdout := os.Stdout
+		reader, writer, err := os.Pipe()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			os.Stdout = originalStdout
+			_ = reader.Close()
+			_ = writer.Close()
+		})
+		os.Stdout = writer
+
+		logger, _, err := ResolveRuntimeLoggerAndAnnotations(config.GenerateLoggerJSON.String(), "", config.GenerateAnnotationNone.String(), "Generate")
+		require.NoError(t, err)
+		logger.Log("hello")
+		require.NoError(t, writer.Close())
+		stdout, err := io.ReadAll(reader)
+		require.NoError(t, err)
+		assert.Contains(t, string(stdout), `"message":"hello"`)
+	})
+
+	t.Run("quiet logger only writes errors", func(t *testing.T) {
+		originalStdout := os.Stdout
+		originalStderr := os.Stderr
+		stdoutReader, stdoutWriter, err := os.Pipe()
+		require.NoError(t, err)
+		stderrReader, stderrWriter, err := os.Pipe()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			os.Stdout = originalStdout
+			os.Stderr = originalStderr
+			_ = stdoutReader.Close()
+			_ = stdoutWriter.Close()
+			_ = stderrReader.Close()
+			_ = stderrWriter.Close()
+		})
+		os.Stdout = stdoutWriter
+		os.Stderr = stderrWriter
+
+		logger, _, err := ResolveRuntimeLoggerAndAnnotations(config.GenerateLoggerQuiet.String(), "", config.GenerateAnnotationNone.String(), "Generate")
+		require.NoError(t, err)
+		logger.Log("hello")
+		logger.LogError("broken")
+		require.NoError(t, stdoutWriter.Close())
+		require.NoError(t, stderrWriter.Close())
+		stdout, err := io.ReadAll(stdoutReader)
+		require.NoError(t, err)
+		stderr, err := io.ReadAll(stderrReader)
+		require.NoError(t, err)
+		assert.Empty(t, strings.TrimSpace(string(stdout)))
+		assert.Contains(t, string(stderr), "broken")
+	})
+
 	t.Run("file logger writes to the requested path", func(t *testing.T) {
 		logPath := filepath.Join(t.TempDir(), "tool.log")
 		logger, _, err := ResolveRuntimeLoggerAndAnnotations(config.GenerateLoggerFile.String(), logPath, config.GenerateAnnotationNone.String(), "Generate")

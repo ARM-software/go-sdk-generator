@@ -24,7 +24,10 @@ type runtimeLoggerMode int
 
 const (
 	runtimeLoggerModeConsole runtimeLoggerMode = iota // console
+	runtimeLoggerModePlain                            // plain
 	runtimeLoggerModeRich                             // rich
+	runtimeLoggerModeJSON                             // json
+	runtimeLoggerModeQuiet                            // quiet
 	runtimeLoggerModeFile                             // file
 	runtimeLoggerModeNone                             // none
 	runtimeLoggerModeCustom                           // custom

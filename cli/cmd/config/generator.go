@@ -12,8 +12,8 @@ import (
 
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
-	"github.com/ARM-software/golang-utils/utils/reflection"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
+	"github.com/ARM-software/golang-utils/utils/reflection"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
@@ -29,7 +29,7 @@ type GenerateConfiguration struct {
 	Generate bool `mapstructure:"overwrite"`
 	// Input is path to tool definition file
 	Input string `mapstructure:"input"`
-	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	// Logger is select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
 	Logger string `mapstructure:"logger"`
 	// LoggerFile is path to write normal runtime logs when logger is set to file.
 	LoggerFile string `mapstructure:"logger_file"`
@@ -96,7 +96,7 @@ func (cfg *GenerateConfiguration) Validate() error {
 	err = validation.ValidateStruct(cfg,
 		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(GenerateAnnotationGithub.String(), GenerateAnnotationNone.String()))),
 		validation.Field(&cfg.Input, validationUtils.Required),
-		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerRich.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String()))),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerPlain.String(), GenerateLoggerRich.String(), GenerateLoggerJSON.String(), GenerateLoggerQuiet.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String()))),
 		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
 		validation.Field(&cfg.Output, validationUtils.Required),
 		validation.Field(&cfg.Summary, validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))),
@@ -144,7 +144,7 @@ func DefaultGenerateConfiguration() *GenerateConfiguration {
 type SchemaConfiguration struct {
 	// Annotation is select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none.
 	Annotation string `mapstructure:"annotation"`
-	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	// Logger is select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
 	Logger string `mapstructure:"logger"`
 	// LoggerFile is path to write normal runtime logs when logger is set to file.
 	LoggerFile string `mapstructure:"logger_file"`
@@ -189,7 +189,7 @@ func (cfg *SchemaConfiguration) Validate() error {
 
 	err = validation.ValidateStruct(cfg,
 		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(SchemaAnnotationGithub.String(), SchemaAnnotationNone.String()))),
-		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(SchemaLoggerConsole.String(), SchemaLoggerRich.String(), SchemaLoggerFile.String(), SchemaLoggerNone.String(), SchemaLoggerCustom.String()))),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(SchemaLoggerConsole.String(), SchemaLoggerPlain.String(), SchemaLoggerRich.String(), SchemaLoggerJSON.String(), SchemaLoggerQuiet.String(), SchemaLoggerFile.String(), SchemaLoggerNone.String(), SchemaLoggerCustom.String()))),
 		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
 	)
 
@@ -224,7 +224,7 @@ type AgentConfiguration struct {
 	Annotation string `mapstructure:"annotation"`
 	// Init is install the embedded skills into the current repository
 	Init bool `mapstructure:"init"`
-	// Logger is select the implementation used for normal runtime logs. Allowed values: console, rich, file, none, custom.
+	// Logger is select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
 	Logger string `mapstructure:"logger"`
 	// LoggerFile is path to write normal runtime logs when logger is set to file.
 	LoggerFile string `mapstructure:"logger_file"`
@@ -269,7 +269,7 @@ func (cfg *AgentConfiguration) Validate() error {
 
 	err = validation.ValidateStruct(cfg,
 		validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(AgentAnnotationGithub.String(), AgentAnnotationNone.String()))),
-		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(AgentLoggerConsole.String(), AgentLoggerRich.String(), AgentLoggerFile.String(), AgentLoggerNone.String(), AgentLoggerCustom.String()))),
+		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(AgentLoggerConsole.String(), AgentLoggerPlain.String(), AgentLoggerRich.String(), AgentLoggerJSON.String(), AgentLoggerQuiet.String(), AgentLoggerFile.String(), AgentLoggerNone.String(), AgentLoggerCustom.String()))),
 		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
 	)
 

@@ -12,11 +12,11 @@ import (
 	"strings"
 )
 
-const _runtimeLoggerModeName = "consolerichfilenonecustom"
+const _runtimeLoggerModeName = "consoleplainrichjsonquietfilenonecustom"
 
-var _runtimeLoggerModeIndex = [...]uint8{0, 7, 11, 15, 19, 25}
+var _runtimeLoggerModeIndex = [...]uint8{0, 7, 12, 16, 20, 25, 29, 33, 39}
 
-const _runtimeLoggerModeLowerName = "consolerichfilenonecustom"
+const _runtimeLoggerModeLowerName = "consoleplainrichjsonquietfilenonecustom"
 
 func (i runtimeLoggerMode) String() string {
 	if i < 0 || i >= runtimeLoggerMode(len(_runtimeLoggerModeIndex)-1) {
@@ -30,33 +30,45 @@ func (i runtimeLoggerMode) String() string {
 func _runtimeLoggerModeNoOp() {
 	var x [1]struct{}
 	_ = x[runtimeLoggerModeConsole-(0)]
-	_ = x[runtimeLoggerModeRich-(1)]
-	_ = x[runtimeLoggerModeFile-(2)]
-	_ = x[runtimeLoggerModeNone-(3)]
-	_ = x[runtimeLoggerModeCustom-(4)]
+	_ = x[runtimeLoggerModePlain-(1)]
+	_ = x[runtimeLoggerModeRich-(2)]
+	_ = x[runtimeLoggerModeJSON-(3)]
+	_ = x[runtimeLoggerModeQuiet-(4)]
+	_ = x[runtimeLoggerModeFile-(5)]
+	_ = x[runtimeLoggerModeNone-(6)]
+	_ = x[runtimeLoggerModeCustom-(7)]
 }
 
-var _runtimeLoggerModeValues = []runtimeLoggerMode{runtimeLoggerModeConsole, runtimeLoggerModeRich, runtimeLoggerModeFile, runtimeLoggerModeNone, runtimeLoggerModeCustom}
+var _runtimeLoggerModeValues = []runtimeLoggerMode{runtimeLoggerModeConsole, runtimeLoggerModePlain, runtimeLoggerModeRich, runtimeLoggerModeJSON, runtimeLoggerModeQuiet, runtimeLoggerModeFile, runtimeLoggerModeNone, runtimeLoggerModeCustom}
 
 var _runtimeLoggerModeNameToValueMap = map[string]runtimeLoggerMode{
 	_runtimeLoggerModeName[0:7]:        runtimeLoggerModeConsole,
 	_runtimeLoggerModeLowerName[0:7]:   runtimeLoggerModeConsole,
-	_runtimeLoggerModeName[7:11]:       runtimeLoggerModeRich,
-	_runtimeLoggerModeLowerName[7:11]:  runtimeLoggerModeRich,
-	_runtimeLoggerModeName[11:15]:      runtimeLoggerModeFile,
-	_runtimeLoggerModeLowerName[11:15]: runtimeLoggerModeFile,
-	_runtimeLoggerModeName[15:19]:      runtimeLoggerModeNone,
-	_runtimeLoggerModeLowerName[15:19]: runtimeLoggerModeNone,
-	_runtimeLoggerModeName[19:25]:      runtimeLoggerModeCustom,
-	_runtimeLoggerModeLowerName[19:25]: runtimeLoggerModeCustom,
+	_runtimeLoggerModeName[7:12]:       runtimeLoggerModePlain,
+	_runtimeLoggerModeLowerName[7:12]:  runtimeLoggerModePlain,
+	_runtimeLoggerModeName[12:16]:      runtimeLoggerModeRich,
+	_runtimeLoggerModeLowerName[12:16]: runtimeLoggerModeRich,
+	_runtimeLoggerModeName[16:20]:      runtimeLoggerModeJSON,
+	_runtimeLoggerModeLowerName[16:20]: runtimeLoggerModeJSON,
+	_runtimeLoggerModeName[20:25]:      runtimeLoggerModeQuiet,
+	_runtimeLoggerModeLowerName[20:25]: runtimeLoggerModeQuiet,
+	_runtimeLoggerModeName[25:29]:      runtimeLoggerModeFile,
+	_runtimeLoggerModeLowerName[25:29]: runtimeLoggerModeFile,
+	_runtimeLoggerModeName[29:33]:      runtimeLoggerModeNone,
+	_runtimeLoggerModeLowerName[29:33]: runtimeLoggerModeNone,
+	_runtimeLoggerModeName[33:39]:      runtimeLoggerModeCustom,
+	_runtimeLoggerModeLowerName[33:39]: runtimeLoggerModeCustom,
 }
 
 var _runtimeLoggerModeNames = []string{
 	_runtimeLoggerModeName[0:7],
-	_runtimeLoggerModeName[7:11],
-	_runtimeLoggerModeName[11:15],
-	_runtimeLoggerModeName[15:19],
-	_runtimeLoggerModeName[19:25],
+	_runtimeLoggerModeName[7:12],
+	_runtimeLoggerModeName[12:16],
+	_runtimeLoggerModeName[16:20],
+	_runtimeLoggerModeName[20:25],
+	_runtimeLoggerModeName[25:29],
+	_runtimeLoggerModeName[29:33],
+	_runtimeLoggerModeName[33:39],
 }
 
 // runtimeLoggerModeString retrieves an enum value from the enum constants string name.
