@@ -277,6 +277,171 @@ func TestConfigTemplateIncludesConstraintValidationAliases(t *testing.T) {
 	assert.Contains(t, output, `filesystem.NewOSPathExtensionRule(true, ".json", ".yaml")`)
 }
 
+func TestConfigTemplateUsesArrayItemsForEnumCollections(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("EnumCollectionTest"),
+				PackageName: "enum-collection-test",
+				MainModule:  "enumcollection",
+				GlobalConfiguration: Configuration{{
+					Name:            "Modes",
+					LangType:        "string",
+					List:            true,
+					MapstructureTag: "modes",
+					Description:     "Modes.",
+					Enum:            []string{"fast", "safe"},
+				}, {
+					Name:            "StreamedModes",
+					LangType:        "string",
+					Iterator:        true,
+					MapstructureTag: "streamed_modes",
+					Description:     "Streamed modes.",
+					Enum:            []string{"fast", "safe"},
+				}},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "Modes []string `mapstructure:\"modes\"`")
+	assert.Contains(t, output, "StreamedModes iter.Seq[string] `mapstructure:\"streamed_modes\"`")
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Enum("fast", "safe"))`)
+	assert.NotContains(t, output, "type EnumCollectionTestModes int")
+}
+
+func TestConfigTemplateUsesArrayItemsForListPatternStringAndNumericConstraints(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("CollectionConstraintListTest"),
+				PackageName: "collection-constraint-list-test",
+				MainModule:  "collectionconstraintlist",
+				GlobalConfiguration: Configuration{{
+					Name:            "Modes",
+					LangType:        "string",
+					List:            true,
+					MapstructureTag: "modes",
+					Description:     "Modes.",
+					Pattern:         field.ToOptionalString(`^(fast|safe)$`),
+					Constraints: &ParameterConstraints{
+						NotEmpty:    true,
+						Contains:    field.ToOptionalString("a"),
+						NotContains: field.ToOptionalString("tmp"),
+						Prefix:      field.ToOptionalString("f"),
+						Suffix:      field.ToOptionalString("t"),
+						MinLength:   field.ToOptional(4),
+						MaxLength:   field.ToOptional(4),
+					},
+				}, {
+					Name:            "Ports",
+					LangType:        "int",
+					List:            true,
+					MapstructureTag: "ports",
+					Description:     "Ports.",
+					Constraints: &ParameterConstraints{
+						Minimum:          field.ToOptional(float64(1)),
+						Maximum:          field.ToOptional(float64(65535)),
+						ExclusiveMinimum: field.ToOptional(float64(0)),
+						ExclusiveMaximum: field.ToOptional(float64(70000)),
+						MultipleOf:       field.ToOptional(float64(1)),
+					},
+				}},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Pattern(regexp.MustCompile(`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.NotEmpty())`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ContainsString("a"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.NotContains("tmp"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Prefix("f"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Suffix("t"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MinLength(4))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MaxLength(4))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Minimum(1))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Maximum(65535))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMinimum(0))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMaximum(70000))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MultipleOf(1))`)
+}
+
+func TestConfigTemplateUsesArrayItemsForIteratorPatternStringAndNumericConstraints(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("CollectionConstraintIteratorTest"),
+				PackageName: "collection-constraint-iterator-test",
+				MainModule:  "collectionconstraintiterator",
+				GlobalConfiguration: Configuration{{
+					Name:            "Modes",
+					LangType:        "string",
+					Iterator:        true,
+					MapstructureTag: "modes",
+					Description:     "Modes.",
+					Pattern:         field.ToOptionalString(`^(fast|safe)$`),
+					Constraints: &ParameterConstraints{
+						NotEmpty:    true,
+						Contains:    field.ToOptionalString("a"),
+						NotContains: field.ToOptionalString("tmp"),
+						Prefix:      field.ToOptionalString("f"),
+						Suffix:      field.ToOptionalString("t"),
+						MinLength:   field.ToOptional(4),
+						MaxLength:   field.ToOptional(4),
+					},
+				}, {
+					Name:            "Ports",
+					LangType:        "int",
+					Iterator:        true,
+					MapstructureTag: "ports",
+					Description:     "Ports.",
+					Constraints: &ParameterConstraints{
+						Minimum:          field.ToOptional(float64(1)),
+						Maximum:          field.ToOptional(float64(65535)),
+						ExclusiveMinimum: field.ToOptional(float64(0)),
+						ExclusiveMaximum: field.ToOptional(float64(70000)),
+						MultipleOf:       field.ToOptional(float64(1)),
+					},
+				}},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Pattern(regexp.MustCompile(`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.NotEmpty())`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ContainsString("a"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.NotContains("tmp"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Prefix("f"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Suffix("t"))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MinLength(4))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MaxLength(4))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Minimum(1))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Maximum(65535))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMinimum(0))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMaximum(70000))`)
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MultipleOf(1))`)
+}
+
 func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.cli.go.tmpl")
 	require.NoError(t, err)

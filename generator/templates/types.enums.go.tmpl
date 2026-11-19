@@ -5,7 +5,7 @@ package {{ .CurrentTypePackage }}
 {{ range .CurrentAdditionalTypes }}
 {{ $structName := .Name | toPascal -}}
 {{ range .Fields -}}
-{{ if hasEnum .Enum -}}
+{{ if hasGeneratedEnumType .List .Iterator .Enum -}}
 {{ $enumTypeName := enumTypeName $structName .Name .LangType .Enum -}}
 //go:generate go tool enumer -type={{ $enumTypeName }} -linecomment -text -json -yaml
 type {{ $enumTypeName }} int

@@ -1,0 +1,114 @@
+specification:
+  package_name: collection-item-constraints-sdk
+  main_module: collectionitemconstraints
+  name: CollectionItemConstraints
+  description: Test manifest ensuring collection item constraints generate item-by-item validation for list and iterator shapes.
+  update_copyright_headers: false
+
+  interface:
+    methods:
+      - name: Check
+        description: Check collection-shaped values.
+        args:
+          - name: Modes
+            lang_type: string
+            list: true
+            description: Execution modes.
+            pattern: ^(fast|safe)$
+            constraints:
+              not_empty: true
+              contains: a
+              not_contains: tmp
+              prefix: f
+              suffix: t
+              min_length: 4
+              max_length: 4
+          - name: StreamedModes
+            lang_type: string
+            iterator: true
+            description: Streamed execution modes.
+            pattern: ^(fast|safe)$
+            constraints:
+              not_empty: true
+              contains: a
+              not_contains: tmp
+              prefix: f
+              suffix: t
+              min_length: 4
+              max_length: 4
+          - name: Ports
+            lang_type: int
+            list: true
+            description: Ports.
+            constraints:
+              minimum: 1
+              maximum: 65535
+              exclusive_minimum: 0
+              exclusive_maximum: 70000
+              multiple_of: 1
+          - name: StreamedPorts
+            lang_type: int
+            iterator: true
+            description: Streamed ports.
+            constraints:
+              minimum: 1
+              maximum: 65535
+              exclusive_minimum: 0
+              exclusive_maximum: 70000
+              multiple_of: 1
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether validation failed.
+
+  global_configuration:
+    - name: Modes
+      lang_type: string
+      list: true
+      mapstructure_tag: modes
+      description: Allowed execution modes.
+      pattern: ^(fast|safe)$
+      constraints:
+        not_empty: true
+        contains: a
+        not_contains: tmp
+        prefix: f
+        suffix: t
+        min_length: 4
+        max_length: 4
+    - name: StreamedModes
+      lang_type: string
+      iterator: true
+      mapstructure_tag: streamed_modes
+      description: Streamed execution modes.
+      pattern: ^(fast|safe)$
+      constraints:
+        not_empty: true
+        contains: a
+        not_contains: tmp
+        prefix: f
+        suffix: t
+        min_length: 4
+        max_length: 4
+    - name: Ports
+      lang_type: int
+      list: true
+      mapstructure_tag: ports
+      description: Ports.
+      constraints:
+        minimum: 1
+        maximum: 65535
+        exclusive_minimum: 0
+        exclusive_maximum: 70000
+        multiple_of: 1
+    - name: StreamedPorts
+      lang_type: int
+      iterator: true
+      mapstructure_tag: streamed_ports
+      description: Streamed ports.
+      constraints:
+        minimum: 1
+        maximum: 65535
+        exclusive_minimum: 0
+        exclusive_maximum: 70000
+        multiple_of: 1

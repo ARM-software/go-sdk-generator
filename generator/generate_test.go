@@ -656,6 +656,28 @@ func TestGenerate(t *testing.T) {
 
 		{
 
+			title: "No CLI (collection item constraints apply to list and iterator shapes)",
+
+			recipe: "collection-item-constraints.yml",
+
+			regressionSrc: "collection-item-constraints.zip",
+
+			err: nil,
+		},
+
+		{
+
+			title: "No CLI (enum validation applies to list and iterator collection shapes)",
+
+			recipe: "enum-collections.yml",
+
+			regressionSrc: "enum-collections.zip",
+
+			err: nil,
+		},
+
+		{
+
 			title: "No CLI (list and iterator flags shape generated signatures and fields)",
 
 			recipe: "list-iterator.yml",
