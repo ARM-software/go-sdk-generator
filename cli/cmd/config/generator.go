@@ -37,7 +37,7 @@ type GenerateConfiguration struct {
 	Output string `mapstructure:"output"`
 	// ShowConfig is show the effective configuration used by this command before execution.
 	ShowConfig bool `mapstructure:"show_config"`
-	// Summary is write a human-readable summary to the selected destination. Allowed values: file, github, output.
+	// Summary is write a human-readable summary to the selected destination. Allowed values: file, github, output, none.
 	Summary string `mapstructure:"summary"`
 	// SummaryFile is path to the summary file when summary is set to file
 	SummaryFile string `mapstructure:"summary_file"`
@@ -99,7 +99,7 @@ func (cfg *GenerateConfiguration) Validate() error {
 		validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerPlain.String(), GenerateLoggerRich.String(), GenerateLoggerJSON.String(), GenerateLoggerQuiet.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String()))),
 		validation.Field(&cfg.LoggerFile, validation.When(reflection.IsNotEmpty(cfg.LoggerFile), filesystem.NewOSPathValidationRule(true))),
 		validation.Field(&cfg.Output, validationUtils.Required),
-		validation.Field(&cfg.Summary, validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))),
+		validation.Field(&cfg.Summary, validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String(), GenerateSummaryNone.String()))),
 		validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true))),
 		validation.Field(&cfg.TargetedGo, is.Semver),
 	)

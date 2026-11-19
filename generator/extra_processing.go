@@ -933,7 +933,7 @@ func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 
 			DefaultValue: field.ToOptionalString(SummaryDestinationOutput.String()),
 
-			Enum: []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
+			Enum: []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String(), SummaryDestinationNone.String()},
 
 			IsRoot: false,
 

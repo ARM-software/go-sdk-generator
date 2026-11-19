@@ -16,12 +16,12 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
+	"github.com/ARM-software/go-sdk-generator/cli/cmd/generator"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/semver"
-	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
-	"github.com/ARM-software/go-sdk-generator/cli/cmd/generator"
 )
 
 const (
@@ -194,7 +194,7 @@ func init() {
 	generateCmd.Flags().BoolP(generateGenerateArg, "a", false, "regenerate all files")
 	generateCmd.Flags().StringP(generateInputArg, "i", "", "path to tool definition file")
 	generateCmd.Flags().StringP(generateOutputArg, "o", "", "destination of the generated code")
-	generateCmd.Flags().String(generateSummaryArg, "", "Write a human-readable summary to the selected destination. Allowed values: file, github, output.")
+	generateCmd.Flags().String(generateSummaryArg, "", "Write a human-readable summary to the selected destination. Allowed values: file, github, output, none.")
 	generateCmd.Flags().String(generateSummaryFileArg, "", "Path to the summary file when summary is set to file")
 	generateCmd.Flags().StringP(generateTargetedGoArg, "g", "", "targeted go version for the tool")
 	agentCmd.Flags().Bool(agentInitArg, false, "install the embedded skills into the current repository")

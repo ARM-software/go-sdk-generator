@@ -2305,11 +2305,13 @@ type SummaryDestination string
 const SummaryDestinationFile SummaryDestination = "file"
 const SummaryDestinationGithub SummaryDestination = "github"
 const SummaryDestinationOutput SummaryDestination = "output"
+const SummaryDestinationNone SummaryDestination = "none"
 
 var enumValues_SummaryDestination = []interface{}{
 	"file",
 	"github",
 	"output",
+	"none",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
