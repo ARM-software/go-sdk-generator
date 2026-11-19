@@ -221,14 +221,32 @@ func newRichLogger(loggerSource string) (logs.Loggers, error) {
 	return &RichLoggerAdapter{logger: richLogger}, nil
 }
 
+func newJSONLogger(loggerSource string) (logs.Loggers, error) {
+	return logs.NewJSONLogger(logs.NewStdWriterWithSource(), loggerSource, loggerSource)
+}
+
+func newQuietLogger(loggerSource string) (logs.Loggers, error) {
+	baseLogger, err := logs.NewStdLogger(loggerSource)
+	if err != nil {
+		return nil, err
+	}
+	return logs.NewQuietLogger(baseLogger)
+}
+
 func resolveBaseLogger(loggerType string, loggerFile string, loggerSource string) (logs.Loggers, error) {
 	selectedLogger := normaliseRuntimeOption(loggerType, config.GenerateLoggerConsole.String())
 
 	switch selectedLogger {
 	case config.GenerateLoggerConsole.String():
 		return logs.NewStdLogger(loggerSource)
+	case config.GenerateLoggerPlain.String():
+		return logs.NewPipeLogger()
 	case config.GenerateLoggerRich.String():
 		return newRichLogger(loggerSource)
+	case config.GenerateLoggerJSON.String():
+		return newJSONLogger(loggerSource)
+	case config.GenerateLoggerQuiet.String():
+		return newQuietLogger(loggerSource)
 	case config.GenerateLoggerFile.String():
 		return logs.NewFileOnlyLogger(loggerFile, loggerSource)
 	case config.GenerateLoggerNone.String():

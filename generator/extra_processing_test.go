@@ -953,7 +953,7 @@ func TestProcessArguments(t *testing.T) {
 
 		require.Contains(t, byName, annotationArgument)
 
-		assert.Equal(t, []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Enum)
+		assert.Equal(t, []string{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Enum)
 
 		require.NotNil(t, byName[loggerArgument].DefaultValue)
 
@@ -1257,13 +1257,13 @@ func TestProcessArguments(t *testing.T) {
 
 		assert.Equal(t, ParameterRequiredValuesConstraintOperatorAbsent, byName[loggerArgument].Constraints.RequiredValuesWhen[0].Operator)
 
-		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[0].RequiredValues)
+		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[0].RequiredValues)
 
 		assert.Equal(t, ParameterRequiredValuesConstraintOperatorEquals, byName[loggerArgument].Constraints.RequiredValuesWhen[1].Operator)
 
 		assert.Equal(t, stdoutArgumentValue, byName[loggerArgument].Constraints.RequiredValuesWhen[1].Value)
 
-		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[1].RequiredValues)
+		assert.ElementsMatch(t, []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()}, byName[loggerArgument].Constraints.RequiredValuesWhen[1].RequiredValues)
 
 		require.NotNil(t, byName[resultOutputFileArgument].Constraints)
 

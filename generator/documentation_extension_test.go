@@ -310,9 +310,9 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 								Name:            loggerArgument,
 								LangType:        stringLangType,
 								DefaultValue:    field.ToOptionalString(defaultCLILoggerMode),
-								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 								MapstructureTag: loggerMapstructureTag,
-								Description:     "Select the implementation used for normal runtime logs.",
+								Description:     "Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger.",
 							},
 							{
 								Name:            loggerFileArg,
@@ -379,7 +379,7 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.Enum(GenerateModeFast.String(), GenerateModeSlow.String()))")
 	assert.Contains(t, output, "Mode: GenerateModeFast.String(),")
 	assert.Contains(t, output, "validation.Field(&cfg.SummaryFile, validation.When(reflection.IsNotEmpty(cfg.SummaryFile), filesystem.NewOSPathValidationRule(true)))")
-	assert.Contains(t, output, "validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerRich.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String())))")
+	assert.Contains(t, output, "validation.Field(&cfg.Logger, validation.When(reflection.IsNotEmpty(cfg.Logger), validationUtils.Enum(GenerateLoggerConsole.String(), GenerateLoggerPlain.String(), GenerateLoggerRich.String(), GenerateLoggerJSON.String(), GenerateLoggerQuiet.String(), GenerateLoggerFile.String(), GenerateLoggerNone.String(), GenerateLoggerCustom.String())))")
 	assert.Contains(t, output, "validation.Field(&cfg.Annotation, validation.When(reflection.IsNotEmpty(cfg.Annotation), validationUtils.Enum(GenerateAnnotationGithub.String(), GenerateAnnotationNone.String())))")
 	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.RequiredFieldsBy(&cfg.LoggerFile))")
 	assert.Contains(t, output, "validationUtils.WhenFieldNotEqualsValue(&cfg.Logger, GenerateLoggerFile.String(), validationUtils.ForbiddenFieldsBy(&cfg.LoggerFile))")
@@ -450,7 +450,7 @@ func TestCLIConfigTemplateIncludesResultOutputRuntimeValidationRules(t *testing.
 								Name:            loggerArgument,
 								LangType:        stringLangType,
 								DefaultValue:    field.ToOptionalString(defaultCLILoggerMode),
-								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+								Enum:            []string{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 								MapstructureTag: loggerMapstructureTag,
 								Description:     "logger",
 								Constraints: &ParameterConstraints{
@@ -458,13 +458,13 @@ func TestCLIConfigTemplateIncludesResultOutputRuntimeValidationRules(t *testing.
 										{
 											Parameter:      resultOutputFileArgument,
 											Operator:       ParameterRequiredValuesConstraintOperatorAbsent,
-											RequiredValues: []any{runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+											RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 										},
 										{
 											Parameter:      resultOutputFileArgument,
 											Operator:       ParameterRequiredValuesConstraintOperatorEquals,
 											Value:          stdoutArgumentValue,
-											RequiredValues: []any{runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+											RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 										},
 									},
 								},
@@ -518,7 +518,7 @@ func TestWrapperTemplateIncludesResultOutputHelpers(t *testing.T) {
 						Configuration: []FunctionConfigFields{
 							{Name: resultOutputArgument, LangType: stringLangType, MapstructureTag: resultOutputMapstructureTag, Enum: []string{resultOutputModeHuman.String(), resultOutputModeJSON.String(), resultOutputModeYAML.String()}, DefaultValue: field.ToOptionalString(resultOutputModeHuman.String()), Description: "output format"},
 							{Name: resultOutputFileArgument, LangType: string(BuiltInLangTypeFilepath), MapstructureTag: resultOutputFileMapstructureTag, Description: "Write machine-readable result output to the selected destination. Use `-` to write to standard output explicitly. This is only valid when output format is json or yaml. When a file path is used, the destination file is created or truncated immediately before writing the result, so an existing file is reset even if the later write fails.", Constraints: &ParameterConstraints{ParameterValue: &ParameterValueComparisonConstraint{Parameter: loggerFileArg, Operator: ParameterValueComparisonConstraintOperatorNotEquals, When: ParameterValueComparisonConstraintWhenNotEmpty}}},
-							{Name: loggerArgument, LangType: stringLangType, MapstructureTag: loggerMapstructureTag, Enum: []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, DefaultValue: field.ToOptionalString(defaultCLILoggerMode), Description: "logger"},
+							{Name: loggerArgument, LangType: stringLangType, MapstructureTag: loggerMapstructureTag, Enum: []string{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()}, DefaultValue: field.ToOptionalString(defaultCLILoggerMode), Description: "logger"},
 							{Name: loggerFileArg, LangType: string(BuiltInLangTypeFilepath), MapstructureTag: loggerFileMapstructureTag, Description: "logger file"},
 							{Name: annotationArgument, LangType: stringLangType, MapstructureTag: syntheticCLIMapstructureTagAnnotation.String(), Enum: []string{runtimeAnnotationModeGithub.String(), runtimeAnnotationModeNone.String()}, DefaultValue: field.ToOptionalString(defaultCLIAnnotationMode), Description: "annotation"},
 						},
@@ -593,8 +593,8 @@ func TestDocumentationTemplateIncludesResultOutputCombinationTable(t *testing.T)
 	output := b.String()
 	assert.Contains(t, output, "Result output and logging combinations:")
 	assert.Contains(t, output, "| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |")
-	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
-	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `plain`, `rich`, `json`, `quiet`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `plain`, `rich`, `json`, `quiet`, `file`, `none`, `custom` |")
 	assert.Contains(t, output, "`logger=file` still requires `logger_file` in every allowed combination.")
 	assert.NotContains(t, output, "Every generated CLI command exposes the shared logging and annotation options.")
 }
