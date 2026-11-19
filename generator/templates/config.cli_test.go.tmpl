@@ -94,6 +94,15 @@ func Test{{ $configName }}ConfigurationValidateSummaryRules(t *testing.T) {
 		require.NoError(t, cfg.Validate())
 	})
 
+	t.Run("new logger values are accepted", func(t *testing.T) {
+		for _, logger := range []string{ {{ $configName }}LoggerPlain.String(), {{ $configName }}LoggerJSON.String(), {{ $configName }}LoggerQuiet.String() } {
+			cfg := valid{{ $configName }}Configuration()
+			cfg.Logger = logger
+
+			require.NoError(t, cfg.Validate(), logger)
+		}
+	})
+
 	t.Run("summary file path must be valid when provided", func(t *testing.T) {
 		cfg := valid{{ $configName }}Configuration()
 		cfg.SummaryFile = "bad\npath"

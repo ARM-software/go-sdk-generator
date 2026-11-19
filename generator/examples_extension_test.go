@@ -208,7 +208,7 @@ func TestEmbeddedCLISkillTemplateIncludesResultOutputCombinationTable(t *testing
 	output := b.String()
 	assert.Contains(t, output, "Result output and logging combinations:")
 	assert.Contains(t, output, "| `output_format` | `output_file` | Allowed `logger` values | Behaviour | Allowed |")
-	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
-	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `rich`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `human` | empty or `-` | `console`, `plain`, `rich`, `json`, `quiet`, `file`, `none`, `custom` |")
+	assert.Contains(t, output, "| `json` or `yaml` | empty or `-` | `console`, `plain`, `rich`, `json`, `quiet`, `file`, `none`, `custom` |")
 	assert.Contains(t, output, "`logger=file` still requires `logger_file` in every allowed combination.")
 }

@@ -19,7 +19,10 @@ type GenerateLogger int
 
 const (
 	GenerateLoggerConsole GenerateLogger = iota // console
+	GenerateLoggerPlain                         // plain
 	GenerateLoggerRich                          // rich
+	GenerateLoggerJSON                          // json
+	GenerateLoggerQuiet                         // quiet
 	GenerateLoggerFile                          // file
 	GenerateLoggerNone                          // none
 	GenerateLoggerCustom                        // custom
@@ -47,7 +50,10 @@ type SchemaLogger int
 
 const (
 	SchemaLoggerConsole SchemaLogger = iota // console
+	SchemaLoggerPlain                       // plain
 	SchemaLoggerRich                        // rich
+	SchemaLoggerJSON                        // json
+	SchemaLoggerQuiet                       // quiet
 	SchemaLoggerFile                        // file
 	SchemaLoggerNone                        // none
 	SchemaLoggerCustom                      // custom
@@ -66,7 +72,10 @@ type AgentLogger int
 
 const (
 	AgentLoggerConsole AgentLogger = iota // console
+	AgentLoggerPlain                      // plain
 	AgentLoggerRich                       // rich
+	AgentLoggerJSON                       // json
+	AgentLoggerQuiet                      // quiet
 	AgentLoggerFile                       // file
 	AgentLoggerNone                       // none
 	AgentLoggerCustom                     // custom

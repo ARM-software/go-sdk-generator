@@ -1070,7 +1070,7 @@ func updateCliFunctionArgumentsToSupportResult(fct *CliFunction) error {
 
 				Operator: ParameterRequiredValuesConstraintOperatorAbsent,
 
-				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 			},
 
 			{
@@ -1081,7 +1081,7 @@ func updateCliFunctionArgumentsToSupportResult(fct *CliFunction) error {
 
 				Value: stdoutArgumentValue,
 
-				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeCustom.String()},
+				RequiredValues: []any{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 			},
 		}
 
@@ -1099,11 +1099,11 @@ func updateCliFunctionArgumentsToSupportRuntimeLogging(fct *CliFunction) error {
 
 		loggerArgument: {
 
-			Description: "Select the implementation used for normal runtime logs.",
+			Description: "Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger.",
 
 			DefaultValue: field.ToOptionalString(defaultCLILoggerMode),
 
-			Enum: []string{runtimeLoggerModeConsole.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
+			Enum: []string{runtimeLoggerModeConsole.String(), runtimeLoggerModePlain.String(), runtimeLoggerModeRich.String(), runtimeLoggerModeJSON.String(), runtimeLoggerModeQuiet.String(), runtimeLoggerModeFile.String(), runtimeLoggerModeNone.String(), runtimeLoggerModeCustom.String()},
 
 			IsRoot: true,
 
