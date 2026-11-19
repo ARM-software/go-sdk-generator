@@ -43,7 +43,7 @@ type {{ $configName }}ManagerConfiguration struct {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $fieldName := .Name | toPascal | title -}}
 	{{ goComment "\t" (printf "%s is %s" $fieldName (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples) .DeprecationNotice)) }}
-	{{ $fieldName }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ $fieldName }} {{ if hasGeneratedEnumType .List .Iterator .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $configName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 	// ToolVersion contains the version of the CLI tool
 	ToolVersion *string
@@ -59,7 +59,7 @@ func (cfg *{{ $configName }}ManagerConfiguration) Validate() error {
 	{{ range .Specification.GlobalConfiguration -}}
 	{{ $fieldName := .Name | toPascal | title -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $configName .Name .LangType .Reference .Required .Enum (printf "cfg.%s" $fieldName) -}}
+	{{ $enumValidation := fieldEnumValidationRuleWithShape $configName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" $fieldName) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "global-configuration" "" .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) -}}

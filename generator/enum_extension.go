@@ -6,6 +6,7 @@ package generator
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
@@ -15,6 +16,17 @@ import (
 
 func hasEnum(enum []string) bool {
 	return reflection.IsNotEmpty(enum)
+}
+
+func hasGeneratedEnumType(list bool, iterator bool, enum []string) bool {
+	return hasEnum(enum) && !list && !iterator
+}
+
+func enumValueType(ownerName, fieldName, langType string, list bool, iterator bool, enum []string) string {
+	if hasGeneratedEnumType(list, iterator, enum) {
+		return enumTypeName(ownerName, fieldName, langType, enum)
+	}
+	return convertLangType(langType)
 }
 
 func enumTypeName(ownerName, fieldName, langType string, enum []string) string {
@@ -65,10 +77,17 @@ func enumValidationRule(ownerName, fieldName, langType string, reference bool, e
 }
 
 func fieldEnumValidationRule(ownerName, fieldName, langType string, reference bool, required bool, enum []string, fieldExpr string) string {
+	return fieldEnumValidationRuleWithShape(ownerName, fieldName, langType, reference, false, false, required, enum, fieldExpr)
+}
+
+func fieldEnumValidationRuleWithShape(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
 	if !hasEnum(enum) {
 		return ""
 	}
 	baseRule := fmt.Sprintf("validationUtils.Enum(%s)", enumConstRefs(ownerName, fieldName, langType, enum))
+	if list || iterator {
+		baseRule = fmt.Sprintf("validationUtils.ArrayItems(validationUtils.Enum(%s))", strings.Join(collection.Map(enum, strconv.Quote), ", "))
+	}
 	if required {
 		return fmt.Sprintf(", %s", baseRule)
 	}
@@ -83,10 +102,17 @@ func enumStringValidationRule(ownerName, fieldName, langType string, reference b
 }
 
 func fieldEnumStringValidationRule(ownerName, fieldName, langType string, reference bool, required bool, enum []string, fieldExpr string) string {
+	return fieldEnumStringValidationRuleWithShape(ownerName, fieldName, langType, reference, false, false, required, enum, fieldExpr)
+}
+
+func fieldEnumStringValidationRuleWithShape(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
 	if !hasEnum(enum) {
 		return ""
 	}
 	baseRule := fmt.Sprintf("validationUtils.Enum(%s)", enumStringConstRefs(ownerName, fieldName, langType, enum))
+	if list || iterator {
+		baseRule = fmt.Sprintf("validationUtils.ArrayItems(validationUtils.Enum(%s))", strings.Join(collection.Map(enum, strconv.Quote), ", "))
+	}
 	if required {
 		return fmt.Sprintf(", %s", baseRule)
 	}

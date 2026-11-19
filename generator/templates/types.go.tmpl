@@ -43,7 +43,7 @@ import (
 type {{ $structName  }} struct {
 {{ range .Fields -}}
 	{{ goComment "\t" (printf "%s is %s" (.Name | toPascal) (descriptionWithDeprecation (descriptionWithMetadata (.Description | lowerFirst) .Enum .Example .Examples) .DeprecationNotice)) }}
-	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $structName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
+	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $structName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `json:"{{ if .JsonTag }}{{ .JsonTag }}{{ else }}{{ .MapstructureTag }}{{ end }}" mapstructure:"{{ .MapstructureTag | toSnake }}"`
 	{{ end }}
 }
 
@@ -56,7 +56,7 @@ func (cfg *{{ $structName  }}) Validate() error {
 	{{ if .HasConstraintValidationRules }}err = {{ else }}return {{ end }}validation.ValidateStruct(cfg,
 	{{ range .Fields -}}
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
+	{{ $enumValidation := fieldEnumValidationRuleWithShape $structName .Name .LangType .Reference .List .Iterator .Required .Enum (printf "cfg.%s" (.Name | toPascal)) -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $suppressRequired := suppressesRequiredValidation $.SuppressRequiredValidationMap "additional-type" $structName .Name -}}
 	{{ if and (not .Required) (usesPresenceGuardForValidation .LangType) }}

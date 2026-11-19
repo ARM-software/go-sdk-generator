@@ -277,6 +277,45 @@ func TestConfigTemplateIncludesConstraintValidationAliases(t *testing.T) {
 	assert.Contains(t, output, `filesystem.NewOSPathExtensionRule(true, ".json", ".yaml")`)
 }
 
+func TestConfigTemplateUsesArrayItemsForEnumCollections(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{
+		SuppressRequiredValidationMap: map[string]bool{},
+		SDK: SDK{
+			Specification: SDKSpecification{
+				Name:        field.ToOptionalString("EnumCollectionTest"),
+				PackageName: "enum-collection-test",
+				MainModule:  "enumcollection",
+				GlobalConfiguration: Configuration{{
+					Name:            "Modes",
+					LangType:        "string",
+					List:            true,
+					MapstructureTag: "modes",
+					Description:     "Modes.",
+					Enum:            []string{"fast", "safe"},
+				}, {
+					Name:            "StreamedModes",
+					LangType:        "string",
+					Iterator:        true,
+					MapstructureTag: "streamed_modes",
+					Description:     "Streamed modes.",
+					Enum:            []string{"fast", "safe"},
+				}},
+			},
+		},
+	}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "config.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "Modes []string `mapstructure:\"modes\"`")
+	assert.Contains(t, output, "StreamedModes iter.Seq[string] `mapstructure:\"streamed_modes\"`")
+	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.Enum("fast", "safe"))`)
+	assert.NotContains(t, output, "type EnumCollectionTestModes int")
+}
+
 func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/config.cli.go.tmpl")
 	require.NoError(t, err)

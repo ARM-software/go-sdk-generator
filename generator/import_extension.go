@@ -198,12 +198,12 @@ func interfaceUsesImportAlias(spec *SDKSpecification, alias string) bool {
 	return collection.AnyFunc(spec.Interface.Methods, func(method InterfaceMethod) bool {
 		return collection.AnyFunc(method.Args, func(arg CommandArgument) bool {
 			if hasEnum(arg.Enum) {
-				return strings.Contains(methodArgumentTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumTypeName(method.Name, arg.Name, arg.LangType, arg.Enum), false), aliasRef)
+				return strings.Contains(methodArgumentTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumValueType(method.Name, arg.Name, arg.LangType, arg.List, arg.Iterator, arg.Enum), false), aliasRef)
 			}
 			return strings.Contains(methodArgumentType(arg.Reference, arg.List, arg.Iterator, arg.LangType, false), aliasRef)
 		}) || collection.AnyFunc(method.Returns, func(ret CommandArgument) bool {
 			if hasEnum(ret.Enum) {
-				return strings.Contains(parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumTypeName(method.Name, ret.Name, ret.LangType, ret.Enum)), aliasRef)
+				return strings.Contains(parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumValueType(method.Name, ret.Name, ret.LangType, ret.List, ret.Iterator, ret.Enum)), aliasRef)
 			}
 			return strings.Contains(parameterType(ret.Reference, ret.List, ret.Iterator, ret.LangType), aliasRef)
 		})

@@ -154,6 +154,36 @@ func TestFunctionConfigFieldsValidateRejectsExactlyOneOnScalar(t *testing.T) {
 
 }
 
+func TestConfigurationOptionValidateAcceptsEnumList(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Mode",
+		LangType:        "string",
+		List:            true,
+		MapstructureTag: "mode",
+		Description:     "Modes.",
+		Enum:            []string{"fast", "safe"},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
+func TestConfigurationOptionValidateAcceptsEnumIterator(t *testing.T) {
+	t.Parallel()
+
+	cfg := &ConfigurationOption{
+		Name:            "Mode",
+		LangType:        "string",
+		Iterator:        true,
+		MapstructureTag: "mode",
+		Description:     "Modes.",
+		Enum:            []string{"fast", "safe"},
+	}
+
+	require.NoError(t, cfg.Validate())
+}
+
 func TestConfigurationOptionValidateRejectsConflictingConstraintEnumAlias(t *testing.T) {
 
 	t.Parallel()

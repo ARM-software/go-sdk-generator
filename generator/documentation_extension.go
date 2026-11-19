@@ -159,7 +159,7 @@ func documentedAdditionalTypeFieldType(typeName string, fieldDef *EntityField) s
 		return ""
 	}
 	if hasEnum(fieldDef.EffectiveEnum()) {
-		return parameterTypeFromBase(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, enumTypeName(typeName, fieldDef.Name, fieldDef.LangType, fieldDef.EffectiveEnum()))
+		return parameterTypeFromBase(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, enumValueType(typeName, fieldDef.Name, fieldDef.LangType, fieldDef.List, fieldDef.Iterator, fieldDef.EffectiveEnum()))
 	}
 	return parameterType(fieldDef.Reference, fieldDef.List, fieldDef.Iterator, fieldDef.LangType)
 }
@@ -169,7 +169,7 @@ func documentedConfigFieldType(specName string, cfg *ConfigurationOption) string
 		return ""
 	}
 	if hasEnum(cfg.EffectiveEnum()) {
-		return parameterTypeFromBase(cfg.Reference, cfg.List, cfg.Iterator, enumTypeName(specName, cfg.Name, cfg.LangType, cfg.EffectiveEnum()))
+		return parameterTypeFromBase(cfg.Reference, cfg.List, cfg.Iterator, enumValueType(specName, cfg.Name, cfg.LangType, cfg.List, cfg.Iterator, cfg.EffectiveEnum()))
 	}
 	return parameterType(cfg.Reference, cfg.List, cfg.Iterator, cfg.LangType)
 }
@@ -179,7 +179,7 @@ func documentedInterfaceMethodSignature(method InterfaceMethod) string {
 	arguments := append([]string{"ctx context.Context"}, collection.Map(method.Args, func(arg CommandArgument) string {
 		argType := parameterType(arg.Reference, arg.List, arg.Iterator, arg.LangType)
 		if hasEnum(arg.EffectiveEnum()) {
-			argType = parameterTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumTypeName(functionName, arg.Name, arg.LangType, arg.EffectiveEnum()))
+			argType = parameterTypeFromBase(arg.Reference, arg.List, arg.Iterator, enumValueType(functionName, arg.Name, arg.LangType, arg.List, arg.Iterator, arg.EffectiveEnum()))
 		}
 		return fmt.Sprintf("%s %s", toCamelCase(arg.Name), argType)
 	})...)
@@ -187,7 +187,7 @@ func documentedInterfaceMethodSignature(method InterfaceMethod) string {
 	returns := collection.Map(method.Returns, func(ret CommandArgument) string {
 		retType := parameterType(ret.Reference, ret.List, ret.Iterator, ret.LangType)
 		if hasEnum(ret.EffectiveEnum()) {
-			retType = parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumTypeName(functionName, ret.Name, ret.LangType, ret.EffectiveEnum()))
+			retType = parameterTypeFromBase(ret.Reference, ret.List, ret.Iterator, enumValueType(functionName, ret.Name, ret.LangType, ret.List, ret.Iterator, ret.EffectiveEnum()))
 		}
 		return fmt.Sprintf("%s %s", toCamelCase(ret.Name), retType)
 	})
