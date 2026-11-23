@@ -22,12 +22,14 @@ require (
 	github.com/ARM-software/golang-utils/utils/parallelisation v1.172.0
 	github.com/ARM-software/golang-utils/utils/reflection v1.172.0
 	github.com/ARM-software/golang-utils/utils/semver v1.172.0
+	github.com/ARM-software/golang-utils/utils/serialisation v1.172.0
 	github.com/ARM-software/golang-utils/utils/validation v1.172.0
 	github.com/ARM-software/golang-utils/utils/value v1.172.0
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/log v0.1.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.5.0
 	github.com/spf13/cobra v1.10.2
+	github.com/spf13/pflag v1.1.0
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
 )
@@ -47,7 +49,6 @@ require (
 	github.com/ARM-software/golang-utils/utils/resource v1.172.0 // indirect
 	github.com/ARM-software/golang-utils/utils/safecast v1.172.0 // indirect
 	github.com/ARM-software/golang-utils/utils/safeio v1.172.0 // indirect
-	github.com/ARM-software/golang-utils/utils/serialisation v1.172.0 // indirect
 	github.com/ARM-software/golang-utils/utils/strings v1.172.0 // indirect
 	github.com/ARM-software/golang-utils/utils/strings/casing v1.172.0 // indirect
 	github.com/ARM-software/golang-utils/utils/subprocess/command v1.172.0 // indirect
@@ -133,7 +134,6 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/spf13/pflag v1.1.0 // indirect
 	github.com/sttk/stringcase v1.0.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
