@@ -1,0 +1,23 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestEnabledValidValue(t *testing.T) {
+	opt := DefaultBuildOptions()
+	WithLabel("valid")(opt)
+	require.NoError(t, opt.Validate())
+}
+
+func TestDisabledInvalidValue(t *testing.T) {
+	opt := DefaultBuildOptions()
+	opt.Label.Label = "123"
+	require.NoError(t, opt.Validate())
+}

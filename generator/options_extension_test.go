@@ -280,6 +280,37 @@ func TestEmbeddedOptionEnumsTemplateUsesTypedFirstConstantOnly(t *testing.T) {
 	assert.NotContains(t, output, "BuildOptionsModeSafe BuildOptionsMode")
 }
 
+func TestEmbeddedOptionEnumsTemplateDocumentsCollectionsAndEmptyFiles(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, optionsEnumFile)
+	require.NoError(t, err)
+	data := &DataModel{CurrentOptionPackage: "options", CurrentOptionSets: OptionSets{{Name: "Build", Functions: []OptionFunction{{Parameters: []OptionParameter{
+		{Name: "Modes", LangType: "string", List: true, Enum: []string{"fast", "safe"}},
+		{Name: "States", LangType: "string", Iterator: true, Enum: []string{"ready", "waiting"}},
+	}}}}}}
+	var output strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&output, "options.enums.go.tmpl", data))
+	assert.Contains(t, output.String(), "This file defines enum types and allowed values for option parameters")
+	assert.Contains(t, output.String(), "BuildOptionsModesFast BuildOptionsModes = iota // fast")
+	assert.Contains(t, output.String(), "BuildOptionsModesSafe // safe")
+	assert.Contains(t, output.String(), "BuildOptionsStatesReady BuildOptionsStates = iota // ready")
+	assert.Contains(t, output.String(), "type BuildOptionsModes int")
+	assert.Contains(t, output.String(), "//go:generate go tool enumer -type=BuildOptionsModes -linecomment -text -json -yaml")
+	assert.Contains(t, output.String(), "//go:generate go tool enumer -type=BuildOptionsStates -linecomment -text -json -yaml")
+	assert.NotContains(t, output.String(), "no declarations")
+	data.CurrentOptionSets[0].Functions = nil
+	output.Reset()
+	require.NoError(t, tmpl.ExecuteTemplate(&output, "options.enums.go.tmpl", data))
+	assert.Contains(t, output.String(), "This file has no declarations because the manifest defines no enum values")
+}
+
+func TestOptionCollectionEnumIdentifiersDetectCollisions(t *testing.T) {
+	sets := OptionSets{{Name: "Build", Functions: []OptionFunction{{
+		FunctionName: field.ToOptionalString("BuildOptionsModesFast"),
+		Parameters:   []OptionParameter{{Name: "Modes", LangType: "string", List: true, Enum: []string{"fast", "safe"}}},
+	}}}}
+	require.ErrorContains(t, sets.ValidateGeneratedIdentifiers(), "BuildOptionsModesFast")
+}
+
 func TestOptionsTemplateGeneratesWrapperValidation(t *testing.T) {
 	t.Parallel()
 	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/options.go.tmpl")

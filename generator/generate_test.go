@@ -438,7 +438,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out, nil)
 
 		assert.NoError(t, err)
 
@@ -464,7 +464,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out, nil)
 
 		assert.NoError(t, err)
 
@@ -485,7 +485,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test-not-exist.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test-not-exist.go.tmpl"), out, nil)
 
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 
@@ -503,7 +503,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		cancel()
 
-		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test.go.tmpl"), out, nil)
 
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 

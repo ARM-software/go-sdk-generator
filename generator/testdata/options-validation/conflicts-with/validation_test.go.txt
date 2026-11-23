@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestConflictsWith(t *testing.T) {
+	tests := []struct {
+		name      string
+		options   []BuildOption
+		wantError bool
+	}{
+		{name: "neither enabled"},
+		{name: "only alpha enabled", options: []BuildOption{WithAlpha("alpha")}},
+		{name: "only beta enabled", options: []BuildOption{WithBeta("beta")}},
+		{name: "both enabled", options: []BuildOption{WithAlpha("alpha"), WithBeta("beta")}, wantError: true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			opt := WithBuildOptions(test.options...)
+			err := opt.Validate()
+			if test.wantError {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}

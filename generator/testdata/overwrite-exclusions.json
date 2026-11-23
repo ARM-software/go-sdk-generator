@@ -1,0 +1,35 @@
+{
+  "manifest": "../generate.yml",
+  "exclude_groups": ["project", "agent", "sdk", "cli-implementation"],
+  "only_groups": ["ci"],
+  "only_files": ["cli/cmd/root.go"],
+  "exclude_files": [
+    "README.md",
+    "actions/generate/action.yml",
+    "actions/_shared/install-and-run.sh",
+    ".qlty\\qlty.toml",
+    "unmatched.txt"
+  ],
+  "preserved": [
+    "pyproject.toml",
+    ".github/dependabot.yml",
+    "agent.md",
+    ".github/copilot-instructions.md",
+    ".agents/skills/run-go-sdk-generator/SKILL.md",
+    "generator/skills/run-go-sdk-generator/SKILL.md",
+    "cli/cmd/module.properties",
+    ".gitattributes",
+    "README.md",
+    "generator/generator.go",
+    "generator/interfaces.go",
+    "generator/config/generator.go",
+    "generator/options/generator.go",
+    "generator/options/enums.go",
+    "cli/cmd/generator/implementations.go",
+    "cli/cmd/config/generator.go",
+    "actions/generate/action.yml",
+    "actions/_shared/install-and-run.sh",
+    ".qlty/qlty.toml"
+  ],
+  "regenerated": ["cli/cmd/root.go", ".github/workflows/ci.yml"]
+}

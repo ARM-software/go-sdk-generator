@@ -5,6 +5,7 @@
 package generator
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"text/template"
@@ -133,6 +134,47 @@ func TestEmbeddedCLISkillTemplateIncludesExamples(t *testing.T) {
 	require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
 	assert.Contains(t, b.String(), `Example: "https://example.com".`)
 	assert.NotContains(t, b.String(), "example-tool credentials")
+}
+
+func TestEmbeddedCLISkillTemplateUsesBindingDescriptions(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, cliSkillFile)
+	require.NoError(t, err)
+	for _, required := range []bool{false, true} {
+		t.Run(fmt.Sprintf("required=%t", required), func(t *testing.T) {
+			data := &DataModel{SDK: SDK{Specification: SDKSpecification{
+				Name: field.ToOptionalString("Example"), PackageName: "example", MainModule: "example",
+				Description: field.ToOptionalString("Example CLI skill."),
+				CommandLineCommands: &CommandLineCommands{Binary: field.ToOptionalString("example"), Functions: []CliFunction{{
+					Name: "Generate", Configuration: []FunctionConfigFields{{
+						Name: "Overwrite", LangType: "options.OverwriteOptions", MapstructureTag: "overwrite",
+						Description: "Parent option-set description.", Required: required,
+						DefaultValue: field.ToOptionalString("*options.DefaultOverwriteOptions()"),
+						Bindings: []Binding{
+							{Name: field.ToOptionalString("Enabled"), Arg: field.ToOptionalString("overwrite"), Description: field.ToOptionalString("overwrite state files")},
+							{Name: field.ToOptionalString("ExcludeFiles"), Arg: field.ToOptionalString("exclude-files"), Description: field.ToOptionalString("Files to preserve."), Example: field.ToOptionalString("README.md")},
+							{Name: field.ToOptionalString("Internal"), Arg: field.ToOptionalString("internal-flag"), Description: field.ToOptionalString("Hidden binding."), Hidden: true},
+						},
+					}, {
+						Name: "Internal", MapstructureTag: "hidden-parent", Description: "Hidden parent.", Hidden: true,
+					}},
+				}}},
+			}}}
+			var b strings.Builder
+			require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
+			output := b.String()
+			assert.Contains(t, output, "- `overwrite`: overwrite state files")
+			assert.Contains(t, output, "- `exclude-files`: Files to preserve. Example: \"README.md\".")
+			assert.NotContains(t, output, "Parent option-set description.")
+			assert.NotContains(t, output, "internal-flag")
+			assert.NotContains(t, output, "hidden-parent")
+			assert.NotContains(t, output, "DefaultOverwriteOptions")
+			if required {
+				assert.Contains(t, output, "Optional:\n- none")
+			} else {
+				assert.Contains(t, output, "Required:\n- none")
+			}
+		})
+	}
 }
 
 func TestEmbeddedCLISkillTemplateIncludesCredentialsGuidanceWhenManifestDefinesSecretInputs(t *testing.T) {

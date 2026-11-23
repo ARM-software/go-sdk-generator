@@ -8,6 +8,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"maps"
 	"path"
 	"slices"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	modsemver "golang.org/x/mod/semver"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/field"
@@ -97,6 +99,159 @@ const (
 	yamlLintFile                 = "templates/yamllint.tmpl"
 )
 
+type generatedFileGroupDefinition struct {
+	paths           []string
+	additionalPaths func(*SDKSpecification, []GeneratedAction) []string
+}
+
+// generatedFileGroups lists exact output-relative paths alongside the template
+// definitions. Paths that depend on the manifest are resolved for each generation.
+var generatedFileGroups = map[string]generatedFileGroupDefinition{
+	options.OverwriteOptionsExcludeGroupsCI.String(): {
+		paths: []string{
+			".github/workflows/ci.yml", ".github/workflows/upgrade-generator.yml",
+			".github/workflows/dependabot.yml", ".github/workflows/release.yml",
+			".github/workflows/licensing.yml", ".github/workflows/sbom.yml", ".github/workflows/lint-actions.yml",
+			".goreleaser.yml",
+		},
+		additionalPaths: func(spec *SDKSpecification, actions []GeneratedAction) []string {
+			paths := []string{"Dockerfile." + spec.MainModule}
+			if spec.CommandLineCommands != nil {
+				paths = append(paths, "scripts/pre.sh")
+				if spec.DistributeOci != nil {
+					paths = append(paths, "Dockerfile.oci.alpine", "Dockerfile.oci.ubuntu")
+				}
+			}
+			for _, action := range actions {
+				paths = append(paths, path.Join("actions", action.DirectoryName, "action.yml"))
+			}
+			if len(actions) > 0 {
+				paths = append(paths, "actions/_shared/install-and-run.sh")
+			}
+			return paths
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsLinters.String(): {
+		paths: []string{".golangci.yaml", ".golangci.pre-commit.yaml", ".editorconfig", ".pre-commit-config.yaml", ".checkov.yaml", ".yamllint", ".qlty/qlty.toml"},
+	},
+	options.OverwriteOptionsExcludeGroupsGomod.String(): {
+		additionalPaths: func(spec *SDKSpecification, _ []GeneratedAction) []string {
+			paths := []string{path.Join(spec.MainModule, "go.mod")}
+			if cli := spec.CommandLineCommands; cli != nil {
+				paths = append(paths, "go.work", path.Join(cli.Package, "go.mod"))
+			}
+			return paths
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsCLI.String(): {
+		additionalPaths: func(spec *SDKSpecification, _ []GeneratedAction) []string {
+			cli := spec.CommandLineCommands
+			if cli == nil {
+				return nil
+			}
+			return collection.Map([]string{
+				"main.go", "cmd/" + spec.MainModule + ".go", "cmd/root.go",
+				"cmd/config/" + spec.MainModule + ".go", "cmd/config/" + spec.MainModule + "_test.go", "cmd/config/enums.go",
+				"cmd/" + spec.MainModule + "/wrappers.go",
+				"internal/secretutil/secret.go", "cmd/module.properties",
+			}, func(file string) string { return path.Join(cli.Package, file) })
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsCLIImplementation.String(): {
+		additionalPaths: func(spec *SDKSpecification, _ []GeneratedAction) []string {
+			if cli := spec.CommandLineCommands; cli != nil {
+				localFs := filesystem.GetGlobalFileSystem()
+				return []string{filesystem.FilePathToSlash(localFs, filesystem.FilePathJoin(localFs, cli.Package, "cmd", spec.MainModule, "implementations.go"))}
+			}
+			return nil
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsSDK.String(): {
+		additionalPaths: func(spec *SDKSpecification, _ []GeneratedAction) []string {
+			localFs := filesystem.GetGlobalFileSystem()
+			sdkPath := func(elements ...string) string {
+				return filesystem.FilePathToSlash(localFs, filesystem.FilePathJoin(localFs, append([]string{spec.MainModule}, elements...)...))
+			}
+			filename := spec.MainModule + ".go"
+			paths := []string{sdkPath(filename), sdkPath("interfaces.go"), sdkPath("config", filename)}
+			if hasInterfaceEnums(spec) {
+				paths = append(paths, sdkPath("enums.go"))
+			}
+			if hasConfigEnums(spec) {
+				paths = append(paths, sdkPath("config", "enums.go"))
+			}
+			types := groupAdditionalTypesByPackage(spec.AdditionalTypes)
+			paths = append(paths, collection.FlatMap(sortedAdditionalTypePackages(spec.AdditionalTypes), func(pkg string) []string {
+				outputs := []string{sdkPath(pkg, filename)}
+				if types[pkg].HasEnum() {
+					outputs = append(outputs, sdkPath(pkg, "enums.go"))
+				}
+				return outputs
+			})...)
+			optionSets := groupOptionSetsByPackage(spec.Options)
+			return append(paths, collection.FlatMap(sortedOptionPackages(spec.Options), func(pkg string) []string {
+				outputs := []string{sdkPath(pkg, filename)}
+				if optionSets[pkg].HasEnum() {
+					outputs = append(outputs, sdkPath(pkg, "enums.go"))
+				}
+				return outputs
+			})...)
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsReadme.String(): {
+		paths: []string{"README.md"},
+	},
+	options.OverwriteOptionsExcludeGroupsProject.String(): {
+		paths: []string{
+			"pyproject.toml", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/workflows/dependabot.yml",
+			".github/PULL_REQUEST_TEMPLATE.md", ".gitignore", ".gitattributes", "DOCUMENTATION.md",
+			"CONTRIBUTING.md", "DEVELOPMENT.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "KNOWN_ISSUES.md",
+		},
+		additionalPaths: func(spec *SDKSpecification, _ []GeneratedAction) []string {
+			if cli := spec.CommandLineCommands; cli != nil {
+				return []string{path.Join(cli.Package, "cmd/module.properties")}
+			}
+			return []string{"module.properties"}
+		},
+	},
+	options.OverwriteOptionsExcludeGroupsAgent.String(): {
+		additionalPaths: func(spec *SDKSpecification, actions []GeneratedAction) []string {
+			var paths []string
+			if cli := spec.CommandLineCommands; cli != nil {
+				binary := field.OptionalString(cli.Binary, "")
+				paths = append(paths, "agent.md", ".github/copilot-instructions.md",
+					path.Join(".agents/skills", runSkillName(binary), "SKILL.md"),
+					path.Join(".agents/skills", installSkillName(binary), "SKILL.md"),
+				)
+				if len(actions) > 0 {
+					paths = append(paths, path.Join(".agents/skills", githubActionSkillName(binary), "SKILL.md"))
+				}
+			}
+			if spec.PackageName == "go-sdk-generator" {
+				for _, skill := range embeddedAgentSkillPaths {
+					paths = append(paths, path.Join("generator/skills", skill))
+				}
+			}
+			return paths
+		},
+	},
+}
+
+// resolveGeneratedFileGroups combines fixed paths with paths derived from the
+// manifest and generated actions. Each result owns its path slices so callers
+// cannot modify the shared group definitions.
+func resolveGeneratedFileGroups(spec *SDKSpecification, actions []GeneratedAction) map[string][]string {
+	return collection.ReducesSequence(maps.Keys(generatedFileGroups), make(map[string][]string, len(generatedFileGroups)), func(groups map[string][]string, name string) map[string][]string {
+		definition := generatedFileGroups[name]
+		paths := slices.Clone(definition.paths)
+		if definition.additionalPaths != nil {
+			paths = append(paths, definition.additionalPaths(spec, actions)...)
+		}
+		groups[name] = paths
+		return groups
+	})
+}
+
 //go:embed templates
 var fs embed.FS
 
@@ -105,8 +260,8 @@ type templateToPopulate struct {
 	output       string
 }
 
-func (t *templateToPopulate) Populate(ctx context.Context, data *DataModel) (err error) {
-	err = populateTemplate(ctx, data, t.templateFile, t.output)
+func (t *templateToPopulate) Populate(ctx context.Context, data *DataModel, overwriteRules *overwrite) (err error) {
+	err = populateTemplate(ctx, data, t.templateFile, t.output, overwriteRules)
 	return
 }
 
@@ -122,9 +277,9 @@ type templates struct {
 	toTrack    []string
 }
 
-func (t *templates) Populate(ctx context.Context, data *DataModel) (files []string, err error) {
+func (t *templates) Populate(ctx context.Context, data *DataModel, overwriteRules *overwrite) (files []string, err error) {
 	for _, tp := range t.toGenerate {
-		err = tp.Populate(ctx, data)
+		err = tp.Populate(ctx, data, overwriteRules)
 		if err != nil {
 			return
 		}
@@ -166,7 +321,7 @@ type GenerationOutput struct {
 	GeneratedFiles []string
 }
 
-func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data *T, templateFile string, output string) (err error) {
+func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data *T, templateFile string, output string, overwriteRules *overwrite) (err error) {
 	err = parallelisation.DetermineContextError(ctx)
 	if err != nil {
 		return
@@ -175,6 +330,9 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	if data == nil {
 		err = commonerrors.UndefinedVariable("data model")
 		return
+	}
+	if !overwriteRules.shouldInclude(output) {
+		return nil
 	}
 
 	localFs := filesystem.GetGlobalFileSystem()
@@ -240,10 +398,14 @@ func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data 
 	return
 }
 
-func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGeneratorManagerConfiguration) (err error) {
+func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGeneratorManagerConfiguration, overwriteOptions ...options.OverwriteOption) (err error) {
 	if cfg == nil {
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
+	}
+	overwriteRules, err := newOverwrite(cfg.Output, cfg.Overwrite, overwriteOptions...)
+	if err != nil {
+		return err
 	}
 
 	if reflection.IsEmpty(cfg.Input) {
@@ -418,6 +580,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 
 	generateAction := len(generatedActions) > 0
+	overwriteRules.addGeneratedGroups(resolveGeneratedFileGroups(&sdk.Specification, generatedActions))
 	if onGithub && generateAction {
 		templatesToPopulate.addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), cfg.Overwrite, true)
 	}
@@ -520,7 +683,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 	data.InstallAction, data.CommandActions = splitGeneratedActions(generatedActions)
 
-	generated, err := templatesToPopulate.Populate(ctx, data)
+	generated, err := templatesToPopulate.Populate(ctx, data, overwriteRules)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate templates")
 		return
@@ -534,14 +697,14 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 			packageData.CurrentAdditionalTypes = groupedTypes[pkg]
 
 			typeOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
-			if subErr := populateTemplate(ctx, &packageData, typesFile, typeOutput); subErr != nil {
+			if subErr := populateTemplate(ctx, &packageData, typesFile, typeOutput, overwriteRules); subErr != nil {
 				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate types template")
 			}
 			generated = append(generated, typeOutput)
 
 			if groupedTypes[pkg].HasEnum() {
 				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
-				if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput); subErr != nil {
+				if subErr := populateTemplate(ctx, &packageData, typesEnumFile, enumOutput, overwriteRules); subErr != nil {
 					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate type enums template")
 				}
 				generated = append(generated, enumOutput)
@@ -561,14 +724,14 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 			packageData.CurrentOptionSets = groupedOptionSets[pkg]
 
 			optionOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, fmt.Sprintf("%v.go", sdk.Specification.MainModule))
-			if subErr := populateTemplate(ctx, &packageData, optionsFile, optionOutput); subErr != nil {
+			if subErr := populateTemplate(ctx, &packageData, optionsFile, optionOutput, overwriteRules); subErr != nil {
 				return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate options template")
 			}
 			generated = append(generated, optionOutput)
 
 			if groupedOptionSets[pkg].HasEnum() {
 				enumOutput := filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, pkg, "enums.go")
-				if subErr := populateTemplate(ctx, &packageData, optionsEnumFile, enumOutput); subErr != nil {
+				if subErr := populateTemplate(ctx, &packageData, optionsEnumFile, enumOutput, overwriteRules); subErr != nil {
 					return commonerrors.WrapError(commonerrors.ErrUnexpected, subErr, "could not populate option enums template")
 				}
 				generated = append(generated, enumOutput)
@@ -581,7 +744,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 
 	if sdk.Specification.PackageName == "go-sdk-generator" {
-		generated, err = copyGoSDKGeneratorSkillsForEmbedding(cfg.Output, generated)
+		generated, err = copyGoSDKGeneratorSkillsForEmbedding(cfg.Output, generated, overwriteRules)
 		if err != nil {
 			return
 		}
@@ -597,7 +760,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		}
 
 		for _, actionOutput := range actionOutputs {
-			if err = actionOutput.Populate(ctx, &actionData); err != nil {
+			if err = actionOutput.Populate(ctx, &actionData, overwriteRules); err != nil {
 				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not populate action %q", action.DirectoryName)
 				return
 			}
@@ -608,7 +771,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 
 	if generateAction {
 		sharedActionOutput := NewTemplateToPopulate(actionSharedScriptFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "_shared", "install-and-run.sh"))
-		if err = sharedActionOutput.Populate(ctx, data); err != nil {
+		if err = sharedActionOutput.Populate(ctx, data, overwriteRules); err != nil {
 			err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not populate shared action runtime")
 			return
 		}
@@ -617,11 +780,11 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
 	generated = append(generated, qltyPath)
-	err = generateQltyFile(ctx, cfg, generated)
+	err = generateQltyFile(ctx, cfg, generated, overwriteRules)
 	if err != nil {
 		return
 	}
-	err = generateGitAttributesFile(ctx, cfg, generated)
+	err = generateGitAttributesFile(ctx, cfg, generated, overwriteRules)
 	return
 }
 
@@ -691,7 +854,7 @@ func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
 	return ""
 }
 
-func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) (updatedGenerated []string, err error) {
+func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string, overwriteRules *overwrite) (updatedGenerated []string, err error) {
 	updatedGenerated = generated
 	localFs := filesystem.GetGlobalFileSystem()
 
@@ -701,6 +864,11 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 	}
 
 	for _, skillPath := range embeddedAgentSkillPaths {
+		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
+		if overwriteRules.shouldExclude(embeddedPath) {
+			updatedGenerated = append(updatedGenerated, embeddedPath)
+			continue
+		}
 		sourcePath := filesystem.FilePathJoin(localFs, append([]string{skillsRoot}, strings.Split(skillPath, "/")...)...)
 		if !localFs.Exists(sourcePath) {
 			continue
@@ -712,7 +880,6 @@ func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string) 
 			return
 		}
 
-		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
 		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
 		if !localFs.Exists(embeddedDir) {
 			err = localFs.MkDir(embeddedDir)
@@ -772,7 +939,7 @@ func (t *templates) addProtectedStateFile(templateFile, dest string, overwrite b
 	)
 }
 
-func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, overwriteRules *overwrite) (err error) {
 	generated, err = relativeGeneratedFiles(cfg.Output, generated)
 	if err != nil {
 		return
@@ -781,7 +948,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
 		GeneratedFiles: generated,
-	}, gitAttributesFile, filesystem.FilePathJoin(filesystem.GetGlobalFileSystem(), cfg.Output, ".gitattributes"))
+	}, gitAttributesFile, filesystem.FilePathJoin(filesystem.GetGlobalFileSystem(), cfg.Output, ".gitattributes"), overwriteRules)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .gitattributes file")
 		return
@@ -790,7 +957,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	return
 }
 
-func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, overwriteRules *overwrite) (err error) {
 	localFs := filesystem.GetGlobalFileSystem()
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
 	if localFs.Exists(qltyPath) && !cfg.Overwrite {
@@ -805,7 +972,7 @@ func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfig
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
 		GeneratedFiles: generated,
-	}, qltyTemplateFile, qltyPath)
+	}, qltyTemplateFile, qltyPath, overwriteRules)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .qlty/qlty.toml file")
 		return

@@ -1,0 +1,58 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"errors"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+var errSelectedValue = errors.New("selected value is invalid")
+
+type PointerValidated struct{}
+
+func (*PointerValidated) Validate() error { return errSelectedValue }
+
+type ValueValidated struct{}
+
+func (ValueValidated) Validate() error { return errSelectedValue }
+
+type ScalarValidated string
+
+func (ScalarValidated) Validate() error { return errSelectedValue }
+
+func TestSelectedValidators(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		option BuildOption
+	}{
+		{name: "pointer_receiver", option: WithPointer(PointerValidated{})},
+		{name: "value_receiver", option: WithValue(ValueValidated{})},
+		{name: "pointer_backed_option", option: WithPointerRef(&PointerValidated{})},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			opt := DefaultBuildOptions()
+			test.option(opt)
+			require.ErrorIs(t, opt.Validate(), errSelectedValue)
+		})
+	}
+}
+
+func TestDisabledValidators(t *testing.T) {
+	opt := DefaultBuildOptions()
+	opt.PointerRef.PointerRef = &PointerValidated{}
+	require.NoError(t, opt.Validate())
+}
+
+func TestScalarValidator(t *testing.T) {
+	value := ScalarValidated("invalid")
+	var err error
+	require.NotPanics(t, func() {
+		err = validateOptionValue(&value, value)
+	})
+	require.ErrorIs(t, err, errSelectedValue)
+}

@@ -6,11 +6,12 @@ package generator
 
 import (
 	"bytes"
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	jsonutils "github.com/ARM-software/golang-utils/utils/serialisation/json"
 )
 
 func TestWriteEmbeddedSchemaJSON(t *testing.T) {
@@ -20,6 +21,6 @@ func TestWriteEmbeddedSchemaJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	var schema map[string]any
-	require.NoError(t, json.Unmarshal(output.Bytes(), &schema))
+	require.NoError(t, jsonutils.Unmarshal(output.Bytes(), &schema))
 	assert.Equal(t, "SDK", schema["title"])
 }

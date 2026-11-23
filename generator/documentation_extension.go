@@ -239,6 +239,12 @@ func cliConfigTestImports(spec *SDKSpecification, toolVersion string) []string {
 }
 
 func shouldAssignCLIConfigTestValue(cfg FunctionConfigFields, testValue string) bool {
+	if !cfg.IsRequired() && cfg.DefaultValue != nil && len(cfg.Bindings) > 0 {
+		return false
+	}
+	if !cfg.Required && cfg.Constraints != nil && cfg.Constraints.ForbiddenWhen != nil {
+		return false
+	}
 	if hasEnum(cfg.EffectiveEnum()) || reflection.IsEmpty(testValue) {
 		return false
 	}

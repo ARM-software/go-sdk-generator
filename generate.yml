@@ -8,6 +8,56 @@ specification:
   update_copyright_headers: true
   licence: Apache-2.0
   repository_url: https://github.com/ARM-software/go-sdk-generator
+  options:
+    - name: Overwrite
+      description: Settings defining how overwrite regeneration of the generated SDK should be performed.
+      enable_mode: together
+      functions:
+        - parameters:
+            - name: ExcludeGroups
+              lang_type: string
+              list: true
+              description: &exclude_groups_description >-
+                Generated SDK file groups to preserve when overwrite is enabled: ci (generated workflows, actions, release and container build files), linters (lint, editor, pre-commit and qlty configuration), gomod (Go module and workspace files), cli (generated CLI source and configuration, excluding command implementations), cli-implementation (CLI command implementations.go files), readme (README.md), project (repository/project support files including pyproject.toml, CODEOWNERS, Dependabot files, contribution/security documentation and similar project support metadata), agent (agent.md, Copilot instructions and generated skill files), sdk (generated SDK implementation, interfaces, configuration, additional types, options and enum definitions).
+              enum: &exclude_groups [ci, linters, gomod, cli, readme, project, agent, sdk, cli-implementation]
+              constraints:
+                forbidden_when:
+                  parameter: Enabled
+                  operator: not_equals
+                  value: true
+        - parameters:
+            - name: ExcludeFiles
+              lang_type: string
+              list: true
+              description: &exclude_files_description Exact basenames or output-relative paths to preserve in the generated SDK when overwrite is enabled. Both slash styles are accepted; absolute and escaping paths are rejected. Unmatched entries are ignored.
+              constraints:
+                forbidden_when:
+                  parameter: Enabled
+                  operator: not_equals
+                  value: true
+        - parameters:
+            - name: OnlyGroups
+              lang_type: string
+              list: true
+              description: &only_groups_description >-
+                Generate only files in the selected groups when overwrite is enabled. Uses the same group definitions as exclude-groups: ci, linters, gomod, cli, cli-implementation, readme, project, agent and sdk. Combines with only-files to select additional files; exclusions take precedence. Unmatched entries are ignored, and no files are generated if nothing matches. Supporting files must also be selected. If neither only option contains values, generation is unrestricted.
+              enum: *exclude_groups
+              constraints:
+                forbidden_when:
+                  parameter: Enabled
+                  operator: not_equals
+                  value: true
+        - parameters:
+            - name: OnlyFiles
+              lang_type: string
+              list: true
+              description: &only_files_description >-
+                Generate only exact basenames or output-relative paths when overwrite is enabled. Both slash styles are accepted; absolute and escaping paths are rejected. Combines with only-groups to select additional files; exclusions take precedence. Unmatched entries are ignored, and no files are generated if nothing matches. Supporting files must also be selected. If neither only option contains values, generation is unrestricted.
+              constraints:
+                forbidden_when:
+                  parameter: Enabled
+                  operator: not_equals
+                  value: true
   interface:
     notCloseable: true
     namespace: github.com/ARM-software/
@@ -18,6 +68,10 @@ specification:
           - name: logger
             lang_type: logs.Loggers
             description: Logger to use for informational generation messages
+          - name: overwriteOptions
+            lang_type: options.OverwriteOption
+            list: true
+            description: Settings defining how overwrite regeneration of the generated SDK should be performed.
         returns:
           - name: err
             lang_type: error
@@ -44,12 +98,41 @@ specification:
             required: true
             arg_short: "o"
             default_value: here
-          - name: Generate
-            lang_type: bool
+          - name: Overwrite
+            lang_type: options.OverwriteOptions
             mapstructure_tag: overwrite
-            description: regenerate all files
-            default_value: "false"
-            arg_short: "a"
+            description: Settings defining how overwrite regeneration of the generated SDK should be performed.
+            bindings:
+              - name: ExcludeGroups
+                lang_type: string
+                list: true
+                mapstructure_tag: exclude_groups
+                arg: exclude-groups
+                description: *exclude_groups_description
+              - name: Enabled
+                lang_type: bool
+                mapstructure_tag: enabled
+                arg: overwrite
+                arg_short: "a"
+                description: overwrite state files
+              - name: ExcludeFiles
+                lang_type: string
+                list: true
+                mapstructure_tag: exclude_files
+                arg: exclude-files
+                description: *exclude_files_description
+              - name: OnlyGroups
+                lang_type: string
+                list: true
+                mapstructure_tag: only_groups
+                arg: only-groups
+                description: *only_groups_description
+              - name: OnlyFiles
+                lang_type: string
+                list: true
+                mapstructure_tag: only_files
+                arg: only-files
+                description: *only_files_description
           - name: TargetedGo
             lang_type: version
             arg_short: "g"

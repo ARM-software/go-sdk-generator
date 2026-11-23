@@ -19,6 +19,7 @@ import (
 	reflect "reflect"
 
 	config "github.com/ARM-software/go-sdk-generator/generator/config"
+	options "github.com/ARM-software/go-sdk-generator/generator/options"
 	logs "github.com/ARM-software/golang-utils/utils/logs"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -48,17 +49,22 @@ func (m *MockISDKGeneratorManager) EXPECT() *MockISDKGeneratorManagerMockRecorde
 }
 
 // Generate mocks base method.
-func (m *MockISDKGeneratorManager) Generate(ctx context.Context, logger logs.Loggers) error {
+func (m *MockISDKGeneratorManager) Generate(ctx context.Context, logger logs.Loggers, overwriteOptions ...options.OverwriteOption) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Generate", ctx, logger)
+	varargs := []any{ctx, logger}
+	for _, a := range overwriteOptions {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Generate", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Generate indicates an expected call of Generate.
-func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx, logger any) *gomock.Call {
+func (mr *MockISDKGeneratorManagerMockRecorder) Generate(ctx, logger any, overwriteOptions ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*MockISDKGeneratorManager)(nil).Generate), ctx, logger)
+	varargs := append([]any{ctx, logger}, overwriteOptions...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generate", reflect.TypeOf((*MockISDKGeneratorManager)(nil).Generate), varargs...)
 }
 
 // GetConfig mocks base method.

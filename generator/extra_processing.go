@@ -1475,7 +1475,7 @@ func parseBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields, binding B
 
 	}
 
-	flagType, zeroVal := cliFlagTypeAndZeroValue(langType)
+	flagType, zeroVal := cliFlagTypeAndZeroValue(langType, binding.List)
 
 	description := binding.Description
 
@@ -1549,7 +1549,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 
 	}
 
-	flagType, zeroVal := cliFlagTypeAndZeroValue(langType)
+	flagType, zeroVal := cliFlagTypeAndZeroValue(langType, cfg.List)
 
 	desc, err := determineName(cfg.Description, "description")
 
@@ -1595,7 +1595,10 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 
 }
 
-func cliFlagTypeAndZeroValue(langType string) (flagType string, zeroVal string) {
+func cliFlagTypeAndZeroValue(langType string, list bool) (flagType string, zeroVal string) {
+	if list && convertLangType(langType) == "string" {
+		return "StringSlice", "[]string{}"
+	}
 
 	if !isBuiltInManifestLangType(langType) {
 

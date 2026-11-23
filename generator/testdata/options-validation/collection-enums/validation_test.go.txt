@@ -1,0 +1,27 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestEnumParsingAndStringValidation(t *testing.T) {
+	mode, err := BuildOptionsModesString("fast")
+	require.NoError(t, err)
+	require.Equal(t, BuildOptionsModesFast, mode)
+	_, err = BuildOptionsModesString("invalid")
+	require.Error(t, err)
+	opt := WithBuildOptions(WithModes([]string{mode.String(), BuildOptionsModesSafe.String()}))
+	WithStates(func(yield func(string) bool) { yield(BuildOptionsStatesReady.String()) })(opt)
+	require.NoError(t, opt.Validate())
+	WithModes([]string{BuildOptionsModesFast.String(), "invalid"})(opt)
+	require.Error(t, opt.Validate())
+	WithModes([]string{BuildOptionsModesSafe.String()})(opt)
+	WithStates(func(yield func(string) bool) { yield("invalid") })(opt)
+	require.Error(t, opt.Validate())
+}

@@ -1,0 +1,23 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestEnabledConstraints(t *testing.T) {
+	opt := DefaultBuildOptions()
+	require.NoError(t, opt.Validate())
+	opt.Tags = []string{"fast"}
+	require.Error(t, opt.Validate(), "disabled values must obey selection constraints")
+	opt.Enabled = true
+	require.Error(t, opt.Validate(), "the generated Enabled field can also govern required_when")
+	opt.Label = "build"
+	require.NoError(t, opt.Validate())
+	require.NoError(t, (*BuildOptions)(nil).Validate())
+}

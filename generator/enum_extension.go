@@ -69,13 +69,6 @@ func descriptionWithEnum(description string, enum []string) string {
 	return fmt.Sprintf("%s Allowed values: %s.", strings.TrimSpace(description), strings.Join(enum, ", "))
 }
 
-func enumValidationRule(ownerName, fieldName, langType string, reference bool, enum []string) string {
-	if !hasEnum(enum) {
-		return ""
-	}
-	return fmt.Sprintf(", validationUtils.Enum(%s)", enumConstRefs(ownerName, fieldName, langType, enum))
-}
-
 func fieldEnumValidationRule(ownerName, fieldName, langType string, reference bool, list bool, iterator bool, required bool, enum []string, fieldExpr string) string {
 	if !hasEnum(enum) {
 		return ""

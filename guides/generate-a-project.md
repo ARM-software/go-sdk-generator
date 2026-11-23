@@ -31,6 +31,8 @@ For a multi-module workspace, repeat the commands in each generated module rathe
 
 ## Change the contract later
 
+To refresh selected files or preserve customised scaffolding, use the overwrite selection flags described in [granular generation](granular-generation.md).
+
 1. Edit the manifest, checking [manifest authoring](write-a-manifest.md) for type and compatibility guidance.
 2. Re-run `go-sdk-generator generate` with the same input, output, and Go version.
 3. Review the file diff before accepting it. Generation preserves stateful files by default; `--overwrite` also regenerates them, including files such as `go.mod`. Use it only when you intend to replace and review that state.
