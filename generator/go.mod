@@ -12,7 +12,7 @@ tool (
 
 require (
 	github.com/ARM-software/golang-utils/utils/collection v1.172.0
-	github.com/ARM-software/golang-utils/utils/commonerrors v1.172.0
+	github.com/ARM-software/golang-utils/utils/commonerrors v1.173.0
 	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.172.0
 	github.com/ARM-software/golang-utils/utils/config v1.172.0
 	github.com/ARM-software/golang-utils/utils/field v1.172.0
