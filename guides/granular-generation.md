@@ -23,7 +23,7 @@ The selection options let you match the scope of regeneration to the task. Exclu
 go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 ```
 
-The generator creates missing files and refreshes contract-driven outputs, including SDK source, CLI declarations and wrappers, `DOCUMENTATION.md`, generated actions, agent-facing files and `.gitattributes`.
+The generator creates missing files and refreshes contract-driven outputs, including SDK source, CLI declarations and wrappers, `DOCUMENTATION.md`, generated actions, `agent.md`, Copilot instructions, run/action skills and `.gitattributes`.
 
 Existing stateful scaffolding is generally preserved, including `README.md`, Go module/workspace files, CI and lint configuration, and CLI `implementations.go`. Version-sensitive Dockerfiles also follow the generator's target-Go-version update rule.
 

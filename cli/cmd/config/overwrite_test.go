@@ -12,11 +12,11 @@ import (
 
 func TestGenerateOverwriteSelectionValidation(t *testing.T) {
 	for _, tc := range []struct {
-		name          string
-		overwrite     bool
-		groups, files []string
+		name                  string
+		overwrite             bool
+		groups, files         []string
 		onlyGroups, onlyFiles []string
-		invalid       bool
+		invalid               bool
 	}{
 		{name: "no exclusions"},
 		{name: "groups require overwrite", groups: []string{"project"}, invalid: true},

@@ -24,8 +24,8 @@ func TestOverwriteOnlySelection(t *testing.T) {
 		"example/example.go", "example/interfaces.go", "example/config/example.go", "example/go.mod",
 	}
 	for _, tc := range []struct {
-		name string
-		opts []options.OverwriteOption
+		name     string
+		opts     []options.OverwriteOption
 		included []string
 	}{
 		{name: "no selection", included: outputs},
@@ -69,8 +69,8 @@ func TestOverwriteOnlyFilesRejectUnsafePaths(t *testing.T) {
 func TestOverwriteOnlyOutputs(t *testing.T) {
 	localFs := filesystem.GetGlobalFileSystem()
 	for _, tc := range []struct {
-		name string
-		opts []options.OverwriteOption
+		name  string
+		opts  []options.OverwriteOption
 		files []string
 	}{
 		{name: "readme only", opts: []options.OverwriteOption{options.WithOnlyFiles([]string{"README.md"})}, files: []string{"README.md"}},
