@@ -58,6 +58,10 @@ Repository-level automation can also be controlled from the top level of `specif
 
 ## Model values deliberately
 
+For repeated values, see
+[collections, lists and iterators](collections-and-streams.md), covering shape flags,
+item enums, cardinality constraints and CLI input.
+
 - Use specific `lang_type` aliases such as `duration`, `uuid`, `filepath`, or `service` where they match the value. See [types, formats and defaults](types-and-defaults.md) for the complete built-in reference. Prefer `reference: true`, `list: true`, or `iterator: true` to encoding shapes into the type string; `list` and `iterator` cannot be combined.
 - Use `enum` for closed string choices, `constraints` for validation and relationships, and `example` or `examples` for representative values. These feed generated validation, help, documentation, and action inputs.
 - Keep truly shared values in `global_configuration`; put operation-specific values on that command. Mark credentials with `secret: true` and follow [secret management in generated CLI tools](secret-management.md) for storage and loading behaviour.

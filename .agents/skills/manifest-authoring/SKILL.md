@@ -101,13 +101,18 @@ This is intended for:
 - `string`
 - `reference: true` on a string-like value
 
-When present, `enum` should drive:
+For scalar strings, `enum` should drive:
 
 - generated Go enum definitions
 - generated validation
 - clearer CLI help text listing allowed values
 
 Use this when the value set is truly closed and stable. Do not use it for open-ended free text.
+
+String lists and iterators also support `enum`: it validates each item while
+retaining the collection's string item type. See
+[Manifest Collections](../manifest-collections/SKILL.md) for collection-specific
+guidance.
 
 ### Add `example` or `examples` when representative values help users
 
@@ -263,6 +268,11 @@ Avoid composed forms such as:
 unless there is a very specific repository constraint that the dedicated manifest flags cannot express.
 
 This keeps the manifest more declarative and lets the generator own the final Go type construction consistently.
+
+Use [Manifest Collections](../manifest-collections/SKILL.md) and the
+[collections guide](../../../guides/collections-and-streams.md) to check
+final-argument variadics, iterator consumption, item validation, examples and
+string-list CLI flags.
 
 It also keeps the manifest more Go-agnostic. Using separate shape flags such as `reference`, `list`, and `iterator` preserves the intent of the contract without baking Go syntax directly into the manifest. That makes the manifest easier to reason about as a language-neutral description and keeps the door open for other generators to interpret the same contract in other ways later.
 
