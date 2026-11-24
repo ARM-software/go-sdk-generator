@@ -22,7 +22,12 @@
 *.pem
 .idea
 .DS_Store
-.qlty/
+
+# Local Qlty output and caches
+/.qlty/logs
+/.qlty/out
+/.qlty/plugin_cachedir
+/.qlty/results
 {{ if .Specification.CommandLineCommands }}
 # used in build step
 dist

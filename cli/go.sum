@@ -53,6 +53,8 @@ github.com/ARM-software/golang-utils/utils/reflection v1.172.0 h1:vQM5ShB5y+kt4X
 github.com/ARM-software/golang-utils/utils/reflection v1.172.0/go.mod h1:IzsUjLP/ZDtGNXihDdUYB2inpy7BGIMHiuVr3DN/nHM=
 github.com/ARM-software/golang-utils/utils/resource v1.172.0 h1:DogpAkJdMUOmjLeP0nRKl8cYNAnG2OnaLblizHvuXFU=
 github.com/ARM-software/golang-utils/utils/resource v1.172.0/go.mod h1:zkR14xzrXOZJ7tQrijTJAEtp8YrH+Bl0hHAUqLGwuk4=
+github.com/ARM-software/golang-utils/utils/retry v1.172.0 h1:YrbjEJF/GSJzuZDKhOhk2njs7XydIU7C2OHie59v8E8=
+github.com/ARM-software/golang-utils/utils/retry v1.172.0/go.mod h1:8WfXW7QvMNXMD86v9UBEe/xI2RVs8KDbmN/jzd+2ZR8=
 github.com/ARM-software/golang-utils/utils/safecast v1.172.0 h1:gDXyYIx/s9HFiYBLfpktaYBsf2Yte7c8zynEqoM7hVM=
 github.com/ARM-software/golang-utils/utils/safecast v1.172.0/go.mod h1:dIK/qEab63ZrXRI3uUtCXV8YdomrmYrc/omckOtEv+M=
 github.com/ARM-software/golang-utils/utils/safeio v1.172.0 h1:FUDGngr/mvdEoeeHRAUIpmZG+1xfeHLo3PR/rRnYAGo=

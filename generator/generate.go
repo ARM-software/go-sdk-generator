@@ -76,6 +76,8 @@ const (
 	dependabotPublicFile         = "templates/dependabot.public.yml.tmpl"
 	prTemplateFile               = "templates/PULL_REQUEST_TEMPLATE.md.tmpl"
 	qltyTemplateFile             = "templates/qlty.toml.tmpl"
+	qltyTrivyFile                = "templates/qlty.trivy.yaml.tmpl"
+	qltyOSVScannerFile           = "templates/qlty.osv-scanner.sh.tmpl"
 	ciWorkflowFile               = "templates/ci.yml.tmpl"
 	ciWorkflowPublicFile         = "templates/ci.public.yml.tmpl"
 	lintActionsWorkflowFile      = "templates/lint-actions.yml.tmpl"
@@ -164,6 +166,7 @@ type DataModel struct {
 type GenerationOutput struct {
 	ToolVersion    string
 	GeneratedFiles []string
+	Dockerfile     string
 }
 
 func populateTemplate[T DataModel | GenerationOutput](ctx context.Context, data *T, templateFile string, output string) (err error) {
@@ -372,6 +375,8 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
 	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
 	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
+	templatesToPopulate.addStateFile(qltyTrivyFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "configs", "trivy.yaml"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(qltyOSVScannerFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "scripts", "osv-scanner.sh"), cfg.Overwrite, true)
 
 	updateGoVersion := shouldRegenerateVersionSensitiveStateFile(cfg.Overwrite, defaultGoVersion, requestedGoVersion)
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
@@ -617,7 +622,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
 	generated = append(generated, qltyPath)
-	err = generateQltyFile(ctx, cfg, generated)
+	err = generateQltyFile(ctx, cfg, generated, sdk.Specification.MainModule)
 	if err != nil {
 		return
 	}
@@ -790,7 +795,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 	return
 }
 
-func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string) (err error) {
+func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, mainModule string) (err error) {
 	localFs := filesystem.GetGlobalFileSystem()
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
 	if localFs.Exists(qltyPath) && !cfg.Overwrite {
@@ -802,9 +807,14 @@ func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfig
 		return
 	}
 
+	// OSV Scanner targets go.mod files, including those created by the generator.
+	excluded := collection.Filter(generated, func(file string) bool {
+		return path.Base(file) != "go.mod"
+	})
 	err = populateTemplate(ctx, &GenerationOutput{
 		ToolVersion:    field.OptionalString(cfg.ToolVersion, ""),
-		GeneratedFiles: generated,
+		GeneratedFiles: excluded,
+		Dockerfile:     fmt.Sprintf("Dockerfile.%s", mainModule),
 	}, qltyTemplateFile, qltyPath)
 	if err != nil {
 		err = commonerrors.WrapError(commonerrors.ErrUnexpected, err, "could not create .qlty/qlty.toml file")
