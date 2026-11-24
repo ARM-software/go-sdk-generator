@@ -321,7 +321,7 @@ func TestSummaryLoggerFactory(t *testing.T) {
 		logger := SummaryLoggerFactory(config.GenerateSummaryNone, "", baseLogger)
 		require.NotNil(t, logger)
 		require.NoError(t, logger.WriteString("hello"))
-		assert.Empty(t, string(baseLogger.GetLogContent()))
+		assert.Empty(t, baseLogger.GetLogContent())
 	})
 }
 
