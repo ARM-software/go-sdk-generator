@@ -50,6 +50,21 @@ To build the tool from the current `main` branch instead of installing a release
 
 Set `go-version` to the **generated project's** target Go version, not the version used to build the action. The action defaults to `summary=github`, `logger=rich` and `annotation=github`; `go-version` corresponds to the CLI flag `--go-version` (or `-g`).
 
+### Control summary output
+
+For summary-aware command actions, set `summary: none` to suppress the human-readable summary:
+
+```yaml
+- uses: ARM-software/go-sdk-generator/actions/generate@main
+  with:
+    input: generate.yml
+    output: .
+    go-version: '1.27.3'
+    summary: none
+```
+
+Choose a release or source revision that includes `none` support. This controls only the summary; normal logs, annotations and result output retain their own settings. The other destinations are `github` (the action default), `output` (console output), and `file` (requires `summary-file`). The equivalent CLI option is `--summary=none`.
+
 ## Install for later steps
 
 ```yaml
