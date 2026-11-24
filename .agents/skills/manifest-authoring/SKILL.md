@@ -294,6 +294,19 @@ But the manifest should still describe one concern cleanly rather than mixing un
 
 ## Practical Rules
 
+### Keep automatic generator upgrades enabled where possible
+
+The intention of automatic generator upgrades on Dependabot pull requests is to keep every project up to date, including its generated code and repository automation as dependencies evolve. Prefer leaving `specification.disable_dependabot_generator_workflow` omitted or `false` (the default).
+
+In some circumstances, automatic regeneration can cause problems. For example, a repository may use unreleased generator features that the released generator action cannot yet handle. Regeneration during a dependency upgrade can then produce incompatible output or fail CI. This generator's own repository opts out for that reason:
+
+```yaml
+specification:
+  disable_dependabot_generator_workflow: true
+```
+
+Use this exception for a concrete compatibility issue, and reconsider it when the released generator supports the project again. Scheduled and manual generator upgrades remain available. Regenerate with `--overwrite` to apply a changed setting to an existing workflow.
+
 ### Handle breaking changes through deprecation, not abrupt deletion
 
 If you are changing an existing manifest contract, treat the following as breaking changes unless proven otherwise:
