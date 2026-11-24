@@ -1,0 +1,1 @@
+:bug: Allow generated Qlty configuration and scripts to be tracked in Git while ignoring local Qlty caches and output.
