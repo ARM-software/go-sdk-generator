@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 	"text/template"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,7 +30,9 @@ import (
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 	"github.com/ARM-software/golang-utils/utils/hashing"
 	"github.com/ARM-software/golang-utils/utils/logs"
+	"github.com/ARM-software/golang-utils/utils/logs/logstest"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	"github.com/ARM-software/golang-utils/utils/retry"
 )
 
 func generatedModuleDirectories(ctx context.Context, t *testing.T, localFs filesystem.FS, generatedDir string) []string {
@@ -185,6 +188,40 @@ func runGeneratedGoCommand(ctx context.Context, t *testing.T, workDir string, go
 
 }
 
+func retryGeneratedGoModTidy(ctx context.Context, t *testing.T, run func() (string, error)) (string, error) {
+	t.Helper()
+	policy := retry.WithOptions(
+		retry.WithAttempts(3),
+		retry.WithExponentialBackoff(time.Second, 2*time.Second),
+	)(nil)
+	var output string
+	err := retry.RetryIf(ctx, logstest.NewTestLogger(t), policy, func() error {
+		var commandErr error
+		output, commandErr = run()
+		return commandErr
+	}, "go mod tidy encountered a transient download failure", func(_ error) bool {
+		return isTransientDependencyDownloadFailure(output)
+	})
+	if err != nil && ctx.Err() != nil {
+		return output, ctx.Err()
+	}
+	return output, err
+}
+
+func isTransientDependencyDownloadFailure(output string) bool {
+	return collection.AnyFunc([]string{
+		"INTERNAL_ERROR; received from peer",
+		"connection reset by peer",
+		"TLS handshake timeout",
+		"i/o timeout",
+		"502 Bad Gateway",
+		"503 Service Unavailable",
+		"504 Gateway Timeout",
+	}, func(marker string) bool {
+		return strings.Contains(output, marker)
+	})
+}
+
 func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generatedDir string, t *testing.T) {
 
 	t.Helper()
@@ -203,7 +240,7 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 
 		modulePattern := fmt.Sprintf("./%s/...", strings.ReplaceAll(moduleName, "\\", "/"))
 
-		t.Run(moduleName, func(t *testing.T) {
+		if !t.Run(moduleName, func(t *testing.T) {
 
 			t.Helper()
 
@@ -211,9 +248,11 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 
 			skipReason := ""
 
-			t.Run("go mod tidy", func(t *testing.T) {
+			if !t.Run("go mod tidy", func(t *testing.T) {
 
-				output, err := runGeneratedGoCommand(ctx, t, moduleDir, "off", "mod", "tidy")
+				output, err := retryGeneratedGoModTidy(ctx, t, func() (string, error) {
+					return runGeneratedGoCommand(ctx, t, moduleDir, "off", "mod", "tidy")
+				})
 
 				if err != nil && isPrivateDependencyFailure(output) {
 
@@ -227,9 +266,11 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 
 				require.NoError(t, err, "go %s failed in %s\n%s", strings.Join([]string{"mod", "tidy"}, " "), moduleDir, output)
 
-			})
+			}) {
+				return
+			}
 
-			t.Run("go generate", func(t *testing.T) {
+			if !t.Run("go generate", func(t *testing.T) {
 
 				if skipModuleVerification {
 
@@ -241,7 +282,9 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 
 				require.NoError(t, err, "go %s failed in %s\n%s", strings.Join([]string{"generate", modulePattern}, " "), moduleDir, output)
 
-			})
+			}) {
+				return
+			}
 
 			for _, command := range []struct {
 				name string
@@ -254,7 +297,7 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 				{name: "go test", args: []string{"test", "./..."}},
 			} {
 
-				t.Run(command.name, func(t *testing.T) {
+				if !t.Run(command.name, func(t *testing.T) {
 
 					if skipModuleVerification {
 
@@ -268,11 +311,17 @@ func buildGeneratedModules(ctx context.Context, localFs filesystem.FS, generated
 
 					require.NoError(t, err, "go %s failed in %s\n%s", strings.Join(args, " "), moduleDir, output)
 
-				})
+				}) {
+					return
+				}
 
 			}
 
-		})
+		}) {
+			// Abort this fixture: later modules can depend on the failed module,
+			// and fixture updates must not archive an unverified project.
+			t.FailNow()
+		}
 
 	}
 
