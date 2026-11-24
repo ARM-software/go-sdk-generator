@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-const _AgentLoggerName = "consoleplainrichjsonquietfilenonecustom"
+const _AgentLoggerName = "consolerichfilenonecustom"
 
-var _AgentLoggerIndex = [...]uint8{0, 7, 12, 16, 20, 25, 29, 33, 39}
+var _AgentLoggerIndex = [...]uint8{0, 7, 11, 15, 19, 25}
 
-const _AgentLoggerLowerName = "consoleplainrichjsonquietfilenonecustom"
+const _AgentLoggerLowerName = "consolerichfilenonecustom"
 
 func (i AgentLogger) String() string {
 	if i < 0 || i >= AgentLogger(len(_AgentLoggerIndex)-1) {
@@ -31,45 +31,33 @@ func (i AgentLogger) String() string {
 func _AgentLoggerNoOp() {
 	var x [1]struct{}
 	_ = x[AgentLoggerConsole-(0)]
-	_ = x[AgentLoggerPlain-(1)]
-	_ = x[AgentLoggerRich-(2)]
-	_ = x[AgentLoggerJSON-(3)]
-	_ = x[AgentLoggerQuiet-(4)]
-	_ = x[AgentLoggerFile-(5)]
-	_ = x[AgentLoggerNone-(6)]
-	_ = x[AgentLoggerCustom-(7)]
+	_ = x[AgentLoggerRich-(1)]
+	_ = x[AgentLoggerFile-(2)]
+	_ = x[AgentLoggerNone-(3)]
+	_ = x[AgentLoggerCustom-(4)]
 }
 
-var _AgentLoggerValues = []AgentLogger{AgentLoggerConsole, AgentLoggerPlain, AgentLoggerRich, AgentLoggerJSON, AgentLoggerQuiet, AgentLoggerFile, AgentLoggerNone, AgentLoggerCustom}
+var _AgentLoggerValues = []AgentLogger{AgentLoggerConsole, AgentLoggerRich, AgentLoggerFile, AgentLoggerNone, AgentLoggerCustom}
 
 var _AgentLoggerNameToValueMap = map[string]AgentLogger{
 	_AgentLoggerName[0:7]:        AgentLoggerConsole,
 	_AgentLoggerLowerName[0:7]:   AgentLoggerConsole,
-	_AgentLoggerName[7:12]:       AgentLoggerPlain,
-	_AgentLoggerLowerName[7:12]:  AgentLoggerPlain,
-	_AgentLoggerName[12:16]:      AgentLoggerRich,
-	_AgentLoggerLowerName[12:16]: AgentLoggerRich,
-	_AgentLoggerName[16:20]:      AgentLoggerJSON,
-	_AgentLoggerLowerName[16:20]: AgentLoggerJSON,
-	_AgentLoggerName[20:25]:      AgentLoggerQuiet,
-	_AgentLoggerLowerName[20:25]: AgentLoggerQuiet,
-	_AgentLoggerName[25:29]:      AgentLoggerFile,
-	_AgentLoggerLowerName[25:29]: AgentLoggerFile,
-	_AgentLoggerName[29:33]:      AgentLoggerNone,
-	_AgentLoggerLowerName[29:33]: AgentLoggerNone,
-	_AgentLoggerName[33:39]:      AgentLoggerCustom,
-	_AgentLoggerLowerName[33:39]: AgentLoggerCustom,
+	_AgentLoggerName[7:11]:       AgentLoggerRich,
+	_AgentLoggerLowerName[7:11]:  AgentLoggerRich,
+	_AgentLoggerName[11:15]:      AgentLoggerFile,
+	_AgentLoggerLowerName[11:15]: AgentLoggerFile,
+	_AgentLoggerName[15:19]:      AgentLoggerNone,
+	_AgentLoggerLowerName[15:19]: AgentLoggerNone,
+	_AgentLoggerName[19:25]:      AgentLoggerCustom,
+	_AgentLoggerLowerName[19:25]: AgentLoggerCustom,
 }
 
 var _AgentLoggerNames = []string{
 	_AgentLoggerName[0:7],
-	_AgentLoggerName[7:12],
-	_AgentLoggerName[12:16],
-	_AgentLoggerName[16:20],
-	_AgentLoggerName[20:25],
-	_AgentLoggerName[25:29],
-	_AgentLoggerName[29:33],
-	_AgentLoggerName[33:39],
+	_AgentLoggerName[7:11],
+	_AgentLoggerName[11:15],
+	_AgentLoggerName[15:19],
+	_AgentLoggerName[19:25],
 }
 
 // AgentLoggerString retrieves an enum value from the enum constants string name.

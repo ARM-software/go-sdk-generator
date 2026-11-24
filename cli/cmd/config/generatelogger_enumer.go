@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-const _GenerateLoggerName = "consoleplainrichjsonquietfilenonecustom"
+const _GenerateLoggerName = "consolerichfilenonecustom"
 
-var _GenerateLoggerIndex = [...]uint8{0, 7, 12, 16, 20, 25, 29, 33, 39}
+var _GenerateLoggerIndex = [...]uint8{0, 7, 11, 15, 19, 25}
 
-const _GenerateLoggerLowerName = "consoleplainrichjsonquietfilenonecustom"
+const _GenerateLoggerLowerName = "consolerichfilenonecustom"
 
 func (i GenerateLogger) String() string {
 	if i < 0 || i >= GenerateLogger(len(_GenerateLoggerIndex)-1) {
@@ -31,45 +31,33 @@ func (i GenerateLogger) String() string {
 func _GenerateLoggerNoOp() {
 	var x [1]struct{}
 	_ = x[GenerateLoggerConsole-(0)]
-	_ = x[GenerateLoggerPlain-(1)]
-	_ = x[GenerateLoggerRich-(2)]
-	_ = x[GenerateLoggerJSON-(3)]
-	_ = x[GenerateLoggerQuiet-(4)]
-	_ = x[GenerateLoggerFile-(5)]
-	_ = x[GenerateLoggerNone-(6)]
-	_ = x[GenerateLoggerCustom-(7)]
+	_ = x[GenerateLoggerRich-(1)]
+	_ = x[GenerateLoggerFile-(2)]
+	_ = x[GenerateLoggerNone-(3)]
+	_ = x[GenerateLoggerCustom-(4)]
 }
 
-var _GenerateLoggerValues = []GenerateLogger{GenerateLoggerConsole, GenerateLoggerPlain, GenerateLoggerRich, GenerateLoggerJSON, GenerateLoggerQuiet, GenerateLoggerFile, GenerateLoggerNone, GenerateLoggerCustom}
+var _GenerateLoggerValues = []GenerateLogger{GenerateLoggerConsole, GenerateLoggerRich, GenerateLoggerFile, GenerateLoggerNone, GenerateLoggerCustom}
 
 var _GenerateLoggerNameToValueMap = map[string]GenerateLogger{
 	_GenerateLoggerName[0:7]:        GenerateLoggerConsole,
 	_GenerateLoggerLowerName[0:7]:   GenerateLoggerConsole,
-	_GenerateLoggerName[7:12]:       GenerateLoggerPlain,
-	_GenerateLoggerLowerName[7:12]:  GenerateLoggerPlain,
-	_GenerateLoggerName[12:16]:      GenerateLoggerRich,
-	_GenerateLoggerLowerName[12:16]: GenerateLoggerRich,
-	_GenerateLoggerName[16:20]:      GenerateLoggerJSON,
-	_GenerateLoggerLowerName[16:20]: GenerateLoggerJSON,
-	_GenerateLoggerName[20:25]:      GenerateLoggerQuiet,
-	_GenerateLoggerLowerName[20:25]: GenerateLoggerQuiet,
-	_GenerateLoggerName[25:29]:      GenerateLoggerFile,
-	_GenerateLoggerLowerName[25:29]: GenerateLoggerFile,
-	_GenerateLoggerName[29:33]:      GenerateLoggerNone,
-	_GenerateLoggerLowerName[29:33]: GenerateLoggerNone,
-	_GenerateLoggerName[33:39]:      GenerateLoggerCustom,
-	_GenerateLoggerLowerName[33:39]: GenerateLoggerCustom,
+	_GenerateLoggerName[7:11]:       GenerateLoggerRich,
+	_GenerateLoggerLowerName[7:11]:  GenerateLoggerRich,
+	_GenerateLoggerName[11:15]:      GenerateLoggerFile,
+	_GenerateLoggerLowerName[11:15]: GenerateLoggerFile,
+	_GenerateLoggerName[15:19]:      GenerateLoggerNone,
+	_GenerateLoggerLowerName[15:19]: GenerateLoggerNone,
+	_GenerateLoggerName[19:25]:      GenerateLoggerCustom,
+	_GenerateLoggerLowerName[19:25]: GenerateLoggerCustom,
 }
 
 var _GenerateLoggerNames = []string{
 	_GenerateLoggerName[0:7],
-	_GenerateLoggerName[7:12],
-	_GenerateLoggerName[12:16],
-	_GenerateLoggerName[16:20],
-	_GenerateLoggerName[20:25],
-	_GenerateLoggerName[25:29],
-	_GenerateLoggerName[29:33],
-	_GenerateLoggerName[33:39],
+	_GenerateLoggerName[7:11],
+	_GenerateLoggerName[11:15],
+	_GenerateLoggerName[15:19],
+	_GenerateLoggerName[19:25],
 }
 
 // GenerateLoggerString retrieves an enum value from the enum constants string name.

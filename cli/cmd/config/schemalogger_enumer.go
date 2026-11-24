@@ -13,11 +13,11 @@ import (
 	"strings"
 )
 
-const _SchemaLoggerName = "consoleplainrichjsonquietfilenonecustom"
+const _SchemaLoggerName = "consolerichfilenonecustom"
 
-var _SchemaLoggerIndex = [...]uint8{0, 7, 12, 16, 20, 25, 29, 33, 39}
+var _SchemaLoggerIndex = [...]uint8{0, 7, 11, 15, 19, 25}
 
-const _SchemaLoggerLowerName = "consoleplainrichjsonquietfilenonecustom"
+const _SchemaLoggerLowerName = "consolerichfilenonecustom"
 
 func (i SchemaLogger) String() string {
 	if i < 0 || i >= SchemaLogger(len(_SchemaLoggerIndex)-1) {
@@ -31,45 +31,33 @@ func (i SchemaLogger) String() string {
 func _SchemaLoggerNoOp() {
 	var x [1]struct{}
 	_ = x[SchemaLoggerConsole-(0)]
-	_ = x[SchemaLoggerPlain-(1)]
-	_ = x[SchemaLoggerRich-(2)]
-	_ = x[SchemaLoggerJSON-(3)]
-	_ = x[SchemaLoggerQuiet-(4)]
-	_ = x[SchemaLoggerFile-(5)]
-	_ = x[SchemaLoggerNone-(6)]
-	_ = x[SchemaLoggerCustom-(7)]
+	_ = x[SchemaLoggerRich-(1)]
+	_ = x[SchemaLoggerFile-(2)]
+	_ = x[SchemaLoggerNone-(3)]
+	_ = x[SchemaLoggerCustom-(4)]
 }
 
-var _SchemaLoggerValues = []SchemaLogger{SchemaLoggerConsole, SchemaLoggerPlain, SchemaLoggerRich, SchemaLoggerJSON, SchemaLoggerQuiet, SchemaLoggerFile, SchemaLoggerNone, SchemaLoggerCustom}
+var _SchemaLoggerValues = []SchemaLogger{SchemaLoggerConsole, SchemaLoggerRich, SchemaLoggerFile, SchemaLoggerNone, SchemaLoggerCustom}
 
 var _SchemaLoggerNameToValueMap = map[string]SchemaLogger{
 	_SchemaLoggerName[0:7]:        SchemaLoggerConsole,
 	_SchemaLoggerLowerName[0:7]:   SchemaLoggerConsole,
-	_SchemaLoggerName[7:12]:       SchemaLoggerPlain,
-	_SchemaLoggerLowerName[7:12]:  SchemaLoggerPlain,
-	_SchemaLoggerName[12:16]:      SchemaLoggerRich,
-	_SchemaLoggerLowerName[12:16]: SchemaLoggerRich,
-	_SchemaLoggerName[16:20]:      SchemaLoggerJSON,
-	_SchemaLoggerLowerName[16:20]: SchemaLoggerJSON,
-	_SchemaLoggerName[20:25]:      SchemaLoggerQuiet,
-	_SchemaLoggerLowerName[20:25]: SchemaLoggerQuiet,
-	_SchemaLoggerName[25:29]:      SchemaLoggerFile,
-	_SchemaLoggerLowerName[25:29]: SchemaLoggerFile,
-	_SchemaLoggerName[29:33]:      SchemaLoggerNone,
-	_SchemaLoggerLowerName[29:33]: SchemaLoggerNone,
-	_SchemaLoggerName[33:39]:      SchemaLoggerCustom,
-	_SchemaLoggerLowerName[33:39]: SchemaLoggerCustom,
+	_SchemaLoggerName[7:11]:       SchemaLoggerRich,
+	_SchemaLoggerLowerName[7:11]:  SchemaLoggerRich,
+	_SchemaLoggerName[11:15]:      SchemaLoggerFile,
+	_SchemaLoggerLowerName[11:15]: SchemaLoggerFile,
+	_SchemaLoggerName[15:19]:      SchemaLoggerNone,
+	_SchemaLoggerLowerName[15:19]: SchemaLoggerNone,
+	_SchemaLoggerName[19:25]:      SchemaLoggerCustom,
+	_SchemaLoggerLowerName[19:25]: SchemaLoggerCustom,
 }
 
 var _SchemaLoggerNames = []string{
 	_SchemaLoggerName[0:7],
-	_SchemaLoggerName[7:12],
-	_SchemaLoggerName[12:16],
-	_SchemaLoggerName[16:20],
-	_SchemaLoggerName[20:25],
-	_SchemaLoggerName[25:29],
-	_SchemaLoggerName[29:33],
-	_SchemaLoggerName[33:39],
+	_SchemaLoggerName[7:11],
+	_SchemaLoggerName[11:15],
+	_SchemaLoggerName[15:19],
+	_SchemaLoggerName[19:25],
 }
 
 // SchemaLoggerString retrieves an enum value from the enum constants string name.
