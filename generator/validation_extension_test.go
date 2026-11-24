@@ -25,6 +25,7 @@ func TestPatternValidationRuleProducesValidGo(t *testing.T) {
 		{pattern: `^(fast|safe)$`, expected: ", validationUtils.Pattern(regexp.MustCompile(`^(fast|safe)$`))"},
 		{pattern: `^[a-z]+\.json$`, expected: ", validationUtils.Pattern(regexp.MustCompile(`^[a-z]+\\.json$`))"},
 		{pattern: "^[^;&|$`]*$", expected: `, validationUtils.Pattern(regexp.MustCompile("^[^;&|$` + "`" + `]*$"))`},
+		{pattern: "^\\d+`\\w+$", expected: ", validationUtils.Pattern(regexp.MustCompile(\"^\\\\d+`\\\\w+$\"))"},
 	}
 	for i := range tests {
 		test := tests[i]
