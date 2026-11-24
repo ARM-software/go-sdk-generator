@@ -314,6 +314,15 @@ func TestSummaryLoggerFactory(t *testing.T) {
 		require.NoError(t, logger.WriteString("hello"))
 		assert.Contains(t, baseLogger.GetSummary(), "hello")
 	})
+
+	t.Run("uses noop logger for disabled summaries", func(t *testing.T) {
+		baseLogger, err := logs.NewPlainStringLogger()
+		require.NoError(t, err)
+		logger := SummaryLoggerFactory(config.GenerateSummaryNone, "", baseLogger)
+		require.NotNil(t, logger)
+		require.NoError(t, logger.WriteString("hello"))
+		assert.Empty(t, baseLogger.GetLogContent())
+	})
 }
 
 func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {

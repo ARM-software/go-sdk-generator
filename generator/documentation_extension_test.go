@@ -509,7 +509,7 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 								Name:            summaryArgument,
 								LangType:        stringLangType,
 								DefaultValue:    field.ToOptionalString(SummaryDestinationOutput.String()),
-								Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
+								Enum:            []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String(), SummaryDestinationNone.String()},
 								MapstructureTag: summaryMapstructureTag,
 								Description:     "summary destination",
 							},
@@ -551,7 +551,7 @@ func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {
 	assert.NotContains(t, output, "func validateGenerateSummaryConfiguration(cfg *GenerateConfiguration) error {")
 	assert.Contains(t, output, "err = validationUtils.NewAllRule(")
 	assert.Contains(t, output, "validationUtils.FieldDependencyBy(map[any][]any{&cfg.SummaryFile: []any{&cfg.Summary}})")
-	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String()))")
+	assert.Contains(t, output, "validation.When(reflection.IsNotEmpty(cfg.Summary), validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryGithub.String(), GenerateSummaryOutput.String(), GenerateSummaryNone.String()))")
 	assert.Contains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, GenerateSummaryFile.String(), validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
 	assert.NotContains(t, output, "validationUtils.WhenFieldEqualsValue(&cfg.Summary, \"file\", validationUtils.RequiredFieldsBy(&cfg.SummaryFile))")
 	assert.Contains(t, output, "Logger: GenerateLoggerConsole.String(),")

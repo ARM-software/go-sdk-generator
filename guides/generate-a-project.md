@@ -15,6 +15,14 @@ go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 
 Replace the Go version with the version your project uses. `-i`/`--input` selects the manifest, `-o`/`--output` selects the destination, and `-g`/`--go-version` selects the target Go version. Use `go-sdk-generator generate --help` for current options. The generator validates the manifest before producing files.
 
+The `generate` command writes a human-readable summary by default. Use `--summary=none` to suppress it while keeping normal logging and error reporting:
+
+```sh
+go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --summary=none
+```
+
+Generated CLI commands that support summaries accept the same value. Summary output is separate from normal logging (`--logger`) and machine-readable result output. For workflow usage, see [GitHub Actions summary settings](use-github-actions.md#control-summary-output).
+
 After generation, run these commands from each directory containing a generated `go.mod`:
 
 ```sh

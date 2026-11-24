@@ -827,6 +827,7 @@ $defs:
       - file
       - github
       - output
+      - none
   built_in_lang_type:
     title: BuiltInLangType
     description: |
