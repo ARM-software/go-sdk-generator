@@ -12,13 +12,13 @@ require (
 	github.com/ARM-software/golang-utils/utils/commonerrors v1.173.0
 	github.com/ARM-software/golang-utils/utils/commonerrors/errortest v1.173.0
 	github.com/ARM-software/golang-utils/utils/config v1.173.0
-	github.com/ARM-software/golang-utils/utils/environment v1.172.0
+	github.com/ARM-software/golang-utils/utils/environment v1.173.0
 	github.com/ARM-software/golang-utils/utils/field v1.173.0
 	github.com/ARM-software/golang-utils/utils/filesystem v1.173.0
 	github.com/ARM-software/golang-utils/utils/hashing v1.173.0
 	github.com/ARM-software/golang-utils/utils/logs v1.173.0
-	github.com/ARM-software/golang-utils/utils/logs/annotations v1.172.0
-	github.com/ARM-software/golang-utils/utils/logs/summary v1.172.0
+	github.com/ARM-software/golang-utils/utils/logs/annotations v1.173.0
+	github.com/ARM-software/golang-utils/utils/logs/summary v1.173.0
 	github.com/ARM-software/golang-utils/utils/parallelisation v1.173.0
 	github.com/ARM-software/golang-utils/utils/reflection v1.173.0
 	github.com/ARM-software/golang-utils/utils/semver v1.173.0
