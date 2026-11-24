@@ -2,6 +2,32 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.54.0 (2026-11-24)
+
+## Features
+
+- :sparkles: Generated CLIs now support `plain`, `json`, and `quiet` logger modes with clearer logger option help text. (#202611191149)
+- :sparkles: Allow generated enum validation for list and iterator manifest fields by validating each collection item against the allowed enum values. (#202611191702)
+- :sparkles: Allow collection-shaped manifest fields to apply `pattern` validation to each generated list or iterator item. (#202611191843)
+- :sparkles: Allow collection-shaped manifest fields to apply string item constraints such as `contains`, `not_contains`, `prefix`, `suffix`, `min_length`, and `max_length` to each generated list or iterator item. (#202611191844)
+- :sparkles: Allow collection-shaped manifest fields to apply numeric item constraints such as `minimum`, `maximum`, `exclusive_minimum`, `exclusive_maximum`, and `multiple_of` to each generated list or iterator item. (#202611191845)
+- :sparkles: Treat `not_empty` on collection-shaped manifest fields as an item-level rule so each generated list or iterator item must be non-empty. (#202611191846)
+- :sparkles: Group Dependabot version updates for golang-utils and embedded-development-services-client-utils per Go module, and group GitHub Actions security updates in generated repositories. (#202611241500)
+- :sparkles: Generate a Qlty OSV Scanner 2.7.0 wrapper that scans the Docker-pinned Go version and keeps generated Go dependency manifests eligible for scanning. (#202611241501)
+- :sparkles: Generate Qlty Trivy configuration with precise vulnerability detection. (#202611241502)
+- :sparkles: Update CODE_OF_CONDUCT template to align with markdownlint rule MD034 forbidding raw URLS (#20261119144445)
+
+## Bugfixes
+
+- :bug: Generate valid code for parameter patterns that contain a backtick (#102)
+- :bug: Escape `json` and `validJSON` defaults correctly when generating Go string literals, preserving special characters and empty JSON strings. (#202611241200)
+- :bug: Allow generated Qlty configuration and scripts to be tracked in Git while ignoring local Qlty caches and output. (#202611241503)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.53.6 (2026-11-17)
 
 ## Bugfixes

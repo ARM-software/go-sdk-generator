@@ -1,1 +1,0 @@
-:sparkles: Allow collection-shaped manifest fields to apply string item constraints such as `contains`, `not_contains`, `prefix`, `suffix`, `min_length`, and `max_length` to each generated list or iterator item.
