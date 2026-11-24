@@ -6,7 +6,7 @@ package {{ $packageName }}
 {{ range .Specification.Interface.Methods -}}
 {{ $functionName := .Name | toPascal -}}
 {{ range .Args -}}
-{{ if hasEnum .Enum -}}
+{{ if hasGeneratedEnumType .List .Iterator .Enum -}}
 {{ $enumTypeName := enumTypeName $functionName .Name .LangType .Enum -}}
 //go:generate go tool enumer -type={{ $enumTypeName }} -linecomment -text -json -yaml
 type {{ $enumTypeName }} int
@@ -20,7 +20,7 @@ const (
 {{ end -}}
 {{ end -}}
 {{ range .Returns -}}
-{{ if hasEnum .Enum -}}
+{{ if hasGeneratedEnumType .List .Iterator .Enum -}}
 {{ $enumTypeName := enumTypeName $functionName .Name .LangType .Enum -}}
 //go:generate go tool enumer -type={{ $enumTypeName }} -linecomment -text -json -yaml
 type {{ $enumTypeName }} int

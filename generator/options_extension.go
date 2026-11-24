@@ -289,7 +289,7 @@ func optionParameterType(ownerName string, parameter *OptionParameter) string {
 	}
 	baseType := convertLangType(baseLangType(parameter.LangType))
 	if parameter.HasEnum() {
-		baseType = enumTypeName(ownerName, parameter.Name, baseLangType(parameter.LangType), parameter.EffectiveEnum())
+		baseType = enumValueType(ownerName, parameter.Name, baseLangType(parameter.LangType), parameter.List, parameter.Iterator, parameter.EffectiveEnum())
 	}
 	return parameterTypeFromBase(parameter.Reference, parameter.List, parameter.Iterator, baseType)
 }
@@ -395,7 +395,7 @@ func optionSetIdentifiers(optionSet *OptionSet) []generatedOptionIdentifier {
 			Name:   optionParameterWrapperTypeName(ownerName, &parameter),
 			Source: fmt.Sprintf("wrapper type for %q.%s", optionSet.Name, parameter.Name),
 		})
-		if !(&parameter).HasEnum() {
+		if !hasGeneratedEnumType(parameter.List, parameter.Iterator, parameter.EffectiveEnum()) {
 			continue
 		}
 		enumType := enumTypeName(ownerName, parameter.Name, baseLangType(parameter.LangType), parameter.EffectiveEnum())

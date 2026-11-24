@@ -23,6 +23,16 @@ func TestEnumStringValidationRuleUsesStringValues(t *testing.T) {
 	assert.Equal(t, ", validationUtils.Enum(GenerateSummaryFile.String(), GenerateSummaryOutput.String())", rule)
 }
 
+func TestFieldEnumValidationRuleWithShapeUsesArrayItemsForList(t *testing.T) {
+	rule := fieldEnumValidationRule("Generate", "Mode", string(BuiltInLangTypeString), false, true, false, false, []string{"fast", "safe"}, "cfg.Mode")
+	assert.Equal(t, ", validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.ArrayItems(validationUtils.Enum(\"fast\", \"safe\")))", rule)
+}
+
+func TestFieldEnumValidationRuleWithShapeUsesArrayItemsForIterator(t *testing.T) {
+	rule := fieldEnumValidationRule("Generate", "Mode", string(BuiltInLangTypeString), false, false, true, false, []string{"fast", "safe"}, "cfg.Mode")
+	assert.Equal(t, ", validation.When(reflection.IsNotEmpty(cfg.Mode), validationUtils.ArrayItems(validationUtils.Enum(\"fast\", \"safe\")))", rule)
+}
+
 func TestCliConfigFieldDefaultValueUsesEnumStringValue(t *testing.T) {
 	value := cliConfigFieldDefaultValue("Generate", FunctionConfigFields{
 		Name:         "Summary",

@@ -52,46 +52,71 @@ func optionalConstraintLiteral[T any](value *T) string {
 	return goLiteral(*value)
 }
 
+func wrapCollectionItemRule(list bool, iterator bool, rule string) string {
+	if list || iterator {
+		return fmt.Sprintf("validationUtils.ArrayItems(%s)", rule)
+	}
+	return rule
+}
+
+// goRegexpLiteral returns pattern as a Go string literal. A raw string is kept
+// for readability unless the pattern contains a backtick, which a raw string
+// cannot hold.
+func goRegexpLiteral(pattern string) string {
+	if strings.Contains(pattern, "`") {
+		return strconv.Quote(pattern)
+	}
+	return "`" + pattern + "`"
+}
+
+func patternValidationRule(pattern *string, list bool, iterator bool) string {
+	if reflection.IsEmpty(pattern) {
+		return ""
+	}
+	rule := fmt.Sprintf("validationUtils.Pattern(regexp.MustCompile(%s))", goRegexpLiteral(field.OptionalString(pattern, "")))
+	return fmt.Sprintf(", %s", wrapCollectionItemRule(list, iterator, rule))
+}
+
 func constraintValidationRule(langType string, list bool, iterator bool, constraints *ParameterConstraints) string {
 	if constraints == nil {
 		return ""
 	}
 	rules := make([]string, 0, 18)
 	if constraints.NotEmpty {
-		rules = append(rules, "validationUtils.NotEmpty()")
+		rules = append(rules, wrapCollectionItemRule(list, iterator, "validationUtils.NotEmpty()"))
 	}
 	if reflection.IsNotEmpty(constraints.Contains) {
-		rules = append(rules, fmt.Sprintf("validationUtils.ContainsString(%s)", strconv.Quote(field.OptionalString(constraints.Contains, ""))))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.ContainsString(%s)", strconv.Quote(field.OptionalString(constraints.Contains, "")))))
 	}
 	if reflection.IsNotEmpty(constraints.NotContains) {
-		rules = append(rules, fmt.Sprintf("validationUtils.NotContains(%s)", strconv.Quote(field.OptionalString(constraints.NotContains, ""))))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.NotContains(%s)", strconv.Quote(field.OptionalString(constraints.NotContains, "")))))
 	}
 	if reflection.IsNotEmpty(constraints.Prefix) {
-		rules = append(rules, fmt.Sprintf("validationUtils.Prefix(%s)", strconv.Quote(field.OptionalString(constraints.Prefix, ""))))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.Prefix(%s)", strconv.Quote(field.OptionalString(constraints.Prefix, "")))))
 	}
 	if reflection.IsNotEmpty(constraints.Suffix) {
-		rules = append(rules, fmt.Sprintf("validationUtils.Suffix(%s)", strconv.Quote(field.OptionalString(constraints.Suffix, ""))))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.Suffix(%s)", strconv.Quote(field.OptionalString(constraints.Suffix, "")))))
 	}
 	if constraints.MinLength != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.MinLength(%s)", optionalConstraintLiteral(constraints.MinLength)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.MinLength(%s)", optionalConstraintLiteral(constraints.MinLength))))
 	}
 	if constraints.MaxLength != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.MaxLength(%s)", optionalConstraintLiteral(constraints.MaxLength)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.MaxLength(%s)", optionalConstraintLiteral(constraints.MaxLength))))
 	}
 	if constraints.Minimum != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.Minimum(%s)", optionalConstraintLiteral(constraints.Minimum)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.Minimum(%s)", optionalConstraintLiteral(constraints.Minimum))))
 	}
 	if constraints.Maximum != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.Maximum(%s)", optionalConstraintLiteral(constraints.Maximum)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.Maximum(%s)", optionalConstraintLiteral(constraints.Maximum))))
 	}
 	if constraints.ExclusiveMinimum != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.ExclusiveMinimum(%s)", optionalConstraintLiteral(constraints.ExclusiveMinimum)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.ExclusiveMinimum(%s)", optionalConstraintLiteral(constraints.ExclusiveMinimum))))
 	}
 	if constraints.ExclusiveMaximum != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.ExclusiveMaximum(%s)", optionalConstraintLiteral(constraints.ExclusiveMaximum)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.ExclusiveMaximum(%s)", optionalConstraintLiteral(constraints.ExclusiveMaximum))))
 	}
 	if constraints.MultipleOf != nil {
-		rules = append(rules, fmt.Sprintf("validationUtils.MultipleOf(%s)", optionalConstraintLiteral(constraints.MultipleOf)))
+		rules = append(rules, wrapCollectionItemRule(list, iterator, fmt.Sprintf("validationUtils.MultipleOf(%s)", optionalConstraintLiteral(constraints.MultipleOf))))
 	}
 	if constraints.MinItems != nil {
 		rules = append(rules, fmt.Sprintf("validationUtils.MinItems(%s)", optionalConstraintLiteral(constraints.MinItems)))

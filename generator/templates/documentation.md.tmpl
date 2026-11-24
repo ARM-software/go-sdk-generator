@@ -115,7 +115,7 @@ Arguments:
 - `ctx : context.Context` - controls cancellation, deadlines, and other request-scoped values.
 {{ if .Args }}
 {{ range .Args }}
-- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
+- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $functionName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
 {{ end }}
 {{ else }}
 This method does not define any explicit arguments beyond `ctx`.
@@ -125,7 +125,7 @@ Returns:
 
 {{ if .Returns }}
 {{ range .Returns }}
-- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
+- `{{ .Name | toCamel }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $functionName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}` - {{ descriptionWithDeprecation (descriptionWithMetadata .Description .Enum .Example .Examples) .DeprecationNotice }}
 {{ end }}
 {{ else }}
 This method does not return any values.
@@ -444,7 +444,7 @@ Configuration type:
 type {{ $functionName }}Configuration struct {
 {{- range .Configuration }}
 {{- if not .Hidden }}
-	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag }}"`
+	{{ .Name | toPascal }} {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $functionName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }} `mapstructure:"{{ .MapstructureTag }}"`
 {{- end }}
 {{- end }}
 }
@@ -454,7 +454,7 @@ Fields:
 
 {{ range .Configuration -}}
 {{- if not .Hidden }}
-- **`{{ .Name | toPascal }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumTypeName $functionName .Name .LangType .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
+- **`{{ .Name | toPascal }} : {{ if hasEnum .Enum }}{{ parameterTypeFromBase .Reference .List .Iterator (enumValueType $functionName .Name .LangType .List .Iterator .Enum) }}{{ else }}{{ parameterType .Reference .List .Iterator .LangType }}{{ end }}`** - {{ descriptionWithMetadata .Description .Enum .Example .Examples }} {{ if .Required }}(required){{ end }}
 {{- end }}
 {{ end }}
 

@@ -77,15 +77,16 @@ func (opt *{{ $wrapperTypeName }}) Validate() (err error) {
 
 	return validation.ValidateStruct(opt,
 	{{ $validation := .LangType | validationLangType -}}
-	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .IsRequired .EffectiveEnum (printf "opt.%s" (optionParameterValueFieldName .)) -}}
+	{{ $enumValidation := fieldEnumValidationRule $structName .Name .LangType .Reference .List .Iterator .IsRequired .EffectiveEnum (printf "opt.%s" (optionParameterValueFieldName .)) -}}
+	{{ $patternValidation := patternValidationRule .EffectivePattern .List .Iterator -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
 	{{ $effectivePattern := effectivePatternString . -}}
 	{{ if and (not .IsRequired) (usesPresenceGuardForValidation .LangType) }}
 	    validation.Field(&opt.{{ optionParameterValueFieldName . }}, filesystem.NewOSPathValidationRule(true)),
 	{{ else if .IsRequired }}
-	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ if not .SuppressesRequiredValidation }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ else if or $validation $enumValidation $constraintValidation $effectivePattern -}}
-	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ $validation }}{{ $enumValidation }}{{ if $effectivePattern }}, validationUtils.Pattern(regexp.MustCompile(`{{ $effectivePattern }}`)){{ end }}{{ $constraintValidation }}),
+	    validation.Field(&opt.{{ optionParameterValueFieldName . }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ else }}
 	    validation.Field(&opt.{{ optionParameterValueFieldName . }}),
 	{{ end }}

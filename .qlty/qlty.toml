@@ -45,7 +45,9 @@ exclude_patterns = [
 ".golangci.yaml",
 ".goreleaser.yml",
 ".pre-commit-config.yaml",
+".qlty/configs/trivy.yaml",
 ".qlty/qlty.toml",
+".qlty/scripts/osv-scanner.sh",
 "CODE_OF_CONDUCT.md",
 "CONTRIBUTING.md",
 "DEVELOPMENT.md",
@@ -65,11 +67,9 @@ exclude_patterns = [
 "cli/cmd/generator/wrappers.go",
 "cli/cmd/module.properties",
 "cli/cmd/root.go",
-"cli/go.mod",
 "cli/main.go",
 "generator/config/generator.go",
 "generator/generator.go",
-"generator/go.mod",
 "generator/interfaces.go",
 "generator/skills/install-go-sdk-generator/SKILL.md",
 "generator/skills/run-go-sdk-generator/SKILL.md",
@@ -101,6 +101,13 @@ version = "0.31.1"
 
 [[plugin]]
 name = "osv-scanner"
+version = "2.7.0"
+config_files = ["Dockerfile.generator"]
+affects_cache = ["Dockerfile.generator", ".qlty/scripts/osv-scanner.sh"]
+
+# Scan standard-library vulnerabilities using the Docker build-stage Go version.
+[plugins.definitions.osv-scanner.drivers.lint]
+script = 'sh .qlty/scripts/osv-scanner.sh "${target}"'
 
 [[plugin]]
 name = "prettier"
