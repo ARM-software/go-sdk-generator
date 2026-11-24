@@ -9,6 +9,16 @@ updates:
     timezone: Europe/London
   open-pull-requests-limit: 10
   rebase-strategy: disabled
+  groups:
+    golang-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/golang-utils/utils/*"
+    embedded-development-services-client-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils"
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils/*"
 {{ if .Specification.CommandLineCommands -}}
 - package-ecosystem: gomod
   directory: "/{{ .Specification.CommandLineCommands.Package }}"
@@ -17,6 +27,16 @@ updates:
     timezone: Europe/London
   open-pull-requests-limit: 10
   rebase-strategy: disabled
+  groups:
+    golang-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/golang-utils/utils/*"
+    embedded-development-services-client-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils"
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils/*"
 {{ end -}}
 - package-ecosystem: github-actions
   directory: "/"
@@ -25,6 +45,11 @@ updates:
     timezone: Europe/London
   open-pull-requests-limit: 10
   rebase-strategy: disabled
+  groups:
+    actions-security:
+      applies-to: security-updates
+      patterns:
+        - "*"
 {{ if .Specification.CommandLineCommands -}}
 - package-ecosystem: docker
   directory: "/"

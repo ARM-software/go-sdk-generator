@@ -633,11 +633,9 @@ func defaultValue(s string, dValue any) string {
 	dValueStr = strings.TrimSpace(dValueStr)
 	st := convertLangType(s)
 	switch {
-	case s == "json":
-		if strings.HasPrefix(dValueStr, `""`) {
-			return dValueStr
-		}
-		return fmt.Sprintf(`"%v"`, dValueStr)
+	case s == "json" || s == "validJSON":
+		// JSON defaults are text, including their quotation marks and escapes.
+		return withQuote(dValueStr)
 	case s == "datetime":
 		if strings.Contains(dValueStr, "now") {
 			return "time.Now().UTC()"

@@ -48,6 +48,13 @@ version = "0.31.1"
 
 [[plugin]]
 name = "osv-scanner"
+version = "2.7.0"
+config_files = [{{ quote .Dockerfile }}]
+affects_cache = [{{ quote .Dockerfile }}, ".qlty/scripts/osv-scanner.sh"]
+
+# Scan standard-library vulnerabilities using the Docker build-stage Go version.
+[plugins.definitions.osv-scanner.drivers.lint]
+script = 'sh .qlty/scripts/osv-scanner.sh "${target}"'
 
 [[plugin]]
 name = "prettier"

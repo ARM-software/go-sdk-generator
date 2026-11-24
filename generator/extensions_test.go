@@ -99,7 +99,7 @@ func TestDefaults(t *testing.T) {
 	assert.Equal(t, "0.0", defaultValue("decimal", 0.0))
 	assert.Equal(t, "51.45494", defaultValue("decimal", 51.45494))
 	assert.Equal(t, "nil", defaultValue("any", "nil"))
-	assert.Equal(t, `"{"test":1}"`, defaultValue("json", `{"test":1}`))
+	assert.Equal(t, `"{\"test\":1}"`, defaultValue("json", `{"test":1}`))
 	assert.Equal(t, `[]byte("aaffbb77")`, defaultValue("[]byte", "aaffbb77"))
 	assert.Equal(t, "func() []byte {\nvalues, _ := hex.DecodeString(\"aaffbb77\")\nreturn values\n}()", defaultValue("hex", "aaffbb77"))
 	assert.Equal(t, "func() time.Duration {\nduration, _ := time.ParseDuration(\"5m\")\nreturn duration\n}()", defaultValue("duration", "5m"))
@@ -134,7 +134,7 @@ func TestDefaultsWithMultilines(t *testing.T) {
 	assert.Equal(t, "123", defaultValue("int", "123\n"))
 	assert.Equal(t, "42.5", defaultValue("float64", "42.5\n"))
 	assert.Equal(t, "5 * time.Minute", defaultValue("duration", "5 * time.Minute\n"))
-	assert.Equal(t, `"{"test":1}"`, defaultValue("json", "{\"test\":1}\n"))
+	assert.Equal(t, `"{\"test\":1}"`, defaultValue("json", "{\"test\":1}\n"))
 }
 
 func TestDefaultValueForStrings(t *testing.T) {
