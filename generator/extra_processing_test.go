@@ -2119,7 +2119,7 @@ func TestCliFlagTypeAndZeroValue(t *testing.T) {
 
 	t.Run("built-in type keeps its cobra flag type", func(t *testing.T) {
 
-		flagType, zeroVal := cliFlagTypeAndZeroValue("[]string")
+		flagType, zeroVal := cliFlagTypeAndZeroValue("[]string", false)
 
 		assert.Equal(t, "StringSlice", flagType)
 
@@ -2129,7 +2129,7 @@ func TestCliFlagTypeAndZeroValue(t *testing.T) {
 
 	t.Run("custom type falls back to string flag", func(t *testing.T) {
 
-		flagType, zeroVal := cliFlagTypeAndZeroValue("models.FileEntry")
+		flagType, zeroVal := cliFlagTypeAndZeroValue("models.FileEntry", false)
 
 		assert.Equal(t, "String", flagType)
 

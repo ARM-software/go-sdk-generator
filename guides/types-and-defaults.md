@@ -37,7 +37,13 @@ The generator accepts native Go types and convenience aliases in `lang_type`.
 | `hex` | `[]byte` | Hex-encoded bytes decoded at runtime. |
 | `base64`, `byte`, `binary`, `regex` | `string` | Validated string-based formats. |
 
-Declare project-specific types with `specification.additional_types`. For a pointer, list or iterator, prefer the manifest's `reference`, `list` and `iterator` flags to embedding Go syntax in `lang_type`. `list` and `iterator` cannot be combined. A final method argument marked `list: true` becomes variadic (`...T`). Use `enum` for closed string-like choices.
+Declare project-specific types with `specification.additional_types`. For a
+pointer, list or iterator, prefer the manifest's `reference`, `list` and `iterator`
+flags to embedding Go syntax in `lang_type`. `list` and `iterator` cannot be
+combined. A final, non-reference method argument marked `list: true` becomes
+variadic (`...T`). Use `enum` for closed string choices, including string collection
+items. See [collections, lists and iterators](collections-and-streams.md) for item
+validation, iterator consumption, and string-list CLI flags.
 
 ## Built-in `default_value` shortcuts
 

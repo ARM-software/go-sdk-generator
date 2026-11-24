@@ -75,6 +75,7 @@ Choose a task:
 - [Write a manifest](./guides/write-a-manifest.md)
 - [See what the generator produces](./guides/what-it-generates.md)
 - [Choose types and defaults](./guides/types-and-defaults.md)
+- [Express collections, lists and iterators](./guides/collections-and-streams.md)
 - [Configure functional options](./guides/configure-options.md)
 - [Generate or regenerate a Go project](./guides/generate-a-project.md)
 - [Run the generator in GitHub Actions](./guides/use-github-actions.md)
