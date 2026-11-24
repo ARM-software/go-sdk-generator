@@ -1,1 +1,0 @@
-:bug: Register string-valued CLI fields and bindings marked `list: true` as `StringSlice` flags, preserving comma-separated and repeated flag values instead of treating them as scalar strings.

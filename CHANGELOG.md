@@ -2,6 +2,29 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.55.0 (2026-11-24)
+
+## Features
+
+- :sparkles: Generated CLIs now accept `--summary=none` to suppress summary output entirely. (#202611191124)
+- :sparkles: Add disable_dependabot_generator_workflow (default false) to opt out of generator upgrades on Dependabot pull requests, and enable it for this generator to support unreleased features. (#20261124175020833107100)
+
+## Bugfixes
+
+- Dependency upgrade: golang-utils-37b317588a (#20261124171707819041562)
+- :construction: Set `GOPROXY=https://proxy.golang.org|direct` in Go-running workflows and their templates so proxy errors can fall back to source repositories, reducing CI failures from transient HTTP/2 and proxy outages ([golang/go#51323](https://github.com/golang/go/issues/51323), [golang/go#55162](https://github.com/golang/go/issues/55162)). The pipe separator permits fallback on any error, whereas the default comma permits it only for HTTP 404/410 ([Go documentation](https://go.dev/doc/go1.15#go-command)). (#20261124182444762929300)
+- Dependency upgrade: golang-utils-5d747c77e4 (#20261124184446206706933)
+- :bug: Register string-valued CLI fields and bindings marked `list: true` as `StringSlice` flags, preserving comma-separated and repeated flag values instead of treating them as scalar strings. (#20261124231028837506000)
+
+## Improved Documentation
+
+- :book: Add a collections guide and `manifest-collections` skill covering lists, iterators, item enums, validation, examples, defaults and CLI input. (#20261124231028099687600)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.54.0 (2026-11-24)
 
 ## Features
