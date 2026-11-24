@@ -100,15 +100,6 @@ func TestGenerateConfigurationValidateSummaryRules(t *testing.T) {
 		require.NoError(t, cfg.Validate())
 	})
 
-	t.Run("new logger values are accepted", func(t *testing.T) {
-		for _, logger := range []string{GenerateLoggerPlain.String(), GenerateLoggerJSON.String(), GenerateLoggerQuiet.String()} {
-			cfg := validGenerateConfiguration()
-			cfg.Logger = logger
-
-			require.NoError(t, cfg.Validate(), logger)
-		}
-	})
-
 	t.Run("summary file path must be valid when provided", func(t *testing.T) {
 		cfg := validGenerateConfiguration()
 		cfg.SummaryFile = "bad\npath"

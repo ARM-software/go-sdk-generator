@@ -17,9 +17,7 @@
 .golangci.yaml linguist-generated=true
 .goreleaser.yml linguist-generated=true
 .pre-commit-config.yaml linguist-generated=true
-.qlty/configs/trivy.yaml linguist-generated=true
 .qlty/qlty.toml linguist-generated=true
-.qlty/scripts/osv-scanner.sh linguist-generated=true
 CODE_OF_CONDUCT.md linguist-generated=true
 CONTRIBUTING.md linguist-generated=true
 DEVELOPMENT.md linguist-generated=true
