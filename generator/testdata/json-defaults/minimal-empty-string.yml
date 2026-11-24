@@ -1,0 +1,13 @@
+specification:
+  package_name: json-default-repro
+  main_module: repro
+  name: Repro
+  description: Minimal empty JSON string reproduction.
+  interface:
+    methods: []
+  global_configuration:
+    - name: Payload
+      lang_type: json
+      mapstructure_tag: payload
+      description: JSON payload.
+      default_value: '""'
