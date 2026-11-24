@@ -5,10 +5,12 @@
 package generator
 
 import (
+	"bytes"
 	"context"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
@@ -48,6 +50,47 @@ func TestOverwriteExclusionMatcher(t *testing.T) {
 	}
 	_, err = newOverwrite(root, true, options.WithExcludeGroups([]string{"project", "invalid"}))
 	require.Error(t, err)
+}
+
+func TestGenerateRejectsSelectorsWithoutOverwrite(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name   string
+		option options.OverwriteOption
+	}{
+		{name: "exclude files", option: options.WithExcludeFiles([]string{"root.go"})},
+		{name: "exclude groups", option: options.WithExcludeGroups([]string{"cli"})},
+		{name: "only files", option: options.WithOnlyFiles([]string{"README.md"})},
+		{name: "only groups", option: options.WithOnlyGroups([]string{"readme"})},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			localFs := filesystem.GetGlobalFileSystem()
+			cfg := config.DefaultSDKGeneratorManagerConfiguration()
+			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "cli-package.yml")
+			cfg.Output = t.TempDir()
+			cfg.Overwrite = false
+
+			customOutput := filesystem.FilePathJoin(localFs, cfg.Output, "tools", "cmd", "root.go")
+			sentinel := []byte("customised contents must survive invalid selections\n")
+			require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, customOutput)))
+			require.NoError(t, localFs.WriteFile(customOutput, sentinel, 0600))
+
+			err := Generate(t.Context(), nil, cfg, test.option)
+
+			assert.Error(t, err, "selectors must be rejected when the generator's overwrite setting is disabled")
+			content, readErr := localFs.ReadFile(customOutput)
+			require.NoError(t, readErr)
+			assert.True(t, bytes.Equal(sentinel, content), "invalid selectors must not overwrite customised files")
+
+			files, listErr := localFs.LsRecursive(t.Context(), cfg.Output, false)
+			require.NoError(t, listErr)
+			assert.Equal(t, 1, len(files), "invalid selectors must not create generated files")
+			assert.Contains(t, files, customOutput)
+		})
+	}
 }
 
 func TestOverwriteExclusionGroupsUseExactOutputs(t *testing.T) {

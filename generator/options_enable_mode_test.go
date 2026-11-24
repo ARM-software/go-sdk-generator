@@ -76,6 +76,30 @@ func TestTogetherOptionSetValidation(t *testing.T) {
 	runOptionSetValidationFixture(t, optionSet, nil, "together")
 }
 
+func TestTogetherOptionEnumListLiteralDefault(t *testing.T) {
+	t.Parallel()
+
+	optionSet := OptionSet{Name: "Build", EnableMode: OptionSetEnableModeTogether, Functions: []OptionFunction{
+		{Parameters: []OptionParameter{{
+			Name: "Locations", LangType: "string", List: true,
+			Enum: []string{"home", "remote"}, DefaultValue: field.ToOptionalString("home"),
+		}}},
+		{Parameters: []OptionParameter{{Name: "Tracing", LangType: "bool"}}},
+	}}
+
+	runOptionSetValidationFixture(t, optionSet, nil, "together-enum-list-default")
+}
+
+func TestTogetherOptionDisabledCondition(t *testing.T) {
+	t.Parallel()
+
+	optionSet := OptionSet{Name: "Build", EnableMode: OptionSetEnableModeTogether, Functions: []OptionFunction{{
+		Parameters: []OptionParameter{{Name: "Reason", LangType: "string", Condition: "Enabled == false"}},
+	}}}
+
+	runOptionSetValidationFixture(t, optionSet, nil, "together-disabled-condition")
+}
+
 func TestTogetherOptionSetRejectsWrapperOnlyMetadata(t *testing.T) {
 	for _, tc := range []struct {
 		name      string

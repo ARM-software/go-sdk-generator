@@ -91,6 +91,53 @@ func TestProcessOptionPackagesRejectsPackageCollisionWithAdditionalTypes(t *test
 	assert.Contains(t, err.Error(), `option package "options" conflicts with an additional type package`)
 }
 
+func TestTogetherOptionCLICollectionDefaults(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name         string
+		langType     string
+		reference    bool
+		list         bool
+		iterator     bool
+		defaultValue *string
+		expected     *string
+	}{
+		{name: "scalar", langType: "options.BuildOptions", expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
+		{name: "reference scalar", langType: "options.BuildOptions", reference: true, expected: field.ToOptionalString("options.DefaultBuildOptions()")},
+		{name: "pointer scalar", langType: "*options.BuildOptions", expected: field.ToOptionalString("options.DefaultBuildOptions()")},
+		{name: "list", langType: "options.BuildOptions", list: true},
+		{name: "iterator", langType: "options.BuildOptions", iterator: true},
+		{name: "explicit scalar default", langType: "options.BuildOptions", defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
+		{name: "explicit list default", langType: "options.BuildOptions", list: true, defaultValue: field.ToOptionalString("[]options.BuildOptions{}"), expected: field.ToOptionalString("[]options.BuildOptions{}")},
+		{name: "explicit iterator default", langType: "options.BuildOptions", iterator: true, defaultValue: field.ToOptionalString("buildOptionsIterator()"), expected: field.ToOptionalString("buildOptionsIterator()")},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			spec := &SDKSpecification{Options: OptionSets{{
+				Name: "Build", EnableMode: OptionSetEnableModeTogether,
+				Functions: []OptionFunction{{Parameters: []OptionParameter{{Name: "Tracing", LangType: "bool"}}}},
+			}}}
+			cfg := &FunctionConfigFields{
+				Name: "Build", LangType: test.langType, Reference: test.reference,
+				List: test.list, Iterator: test.iterator, DefaultValue: test.defaultValue,
+			}
+
+			addOptionCLIEnabledBindings(spec, cfg)
+
+			if test.expected == nil {
+				assert.Nil(t, cfg.DefaultValue, "collections without declared defaults must remain unset; generated default: %q", field.OptionalString(cfg.DefaultValue, ""))
+			} else {
+				require.NotNil(t, cfg.DefaultValue)
+				assert.Equal(t, *test.expected, *cfg.DefaultValue)
+			}
+
+			assert.Empty(t, cfg.Bindings, "together-mode CLI fields must not acquire per-parameter bindings")
+		})
+	}
+}
+
 func TestOptionHelpers(t *testing.T) {
 	t.Parallel()
 	data := &DataModel{CurrentOptionSets: OptionSets{{Name: "Generate", Functions: []OptionFunction{{Parameters: []OptionParameter{{
