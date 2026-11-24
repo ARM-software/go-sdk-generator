@@ -1,1 +1,0 @@
-:bug: Escape `json` and `validJSON` defaults correctly when generating Go string literals, preserving special characters and empty JSON strings.

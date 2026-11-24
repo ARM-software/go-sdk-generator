@@ -5,9 +5,11 @@ name: Upgrade Generator
 on:
   schedule:
     - cron: "0 6 * * 1"
+{{- if not .Specification.DisableDependabotGeneratorWorkflow }}
   pull_request:
     branches:
       - main
+{{- end }}
   workflow_dispatch:
     inputs:
       overwrite:
@@ -22,7 +24,7 @@ permissions:
 
 jobs:
   upgrade-generator:
-    if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'dependabot/')
+    if: github.event_name != 'pull_request'{{ if not .Specification.DisableDependabotGeneratorWorkflow }} || startsWith(github.head_ref, 'dependabot/'){{ end }}
     name: Upgrade generator outputs
     runs-on: ubuntu-latest
     steps:
