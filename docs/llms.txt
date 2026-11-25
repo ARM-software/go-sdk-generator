@@ -10,6 +10,7 @@
 - [Configure functional options](https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html)
 - [Breaking changes and deprecation](https://ARM-software.github.io/go-sdk-generator/guides/evolving-a-contract.html)
 - [Generate and regenerate a Go project](https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html)
+- [Generate selected parts of a project](https://ARM-software.github.io/go-sdk-generator/guides/granular-generation.html)
 - [Install and inspect go-sdk-generator](https://ARM-software.github.io/go-sdk-generator/guides/install-and-inspect.html)
 - [Secret management in generated CLI tools](https://ARM-software.github.io/go-sdk-generator/guides/secret-management.html)
 - [Types, formats and default values](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html)

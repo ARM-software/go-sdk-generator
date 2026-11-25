@@ -61,6 +61,10 @@ authoritative field reference.</p>
 <p>The same shape rules apply to other item types, such as <code>int</code> or a declared
 additional type. <code>list</code> and <code>iterator</code> both default to <code>false</code> and cannot both be
 <code>true</code>.</p>
+<p>Declared options objects are a special case: CLI configuration keeps one editable
+object, while SDK interface arguments use collections of functional options.
+Use <code>AsList()</code> or <code>AsIterator()</code> at that boundary; see
+<a href="configure-options.html#pass-an-options-object-to-an-sdk-method">options-object conversions</a>.</p>
 <p>Shape flags are available on method arguments and returns, configuration fields,
 additional-type fields, and option parameters. The field examples below are
 fragments to place in the appropriate manifest section; a complete SDK example

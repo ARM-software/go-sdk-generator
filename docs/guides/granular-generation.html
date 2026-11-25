@@ -1,0 +1,193 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generate selected parts of a project</title>
+  <meta name="description" content="Generate selected parts of a project — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "name": "Generate selected parts of a project", "description": "Generate selected parts of a project \u2014 SDK Generator.", "url": "https://ARM-software.github.io/go-sdk-generator/guides/granular-generation.html"}</script>
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Generate selected parts of a project</h1>
+<p>Use granular generation to refresh selected parts of a generated SDK while preserving customised files. The <strong>manifest</strong> is the YAML or JSON input; the <strong>generated SDK</strong> is the output project written from it.</p>
+<p>The examples below use <code>generate.yml</code>, the current directory as the output, and Go <code>1.27.3</code>. Adjust the manifest, destination and target Go version for your project. For the initial generation workflow, see <a href="generate-a-project.html">generate and regenerate a project</a>.</p>
+<h2>Why use granular generation?</h2>
+<p>A generated SDK often develops project-specific changes: command handlers gain business logic, <code>go.mod</code> gains chosen dependency versions, and CI or lint configuration is adapted to the repository. A small manifest change may only require a few generated files to be refreshed.</p>
+<p>The selection options let you match the scope of regeneration to the task. Exclusions preserve known customisations during a broad refresh; <code>only</code> selections limit a refresh to the outputs you actually need. This reduces unrelated changes and makes the resulting diff easier to review.</p>
+<h2>Understand the default modes</h2>
+<h3>Without <code>--overwrite</code></h3>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
+</code></pre>
+<p>The generator creates missing files and refreshes contract-driven outputs, including SDK source, CLI declarations and wrappers, <code>DOCUMENTATION.md</code>, generated actions, <code>agent.md</code>, Copilot instructions, run/action skills and <code>.gitattributes</code>.</p>
+<p>Existing stateful scaffolding is generally preserved, including <code>README.md</code>, Go module/workspace files, CI and lint configuration, and CLI <code>implementations.go</code>. Version-sensitive Dockerfiles also follow the generator's target-Go-version update rule.</p>
+<p>This is the ordinary workflow for keeping the generated contract in sync with the manifest while retaining stateful project customisations. It is <strong>not</strong> a create-missing-files-only mode: contract-driven files can still be rewritten.</p>
+<h3>With <code>--overwrite</code> on its own</h3>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite
+</code></pre>
+<p>All normal generated outputs are eligible for regeneration, including existing stateful scaffolding such as Go module files, workflows and CLI implementations. Built-in protection still applies to existing <code>module.properties</code> files.</p>
+<p>This mode is useful when adopting updated generator templates across the whole project. Use the selection flags below when you want a narrower refresh or want to retain specific customisations.</p>
+<h2>Choose what to generate or preserve</h2>
+<p>All four selection flags require <code>--overwrite</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--only-groups</code></td>
+<td>Generate files belonging to the selected groups.</td>
+</tr>
+<tr>
+<td><code>--only-files</code></td>
+<td>Generate files matching the selected basenames or output-relative paths.</td>
+</tr>
+<tr>
+<td><code>--exclude-groups</code></td>
+<td>Preserve files belonging to the selected groups.</td>
+</tr>
+<tr>
+<td><code>--exclude-files</code></td>
+<td>Preserve files matching the selected basenames or output-relative paths.</td>
+</tr>
+</tbody>
+</table>
+<p>The rules are:</p>
+<ol>
+<li>If neither <code>only</code> option contains values, all normal outputs are eligible for generation.</li>
+<li>Otherwise, a file is eligible if it matches <strong>either</strong> <code>--only-groups</code> <strong>or</strong> <code>--only-files</code>.</li>
+<li>A matching exclusion always wins, even when an <code>only</code> option selected the file.</li>
+</ol>
+<p>Files outside the final selection are neither written nor deleted. Empty lists behave as unset options. Unknown group names are rejected; valid selectors that match no output are ignored. If nothing is selected, or exclusions remove the whole selection, the command succeeds without writing generated files.</p>
+<p>Selection applies to supporting files too. For example, <code>--only-groups sdk</code> does not refresh <code>.gitattributes</code>, qlty configuration, documentation or action files unless you also select them.</p>
+<h2>Available groups</h2>
+<p>Group membership uses exact generated output paths, including paths derived from the manifest's module and package names.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Generated outputs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sdk</code></td>
+<td>SDK implementation, interfaces, configuration, additional-type packages, option packages and enum definitions.</td>
+</tr>
+<tr>
+<td><code>cli</code></td>
+<td>CLI entrypoints, command definitions, configuration, wrappers and supporting CLI source, excluding <code>implementations.go</code>.</td>
+</tr>
+<tr>
+<td><code>cli-implementation</code></td>
+<td><code>&lt;cli_package&gt;/cmd/&lt;main_module&gt;/implementations.go</code>.</td>
+</tr>
+<tr>
+<td><code>gomod</code></td>
+<td>SDK and CLI <code>go.mod</code> files and the generated <code>go.work</code>.</td>
+</tr>
+<tr>
+<td><code>ci</code></td>
+<td>Workflows, GitHub Actions, release configuration, container build files and installation scripts.</td>
+</tr>
+<tr>
+<td><code>linters</code></td>
+<td>Lint, editor, pre-commit, Checkov, YAML lint and qlty configuration.</td>
+</tr>
+<tr>
+<td><code>readme</code></td>
+<td>The root <code>README.md</code>.</td>
+</tr>
+<tr>
+<td><code>project</code></td>
+<td>Repository support files such as <code>pyproject.toml</code>, <code>CODEOWNERS</code>, Dependabot files, contribution/security documentation, <code>.gitignore</code>, <code>.gitattributes</code> and <code>module.properties</code>.</td>
+</tr>
+<tr>
+<td><code>agent</code></td>
+<td><code>agent.md</code>, Copilot instructions, generated skills and applicable embedded skill copies.</td>
+</tr>
+</tbody>
+</table>
+<p>A file can belong to more than one group. For example, the Dependabot workflow belongs to both <code>ci</code> and <code>project</code>; excluding either group preserves it.</p>
+<h2>Refresh only the SDK source</h2>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite --only-groups sdk
+</code></pre>
+<p>This updates SDK source and enum definitions while leaving CLI and repository support files alone.</p>
+<p>Use it for an SDK-only contract change when the CLI and repository automation do not need to be refreshed.</p>
+<h2>Preserve command implementations during a wider refresh</h2>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite --exclude-groups cli-implementation,gomod
+</code></pre>
+<p>This preserves CLI command implementations and Go module/workspace definitions while regenerating the other eligible outputs.</p>
+<p>This is useful when command handlers contain your own logic and module files contain deliberate dependency versions or <code>replace</code> directives.</p>
+<h2>Combine group and file selections</h2>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite --only-groups sdk --only-files README.md,.gitattributes
+</code></pre>
+<p>The result is the union: SDK source, the README and <code>.gitattributes</code>. Other supporting files remain untouched.</p>
+<p>Use this when a contract update also needs refreshed project documentation and generated-file tracking, without updating CI or lint configuration.</p>
+<h2>Exclude a file from a selected group</h2>
+<p>For the default CLI package name <code>cli</code>:</p>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite --only-groups cli --exclude-files cli/cmd/root.go
+</code></pre>
+<p>This refreshes the generated CLI scaffolding except <code>cli/cmd/root.go</code>. The separate <code>cli-implementation</code> group is not selected, so command implementations are also preserved.</p>
+<p>This is useful when command definitions should follow the manifest but the root command contains project-specific initialisation or shared flags.</p>
+<h2>Match files precisely</h2>
+<p><code>--only-files</code> and <code>--exclude-files</code> share the same matching rules:</p>
+<ul>
+<li><code>enums.go</code> matches that exact basename at any depth.</li>
+<li><code>catalogue/options/enums.go</code> matches only that exact output-relative path. Replace <code>catalogue</code> with the manifest's <code>main_module</code>.</li>
+<li><code>./README.md</code> explicitly targets the root README rather than every generated file with that basename.</li>
+<li>Paths are relative to <code>--output</code>, not to the manifest or current working directory.</li>
+<li>Both <code>/</code> and <code>\</code> separators are accepted and normalised.</li>
+<li>Matching is exact and case-sensitive. There are no substring, glob or recursive-directory matches.</li>
+<li>Absolute paths and paths escaping the output directory, such as <code>../README.md</code>, are rejected.</li>
+</ul>
+<p>You can provide comma-separated values or repeat a flag:</p>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --overwrite --only-groups sdk --only-groups readme
+</code></pre>
+<h2>After generation</h2>
+<p>The entire manifest is still validated, even when only a subset of outputs is selected. Existing protected files, such as <code>module.properties</code>, retain their normal protection when selected.</p>
+<p>Review the resulting diff and run the appropriate checks in the affected Go modules. Commands such as <code>go generate ./...</code> and <code>go mod tidy</code> are separate operations: these selection flags do not control their writes, including generated enum parsers, mocks or checksum files.</p>
+<p>For the current flag descriptions, run <code>go-sdk-generator generate --help</code> or consult the <a href="../DOCUMENTATION.md">command reference</a>.</p>
+<h2>SDK callers: overwrite is a per-call option</h2>
+<p><code>options.OverwriteOptions.Enabled</code> controls overwrite for each <code>Generate</code> call.
+The former <code>SDKGeneratorManagerConfiguration.Overwrite</code> field has been removed.
+SDK callers must migrate to per-call options; the CLI exposes the option through
+the existing <code>--overwrite</code> flag.</p>
+<p>To enable overwrite without restricting the output selection:</p>
+<pre><code class="language-go">err := generator.Generate(ctx, logger, cfg, options.WithOverwriteEnabled(true))
+</code></pre>
+<p>Import <code>options</code> from
+<code>github.com/ARM-software/go-sdk-generator/generator/options</code>. The selection helpers
+also enable overwrite:</p>
+<pre><code class="language-go">err := generator.Generate(ctx, logger, cfg,
+    options.WithOnlyGroups([]string{&quot;sdk&quot;}),
+    options.WithExcludeFiles([]string{&quot;interfaces.go&quot;}),
+)
+</code></pre>
+<p>Options are applied in order and validated together. Explicitly disabling
+overwrite after supplying non-empty selectors is rejected before any files are
+written. Calling <code>Generate</code> without overwrite options uses the normal preservation
+mode, even when a previous call on the same manager enabled overwrite.</p>
+<p>When settings already exist as an <code>options.OverwriteOptions</code> object, pass
+<code>settings.AsList()...</code>. This preserves its exact enabled state and selectors.
+The generator's CLI uses this conversion for its bound overwrite configuration.
+See <a href="configure-options.html#pass-an-options-object-to-an-sdk-method">options-object conversions</a>.</p></main>
+</body>
+</html>

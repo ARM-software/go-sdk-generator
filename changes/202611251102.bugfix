@@ -1,1 +1,0 @@
-:bug: Enforce explicit conditional requirements for together-mode options even when the set is disabled, while keeping ordinary field validation enabled-gated.

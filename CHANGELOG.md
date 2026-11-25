@@ -2,6 +2,35 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.56.0 (2026-11-25)
+
+## Features
+
+- :sparkles: Add `enable_mode: independent` (default) or `together` when defining option sets, allowing parameters to be enabled separately or as a group to suit their intended use. (#202611231200)
+- :sparkles: Generate named enums and enumer directives for option collection items, providing reusable values and parsing helpers while retaining string-based inputs, and document the purpose of enum files. (#202611231302)
+- :sparkles: Add `--exclude-groups` and `--exclude-files` for granular overwrite regeneration, including separate `sdk`, `cli` and `cli-implementation` groups to preserve customised files. (#202611231304)
+- :sparkles: Add `--only-files` and `--only-groups` for targeted overwrite regeneration, limiting changes to selected outputs while exclusions retain priority. (#202611231305)
+- :boom: Move SDK overwrite control from global configuration to per-call OverwriteOptions.Enabled. Replace SDKGeneratorManagerConfiguration.Overwrite with options.WithOverwriteEnabled(true) or selection helpers when calling Generate. (#20261125094146109082000)
+- :boom: Generate AsList and AsIterator conversions for options objects. Interface arguments declared as options objects now consume functional-option collections, while CLI configuration keeps editable objects and their constructor defaults. (#20261125103311176822300)
+
+## Bugfixes
+
+- :bug: Generate skill documentation from individual CLI bindings so flags use their own names and descriptions rather than those of the containing option set. (#202611231300)
+- :bug: Generate StringSlice CLI flags for manifest fields and bindings declared with `lang_type: string` and `list: true`, allowing comma-separated and repeated flag values. (#202611231301)
+- :bug: Preserve whole-field collection defaults in generated CLI validation tests instead of wrapping them as individual items, including referenced slices. (#202611251100)
+- :bug: Keep together-mode option enum-list defaults literal, including semantic keywords such as `home`, escaped strings, and referenced lists. (#202611251101)
+- :bug: Enforce explicit conditional requirements for together-mode options even when the set is disabled, while keeping ordinary field validation enabled-gated. (#202611251102)
+- :bug: Generate valid CLI logger and summary test configurations by evaluating `forbidden_when` after initialising field values, preserving conditionally required fields when they are allowed. (#202611251103)
+
+## Misc
+
+- #202611231303
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.55.0 (2026-11-24)
 
 ## Features

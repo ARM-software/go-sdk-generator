@@ -1,1 +1,0 @@
-:sparkles: Generate named enums and enumer directives for option collection items, providing reusable values and parsing helpers while retaining string-based inputs, and document the purpose of enum files.

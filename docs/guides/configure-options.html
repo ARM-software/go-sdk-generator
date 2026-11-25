@@ -26,7 +26,13 @@ SPDX-License-Identifier: Apache-2.0
 <h1>Configure functional options</h1>
 <p>Use <code>specification.options</code> in a <a href="write-a-manifest.html">generator manifest</a> to define optional settings for an SDK operation and, where needed, expose them in the generated CLI. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml">repository's pet shop manifest</a> exercises the option and CLI configuration together.</p>
 <h2>Define an option and its value field</h2>
-<p>Each generated option value has an <code>Enabled bool</code> field with <code>mapstructure:"enabled"</code>. A <code>default_value</code> prepares its value but does <strong>not</strong> enable the option. Calling a generated <code>With…(...)</code> helper enables it, even if the supplied value is empty. The <code>value_field</code> setting changes the name and mapstructure tag of the value held by the option; it does not rename the enabling flag.</p>
+<p>In the default <code>enable_mode: independent</code>, each generated option value has an
+<code>Enabled bool</code> field with <code>mapstructure:"enabled"</code>. With <code>enable_mode: together</code>,
+one <code>Enabled</code> field controls the whole options object. A <code>default_value</code> prepares
+its value but does <strong>not</strong> enable the option. Calling a generated <code>With…(...)</code>
+helper enables the corresponding option or set, even if the supplied value is
+empty. The <code>value_field</code> setting changes an independent option's value field; it
+does not rename the enabling flag.</p>
 <p>For example, within <code>specification</code>:</p>
 <pre><code class="language-yaml">options:
   - name: Search
@@ -75,6 +81,62 @@ SPDX-License-Identifier: Apache-2.0
       arg: use-paging
       description: Enable paging.
 </code></pre>
-<p>This changes the default <code>--page-size</code> flag to <code>--use-paging</code> while retaining the <code>PageSizeOption.Enabled</code> destination and its environment binding. Omit the binding to keep the default flag name. See the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml">pet shop manifest</a> for the complete option and CLI definitions.</p></main>
+<p>This changes the default <code>--page-size</code> flag to <code>--use-paging</code> while retaining the <code>PageSizeOption.Enabled</code> destination and its environment binding. Omit the binding to keep the default flag name. See the <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml">pet shop manifest</a> for the complete option and CLI definitions.</p>
+<h2>Pass an options object to an SDK method</h2>
+<p>A locally declared options set has two generated types:</p>
+<ul>
+<li><code>SearchOptions</code>: the editable settings object.</li>
+<li><code>SearchOption</code>: a function that applies settings to a <code>*SearchOptions</code>.</li>
+</ul>
+<p>An interface argument can name the object instead of spelling out the functional
+option type. For example, under <code>specification.interface.methods</code>:</p>
+<pre><code class="language-yaml">- name: Search
+  description: Search the product catalogue.
+  args:
+    - name: Settings
+      lang_type: search.SearchOptions
+      description: Settings to apply to the search.
+  returns:
+    - name: err
+      lang_type: error
+      description: Whether the search failed.
+</code></pre>
+<p>The generator recognises the declared options object and emits functional options:</p>
+<pre><code class="language-go">Search(ctx context.Context, settings ...search.SearchOption) (err error)
+</code></pre>
+<p>A final argument is variadic. An earlier argument uses <code>[]search.SearchOption</code>.
+Setting <code>iterator: true</code> produces <code>iter.Seq[search.SearchOption]</code> instead. Object
+pointer/reference markers do not make these interface arguments pointers to
+collections. Return values and unrelated custom types keep their declared shapes.</p>
+<h3>Keep CLI configuration editable</h3>
+<p>A CLI configuration field naming <code>search.SearchOptions</code> retains that object type,
+even when <code>list</code> or <code>iterator</code> is specified. Its default is
+<code>*search.DefaultSearchOptions()</code>, or the constructor's pointer result for a
+reference field. Explicit defaults must likewise produce one settings object.
+Bindings continue to edit the object's fields; collection constraints belong on
+its parameters rather than on the outer CLI object.</p>
+<p>Convert the object when implementing the call into the SDK:</p>
+<pre><code class="language-go">return manager.Search(ctx, cfg.Settings.AsList()...)
+</code></pre>
+<p>For an iterator-shaped interface argument, pass <code>cfg.Settings.AsIterator()</code>
+without the spread operator. The operation can collect that sequence before
+calling the existing variadic builder:</p>
+<pre><code class="language-go">settings := search.WithSearchOptions(slices.Collect(optionSequence)...)
+</code></pre>
+<p>The generated CLI implementation is still an application stub: it does not infer
+which SDK operation or arguments your command should call.</p>
+<h3>Conversion semantics</h3>
+<p><code>AsList()</code> returns <code>[]SearchOption</code>; <code>AsIterator()</code> returns
+<code>iter.Seq[SearchOption]</code>. Generated option packages use Go 1.23 or later for these
+helpers. Both capture a snapshot using the object's <code>Clone</code>
+semantics. The snapshot preserves enabled flags and all configured values,
+including disabled values that validation may reject.</p>
+<p>The conversion supplies one functional option that replaces the destination's
+complete state. Earlier options are replaced; options applied afterwards can
+override it. Reusing the list or iterator creates another clone on application.
+A nil object produces an empty list or sequence. Conversion does not enable the
+object or validate it: validate the settings built by the receiving operation.</p>
+<p><code>AsList</code> and <code>AsIterator</code> are reserved generated method names and cannot be used
+as option parameter names.</p></main>
 </body>
 </html>

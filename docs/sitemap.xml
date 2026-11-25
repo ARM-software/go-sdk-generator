@@ -23,6 +23,9 @@
     <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/mocks/index.html</loc>
   </url>
   <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/generator/options/index.html</loc>
+  </url>
+  <url>
     <loc>https://ARM-software.github.io/go-sdk-generator/github.com/ARM-software/go-sdk-generator/index.html</loc>
   </url>
   <url>
@@ -42,6 +45,9 @@
   </url>
   <url>
     <loc>https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html</loc>
+  </url>
+  <url>
+    <loc>https://ARM-software.github.io/go-sdk-generator/guides/granular-generation.html</loc>
   </url>
   <url>
     <loc>https://ARM-software.github.io/go-sdk-generator/guides/index.html</loc>

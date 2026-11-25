@@ -42,6 +42,7 @@ go test ./...
 <p>Also review generated repository automation files such as <code>pyproject.toml</code> and <code>.github/workflows/</code>. Top-level manifest settings like <code>tag_latest</code> and <code>update_copyright_headers</code> change those outputs. On an existing project, use <code>--overwrite</code> to update stateful generated files such as <code>pyproject.toml</code> and the workflows. If you turn off automatic copyright maintenance, remove any previously generated licensing workflow that remains in the project.</p>
 <p>For a multi-module workspace, repeat the commands in each generated module rather than running <code>go mod tidy</code> from the workspace root. See <a href="what-it-generates.html">what the generator produces</a> for the distinction between generated scaffolding and handwritten logic.</p>
 <h2>Change the contract later</h2>
+<p>To refresh selected files or preserve customised scaffolding, use the overwrite selection flags described in <a href="granular-generation.html">granular generation</a>.</p>
 <ol>
 <li>Edit the manifest, checking <a href="write-a-manifest.html">manifest authoring</a> for type and compatibility guidance.</li>
 <li>Re-run <code>go-sdk-generator generate</code> with the same input, output, and Go version.</li>

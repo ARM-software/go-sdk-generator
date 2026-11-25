@@ -1,1 +1,0 @@
-:bug: Generate StringSlice CLI flags for manifest fields and bindings declared with `lang_type: string` and `list: true`, allowing comma-separated and repeated flag values.

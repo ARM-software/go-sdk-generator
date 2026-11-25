@@ -1,1 +1,0 @@
-:bug: Generate skill documentation from individual CLI bindings so flags use their own names and descriptions rather than those of the containing option set.
