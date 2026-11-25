@@ -16,11 +16,11 @@ import (
 
 func TestOptionSetEnableModes(t *testing.T) {
 	for _, tc := range []struct {
-		name     string
-		mode     OptionSetEnableMode
-		infer    bool
-		wantMode OptionSetEnableMode
-		together bool
+		name             string
+		mode             OptionSetEnableMode
+		infer            bool
+		wantMode         OptionSetEnableMode
+		together         bool
 		unmarshalInvalid bool
 		validateInvalid  bool
 	}{
