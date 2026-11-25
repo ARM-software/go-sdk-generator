@@ -153,7 +153,13 @@ SPDX-License-Identifier: Apache-2.0
 </tr>
 </tbody>
 </table>
-<p>Declare project-specific types with <code>specification.additional_types</code>. For a pointer, list or iterator, prefer the manifest's <code>reference</code>, <code>list</code> and <code>iterator</code> flags to embedding Go syntax in <code>lang_type</code>. <code>list</code> and <code>iterator</code> cannot be combined. A final method argument marked <code>list: true</code> becomes variadic (<code>...T</code>). Use <code>enum</code> for closed string-like choices.</p>
+<p>Declare project-specific types with <code>specification.additional_types</code>. For a
+pointer, list or iterator, prefer the manifest's <code>reference</code>, <code>list</code> and <code>iterator</code>
+flags to embedding Go syntax in <code>lang_type</code>. <code>list</code> and <code>iterator</code> cannot be
+combined. A final, non-reference method argument marked <code>list: true</code> becomes
+variadic (<code>...T</code>). Use <code>enum</code> for closed string choices, including string collection
+items. See <a href="collections-and-streams.html">collections, lists and iterators</a> for item
+validation, iterator consumption, and string-list CLI flags.</p>
 <h2>Built-in <code>default_value</code> shortcuts</h2>
 <p>Most values are emitted as literals. The following shortcuts produce computed defaults; use them only when their behaviour suits the contract.</p>
 <table>

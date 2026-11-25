@@ -1,0 +1,52 @@
+specification:
+  package_name: json-default-regression
+  main_module: jsondefaults
+  name: JSONDefaults
+  description: Regression fixture for JSON defaults in every generated initialiser.
+  repository_url: https://example.com/json-default-regression
+  public: true
+  update_copyright_headers: false
+  interface:
+    namespace: example.com/
+    notCloseable: true
+    methods: []
+  global_configuration:
+    - name: Payload
+      lang_type: json
+      mapstructure_tag: sdk_payload
+      description: SDK JSON payload.
+      default_value: '{}'
+  additional_types:
+    - name: PayloadModel
+      description: JSON payload model.
+      fields:
+        - name: Payload
+          lang_type: json
+          json_tag: payload
+          mapstructure_tag: payload
+          description: Model JSON payload.
+          default_value: '{}'
+  options:
+    - name: Build
+      description: JSON build settings.
+      functions:
+        - parameters:
+            - name: Payload
+              lang_type: json
+              description: Option JSON payload.
+              default_value: '{}'
+  command_line_commands:
+    binary: json-default-regression
+    root_environment_var: JSON_DEFAULT_REGRESSION
+    description: JSON default regression CLI.
+    no_actions: true
+    functions:
+      - name: Run
+        description: Exercise JSON defaults.
+        with_summary: false
+        configuration:
+          - name: Payload
+            lang_type: json
+            mapstructure_tag: cli_payload
+            description: CLI JSON payload.
+            default_value: '{}'

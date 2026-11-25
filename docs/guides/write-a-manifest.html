@@ -64,6 +64,10 @@ SPDX-License-Identifier: Apache-2.0
 <td><code>tag_latest</code>, <code>update_copyright_headers</code></td>
 <td>Optional release tagging and copyright-header maintenance settings.</td>
 </tr>
+<tr>
+<td><code>disable_dependabot_generator_workflow</code></td>
+<td>Opt out of automatic generator upgrades on Dependabot pull requests.</td>
+</tr>
 </tbody>
 </table>
 <p>When operations accept functional options, use <code>specification.options</code>; see <a href="configure-options.html">configure functional options</a> for option wrappers, <code>value_field</code> and CLI bindings.</p>
@@ -91,8 +95,12 @@ SPDX-License-Identifier: Apache-2.0
 <ul>
 <li><code>tag_latest</code> defaults to <code>false</code>. Set it to <code>true</code> to keep a <code>latest</code> tag pointing to the most recent stable release. Consumers can follow published releases without updating their references or tracking a development branch. Because the tag moves, builds that use it are not reproducible and can pick up breaking changes; pin a version when that matters. See <a href="https://github.com/docker-library/official-images#tags-and-aliases">Docker's guidance on tags and aliases</a> and <a href="https://docs.docker.com/build/building/best-practices/#pin-base-image-versions">pinning image versions</a>, and <a href="https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions">GitHub's guidance on managing action versions</a>.</li>
 <li><code>update_copyright_headers</code> defaults to <code>true</code>. Copyright headers identify the copyright holders and ownership of source files, often with applicable years and an SPDX licence identifier. They support attribution, clear licensing terms, and automated licence checks. For GitHub-hosted projects, enabling this setting generates a workflow that updates headers on pull requests and proposes a maintenance pull request on scheduled or manual runs. Generator upgrades refresh headers too. Set it to <code>false</code> to opt out. See the <a href="https://reuse.software/spec-3.3/">REUSE specification</a> and <a href="https://www.gnu.org/prep/maintain/html_node/Copyright-Notices.html">GNU copyright notice guidance</a>.</li>
+<li><code>disable_dependabot_generator_workflow</code> defaults to <code>false</code>. Set it to <code>true</code> to stop the <strong>Upgrade Generator</strong> workflow from running on Dependabot pull requests. This is useful when a repository uses unreleased generator features that the released generator action cannot handle. Scheduled and manual upgrades remain available, as do the regular CI checks. This generator's own manifest enables the flag. Regenerate with <code>--overwrite</code> to apply the setting to an existing workflow.</li>
 </ul>
 <h2>Model values deliberately</h2>
+<p>For repeated values, see
+<a href="collections-and-streams.html">collections, lists and iterators</a>, covering shape flags,
+item enums, cardinality constraints and CLI input.</p>
 <ul>
 <li>Use specific <code>lang_type</code> aliases such as <code>duration</code>, <code>uuid</code>, <code>filepath</code>, or <code>service</code> where they match the value. See <a href="types-and-defaults.html">types, formats and defaults</a> for the complete built-in reference. Prefer <code>reference: true</code>, <code>list: true</code>, or <code>iterator: true</code> to encoding shapes into the type string; <code>list</code> and <code>iterator</code> cannot be combined.</li>
 <li>Use <code>enum</code> for closed string choices, <code>constraints</code> for validation and relationships, and <code>example</code> or <code>examples</code> for representative values. These feed generated validation, help, documentation, and action inputs.</li>

@@ -6,6 +6,7 @@ specification:
   public: true
   tag_latest: true
   update_copyright_headers: true
+  disable_dependabot_generator_workflow: true
   licence: Apache-2.0
   repository_url: https://github.com/ARM-software/go-sdk-generator
   options:

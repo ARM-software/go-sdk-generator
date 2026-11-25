@@ -933,7 +933,7 @@ func updateCliFunctionArgumentsToSupportSummary(fct *CliFunction) error {
 
 			DefaultValue: field.ToOptionalString(SummaryDestinationOutput.String()),
 
-			Enum: []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()},
+			Enum: []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String(), SummaryDestinationNone.String()},
 
 			IsRoot: false,
 
@@ -1596,7 +1596,7 @@ func parseNonBindingToFlag(cliFunc CliFunction, cfg FunctionConfigFields) (envVa
 }
 
 func cliFlagTypeAndZeroValue(langType string, list bool) (flagType string, zeroVal string) {
-	if list && convertLangType(langType) == "string" {
+	if list && convertLangType(baseLangType(langType)) == stringLangType {
 		return "StringSlice", "[]string{}"
 	}
 

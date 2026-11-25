@@ -107,7 +107,7 @@ func TestOverwriteExclusionGroupsUseExactOutputs(t *testing.T) {
 	root := t.TempDir()
 	for group, files := range map[string][]string{
 		"ci":                 {".github/workflows/ci.yml", "actions/generate/action.yml", "actions/_shared/install-and-run.sh", "Dockerfile.generator"},
-		"linters":            {".qlty/qlty.toml", ".golangci.yaml"},
+		"linters":            {".qlty/qlty.toml", ".qlty/configs/trivy.yaml", ".qlty/scripts/osv-scanner.sh", ".golangci.yaml"},
 		"gomod":              {"go.work", "generator/go.mod", "cli/go.mod"},
 		"cli":                {"cli/cmd/root.go", "cli/cmd/generator/wrappers.go"},
 		"cli-implementation": {"cli/cmd/generator/implementations.go"},

@@ -6,7 +6,7 @@ registries:
     type: git
     url: https://github.com
     username: x-access-token
-    password: ${{ "{{" }}secrets.GIT_SECRET}}
+    password: ${{ "{{" }} secrets.GIT_SECRET }}
 updates:
 - package-ecosystem: gomod
   directory: "/{{ .Specification.MainModule }}"
@@ -17,6 +17,16 @@ updates:
   rebase-strategy: disabled
   registries:
     - github
+  groups:
+    golang-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/golang-utils/utils/*"
+    embedded-development-services-client-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils"
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils/*"
 {{ if .Specification.CommandLineCommands -}}
 - package-ecosystem: gomod
   directory: "/{{ .Specification.CommandLineCommands.Package }}"
@@ -27,6 +37,16 @@ updates:
   rebase-strategy: disabled
   registries:
     - github
+  groups:
+    golang-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/golang-utils/utils/*"
+    embedded-development-services-client-utils:
+      applies-to: version-updates
+      patterns:
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils"
+        - "github.com/ARM-software/embedded-development-services-client-utils/utils/*"
 {{ end -}}
 - package-ecosystem: github-actions
   directory: "/"
@@ -37,6 +57,11 @@ updates:
   rebase-strategy: disabled
   registries:
     - github
+  groups:
+    actions-security:
+      applies-to: security-updates
+      patterns:
+        - "*"
 - package-ecosystem: docker
   directory: "/"
   schedule:

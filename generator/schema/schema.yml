@@ -181,6 +181,14 @@ properties:
           clarify licensing terms and support automated licence checks.
           On GitHub, enabling this adds a workflow that updates headers on pull requests and
           periodically proposes maintenance changes; generator upgrades also refresh headers.
+      disable_dependabot_generator_workflow:
+        type: boolean
+        default: false
+        description: |
+          Disable automatic Upgrade Generator workflow runs on Dependabot pull requests.
+          Scheduled and manually triggered generator upgrades remain enabled.
+          Set this to true when the repository uses unreleased generator features that
+          the released generator action cannot yet handle.
       licence:
         type: string
         description: The licence SPDX identifier (https://spdx.org/licenses/) for the SDK
@@ -845,6 +853,7 @@ $defs:
       - file
       - github
       - output
+      - none
   built_in_lang_type:
     title: BuiltInLangType
     description: |

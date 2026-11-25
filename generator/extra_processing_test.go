@@ -1043,7 +1043,7 @@ func TestProcessArguments(t *testing.T) {
 
 		assert.Equal(t, "Write a human-readable summary to the selected destination.", byName[summaryArgument].Description)
 
-		assert.Equal(t, []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String()}, byName[summaryArgument].Enum)
+		assert.Equal(t, []string{SummaryDestinationFile.String(), SummaryDestinationGithub.String(), SummaryDestinationOutput.String(), SummaryDestinationNone.String()}, byName[summaryArgument].Enum)
 
 		require.NotNil(t, byName[summaryArgument].DefaultValue)
 

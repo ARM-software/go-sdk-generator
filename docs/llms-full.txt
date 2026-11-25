@@ -19,6 +19,8 @@ SPDX-License-Identifier: Apache-2.0
 - [Write a manifest](https://ARM-software.github.io/go-sdk-generator/guides/write-a-manifest.html): define a focused project, choose types and constraints, and validate the contract.
 - [What the generator produces](https://ARM-software.github.io/go-sdk-generator/guides/what-it-generates.html): SDK, CLI, action and documentation outputs, and what remains to implement.
 - [Types, formats and defaults](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html): choose built-in `lang_type` values and generated default behaviour.
+- [Collections, lists and iterators](https://ARM-software.github.io/go-sdk-generator/guides/collections-and-streams.html): choose collection
+  shapes, validate items and counts, and understand CLI parsing.
 - [Configure functional options](https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html): enable option values and expose them through CLI flags.
 - [Generate and regenerate a project](https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html): run generation, implement operations, and preserve handwritten work.
 - [Use the GitHub Actions](https://ARM-software.github.io/go-sdk-generator/guides/use-github-actions.html): run generation in a workflow or install the binary for later steps.
@@ -34,6 +36,363 @@ SPDX-License-Identifier: Apache-2.0
 - [Maintained agent skills](https://github.com/ARM-software/go-sdk-generator/tree/main/.agents/skills): task-specific instructions for agents working in this repository. The tool can also install its embedded skills with `go-sdk-generator agent --init`.
 
 The Markdown in `guides/` is the source. `cd-generate-docs` renders it alongside the API documentation in `docs/guides/` when documentation is rebuilt; edit the Markdown rather than the rendered output.
+
+
+## Collections, lists and iterators
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+
+Use a collection when a value represents several items: tags on an asset,
+supported platforms, or files returned by a search. Choose the **item type**, the
+**collection shape**, and the **validation rules** separately.
+
+This guide builds on [writing a manifest](https://ARM-software.github.io/go-sdk-generator/guides/write-a-manifest.html) and
+[types and defaults](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html). The [schema][manifest-schema] is the
+authoritative field reference.
+
+### Choose the item type and shape
+
+Prefer a base `lang_type` with a shape flag. For `lang_type: string`:
+
+| Shape flags | Usual Go shape | Choose it when |
+| --- | --- | --- |
+| Neither flag set | `string` | There is one value. |
+| `list: true` | `[]string` | Stored values, with indexing. |
+| `iterator: true` | `iter.Seq[string]` | Iterated SDK values. |
+
+The same shape rules apply to other item types, such as `int` or a declared
+additional type. `list` and `iterator` both default to `false` and cannot both be
+`true`.
+
+Shape flags are available on method arguments and returns, configuration fields,
+additional-type fields, and option parameters. The field examples below are
+fragments to place in the appropriate manifest section; a complete SDK example
+appears at the end.
+
+Use `lang_type` for the item, rather than combining `list: true` with
+`lang_type: "[]string"`: that would add another collection layer. String lists also
+support repeated CLI flags; see [CLI input](#cli-input).
+
+### Lists: values held together
+
+For example, put this field under `specification.global_configuration`:
+
+```yaml
+- name: Tags
+  lang_type: string
+  list: true
+  mapstructure_tag: tags
+  description: Tags identifying the assets to process.
+  examples: [alpha, beta]
+  constraints:
+    unique_items: true
+```
+
+The generated configuration field is `Tags []string`. Callers can provide a slice
+and inspect it repeatedly. `unique_items` rejects duplicates; it does not silently
+remove them.
+
+#### The final method argument becomes variadic
+
+In an SDK interface method, a **final, non-reference** argument with `list: true`
+becomes `...T`, rather than `[]T` in the signature. Earlier list arguments, list
+return values, configuration fields and option parameters keep their slice shape.
+
+For example, an entry under `specification.interface.methods`:
+
+```yaml
+- name: Collect
+  description: Collect assets with the supplied tags.
+  args:
+    - name: Tags
+      lang_type: string
+      list: true
+      description: Tags to collect.
+  returns:
+    - name: err
+      lang_type: error
+      description: Whether collection failed.
+```
+
+The generated method has this shape:
+
+```go
+Collect(ctx context.Context, tags ...string) (err error)
+```
+
+Pass an existing slice using Go's spread syntax:
+
+```go
+tags := []string{"alpha", "beta"}
+err := manager.Collect(ctx, tags...)
+```
+
+This variadic rule is about SDK method signatures, not how CLI flags are parsed.
+
+### Iterators: values supplied through iteration
+
+Use `iterator: true` for a stream-like SDK surface. For example, a method return
+value:
+
+```yaml
+- name: Paths
+  lang_type: string
+  iterator: true
+  description: Asset paths produced by the search.
+```
+
+The generated type is `iter.Seq[string]`. The implementation supplies the sequence,
+and a caller can consume it with a Go range loop:
+
+```go
+for path := range paths {
+    // Process this path.
+}
+```
+
+An iterator can produce values lazily, but the flag itself does not implement a
+producer, network stream, channel or file reader. Use Go 1.23 or later for
+range-over-function iteration; see the [Go iter package](https://pkg.go.dev/iter).
+
+**Validation can consume the sequence.** Collection validation helpers may
+enumerate and materialise iterator items, and different rules may traverse the
+sequence separately. For validation followed by processing, use a finite,
+replayable sequence or supply a list. Do not assume that adding `iterator: true`
+guarantees constant-memory validation of an unbounded stream.
+
+### Arrays, lengths and references
+
+`list: true` represents a variable-length Go slice, not a fixed-size Go array such
+as `[3]string`. To require three items, use `min_items: 3` and `max_items: 3`; the
+generated type is still a slice or iterator. If positions have different meanings,
+named fields in an additional type can express the contract more clearly.
+
+`reference: true` applies to the **whole shape**: combined with `list: true`, it
+produces `*[]T`, not `[]*T`; combined with `iterator: true`, it produces
+`*iter.Seq[T]`. Leave it unset unless a pointer to the collection is intentional.
+A reference list argument is not converted to a variadic argument.
+
+### Collection rules versus item rules
+
+Where generated validation is emitted, such as a configuration's `Validate()`
+method, distinguish the number of items from the validity of each item.
+
+| Collection rule under `constraints` | Meaning |
+| --- | --- |
+| `min_items: N` | Minimum item count. |
+| `max_items: N` | Maximum item count. |
+| `unique_items: true` | Reject duplicate items. |
+| `at_least_one: true` | Shorthand for `min_items: 1`. |
+| `exactly_one: true` | Shorthand for `min_items: 1` and `max_items: 1`. |
+
+These rules require `list: true` or `iterator: true`. Keep bounds consistent:
+`min_items` cannot exceed `max_items`, and `exactly_one` cannot be combined with
+bounds excluding one item. `exactly_one` means one item in this collection, not
+one populated field among several fields.
+
+Use `required: true` when omitting the configuration value must be rejected. Item
+rules alone do not require a non-empty collection; express its cardinality
+separately.
+
+The generator also supports item-by-item validation for:
+
+- Top-level `enum` and `pattern`.
+- String constraints such as `not_empty`, `contains`, `not_contains`, `prefix`,
+  `suffix`, `min_length` and `max_length`.
+- Numeric constraints such as `minimum`, `maximum`, `exclusive_minimum`,
+  `exclusive_maximum` and `multiple_of`.
+
+For example, this configuration requires one to five distinct tags, each
+containing only lowercase letters and having at least two characters:
+
+```yaml
+- name: Tags
+  lang_type: string
+  list: true
+  required: true
+  mapstructure_tag: tags
+  description: Lowercase asset tags.
+  pattern: '^[a-z]+$'
+  constraints:
+    min_items: 1
+    max_items: 5
+    unique_items: true
+    min_length: 2
+```
+
+Here `min_items` counts tags; `min_length` measures each tag. Likewise, `contains`
+tests a substring in each string item, not membership in the collection.
+`constraints.extension` is currently restricted to scalar path values. For format
+aliases such as `uuid` or `filepath`, check the emitted validation rather than
+assuming every built-in scalar validator is collection-aware.
+
+Manifest validation checks the definition. Runtime validation checks actual values
+where the generated API provides it; declaring method arguments or return types
+does not by itself implement validation of your operation's inputs or outputs.
+
+### Enums for collection items are supported
+
+Use `lang_type: string` with `enum` to constrain each item of a list or iterator:
+
+```yaml
+- name: Platforms
+  lang_type: string
+  list: true
+  required: true
+  mapstructure_tag: platforms
+  description: Platforms to include in the search.
+  enum: [linux, windows, macos]
+  examples: [linux, windows]
+  constraints:
+    at_least_one: true
+    unique_items: true
+```
+
+Each supplied platform must be an allowed value. Replace `list: true` with
+`iterator: true` for the iterator form. The generated collection retains its base
+string shape (`[]string` or `iter.Seq[string]`); collection enums use item validation
+rather than a separate generated enum type for every item. Do not add handwritten
+enum validation just because the value is a collection.
+
+### Examples are items; defaults are different
+
+For a list or iterator, `example` describes one item, and each entry in `examples`
+describes one item. Use one property or the other, not both. Example values are
+strings in the manifest, including numeric examples:
+
+```yaml
+- name: Ports
+  lang_type: int
+  list: true
+  mapstructure_tag: ports
+  description: Ports to inspect.
+  examples: ["8080", "8443"]
+  constraints:
+    minimum: 1
+    maximum: 65535
+```
+
+These examples are two representative ports, not a default two-item collection.
+They describe input and help generated documentation; they do not initialise the
+configuration.
+
+`default_value` remains a single manifest string. It is not a YAML sequence and is
+not automatically expanded into a list or iterator. The collection examples in
+this guide deliberately omit it. Initialise non-empty collection defaults in
+application code, and inspect and compile any custom default expression before
+relying on it. See [types and defaults](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html).
+
+### CLI input
+
+For string-valued CLI lists, `lang_type: string` with `list: true` registers a
+Cobra StringSlice flag as well as generating a `[]string` configuration field.
+This also applies to string-compatible aliases and list-valued bindings, including
+root-level flags.
+
+| CLI configuration declaration | Go field | Registered flag |
+| --- | --- | --- |
+| `lang_type: string` and `list: true` | `[]string` | `StringSlice` |
+| `lang_type: "[]string"`, without `list` | `[]string` | `StringSlice` |
+
+Prefer the shape-flag form, which also supports the collection constraints
+described above. Put this field under a command's `configuration`:
+
+```yaml
+- name: Tags
+  lang_type: string
+  list: true
+  mapstructure_tag: tags
+  description: Tags supplied on the command line.
+  constraints:
+    unique_items: true
+```
+
+For a command named `check`, [StringSlice flags][stringslice] accept both forms:
+
+```sh
+tool check --tags alpha,beta
+tool check --tags alpha --tags beta
+```
+
+The raw `[]string` spelling remains supported for compatibility, but does not opt
+into shape-aware collection constraints. Prefer `string` plus `list: true` for new
+manifests. The repeated-flag behaviour above is for string-valued lists; check flag
+support separately for other collection types. Iterators need an
+application-supplied producer; a CLI flag does not create a lazy sequence. Prefer
+stored list values at CLI/configuration boundaries.
+
+### Complete SDK example
+
+Save this as `collections.yml`. It models a catalogue that searches by tags and
+returns paths through an iterator:
+
+```yaml
+specification:
+  package_name: asset-catalog-sdk
+  main_module: catalog
+  name: Catalog
+  description: Search an asset catalogue by tags and platform.
+  licence: Apache-2.0
+  interface:
+    notCloseable: true
+    namespace: github.com/example/
+    methods:
+      - name: Find
+        description: Find matching asset paths.
+        args:
+          - name: Tags
+            lang_type: string
+            list: true
+            description: Tags to search for.
+        returns:
+          - name: Paths
+            lang_type: string
+            iterator: true
+            description: Matching asset paths.
+          - name: err
+            lang_type: error
+            description: Whether starting the search failed.
+  global_configuration:
+    - name: Platforms
+      lang_type: string
+      list: true
+      required: true
+      mapstructure_tag: platforms
+      description: Platforms to include in the search.
+      enum: [linux, windows, macos]
+      constraints:
+        at_least_one: true
+        unique_items: true
+```
+
+Generate it with your project's target Go version, for example:
+
+```sh
+go-sdk-generator generate -i collections.yml -o ./catalog-generated \
+  --go-version 1.27.3
+```
+
+The SDK method uses `tags ...string` and returns `paths iter.Seq[string]`. Callers
+supply `Platforms` before validating the SDK configuration. Implement the search
+and its iterator in the generated implementation stub; see
+[generate and regenerate a project](https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html) for the remaining module
+setup steps.
+
+Existing regression manifests provide further examples:
+
+- [List and iterator shapes][shape-examples].
+- [Collection enums][enum-examples].
+- [Item constraints][constraint-examples].
+
+[manifest-schema]: https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml
+[stringslice]: https://pkg.go.dev/github.com/spf13/pflag#FlagSet.StringSlice
+[shape-examples]: https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/list-iterator.yml
+[enum-examples]: https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/enum-collections.yml
+[constraint-examples]: https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/collection-item-constraints.yml
 
 
 ## Configure functional options
@@ -174,6 +533,14 @@ go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 ```
 
 Replace the Go version with the version your project uses. `-i`/`--input` selects the manifest, `-o`/`--output` selects the destination, and `-g`/`--go-version` selects the target Go version. Use `go-sdk-generator generate --help` for current options. The generator validates the manifest before producing files.
+
+The `generate` command writes a human-readable summary by default. Use `--summary=none` to suppress it while keeping normal logging and error reporting:
+
+```sh
+go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --summary=none
+```
+
+Generated CLI commands that support summaries accept the same value. Summary output is separate from normal logging (`--logger`) and machine-readable result output. For workflow usage, see [GitHub Actions summary settings](https://ARM-software.github.io/go-sdk-generator/guides/use-github-actions.html#control-summary-output).
 
 After generation, run these commands from each directory containing a generated `go.mod`:
 
@@ -350,7 +717,13 @@ The generator accepts native Go types and convenience aliases in `lang_type`.
 | `hex` | `[]byte` | Hex-encoded bytes decoded at runtime. |
 | `base64`, `byte`, `binary`, `regex` | `string` | Validated string-based formats. |
 
-Declare project-specific types with `specification.additional_types`. For a pointer, list or iterator, prefer the manifest's `reference`, `list` and `iterator` flags to embedding Go syntax in `lang_type`. `list` and `iterator` cannot be combined. A final method argument marked `list: true` becomes variadic (`...T`). Use `enum` for closed string-like choices.
+Declare project-specific types with `specification.additional_types`. For a
+pointer, list or iterator, prefer the manifest's `reference`, `list` and `iterator`
+flags to embedding Go syntax in `lang_type`. `list` and `iterator` cannot be
+combined. A final, non-reference method argument marked `list: true` becomes
+variadic (`...T`). Use `enum` for closed string choices, including string collection
+items. See [collections, lists and iterators](https://ARM-software.github.io/go-sdk-generator/guides/collections-and-streams.html) for item
+validation, iterator consumption, and string-list CLI flags.
 
 ### Built-in `default_value` shortcuts
 
@@ -436,6 +809,21 @@ To build the tool from the current `main` branch instead of installing a release
 
 Set `go-version` to the **generated project's** target Go version, not the version used to build the action. The action defaults to `summary=github`, `logger=rich` and `annotation=github`; `go-version` corresponds to the CLI flag `--go-version` (or `-g`).
 
+#### Control summary output
+
+For summary-aware command actions, set `summary: none` to suppress the human-readable summary:
+
+```yaml
+- uses: ARM-software/go-sdk-generator/actions/generate@main
+  with:
+    input: generate.yml
+    output: .
+    go-version: '1.27.3'
+    summary: none
+```
+
+Choose a release or source revision that includes `none` support. This controls only the summary; normal logs, annotations and result output retain their own settings. The other destinations are `github` (the action default), `output` (console output), and `file` (requires `summary-file`). The equivalent CLI option is `--summary=none`.
+
 ### Install for later steps
 
 ```yaml
@@ -512,6 +900,7 @@ Use [`generator/schema/schema.yml`](https://github.com/ARM-software/go-sdk-gener
 | `command_line_commands` | Optional binary and commands exposing those operations. |
 | `additional_types` | Optional domain types used by the contract. |
 | `tag_latest`, `update_copyright_headers` | Optional release tagging and copyright-header maintenance settings. |
+| `disable_dependabot_generator_workflow` | Opt out of automatic generator upgrades on Dependabot pull requests. |
 
 When operations accept functional options, use `specification.options`; see [configure functional options](https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html) for option wrappers, `value_field` and CLI bindings.
 
@@ -543,8 +932,13 @@ Repository-level automation can also be controlled from the top level of `specif
 
 - `tag_latest` defaults to `false`. Set it to `true` to keep a `latest` tag pointing to the most recent stable release. Consumers can follow published releases without updating their references or tracking a development branch. Because the tag moves, builds that use it are not reproducible and can pick up breaking changes; pin a version when that matters. See [Docker's guidance on tags and aliases](https://github.com/docker-library/official-images#tags-and-aliases) and [pinning image versions](https://docs.docker.com/build/building/best-practices/#pin-base-image-versions), and [GitHub's guidance on managing action versions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions).
 - `update_copyright_headers` defaults to `true`. Copyright headers identify the copyright holders and ownership of source files, often with applicable years and an SPDX licence identifier. They support attribution, clear licensing terms, and automated licence checks. For GitHub-hosted projects, enabling this setting generates a workflow that updates headers on pull requests and proposes a maintenance pull request on scheduled or manual runs. Generator upgrades refresh headers too. Set it to `false` to opt out. See the [REUSE specification](https://reuse.software/spec-3.3/) and [GNU copyright notice guidance](https://www.gnu.org/prep/maintain/html_node/Copyright-Notices.html).
+- `disable_dependabot_generator_workflow` defaults to `false`. Set it to `true` to stop the **Upgrade Generator** workflow from running on Dependabot pull requests. This is useful when a repository uses unreleased generator features that the released generator action cannot handle. Scheduled and manual upgrades remain available, as do the regular CI checks. This generator's own manifest enables the flag. Regenerate with `--overwrite` to apply the setting to an existing workflow.
 
 ### Model values deliberately
+
+For repeated values, see
+[collections, lists and iterators](https://ARM-software.github.io/go-sdk-generator/guides/collections-and-streams.html), covering shape flags,
+item enums, cardinality constraints and CLI input.
 
 - Use specific `lang_type` aliases such as `duration`, `uuid`, `filepath`, or `service` where they match the value. See [types, formats and defaults](https://ARM-software.github.io/go-sdk-generator/guides/types-and-defaults.html) for the complete built-in reference. Prefer `reference: true`, `list: true`, or `iterator: true` to encoding shapes into the type string; `list` and `iterator` cannot be combined.
 - Use `enum` for closed string choices, `constraints` for validation and relationships, and `example` or `examples` for representative values. These feed generated validation, help, documentation, and action inputs.

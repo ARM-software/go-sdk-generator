@@ -22,6 +22,7 @@ Use [`generator/schema/schema.yml`](https://github.com/ARM-software/go-sdk-gener
 | `command_line_commands` | Optional binary and commands exposing those operations. |
 | `additional_types` | Optional domain types used by the contract. |
 | `tag_latest`, `update_copyright_headers` | Optional release tagging and copyright-header maintenance settings. |
+| `disable_dependabot_generator_workflow` | Opt out of automatic generator upgrades on Dependabot pull requests. |
 
 When operations accept functional options, use `specification.options`; see [configure functional options](configure-options.md) for option wrappers, `value_field` and CLI bindings.
 
@@ -53,8 +54,13 @@ Repository-level automation can also be controlled from the top level of `specif
 
 - `tag_latest` defaults to `false`. Set it to `true` to keep a `latest` tag pointing to the most recent stable release. Consumers can follow published releases without updating their references or tracking a development branch. Because the tag moves, builds that use it are not reproducible and can pick up breaking changes; pin a version when that matters. See [Docker's guidance on tags and aliases](https://github.com/docker-library/official-images#tags-and-aliases) and [pinning image versions](https://docs.docker.com/build/building/best-practices/#pin-base-image-versions), and [GitHub's guidance on managing action versions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions).
 - `update_copyright_headers` defaults to `true`. Copyright headers identify the copyright holders and ownership of source files, often with applicable years and an SPDX licence identifier. They support attribution, clear licensing terms, and automated licence checks. For GitHub-hosted projects, enabling this setting generates a workflow that updates headers on pull requests and proposes a maintenance pull request on scheduled or manual runs. Generator upgrades refresh headers too. Set it to `false` to opt out. See the [REUSE specification](https://reuse.software/spec-3.3/) and [GNU copyright notice guidance](https://www.gnu.org/prep/maintain/html_node/Copyright-Notices.html).
+- `disable_dependabot_generator_workflow` defaults to `false`. Set it to `true` to stop the **Upgrade Generator** workflow from running on Dependabot pull requests. This is useful when a repository uses unreleased generator features that the released generator action cannot handle. Scheduled and manual upgrades remain available, as do the regular CI checks. This generator's own manifest enables the flag. Regenerate with `--overwrite` to apply the setting to an existing workflow.
 
 ## Model values deliberately
+
+For repeated values, see
+[collections, lists and iterators](collections-and-streams.md), covering shape flags,
+item enums, cardinality constraints and CLI input.
 
 - Use specific `lang_type` aliases such as `duration`, `uuid`, `filepath`, or `service` where they match the value. See [types, formats and defaults](types-and-defaults.md) for the complete built-in reference. Prefer `reference: true`, `list: true`, or `iterator: true` to encoding shapes into the type string; `list` and `iterator` cannot be combined.
 - Use `enum` for closed string choices, `constraints` for validation and relationships, and `example` or `examples` for representative values. These feed generated validation, help, documentation, and action inputs.

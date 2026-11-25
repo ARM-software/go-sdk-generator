@@ -16,6 +16,8 @@ on:
 
 env:
   go_version: "1.27.3"
+  # Fall back to source repositories on any proxy error, not only HTTP 404/410.
+  GOPROXY: "https://proxy.golang.org|direct"
 
 jobs:
   test-action-github-runner:

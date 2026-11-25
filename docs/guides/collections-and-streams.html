@@ -1,0 +1,355 @@
+<!--
+-- Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collections, lists and iterators</title>
+  <meta name="description" content="Collections, lists and iterators — SDK Generator.">
+  <style>
+    body{font:1.1rem/1.6 system-ui,sans-serif;max-width:76ch;margin:2rem auto;padding:0 1rem}
+    a{color:#075985}pre{overflow:auto;background:#f3f4f6;padding:1rem}code{overflow-wrap:anywhere}
+    nav{border-bottom:1px solid #ccc;padding-bottom:1rem}li{margin:.4rem 0}
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "name": "Collections, lists and iterators", "description": "Collections, lists and iterators \u2014 SDK Generator.", "url": "https://ARM-software.github.io/go-sdk-generator/guides/collections-and-streams.html"}</script>
+</head>
+<body>
+  <nav><a href="../index.html">Overview</a> · <a href="../api.html">API reference</a></nav>
+  <main><!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<h1>Collections, lists and iterators</h1>
+<p>Use a collection when a value represents several items: tags on an asset,
+supported platforms, or files returned by a search. Choose the <strong>item type</strong>, the
+<strong>collection shape</strong>, and the <strong>validation rules</strong> separately.</p>
+<p>This guide builds on <a href="write-a-manifest.html">writing a manifest</a> and
+<a href="types-and-defaults.html">types and defaults</a>. The <a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml">schema</a> is the
+authoritative field reference.</p>
+<h2>Choose the item type and shape</h2>
+<p>Prefer a base <code>lang_type</code> with a shape flag. For <code>lang_type: string</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Shape flags</th>
+<th>Usual Go shape</th>
+<th>Choose it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Neither flag set</td>
+<td><code>string</code></td>
+<td>There is one value.</td>
+</tr>
+<tr>
+<td><code>list: true</code></td>
+<td><code>[]string</code></td>
+<td>Stored values, with indexing.</td>
+</tr>
+<tr>
+<td><code>iterator: true</code></td>
+<td><code>iter.Seq[string]</code></td>
+<td>Iterated SDK values.</td>
+</tr>
+</tbody>
+</table>
+<p>The same shape rules apply to other item types, such as <code>int</code> or a declared
+additional type. <code>list</code> and <code>iterator</code> both default to <code>false</code> and cannot both be
+<code>true</code>.</p>
+<p>Shape flags are available on method arguments and returns, configuration fields,
+additional-type fields, and option parameters. The field examples below are
+fragments to place in the appropriate manifest section; a complete SDK example
+appears at the end.</p>
+<p>Use <code>lang_type</code> for the item, rather than combining <code>list: true</code> with
+<code>lang_type: "[]string"</code>: that would add another collection layer. String lists also
+support repeated CLI flags; see <a href="#cli-input">CLI input</a>.</p>
+<h2>Lists: values held together</h2>
+<p>For example, put this field under <code>specification.global_configuration</code>:</p>
+<pre><code class="language-yaml">- name: Tags
+  lang_type: string
+  list: true
+  mapstructure_tag: tags
+  description: Tags identifying the assets to process.
+  examples: [alpha, beta]
+  constraints:
+    unique_items: true
+</code></pre>
+<p>The generated configuration field is <code>Tags []string</code>. Callers can provide a slice
+and inspect it repeatedly. <code>unique_items</code> rejects duplicates; it does not silently
+remove them.</p>
+<h3>The final method argument becomes variadic</h3>
+<p>In an SDK interface method, a <strong>final, non-reference</strong> argument with <code>list: true</code>
+becomes <code>...T</code>, rather than <code>[]T</code> in the signature. Earlier list arguments, list
+return values, configuration fields and option parameters keep their slice shape.</p>
+<p>For example, an entry under <code>specification.interface.methods</code>:</p>
+<pre><code class="language-yaml">- name: Collect
+  description: Collect assets with the supplied tags.
+  args:
+    - name: Tags
+      lang_type: string
+      list: true
+      description: Tags to collect.
+  returns:
+    - name: err
+      lang_type: error
+      description: Whether collection failed.
+</code></pre>
+<p>The generated method has this shape:</p>
+<pre><code class="language-go">Collect(ctx context.Context, tags ...string) (err error)
+</code></pre>
+<p>Pass an existing slice using Go's spread syntax:</p>
+<pre><code class="language-go">tags := []string{&quot;alpha&quot;, &quot;beta&quot;}
+err := manager.Collect(ctx, tags...)
+</code></pre>
+<p>This variadic rule is about SDK method signatures, not how CLI flags are parsed.</p>
+<h2>Iterators: values supplied through iteration</h2>
+<p>Use <code>iterator: true</code> for a stream-like SDK surface. For example, a method return
+value:</p>
+<pre><code class="language-yaml">- name: Paths
+  lang_type: string
+  iterator: true
+  description: Asset paths produced by the search.
+</code></pre>
+<p>The generated type is <code>iter.Seq[string]</code>. The implementation supplies the sequence,
+and a caller can consume it with a Go range loop:</p>
+<pre><code class="language-go">for path := range paths {
+    // Process this path.
+}
+</code></pre>
+<p>An iterator can produce values lazily, but the flag itself does not implement a
+producer, network stream, channel or file reader. Use Go 1.23 or later for
+range-over-function iteration; see the <a href="https://pkg.go.dev/iter">Go iter package</a>.</p>
+<p><strong>Validation can consume the sequence.</strong> Collection validation helpers may
+enumerate and materialise iterator items, and different rules may traverse the
+sequence separately. For validation followed by processing, use a finite,
+replayable sequence or supply a list. Do not assume that adding <code>iterator: true</code>
+guarantees constant-memory validation of an unbounded stream.</p>
+<h2>Arrays, lengths and references</h2>
+<p><code>list: true</code> represents a variable-length Go slice, not a fixed-size Go array such
+as <code>[3]string</code>. To require three items, use <code>min_items: 3</code> and <code>max_items: 3</code>; the
+generated type is still a slice or iterator. If positions have different meanings,
+named fields in an additional type can express the contract more clearly.</p>
+<p><code>reference: true</code> applies to the <strong>whole shape</strong>: combined with <code>list: true</code>, it
+produces <code>*[]T</code>, not <code>[]*T</code>; combined with <code>iterator: true</code>, it produces
+<code>*iter.Seq[T]</code>. Leave it unset unless a pointer to the collection is intentional.
+A reference list argument is not converted to a variadic argument.</p>
+<h2>Collection rules versus item rules</h2>
+<p>Where generated validation is emitted, such as a configuration's <code>Validate()</code>
+method, distinguish the number of items from the validity of each item.</p>
+<table>
+<thead>
+<tr>
+<th>Collection rule under <code>constraints</code></th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min_items: N</code></td>
+<td>Minimum item count.</td>
+</tr>
+<tr>
+<td><code>max_items: N</code></td>
+<td>Maximum item count.</td>
+</tr>
+<tr>
+<td><code>unique_items: true</code></td>
+<td>Reject duplicate items.</td>
+</tr>
+<tr>
+<td><code>at_least_one: true</code></td>
+<td>Shorthand for <code>min_items: 1</code>.</td>
+</tr>
+<tr>
+<td><code>exactly_one: true</code></td>
+<td>Shorthand for <code>min_items: 1</code> and <code>max_items: 1</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>These rules require <code>list: true</code> or <code>iterator: true</code>. Keep bounds consistent:
+<code>min_items</code> cannot exceed <code>max_items</code>, and <code>exactly_one</code> cannot be combined with
+bounds excluding one item. <code>exactly_one</code> means one item in this collection, not
+one populated field among several fields.</p>
+<p>Use <code>required: true</code> when omitting the configuration value must be rejected. Item
+rules alone do not require a non-empty collection; express its cardinality
+separately.</p>
+<p>The generator also supports item-by-item validation for:</p>
+<ul>
+<li>Top-level <code>enum</code> and <code>pattern</code>.</li>
+<li>String constraints such as <code>not_empty</code>, <code>contains</code>, <code>not_contains</code>, <code>prefix</code>,
+  <code>suffix</code>, <code>min_length</code> and <code>max_length</code>.</li>
+<li>Numeric constraints such as <code>minimum</code>, <code>maximum</code>, <code>exclusive_minimum</code>,
+  <code>exclusive_maximum</code> and <code>multiple_of</code>.</li>
+</ul>
+<p>For example, this configuration requires one to five distinct tags, each
+containing only lowercase letters and having at least two characters:</p>
+<pre><code class="language-yaml">- name: Tags
+  lang_type: string
+  list: true
+  required: true
+  mapstructure_tag: tags
+  description: Lowercase asset tags.
+  pattern: '^[a-z]+$'
+  constraints:
+    min_items: 1
+    max_items: 5
+    unique_items: true
+    min_length: 2
+</code></pre>
+<p>Here <code>min_items</code> counts tags; <code>min_length</code> measures each tag. Likewise, <code>contains</code>
+tests a substring in each string item, not membership in the collection.
+<code>constraints.extension</code> is currently restricted to scalar path values. For format
+aliases such as <code>uuid</code> or <code>filepath</code>, check the emitted validation rather than
+assuming every built-in scalar validator is collection-aware.</p>
+<p>Manifest validation checks the definition. Runtime validation checks actual values
+where the generated API provides it; declaring method arguments or return types
+does not by itself implement validation of your operation's inputs or outputs.</p>
+<h2>Enums for collection items are supported</h2>
+<p>Use <code>lang_type: string</code> with <code>enum</code> to constrain each item of a list or iterator:</p>
+<pre><code class="language-yaml">- name: Platforms
+  lang_type: string
+  list: true
+  required: true
+  mapstructure_tag: platforms
+  description: Platforms to include in the search.
+  enum: [linux, windows, macos]
+  examples: [linux, windows]
+  constraints:
+    at_least_one: true
+    unique_items: true
+</code></pre>
+<p>Each supplied platform must be an allowed value. Replace <code>list: true</code> with
+<code>iterator: true</code> for the iterator form. The generated collection retains its base
+string shape (<code>[]string</code> or <code>iter.Seq[string]</code>); collection enums use item validation
+rather than a separate generated enum type for every item. Do not add handwritten
+enum validation just because the value is a collection.</p>
+<h2>Examples are items; defaults are different</h2>
+<p>For a list or iterator, <code>example</code> describes one item, and each entry in <code>examples</code>
+describes one item. Use one property or the other, not both. Example values are
+strings in the manifest, including numeric examples:</p>
+<pre><code class="language-yaml">- name: Ports
+  lang_type: int
+  list: true
+  mapstructure_tag: ports
+  description: Ports to inspect.
+  examples: [&quot;8080&quot;, &quot;8443&quot;]
+  constraints:
+    minimum: 1
+    maximum: 65535
+</code></pre>
+<p>These examples are two representative ports, not a default two-item collection.
+They describe input and help generated documentation; they do not initialise the
+configuration.</p>
+<p><code>default_value</code> remains a single manifest string. It is not a YAML sequence and is
+not automatically expanded into a list or iterator. The collection examples in
+this guide deliberately omit it. Initialise non-empty collection defaults in
+application code, and inspect and compile any custom default expression before
+relying on it. See <a href="types-and-defaults.html">types and defaults</a>.</p>
+<h2>CLI input</h2>
+<p>For string-valued CLI lists, <code>lang_type: string</code> with <code>list: true</code> registers a
+Cobra StringSlice flag as well as generating a <code>[]string</code> configuration field.
+This also applies to string-compatible aliases and list-valued bindings, including
+root-level flags.</p>
+<table>
+<thead>
+<tr>
+<th>CLI configuration declaration</th>
+<th>Go field</th>
+<th>Registered flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lang_type: string</code> and <code>list: true</code></td>
+<td><code>[]string</code></td>
+<td><code>StringSlice</code></td>
+</tr>
+<tr>
+<td><code>lang_type: "[]string"</code>, without <code>list</code></td>
+<td><code>[]string</code></td>
+<td><code>StringSlice</code></td>
+</tr>
+</tbody>
+</table>
+<p>Prefer the shape-flag form, which also supports the collection constraints
+described above. Put this field under a command's <code>configuration</code>:</p>
+<pre><code class="language-yaml">- name: Tags
+  lang_type: string
+  list: true
+  mapstructure_tag: tags
+  description: Tags supplied on the command line.
+  constraints:
+    unique_items: true
+</code></pre>
+<p>For a command named <code>check</code>, <a href="https://pkg.go.dev/github.com/spf13/pflag#FlagSet.StringSlice">StringSlice flags</a> accept both forms:</p>
+<pre><code class="language-sh">tool check --tags alpha,beta
+tool check --tags alpha --tags beta
+</code></pre>
+<p>The raw <code>[]string</code> spelling remains supported for compatibility, but does not opt
+into shape-aware collection constraints. Prefer <code>string</code> plus <code>list: true</code> for new
+manifests. The repeated-flag behaviour above is for string-valued lists; check flag
+support separately for other collection types. Iterators need an
+application-supplied producer; a CLI flag does not create a lazy sequence. Prefer
+stored list values at CLI/configuration boundaries.</p>
+<h2>Complete SDK example</h2>
+<p>Save this as <code>collections.yml</code>. It models a catalogue that searches by tags and
+returns paths through an iterator:</p>
+<pre><code class="language-yaml">specification:
+  package_name: asset-catalog-sdk
+  main_module: catalog
+  name: Catalog
+  description: Search an asset catalogue by tags and platform.
+  licence: Apache-2.0
+  interface:
+    notCloseable: true
+    namespace: github.com/example/
+    methods:
+      - name: Find
+        description: Find matching asset paths.
+        args:
+          - name: Tags
+            lang_type: string
+            list: true
+            description: Tags to search for.
+        returns:
+          - name: Paths
+            lang_type: string
+            iterator: true
+            description: Matching asset paths.
+          - name: err
+            lang_type: error
+            description: Whether starting the search failed.
+  global_configuration:
+    - name: Platforms
+      lang_type: string
+      list: true
+      required: true
+      mapstructure_tag: platforms
+      description: Platforms to include in the search.
+      enum: [linux, windows, macos]
+      constraints:
+        at_least_one: true
+        unique_items: true
+</code></pre>
+<p>Generate it with your project's target Go version, for example:</p>
+<pre><code class="language-sh">go-sdk-generator generate -i collections.yml -o ./catalog-generated \
+  --go-version 1.27.3
+</code></pre>
+<p>The SDK method uses <code>tags ...string</code> and returns <code>paths iter.Seq[string]</code>. Callers
+supply <code>Platforms</code> before validating the SDK configuration. Implement the search
+and its iterator in the generated implementation stub; see
+<a href="generate-a-project.html">generate and regenerate a project</a> for the remaining module
+setup steps.</p>
+<p>Existing regression manifests provide further examples:</p>
+<ul>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/list-iterator.yml">List and iterator shapes</a>.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/enum-collections.yml">Collection enums</a>.</li>
+<li><a href="https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/collection-item-constraints.yml">Item constraints</a>.</li>
+</ul></main>
+</body>
+</html>

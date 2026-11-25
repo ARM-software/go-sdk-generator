@@ -2160,6 +2160,13 @@ type SDKSpecification struct {
 	//
 	Description *string `json:"description,omitempty,omitzero" yaml:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Disable automatic Upgrade Generator workflow runs on Dependabot pull requests.
+	// Scheduled and manually triggered generator upgrades remain enabled.
+	// Set this to true when the repository uses unreleased generator features that
+	// the released generator action cannot yet handle.
+	//
+	DisableDependabotGeneratorWorkflow bool `json:"disable_dependabot_generator_workflow,omitempty,omitzero" yaml:"disable_dependabot_generator_workflow,omitempty" mapstructure:"disable_dependabot_generator_workflow,omitempty"`
+
 	// DistributeOci corresponds to the JSON schema field "distribute_oci".
 	DistributeOci *DistributeOci `json:"distribute_oci,omitempty,omitzero" yaml:"distribute_oci,omitempty" mapstructure:"distribute_oci,omitempty"`
 
@@ -2255,6 +2262,9 @@ func (j *SDKSpecification) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["disable_dependabot_generator_workflow"]; !ok || v == nil {
+		plain.DisableDependabotGeneratorWorkflow = false
 	}
 	if v, ok := raw["licence"]; !ok || v == nil {
 		plain.Licence = "Proprietary"
@@ -2359,12 +2369,14 @@ type SummaryDestination string
 
 const SummaryDestinationFile SummaryDestination = "file"
 const SummaryDestinationGithub SummaryDestination = "github"
+const SummaryDestinationNone SummaryDestination = "none"
 const SummaryDestinationOutput SummaryDestination = "output"
 
 var enumValues_SummaryDestination = []interface{}{
 	"file",
 	"github",
 	"output",
+	"none",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.

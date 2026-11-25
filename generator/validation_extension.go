@@ -59,11 +59,21 @@ func wrapCollectionItemRule(list bool, iterator bool, rule string) string {
 	return rule
 }
 
+// goRegexpLiteral returns pattern as a Go string literal. A raw string is kept
+// for readability unless the pattern contains a backtick, which a raw string
+// cannot hold.
+func goRegexpLiteral(pattern string) string {
+	if strings.Contains(pattern, "`") {
+		return strconv.Quote(pattern)
+	}
+	return "`" + pattern + "`"
+}
+
 func patternValidationRule(pattern *string, list bool, iterator bool) string {
 	if reflection.IsEmpty(pattern) {
 		return ""
 	}
-	rule := fmt.Sprintf("validationUtils.Pattern(regexp.MustCompile(`%s`))", field.OptionalString(pattern, ""))
+	rule := fmt.Sprintf("validationUtils.Pattern(regexp.MustCompile(%s))", goRegexpLiteral(field.OptionalString(pattern, "")))
 	return fmt.Sprintf(", %s", wrapCollectionItemRule(list, iterator, rule))
 }
 

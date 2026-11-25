@@ -2,12 +2,13 @@
 
 name: Upgrade Generator
 
+env:
+  # Fall back to source repositories on any proxy error, not only HTTP 404/410.
+  GOPROXY: "https://proxy.golang.org|direct"
+
 on:
   schedule:
     - cron: "0 6 * * 1"
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       overwrite:
@@ -22,7 +23,7 @@ permissions:
 
 jobs:
   upgrade-generator:
-    if: github.event_name != 'pull_request' || startsWith(github.head_ref, 'dependabot/')
+    if: github.event_name != 'pull_request'
     name: Upgrade generator outputs
     runs-on: ubuntu-latest
     steps:

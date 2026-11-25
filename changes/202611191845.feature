@@ -1,1 +1,0 @@
-:sparkles: Allow collection-shaped manifest fields to apply numeric item constraints such as `minimum`, `maximum`, `exclusive_minimum`, `exclusive_maximum`, and `multiple_of` to each generated list or iterator item.

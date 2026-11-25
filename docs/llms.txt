@@ -6,6 +6,7 @@
 
 - [Overview](https://ARM-software.github.io/go-sdk-generator/)
 - [Go SDK Generator: task guides](https://ARM-software.github.io/go-sdk-generator/guides/index.html)
+- [Collections, lists and iterators](https://ARM-software.github.io/go-sdk-generator/guides/collections-and-streams.html)
 - [Configure functional options](https://ARM-software.github.io/go-sdk-generator/guides/configure-options.html)
 - [Breaking changes and deprecation](https://ARM-software.github.io/go-sdk-generator/guides/evolving-a-contract.html)
 - [Generate and regenerate a Go project](https://ARM-software.github.io/go-sdk-generator/guides/generate-a-project.html)

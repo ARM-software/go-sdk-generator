@@ -29,6 +29,10 @@ SPDX-License-Identifier: Apache-2.0
 <pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3
 </code></pre>
 <p>Replace the Go version with the version your project uses. <code>-i</code>/<code>--input</code> selects the manifest, <code>-o</code>/<code>--output</code> selects the destination, and <code>-g</code>/<code>--go-version</code> selects the target Go version. Use <code>go-sdk-generator generate --help</code> for current options. The generator validates the manifest before producing files.</p>
+<p>The <code>generate</code> command writes a human-readable summary by default. Use <code>--summary=none</code> to suppress it while keeping normal logging and error reporting:</p>
+<pre><code class="language-sh">go-sdk-generator generate -i generate.yml -o . --go-version 1.27.3 --summary=none
+</code></pre>
+<p>Generated CLI commands that support summaries accept the same value. Summary output is separate from normal logging (<code>--logger</code>) and machine-readable result output. For workflow usage, see <a href="use-github-actions.html#control-summary-output">GitHub Actions summary settings</a>.</p>
 <p>After generation, run these commands from each directory containing a generated <code>go.mod</code>:</p>
 <pre><code class="language-sh">go mod tidy
 go generate ./...
