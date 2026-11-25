@@ -41,7 +41,6 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 	gCfg := generatorConfig.DefaultSDKGeneratorManagerConfiguration()
 	gCfg.Input = cfg.Input
 	gCfg.Output = cfg.Output
-	gCfg.Overwrite = cfg.Overwrite.Enabled
 	gCfg.TargetedGoVersion = cfg.TargetedGo
 	gCfg.ToolVersion = cfg.ToolVersion
 	g, err := rootgenerator.NewSDKGenerator(gCfg)
@@ -64,14 +63,12 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 }
 
 func overwriteOptions(cfg *config.GenerateConfiguration) []options.OverwriteOption {
-	if !cfg.Overwrite.Enabled {
-		return nil
-	}
 	return []options.OverwriteOption{
 		options.WithExcludeGroups(cfg.Overwrite.ExcludeGroups),
 		options.WithExcludeFiles(cfg.Overwrite.ExcludeFiles),
 		options.WithOnlyGroups(cfg.Overwrite.OnlyGroups),
 		options.WithOnlyFiles(cfg.Overwrite.OnlyFiles),
+		options.WithOverwriteEnabled(cfg.Overwrite.Enabled),
 	}
 }
 

@@ -25,5 +25,17 @@ func TestOverwriteOptionsBridge(t *testing.T) {
 	require.True(t, opts.Enabled)
 	require.Equal(t, cfg.Overwrite, *opts)
 	cfg.Overwrite.Enabled = false
-	require.Empty(t, overwriteOptions(cfg))
+	opts = options.WithOverwriteOptions(overwriteOptions(cfg)...)
+	require.Equal(t, cfg.Overwrite, *opts)
+	require.Error(t, opts.Validate(), "disabled selectors must reach SDK validation rather than being discarded")
+
+	cfg.Overwrite = options.OverwriteOptions{}
+	opts = options.WithOverwriteOptions(overwriteOptions(cfg)...)
+	require.False(t, opts.Enabled)
+	require.NoError(t, opts.Validate())
+
+	cfg.Overwrite.Enabled = true
+	opts = options.WithOverwriteOptions(overwriteOptions(cfg)...)
+	require.True(t, opts.Enabled, "plain --overwrite must work without selectors")
+	require.NoError(t, opts.Validate())
 }

@@ -24,7 +24,7 @@ import (
 func TestOverwriteExclusionMatcher(t *testing.T) {
 	localFs := filesystem.GetGlobalFileSystem()
 	root := t.TempDir()
-	m, err := newOverwrite(root, true, options.WithExcludeFiles([]string{"README.md", `.github\workflows\ci.yml`, "./root.txt", "foo/../normalised.txt"}))
+	m, err := newOverwrite(root, options.WithExcludeFiles([]string{"README.md", `.github\workflows\ci.yml`, "./root.txt", "foo/../normalised.txt"}))
 	require.NoError(t, err)
 	for _, file := range []string{"README.md", "nested/README.md", ".github/workflows/ci.yml", "root.txt", "normalised.txt"} {
 		output := filesystem.FilePathJoin(localFs, root, filesystem.FilePathFromSlash(localFs, file))
@@ -44,15 +44,70 @@ func TestOverwriteExclusionMatcher(t *testing.T) {
 	require.True(t, (*overwrite)(nil).shouldInclude(readme))
 	for _, file := range []string{"", ".", "..", "../secret", `..\secret`, "a/../../secret", "/tmp/file", `C:\file`, "C:file", `\\server\share\file`, "file:stream", "bad\x00file", "folder/"} {
 		t.Run(file, func(t *testing.T) {
-			_, err := newOverwrite(root, true, options.WithExcludeFiles([]string{file}))
+			_, err := newOverwrite(root, options.WithExcludeFiles([]string{file}))
 			require.Error(t, err)
 		})
 	}
-	_, err = newOverwrite(root, true, options.WithExcludeGroups([]string{"project", "invalid"}))
+	_, err = newOverwrite(root, options.WithExcludeGroups([]string{"project", "invalid"}))
 	require.Error(t, err)
 }
 
-func TestGenerateRejectsSelectorsWithoutOverwrite(t *testing.T) {
+func TestOverwriteEnabledComesFromOptions(t *testing.T) {
+	root := t.TempDir()
+	defaults, err := newOverwrite(root)
+	require.NoError(t, err)
+	require.False(t, defaults.enabled)
+	enabled, err := newOverwrite(root, options.WithOverwriteEnabled(true))
+	require.NoError(t, err)
+	require.True(t, enabled.enabled)
+	selected, err := newOverwrite(root, options.WithOnlyFiles([]string{"README.md"}))
+	require.NoError(t, err)
+	require.True(t, selected.enabled)
+	disabled, err := newOverwrite(root, options.WithOverwriteEnabled(true), options.WithOverwriteEnabled(false))
+	require.NoError(t, err)
+	require.False(t, disabled.enabled)
+}
+
+func TestOverwriteOptionControlsStateFilesPerCall(t *testing.T) {
+	localFs := filesystem.GetGlobalFileSystem()
+	cfg := config.DefaultSDKGeneratorManagerConfiguration()
+	cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "casing-types.yml")
+	cfg.Output = t.TempDir()
+	manager, err := NewSDKGenerator(cfg)
+	require.NoError(t, err)
+	files := []string{
+		filesystem.FilePathJoin(localFs, cfg.Output, "README.md"),
+		filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml"),
+	}
+	require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, files[1])))
+	for _, tc := range []struct {
+		name      string
+		opts      []options.OverwriteOption
+		overwrite bool
+	}{
+		{name: "default preserves state"},
+		{name: "option overwrites state", opts: []options.OverwriteOption{options.WithOverwriteEnabled(true)}, overwrite: true},
+		{name: "next call preserves state again"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, file := range files {
+				require.NoError(t, localFs.WriteFile(file, []byte("customised state\n"), 0600))
+			}
+			require.NoError(t, manager.Generate(t.Context(), nil, tc.opts...))
+			for _, file := range files {
+				content, err := localFs.ReadFile(file)
+				require.NoError(t, err)
+				if tc.overwrite {
+					assert.NotEqual(t, "customised state\n", string(content), file)
+				} else {
+					assert.Equal(t, "customised state\n", string(content), file)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateRejectsExplicitlyDisabledSelectors(t *testing.T) {
 	t.Parallel()
 
 	for _, test := range []struct {
@@ -71,16 +126,15 @@ func TestGenerateRejectsSelectorsWithoutOverwrite(t *testing.T) {
 			cfg := config.DefaultSDKGeneratorManagerConfiguration()
 			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "cli-package.yml")
 			cfg.Output = t.TempDir()
-			cfg.Overwrite = false
 
 			customOutput := filesystem.FilePathJoin(localFs, cfg.Output, "tools", "cmd", "root.go")
 			sentinel := []byte("customised contents must survive invalid selections\n")
 			require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, customOutput)))
 			require.NoError(t, localFs.WriteFile(customOutput, sentinel, 0600))
 
-			err := Generate(t.Context(), nil, cfg, test.option)
+			err := Generate(t.Context(), nil, cfg, test.option, options.WithOverwriteEnabled(false))
 
-			assert.Error(t, err, "selectors must be rejected when the generator's overwrite setting is disabled")
+			assert.Error(t, err, "selectors must be rejected when the final overwrite option is disabled")
 			content, readErr := localFs.ReadFile(customOutput)
 			require.NoError(t, readErr)
 			assert.True(t, bytes.Equal(sentinel, content), "invalid selectors must not overwrite customised files")
@@ -117,7 +171,7 @@ func TestOverwriteExclusionGroupsUseExactOutputs(t *testing.T) {
 		"agent":              {"agent.md", ".github/copilot-instructions.md", ".agents/skills/run-go-sdk-generator/SKILL.md", "generator/skills/run-go-sdk-generator/SKILL.md"},
 	} {
 		t.Run(group, func(t *testing.T) {
-			m, err := newOverwrite(root, true, options.WithExcludeGroups([]string{group}))
+			m, err := newOverwrite(root, options.WithExcludeGroups([]string{group}))
 			require.NoError(t, err)
 			m.addGeneratedGroups(resolveGeneratedFileGroups(&sdk.Specification, actions))
 			for _, file := range files {
@@ -200,7 +254,7 @@ func TestOverwriteCLIImplementationGroups(t *testing.T) {
 		t.Run(tc.group, func(t *testing.T) {
 			cfg := config.DefaultSDKGeneratorManagerConfiguration()
 			cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "cli-package.yml")
-			cfg.Output, cfg.Overwrite = t.TempDir(), true
+			cfg.Output = t.TempDir()
 			sentinel := []byte("customised contents\n")
 			for _, file := range []string{implementation, wrapper} {
 				output := filesystem.FilePathJoin(localFs, cfg.Output, file)
@@ -248,7 +302,6 @@ func TestOverwriteExclusionsRegression(t *testing.T) {
 		require.NoError(t, err)
 		modified[file] = info.ModTime()
 	}
-	cfg.Overwrite = true
 	manager, err := NewSDKGenerator(cfg)
 	require.NoError(t, err)
 	wrapped := NewSDKGeneratorWithDelegate(manager)
@@ -269,8 +322,8 @@ func TestOverwriteExclusionsRegression(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEqual(t, sentinel, content, file)
 	}
-	// Exclusions are method-scoped; the same manager's next call has none.
-	require.NoError(t, wrapped.Generate(context.Background(), nil))
+	// Exclusions are method-scoped; the next overwrite call has no selectors.
+	require.NoError(t, wrapped.Generate(context.Background(), nil, options.WithOverwriteEnabled(true)))
 	for _, file := range []string{"pyproject.toml", "agent.md", "generator/options/generator.go", "actions/generate/action.yml", ".qlty/qlty.toml", ".gitattributes"} {
 		content, err := localFs.ReadFile(filesystem.FilePathJoin(localFs, cfg.Output, filesystem.FilePathFromSlash(localFs, file)))
 		require.NoError(t, err)
@@ -281,7 +334,7 @@ func TestOverwriteExclusionsRegression(t *testing.T) {
 func TestOverwriteExclusionsPreventNewProtectedAndDirectOutputs(t *testing.T) {
 	localFs := filesystem.GetGlobalFileSystem()
 	cfg := config.DefaultSDKGeneratorManagerConfiguration()
-	cfg.Input, cfg.Output, cfg.Overwrite = "../generate.yml", t.TempDir(), true
+	cfg.Input, cfg.Output = "../generate.yml", t.TempDir()
 	files := []string{"cli/cmd/module.properties", "generator/options/generator.go", "actions/generate/action.yml", ".qlty/qlty.toml", ".gitattributes", "generator/skills/run-go-sdk-generator/SKILL.md"}
 	require.NoError(t, Generate(context.Background(), nil, cfg, options.WithExcludeFiles(files)))
 	for _, file := range files {
@@ -310,7 +363,6 @@ func TestOverwriteDirectTypeOutputs(t *testing.T) {
 				require.NoError(t, err)
 				require.NoError(t, localFs.WriteFile(output, []byte("preserved type"), 0600))
 			}
-			cfg.Overwrite = true
 			require.NoError(t, Generate(context.Background(), nil, cfg, tc.option))
 			for _, file := range files {
 				content, err := localFs.ReadFile(filesystem.FilePathJoin(localFs, cfg.Output, filesystem.FilePathFromSlash(localFs, file)))

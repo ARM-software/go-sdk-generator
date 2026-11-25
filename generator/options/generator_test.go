@@ -54,3 +54,12 @@ func TestOverwriteGroupParsing(t *testing.T) {
 	require.NoError(t, decoded.UnmarshalText([]byte("ci")))
 	require.Equal(t, OverwriteOptionsExcludeGroupsCI, decoded)
 }
+
+func TestWithOverwriteEnabled(t *testing.T) {
+	for _, enabled := range []bool{false, true} {
+		opt := WithOverwriteOptions(WithOverwriteEnabled(enabled))
+		require.Equal(t, enabled, opt.Enabled)
+		require.NoError(t, opt.Validate())
+	}
+	require.NotPanics(t, func() { WithOverwriteEnabled(true)(nil) })
+}

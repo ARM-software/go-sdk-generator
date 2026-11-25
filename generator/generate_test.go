@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
@@ -1148,7 +1149,6 @@ func TestGeneratePreservesExistingModulePropertiesOnOverwrite(t *testing.T) {
 	cfg := config.DefaultSDKGeneratorManagerConfiguration()
 	cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "verify.yml")
 	cfg.Output = tmpDir
-	cfg.Overwrite = true
 	logger, err := logs.NewPlainStringLogger()
 	require.NoError(t, err)
 
@@ -1156,7 +1156,7 @@ func TestGeneratePreservesExistingModulePropertiesOnOverwrite(t *testing.T) {
 	require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, modulePropertiesPath)))
 	require.NoError(t, localFs.WriteFile(modulePropertiesPath, []byte("Version=9.9.9\nCommitHash=keepme\n"), 0644))
 
-	require.NoError(t, Generate(ctx, logger, cfg))
+	require.NoError(t, Generate(ctx, logger, cfg, options.WithOverwriteEnabled(true)))
 
 	content, err := localFs.ReadFile(modulePropertiesPath)
 	require.NoError(t, err)

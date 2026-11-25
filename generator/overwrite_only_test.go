@@ -42,7 +42,7 @@ func TestOverwriteOnlySelection(t *testing.T) {
 		{name: "group without outputs", opts: []options.OverwriteOption{options.WithOnlyGroups([]string{"cli-implementation"})}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			rules, err := newOverwrite(root, true, tc.opts...)
+			rules, err := newOverwrite(root, tc.opts...)
 			require.NoError(t, err)
 			rules.addGeneratedGroups(resolveGeneratedFileGroups(&SDKSpecification{MainModule: "example"}, nil))
 			included := mapset.NewSet(tc.included...)
@@ -58,11 +58,11 @@ func TestOverwriteOnlySelection(t *testing.T) {
 func TestOverwriteOnlyFilesRejectUnsafePaths(t *testing.T) {
 	for _, file := range []string{"", ".", "../secret", `..\secret`, "/tmp/file", `C:\file`, `\\server\share\file`} {
 		t.Run(file, func(t *testing.T) {
-			_, err := newOverwrite(t.TempDir(), true, options.WithOnlyFiles([]string{file}))
+			_, err := newOverwrite(t.TempDir(), options.WithOnlyFiles([]string{file}))
 			require.Error(t, err)
 		})
 	}
-	_, err := newOverwrite(t.TempDir(), true, options.WithOnlyGroups([]string{"sdk", "unknown"}))
+	_, err := newOverwrite(t.TempDir(), options.WithOnlyGroups([]string{"sdk", "unknown"}))
 	require.Error(t, err)
 }
 
@@ -88,7 +88,7 @@ func TestOverwriteOnlyOutputs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.DefaultSDKGeneratorManagerConfiguration()
 			cfg.Input = filesystem.FilePathJoin(localFs, "..", "generate.yml")
-			cfg.Output, cfg.Overwrite = t.TempDir(), true
+			cfg.Output = t.TempDir()
 			require.NoError(t, Generate(t.Context(), nil, cfg, tc.opts...))
 			files, err := localFs.LsRecursive(t.Context(), cfg.Output, false)
 			require.NoError(t, err)

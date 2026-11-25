@@ -145,3 +145,32 @@ The entire manifest is still validated, even when only a subset of outputs is se
 Review the resulting diff and run the appropriate checks in the affected Go modules. Commands such as `go generate ./...` and `go mod tidy` are separate operations: these selection flags do not control their writes, including generated enum parsers, mocks or checksum files.
 
 For the current flag descriptions, run `go-sdk-generator generate --help` or consult the [command reference](../DOCUMENTATION.md).
+
+## SDK callers: overwrite is a per-call option
+
+`options.OverwriteOptions.Enabled` controls overwrite for each `Generate` call.
+The former `SDKGeneratorManagerConfiguration.Overwrite` field has been removed.
+SDK callers must migrate to per-call options; the CLI exposes the option through
+the existing `--overwrite` flag.
+
+To enable overwrite without restricting the output selection:
+
+```go
+err := generator.Generate(ctx, logger, cfg, options.WithOverwriteEnabled(true))
+```
+
+Import `options` from
+`github.com/ARM-software/go-sdk-generator/generator/options`. The selection helpers
+also enable overwrite:
+
+```go
+err := generator.Generate(ctx, logger, cfg,
+    options.WithOnlyGroups([]string{"sdk"}),
+    options.WithExcludeFiles([]string{"interfaces.go"}),
+)
+```
+
+Options are applied in order and validated together. Explicitly disabling
+overwrite after supplying non-empty selectors is rejected before any files are
+written. Calling `Generate` without overwrite options uses the normal preservation
+mode, even when a previous call on the same manager enabled overwrite.

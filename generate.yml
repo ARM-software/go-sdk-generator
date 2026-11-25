@@ -162,11 +162,6 @@ specification:
       mapstructure_tag: output
       description: destination of the generated code
       required: true
-    - name: overwrite
-      lang_type: bool
-      required: true
-      mapstructure_tag: overwrite
-      description: regenerate all files
     - name: targetedGoVersion
       lang_type: version
       description: targeted go version for the tool

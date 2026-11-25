@@ -406,7 +406,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		err = commonerrors.UndefinedVariable("generator configuration")
 		return
 	}
-	overwriteRules, err := newOverwrite(cfg.Output, cfg.Overwrite, overwriteOptions...)
+	overwriteRules, err := newOverwrite(cfg.Output, overwriteOptions...)
 	if err != nil {
 		return err
 	}
@@ -523,24 +523,24 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		templatesToPopulate.addStateFile(configEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "config", "enums.go"), true, true)
 	}
 	templatesToPopulate.addStateFile(documentationFile, filesystem.FilePathJoin(localFs, cfg.Output, "DOCUMENTATION.md"), true, true)
-	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(securityFile, filesystem.FilePathJoin(localFs, cfg.Output, "SECURITY.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), cfg.Overwrite, false)
-	templatesToPopulate.addStateFile(qltyTrivyFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "configs", "trivy.yaml"), cfg.Overwrite, true)
-	templatesToPopulate.addStateFile(qltyOSVScannerFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "scripts", "osv-scanner.sh"), cfg.Overwrite, true)
+	templatesToPopulate.addStateFile(contribFile, filesystem.FilePathJoin(localFs, cfg.Output, "CONTRIBUTING.md"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(developmentFile, filesystem.FilePathJoin(localFs, cfg.Output, "DEVELOPMENT.md"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(codeOfConductFile, filesystem.FilePathJoin(localFs, cfg.Output, "CODE_OF_CONDUCT.md"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(securityFile, filesystem.FilePathJoin(localFs, cfg.Output, "SECURITY.md"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(knownIssuesFile, filesystem.FilePathJoin(localFs, cfg.Output, "KNOWN_ISSUES.md"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(golangciFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.yaml"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(editorConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".editorconfig"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(precommitConfigFile, filesystem.FilePathJoin(localFs, cfg.Output, ".pre-commit-config.yaml"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(golangciPrecommitFile, filesystem.FilePathJoin(localFs, cfg.Output, ".golangci.pre-commit.yaml"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(gitignoreFile, filesystem.FilePathJoin(localFs, cfg.Output, ".gitignore"), overwriteRules.enabled, false)
+	templatesToPopulate.addStateFile(readmeFile, filesystem.FilePathJoin(localFs, cfg.Output, "README.md"), overwriteRules.enabled, false)
+	templatesToPopulate.addStateFile(goModSdkFile, filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.MainModule, "go.mod"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(checkovFile, filesystem.FilePathJoin(localFs, cfg.Output, ".checkov.yaml"), overwriteRules.enabled, false)
+	templatesToPopulate.addStateFile(yamlLintFile, filesystem.FilePathJoin(localFs, cfg.Output, ".yamllint"), overwriteRules.enabled, false)
+	templatesToPopulate.addStateFile(qltyTrivyFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "configs", "trivy.yaml"), overwriteRules.enabled, true)
+	templatesToPopulate.addStateFile(qltyOSVScannerFile, filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "scripts", "osv-scanner.sh"), overwriteRules.enabled, true)
 
-	updateGoVersion := shouldRegenerateVersionSensitiveStateFile(cfg.Overwrite, defaultGoVersion, requestedGoVersion)
+	updateGoVersion := shouldRegenerateVersionSensitiveStateFile(overwriteRules.enabled, defaultGoVersion, requestedGoVersion)
 	templatesToPopulate.addStateFile(dockerFile, filesystem.FilePathJoin(localFs, cfg.Output, fmt.Sprintf("Dockerfile.%v", sdk.Specification.MainModule)), updateGoVersion, true)
 	if sdk.Specification.CommandLineCommands != nil && sdk.Specification.DistributeOci != nil {
 		templatesToPopulate.addStateFile(ociDockerfileAlpineFile, filesystem.FilePathJoin(localFs, cfg.Output, "Dockerfile.oci.alpine"), updateGoVersion, true)
@@ -559,20 +559,20 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	}
 
 	if onGithub {
-		templatesToPopulate.addStateFile(selectedDependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(selectedDependabotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "dependabot.yml"), overwriteRules.enabled, true)
+		templatesToPopulate.addStateFile(prTemplateFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "PULL_REQUEST_TEMPLATE.md"), overwriteRules.enabled, true)
 		if !sdk.Specification.Public {
-			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), cfg.Overwrite, true)
+			templatesToPopulate.addStateFile(codeOwnersFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "CODEOWNERS"), overwriteRules.enabled, true)
 		}
-		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(selectedCIWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "ci.yml"), overwriteRules.enabled, true)
+		templatesToPopulate.addStateFile(upgradeGeneratorWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "upgrade-generator.yml"), overwriteRules.enabled, true)
+		templatesToPopulate.addStateFile(selectedDependabotWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "dependabot.yml"), overwriteRules.enabled, true)
+		templatesToPopulate.addStateFile(selectedReleaseWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "release.yml"), overwriteRules.enabled, true)
 		if sdk.Specification.UpdateCopyrightHeaders {
-			templatesToPopulate.addStateFile(licensingWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "licensing.yml"), cfg.Overwrite, true)
+			templatesToPopulate.addStateFile(licensingWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "licensing.yml"), overwriteRules.enabled, true)
 		}
 		if sdk.Specification.Public {
-			templatesToPopulate.addStateFile(sbomWorkflowPublicFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "sbom.yml"), cfg.Overwrite, true)
+			templatesToPopulate.addStateFile(sbomWorkflowPublicFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "sbom.yml"), overwriteRules.enabled, true)
 		}
 	}
 
@@ -587,13 +587,13 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	generateAction := len(generatedActions) > 0
 	overwriteRules.addGeneratedGroups(resolveGeneratedFileGroups(&sdk.Specification, generatedActions))
 	if onGithub && generateAction {
-		templatesToPopulate.addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(lintActionsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "lint-actions.yml"), overwriteRules.enabled, true)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
-		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(goreleaserFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), overwriteRules.enabled, true)
 	} else {
-		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), overwriteRules.enabled, true)
 	}
 
 	if sdk.Specification.CommandLineCommands != nil {
@@ -604,7 +604,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		}
 		binary := field.OptionalString(sdk.Specification.CommandLineCommands.Binary, "")
 		templatesToPopulate.addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
-		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), overwriteRules.enabled, true)
 		if generateAction {
 			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
 		}
@@ -619,14 +619,14 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 			templatesToPopulate.addStateFile(configCLIEnumFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "config", "enums.go"), true, true)
 		}
 		templatesToPopulate.addStateFile(implementationWrapperCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "wrappers.go"), true, true)
-		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(preinstallFile, filesystem.FilePathJoin(localFs, cfg.Output, "scripts", "pre.sh"), overwriteRules.enabled, true)
 		if hasSecretStringParameters(sdk.Specification.CommandLineCommands) {
 			templatesToPopulate.addStateFile(secretUtilCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "internal", "secretutil", "secret.go"), true, true)
 		}
 
-		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"), cfg.Overwrite, false)
-		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), cfg.Overwrite, true)
-		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "go.mod"), cfg.Overwrite, true)
+		templatesToPopulate.addStateFile(implementationCLIFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", sdk.Specification.MainModule, "implementations.go"), overwriteRules.enabled, false)
+		templatesToPopulate.addStateFile(goWorkFile, filesystem.FilePathJoin(localFs, cfg.Output, "go.work"), overwriteRules.enabled, true)
+		templatesToPopulate.addStateFile(goModCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "go.mod"), overwriteRules.enabled, true)
 	}
 
 	var modulePropertiesFilePath string
@@ -635,8 +635,8 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	} else {
 		modulePropertiesFilePath = filesystem.FilePathJoin(localFs, cfg.Output, sdk.Specification.CommandLineCommands.Package, "cmd", "module.properties")
 	}
-	templatesToPopulate.addProtectedStateFile(modulePropertiesFile, modulePropertiesFilePath, cfg.Overwrite, true, logger)
-	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), cfg.Overwrite, true)
+	templatesToPopulate.addProtectedStateFile(modulePropertiesFile, modulePropertiesFilePath, overwriteRules.enabled, true, logger)
+	templatesToPopulate.addStateFile(pyprojectFile, filesystem.FilePathJoin(localFs, cfg.Output, "pyproject.toml"), overwriteRules.enabled, true)
 
 	flagRegs, cliEnvVarBindings, err := PreComputeFlagsAndBindings(sdk.Specification.CommandLineCommands)
 	if err != nil {
@@ -965,7 +965,7 @@ func generateGitAttributesFile(ctx context.Context, cfg *config.SDKGeneratorMana
 func generateQltyFile(ctx context.Context, cfg *config.SDKGeneratorManagerConfiguration, generated []string, mainModule string, overwriteRules *overwrite) (err error) {
 	localFs := filesystem.GetGlobalFileSystem()
 	qltyPath := filesystem.FilePathJoin(localFs, cfg.Output, ".qlty", "qlty.toml")
-	if localFs.Exists(qltyPath) && !cfg.Overwrite {
+	if localFs.Exists(qltyPath) && !overwriteRules.enabled {
 		return nil
 	}
 

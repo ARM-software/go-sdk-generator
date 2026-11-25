@@ -39,9 +39,6 @@ Fields:
 - **`Output : string`** - destination of the generated code (required)
 
 
-- **`Overwrite : bool`** - regenerate all files (required)
-
-
 - **`TargetedGoVersion : string`** - targeted go version for the tool (required)
 
 
@@ -369,17 +366,17 @@ Fields:
 
 - **`Input : string`** - path to tool definition file (required)
 
-- **`Logger : GenerateLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
+- **`Logger : GenerateLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom. 
 
 - **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 
 - **`Output : string`** - destination of the generated code (required)
 
-- **`Overwrite : options.OverwriteOptions`** - Settings defining how overwrite regeneration of the generated SDK should be performed.
+- **`Overwrite : options.OverwriteOptions`** - Settings defining how overwrite regeneration of the generated SDK should be performed. 
 
 - **`ShowConfig : bool`** - Show the effective configuration used by this command before execution. 
 
-- **`Summary : GenerateSummary`** - Write a human-readable summary to the selected destination. Allowed values: file, github, output, none.
+- **`Summary : GenerateSummary`** - Write a human-readable summary to the selected destination. Allowed values: file, github, output, none. 
 
 - **`SummaryFile : string`** - Path to the summary file when summary is set to file 
 
@@ -481,7 +478,7 @@ Fields:
 
 - **`Annotation : SchemaAnnotation`** - Select the implementation used for structured annotations such as errors, warnings, and notices. Allowed values: github, none. 
 
-- **`Logger : SchemaLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
+- **`Logger : SchemaLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom. 
 
 - **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 
@@ -588,7 +585,7 @@ Fields:
 
 - **`Init : bool`** - install the embedded skills into the current repository 
 
-- **`Logger : AgentLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom.
+- **`Logger : AgentLogger`** - Select the implementation used for normal runtime logs. `console` writes standard human-readable logs. `plain` writes plain log lines without prefixes. `rich` writes styled human-readable logs with timestamps. `json` writes structured JSON logs. `quiet` only writes errors while otherwise behaving like the console logger. `file` writes logs to `logger_file`. `none` disables normal runtime logs. `custom` uses the application-registered logger. Allowed values: console, plain, rich, json, quiet, file, none, custom. 
 
 - **`LoggerFile : string`** - Path to write normal runtime logs when logger is set to file. 
 

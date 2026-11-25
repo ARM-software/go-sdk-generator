@@ -32,7 +32,7 @@ type overwriteSelection struct {
 	specified bool
 }
 
-func newOverwrite(output string, enabled bool, opts ...options.OverwriteOption) (*overwrite, error) {
+func newOverwrite(output string, opts ...options.OverwriteOption) (*overwrite, error) {
 	values := options.WithOverwriteOptions(opts...)
 	if err := values.Validate(); err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func newOverwrite(output string, enabled bool, opts ...options.OverwriteOption) 
 	if err != nil {
 		return nil, err
 	}
-	return &overwrite{output: output, enabled: enabled, excluded: excluded, only: only}, nil
+	return &overwrite{output: output, enabled: values.Enabled, excluded: excluded, only: only}, nil
 }
 
 func newOverwriteSelection(groups, files []string) (overwriteSelection, error) {
