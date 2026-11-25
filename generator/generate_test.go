@@ -750,7 +750,7 @@ func TestGenerate(t *testing.T) {
 
 		{
 
-			title: "No CLI (generated option helpers can be passed as variadic interface arguments)",
+			title: "Yes CLI (generated option helpers cover variadic arguments, together-mode validation, and collection defaults)",
 
 			recipe: "options-variadic.yml",
 
