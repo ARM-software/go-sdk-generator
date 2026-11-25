@@ -144,6 +144,7 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	},
 	"cliConfigTestImports":                     cliConfigTestImports,
 	"shouldAssignCLIConfigTestValue":           shouldAssignCLIConfigTestValue,
+	"cliConfigTestForbiddenRule":               cliConfigTestForbiddenRule,
 	"firstVisibleCLICommand":                   firstVisibleCLICommand,
 	"firstVisibleResultCLICommand":             firstVisibleResultCLICommand,
 	"documentedInterfaceMethodSignature":       documentedInterfaceMethodSignature,

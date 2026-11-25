@@ -104,6 +104,17 @@ specification:
   update_copyright_headers: false
 
   additional_types:
+    # Keep the duplicate-argument regression independent of legacy service modules.
+    - name: FPGAAgentCredentials
+      package: credentials
+      description: Credentials supplied to the agent in this regression fixture
+      fields:
+        - name: Token
+          lang_type: string
+          json_tag: token
+          mapstructure_tag: token
+          description: Agent authentication token
+          secret: true
     - name: AuthenticationPayload
       description: Authentication payload for authenticating a payload with the boundary controller
       fields:
@@ -127,7 +138,8 @@ specification:
             lang_type: string
             description: Path to the manifest file describing the FPGA under supervision
           - name: agentCredentials
-            lang_type: "credentials.IFPGAAgentCredentials"
+            lang_type: credentials.FPGAAgentCredentials
+            reference: true
             description: credentials necessary for setting up the agent with AFaaS
         returns:
           - name: err
@@ -291,7 +303,5 @@ specification:
       import_ref: encryption
     - import_url: github.com/ARM-software/golang-utils/utils/subprocess/supervisor
       import_ref: supervisor
-    - import_url: github.com/Arm-Debug/fpga-service-common/common/agent/credentials
-      import_ref: credentials
 
   release_to_artifactory: true

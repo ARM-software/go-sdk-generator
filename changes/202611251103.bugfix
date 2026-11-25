@@ -1,0 +1,1 @@
+:bug: Generate valid CLI logger and summary test configurations by evaluating `forbidden_when` after initialising field values, preserving conditionally required fields when they are allowed.

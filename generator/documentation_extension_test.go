@@ -489,6 +489,45 @@ func TestCLIConfigGeneratedSummaryValidation(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "forbidden field default is cleared",
+			configuration: []FunctionConfigFields{
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label", Condition: "Tracing == true",
+					DefaultValue: field.ToOptional("must be cleared"),
+					Constraints: &ParameterConstraints{ForbiddenWhen: &ParameterValueConstraint{
+						Parameter: "Tracing", Operator: "not_equals", Value: true,
+					}},
+				},
+				{Name: "Tracing", LangType: "bool", MapstructureTag: "tracing", DefaultValue: field.ToOptional("false")},
+			},
+		},
+		{
+			name: "enum condition allows required field",
+			configuration: []FunctionConfigFields{
+				{Name: "Mode", LangType: "string", MapstructureTag: "mode", Enum: []string{"fast", "safe"}, DefaultValue: field.ToOptional("fast")},
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label",
+					Constraints: &ParameterConstraints{
+						RequiredWhen:  &ParameterValueConstraint{Parameter: "Mode", Operator: "equals", Value: "fast"},
+						ForbiddenWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: "not_in", Values: []interface{}{"fast"}},
+					},
+				},
+			},
+		},
+		{
+			name: "enum condition forbids field",
+			configuration: []FunctionConfigFields{
+				{Name: "Mode", LangType: "string", MapstructureTag: "mode", Enum: []string{"fast", "safe"}, DefaultValue: field.ToOptional("safe")},
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label",
+					Constraints: &ParameterConstraints{
+						RequiredWhen:  &ParameterValueConstraint{Parameter: "Mode", Operator: "equals", Value: "fast"},
+						ForbiddenWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: "not_in", Values: []interface{}{"fast"}},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {

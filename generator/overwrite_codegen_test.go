@@ -26,7 +26,7 @@ func TestOverwriteListCLIHelpers(t *testing.T) {
 	require.Equal(t, `[]string{"project"}`, configFieldTestValue(nil, "", "tool", "1.0.0", "Generate", cfg))
 	cfg.Enum = nil
 	cfg.Constraints = &ParameterConstraints{ForbiddenWhen: &ParameterValueConstraint{Parameter: "Generate", Operator: "not_equals", Value: true}}
-	require.False(t, shouldAssignCLIConfigTestValue(cfg, `[]string{"value"}`))
+	require.True(t, shouldAssignCLIConfigTestValue(cfg, `[]string{"value"}`), "forbidden_when is evaluated against the completed test configuration")
 	cfg = FunctionConfigFields{
 		Name: "Overwrite", LangType: "options.OverwriteOptions", MapstructureTag: "overwrite",
 		DefaultValue: field.ToOptionalString("*options.DefaultOverwriteOptions()"),

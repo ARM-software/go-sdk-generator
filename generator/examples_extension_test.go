@@ -161,7 +161,7 @@ func TestEmbeddedCLISkillTemplateUsesBindingDescriptions(t *testing.T) {
 			}}}
 			var b strings.Builder
 			require.NoError(t, tmpl.ExecuteTemplate(&b, "cli.skill.md.tmpl", data))
-			output := b.String()
+			output := strings.ReplaceAll(b.String(), "\r\n", "\n")
 			assert.Contains(t, output, "- `overwrite`: overwrite state files")
 			assert.Contains(t, output, "- `exclude-files`: Files to preserve. Example: \"README.md\".")
 			assert.NotContains(t, output, "Parent option-set description.")

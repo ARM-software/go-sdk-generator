@@ -242,13 +242,26 @@ func shouldAssignCLIConfigTestValue(cfg FunctionConfigFields, testValue string) 
 	if !cfg.IsRequired() && cfg.DefaultValue != nil && len(cfg.Bindings) > 0 {
 		return false
 	}
-	if !cfg.Required && cfg.Constraints != nil && cfg.Constraints.ForbiddenWhen != nil {
-		return false
-	}
 	if hasEnum(cfg.EffectiveEnum()) || reflection.IsEmpty(testValue) {
 		return false
 	}
 	return !isSyntheticCLIConfigurationName(cfg.Name)
+}
+
+// cliConfigTestForbiddenRule reuses the runtime predicate to clear test values
+// only when they are forbidden, after all controlling fields are initialised.
+func cliConfigTestForbiddenRule(fct CliFunction, cfg FunctionConfigFields) string {
+	if cfg.Constraints == nil || cfg.Constraints.ForbiddenWhen == nil || isSyntheticCLIConfigurationName(cfg.Name) {
+		return ""
+	}
+	parameters := collection.Map(fct.Configuration, func(cfg FunctionConfigFields) constrainedParameter {
+		parameter := cfg.constrainedParameter()
+		parameter.OwnerName = fct.Name
+		return parameter
+	})
+	refs := parameterRefs(parameters)
+	return cfg.Constraints.ForbiddenWhen.ValidationRuleLine(refs, parameterPresenceRefs(parameters), parameterByName(parameters),
+		fmt.Sprintf("validationUtils.ForbiddenFieldsBy(%s)", refs[cfg.Name]), true)
 }
 
 func documentedCLIOptions(cmds *CommandLineCommands, cliFunc CliFunction) DocumentedCLIOptionSet {
