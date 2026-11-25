@@ -18,13 +18,16 @@ func TestDisabledConditionAlwaysApplies(t *testing.T) {
 	}{
 		{name: "disabled empty reason", options: &BuildOptions{}, invalid: true},
 		{name: "disabled supplied reason", options: &BuildOptions{Reason: "not requested"}},
-		{name: "enabled empty reason", options: &BuildOptions{Enabled: true}},
+		{name: "disabled skips value validation", options: &BuildOptions{Reason: "not requested", Target: "invalid"}},
+		{name: "enabled empty reason", options: &BuildOptions{Enabled: true, Target: "valid"}},
+		{name: "enabled requires target", options: &BuildOptions{Enabled: true}, invalid: true},
+		{name: "enabled validates target", options: &BuildOptions{Enabled: true, Target: "invalid"}, invalid: true},
 		{name: "nil options"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			err := test.options.Validate()
 			if test.invalid {
-				require.Error(t, err, "a disabled set still requires the conditional reason")
+				require.Error(t, err)
 				return
 			}
 

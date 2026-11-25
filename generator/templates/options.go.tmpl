@@ -129,13 +129,26 @@ func (opt *{{ $structName }}) Validate() (err error) {
 	{{ $enumValidation := optionFieldEnumValidationRule $structName . $field -}}
 	{{ $patternValidation := patternValidationRule .EffectivePattern .List .Iterator -}}
 	{{ $constraintValidation := constraintValidationRule .LangType .List .Iterator .Constraints -}}
-	validation.Field(&{{ $field }}{{ if and .IsRequired (not .Condition) (not .SuppressesRequiredValidation) }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}{{ if .Condition }}, validation.When({{ optionParameterConditionExpression $optionSet .Condition "opt" }}, validationUtils.Required){{ end }}),
+	validation.Field(&{{ $field }}{{ if and .IsRequired (not .Condition) (not .SuppressesRequiredValidation) }}, validationUtils.Required{{ end }}{{ $validation }}{{ $enumValidation }}{{ $patternValidation }}{{ $constraintValidation }}),
 	{{ end -}}
 	)
 	if err != nil {
 		return err
 	}
 	}
+	{{ if optionSetHasConditionalValidationRules . -}}
+	// Explicit conditions apply even when the option set is disabled.
+	err = validation.ValidateStruct(opt,
+	{{ range .Parameters -}}
+	{{ if .Condition -}}
+		validation.Field(&opt.{{ .Name | toPascal }}, validation.When({{ optionParameterConditionExpression $optionSet .Condition "opt" }}, validationUtils.Required)),
+	{{ end -}}
+	{{ end -}}
+	)
+	if err != nil {
+		return err
+	}
+	{{ end -}}
 	{{ if .HasConstraintValidationRules -}}
 	return validationUtils.NewAllRule(
 	{{ range optionSetConstraintValidationRules . -}}

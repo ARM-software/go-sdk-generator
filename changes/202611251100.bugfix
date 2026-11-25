@@ -1,0 +1,1 @@
+:bug: Preserve whole-field collection defaults in generated CLI validation tests instead of wrapping them as individual items, including referenced slices.

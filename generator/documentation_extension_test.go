@@ -464,6 +464,20 @@ func TestCLIConfigGeneratedSummaryValidation(t *testing.T) {
 			}},
 		},
 		{
+			name: "whole-field referenced slice default",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, Reference: true, MapstructureTag: "modes",
+				DefaultValue: field.ToOptional(`func() *[]string { values := []string{"fast", "safe"}; return &values }()`),
+			}},
+		},
+		{
+			name: "referenced slice item example",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, Reference: true, MapstructureTag: "modes",
+				Example: field.ToOptional("fast"),
+			}},
+		},
+		{
 			name: "conditionally required optional forbidden field",
 			configuration: []FunctionConfigFields{
 				{Name: "Tracing", LangType: "bool", MapstructureTag: "tracing"},

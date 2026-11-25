@@ -84,6 +84,18 @@ func TestTogetherOptionEnumListLiteralDefault(t *testing.T) {
 			Name: "Locations", LangType: "string", List: true,
 			Enum: []string{"home", "remote"}, DefaultValue: field.ToOptionalString("home"),
 		}}},
+		{Parameters: []OptionParameter{{
+			Name: "LocationReferences", LangType: "string", List: true, Reference: true,
+			Enum: []string{"home", "remote"}, DefaultValue: field.ToOptionalString("home"),
+		}}},
+		{Parameters: []OptionParameter{{
+			Name: "Names", LangType: "string", List: true,
+			Constraints:  &ParameterConstraints{Enum: []string{`quoted "home"\path`}},
+			DefaultValue: field.ToOptionalString(`quoted "home"\path`),
+		}}},
+		{Parameters: []OptionParameter{{
+			Name: "Directories", LangType: "string", List: true, DefaultValue: field.ToOptionalString("home"),
+		}}},
 		{Parameters: []OptionParameter{{Name: "Tracing", LangType: "bool"}}},
 	}}
 
@@ -93,9 +105,10 @@ func TestTogetherOptionEnumListLiteralDefault(t *testing.T) {
 func TestTogetherOptionDisabledCondition(t *testing.T) {
 	t.Parallel()
 
-	optionSet := OptionSet{Name: "Build", EnableMode: OptionSetEnableModeTogether, Functions: []OptionFunction{{
-		Parameters: []OptionParameter{{Name: "Reason", LangType: "string", Condition: "Enabled == false"}},
-	}}}
+	optionSet := OptionSet{Name: "Build", EnableMode: OptionSetEnableModeTogether, Functions: []OptionFunction{
+		{Parameters: []OptionParameter{{Name: "Reason", LangType: "string", Condition: "Enabled == false"}}},
+		{Parameters: []OptionParameter{{Name: "Target", LangType: "string", Required: true, Pattern: field.ToOptionalString("^valid$")}}},
+	}}
 
 	runOptionSetValidationFixture(t, optionSet, nil, "together-disabled-condition")
 }

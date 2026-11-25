@@ -135,7 +135,8 @@ func configFieldTestValue(additionalTypesPackages map[string]string, currentPack
 		return ""
 	}
 
-	if cfg.List && !cfg.Iterator {
+	// Explicit defaults initialise the whole field; examples and fallbacks describe an item.
+	if cfg.List && !cfg.Iterator && reflection.IsEmpty(cfg.DefaultValue) {
 		value := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, cfg.Name, baseType, nil, valueSource, false)
 		if cfg.Secret && convertLangType(baseType) == stringLangType {
 			value = fmt.Sprintf("%s(%s)", secretProtectedStringType, value)

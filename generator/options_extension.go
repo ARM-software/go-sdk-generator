@@ -9,6 +9,7 @@ import (
 	"maps"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
@@ -484,7 +485,13 @@ func togetherOptionParameterDefaultValue(additionalTypesPackages map[string]stri
 	if !parameter.List || parameter.Iterator {
 		return defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, parameter.Name, parameter.LangType, parameter.EffectiveEnum(), value, parameter.Reference)
 	}
-	item := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, parameter.Name, parameter.LangType, nil, value, false)
+	var item string
+	if parameter.HasEnum() {
+		// Collection enums use literal strings, without scalar enum constants or semantic defaults.
+		item = strconv.Quote(value)
+	} else {
+		item = defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, parameter.Name, parameter.LangType, nil, value, false)
+	}
 	literal := fmt.Sprintf("%s{%s}", strings.TrimPrefix(optionParameterType(ownerName, parameter), "*"), item)
 	if parameter.Reference {
 		return "&" + literal
