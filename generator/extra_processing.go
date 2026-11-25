@@ -703,6 +703,10 @@ func ProcessArguments(ctx context.Context, sdk *SDK) (err error) {
 
 	}
 
+	err = processOptionObjectShapes(&sdk.Specification)
+	if err != nil {
+		return
+	}
 	err = validateCollectionParameters(sdk)
 
 	if err != nil {

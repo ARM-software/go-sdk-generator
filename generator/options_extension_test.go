@@ -106,11 +106,11 @@ func TestTogetherOptionCLICollectionDefaults(t *testing.T) {
 		{name: "scalar", langType: "options.BuildOptions", expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
 		{name: "reference scalar", langType: "options.BuildOptions", reference: true, expected: field.ToOptionalString("options.DefaultBuildOptions()")},
 		{name: "pointer scalar", langType: "*options.BuildOptions", expected: field.ToOptionalString("options.DefaultBuildOptions()")},
-		{name: "list", langType: "options.BuildOptions", list: true},
-		{name: "iterator", langType: "options.BuildOptions", iterator: true},
+		{name: "list keeps object", langType: "options.BuildOptions", list: true, expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
+		{name: "iterator keeps object", langType: "options.BuildOptions", iterator: true, expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
 		{name: "explicit scalar default", langType: "options.BuildOptions", defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
-		{name: "explicit list default", langType: "options.BuildOptions", list: true, defaultValue: field.ToOptionalString("[]options.BuildOptions{}"), expected: field.ToOptionalString("[]options.BuildOptions{}")},
-		{name: "explicit iterator default", langType: "options.BuildOptions", iterator: true, defaultValue: field.ToOptionalString("buildOptionsIterator()"), expected: field.ToOptionalString("buildOptionsIterator()")},
+		{name: "explicit object default with list flag", langType: "options.BuildOptions", list: true, defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
+		{name: "explicit object default with iterator flag", langType: "options.BuildOptions", iterator: true, defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
@@ -126,12 +126,10 @@ func TestTogetherOptionCLICollectionDefaults(t *testing.T) {
 
 			addOptionCLIEnabledBindings(spec, cfg)
 
-			if test.expected == nil {
-				assert.Nil(t, cfg.DefaultValue, "collections without declared defaults must remain unset; generated default: %q", field.OptionalString(cfg.DefaultValue, ""))
-			} else {
-				require.NotNil(t, cfg.DefaultValue)
-				assert.Equal(t, *test.expected, *cfg.DefaultValue)
-			}
+			require.NotNil(t, cfg.DefaultValue)
+			assert.Equal(t, *test.expected, *cfg.DefaultValue)
+			assert.False(t, cfg.List)
+			assert.False(t, cfg.Iterator)
 
 			assert.Empty(t, cfg.Bindings, "together-mode CLI fields must not acquire per-parameter bindings")
 		})

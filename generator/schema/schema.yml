@@ -257,7 +257,14 @@ $defs:
     items:
       $ref: "#/$defs/option_set"
   option_set:
-    description: A functional option collection
+    description: |
+      A generated options object and its functional option helpers.
+      AsList and AsIterator convert an object into functional options while
+      preserving its enabled state and Clone semantics.
+      Interface arguments naming this generated object use a list of functional
+      options by default, or an iterator when iterator is true. A final list
+      argument is variadic. CLI configuration retains an editable options object,
+      even when list or iterator is specified; convert it at the SDK call boundary.
     type: object
     required:
       - name

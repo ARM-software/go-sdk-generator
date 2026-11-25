@@ -1325,7 +1325,13 @@ func (j *OptionParameter) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A functional option collection
+// A generated options object and its functional option helpers.
+// AsList and AsIterator convert an object into functional options while
+// preserving its enabled state and Clone semantics.
+// Interface arguments naming this generated object use a list of functional
+// options by default, or an iterator when iterator is true. A final list
+// argument is variadic. CLI configuration retains an editable options object,
+// even when list or iterator is specified; convert it at the SDK call boundary.
 type OptionSet struct {
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
 	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`

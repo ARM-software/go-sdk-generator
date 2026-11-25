@@ -716,6 +716,9 @@ func (optionSet *OptionSet) ValidateOptionParameterNames() error {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "option parameter %q in option set %q cannot use %s as its value field; set value_field.name to a different name", parameter.Name, optionSet.Name, optionEnabledFieldName)
 			}
 			generatedName := toPascalCase(parameter.Name)
+			if collection.In([]string{optionAsListMethodName, optionAsIteratorMethodName}, generatedName, collection.StringCleanCaseInsensitiveMatch) {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "option set %q reserves generated conversion method %s", optionSet.Name, generatedName)
+			}
 			key := normaliseKeyNames(generatedName)
 			if existing, found := parametersByName[key]; found {
 				if existing.LangType != parameter.LangType || existing.Reference != parameter.Reference || existing.List != parameter.List || existing.Iterator != parameter.Iterator {

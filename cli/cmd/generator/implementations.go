@@ -63,13 +63,7 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 }
 
 func overwriteOptions(cfg *config.GenerateConfiguration) []options.OverwriteOption {
-	return []options.OverwriteOption{
-		options.WithExcludeGroups(cfg.Overwrite.ExcludeGroups),
-		options.WithExcludeFiles(cfg.Overwrite.ExcludeFiles),
-		options.WithOnlyGroups(cfg.Overwrite.OnlyGroups),
-		options.WithOnlyFiles(cfg.Overwrite.OnlyFiles),
-		options.WithOverwriteEnabled(cfg.Overwrite.Enabled),
-	}
+	return cfg.Overwrite.AsList()
 }
 
 /*

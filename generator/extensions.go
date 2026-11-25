@@ -190,6 +190,8 @@ var templateFuncMap = maps.Merge(template.FuncMap{
 	"optionParameterEnabledSelector":           optionParameterEnabledSelector,
 	"optionParameterConditionExpression":       optionParameterConditionExpression,
 	"optionEnabledFieldName":                   func() string { return optionEnabledFieldName },
+	"optionAsListMethodName":                   func() string { return optionAsListMethodName },
+	"optionAsIteratorMethodName":               func() string { return optionAsIteratorMethodName },
 	"optionSetHasConditionalValidationRules":   optionSetHasConditionalValidationRules,
 	"optionSetConstraintValidationRules":       optionSetConstraintValidationRules,
 	"optionFunctionSignature":                  optionFunctionSignature,

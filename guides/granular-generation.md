@@ -174,3 +174,8 @@ Options are applied in order and validated together. Explicitly disabling
 overwrite after supplying non-empty selectors is rejected before any files are
 written. Calling `Generate` without overwrite options uses the normal preservation
 mode, even when a previous call on the same manager enabled overwrite.
+
+When settings already exist as an `options.OverwriteOptions` object, pass
+`settings.AsList()...`. This preserves its exact enabled state and selectors.
+The generator's CLI uses this conversion for its bound overwrite configuration.
+See [options-object conversions](configure-options.md#pass-an-options-object-to-an-sdk-method).

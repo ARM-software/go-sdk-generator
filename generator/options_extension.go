@@ -17,8 +17,10 @@ import (
 )
 
 const (
-	defaultOptionPackage   = "options"
-	optionEnabledFieldName = "Enabled"
+	defaultOptionPackage       = "options"
+	optionEnabledFieldName     = "Enabled"
+	optionAsListMethodName     = "AsList"
+	optionAsIteratorMethodName = "AsIterator"
 )
 
 var optionConditionReferencePattern = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)(.*)$`)
@@ -89,6 +91,55 @@ func optionSetStructName(name string) string {
 
 func optionSetOptionTypeName(name string) string {
 	return fmt.Sprintf("%sOption", toPascalCase(name))
+}
+
+func generatedOptionSetForObject(spec *SDKSpecification, langType string) *OptionSet {
+	if spec == nil {
+		return nil
+	}
+	name := convertLangType(baseLangType(langType))
+	for i := range spec.Options {
+		optionSet := &spec.Options[i]
+		if name == fmt.Sprintf("%s.%s", optionPackageName(optionSet), optionSetStructName(optionSet.Name)) {
+			return optionSet
+		}
+	}
+	return nil
+}
+
+// processOptionObjectShapes keeps editable CLI objects separate from the
+// functional options consumed by SDK methods.
+func processOptionObjectShapes(spec *SDKSpecification) error {
+	for i := range spec.Interface.Methods {
+		for j := range spec.Interface.Methods[i].Args {
+			arg := &spec.Interface.Methods[i].Args[j]
+			optionSet := generatedOptionSetForObject(spec, arg.LangType)
+			if optionSet == nil {
+				continue
+			}
+			if err := validateParameterShape(arg.Name, arg.LangType, arg.List, arg.Iterator); err != nil {
+				return err
+			}
+			arg.LangType = fmt.Sprintf("%s.%s", optionPackageName(optionSet), optionSetOptionTypeName(optionSet.Name))
+			arg.Reference = false
+			arg.List = !arg.Iterator
+		}
+	}
+	if spec.CommandLineCommands != nil {
+		for i := range spec.CommandLineCommands.Functions {
+			for j := range spec.CommandLineCommands.Functions[i].Configuration {
+				cfg := &spec.CommandLineCommands.Functions[i].Configuration[j]
+				if generatedOptionSetForObject(spec, cfg.LangType) == nil {
+					continue
+				}
+				if err := validateParameterShape(cfg.Name, cfg.LangType, cfg.List, cfg.Iterator); err != nil {
+					return err
+				}
+				cfg.List, cfg.Iterator = false, false
+			}
+		}
+	}
+	return nil
 }
 
 func optionParameterWrapperTypeName(ownerName string, parameter *OptionParameter) string {
@@ -202,17 +253,22 @@ func addOptionCLIEnabledBindings(spec *SDKSpecification, cfg *FunctionConfigFiel
 	if spec == nil || cfg == nil {
 		return
 	}
+	if optionSet := generatedOptionSetForObject(spec, cfg.LangType); optionSet != nil {
+		// CLI bindings edit one settings object; conversion happens at the SDK call.
+		cfg.List, cfg.Iterator = false, false
+		if reflection.IsEmpty(cfg.DefaultValue) {
+			defaultExpr := fmt.Sprintf("%s.Default%s()", optionPackageName(optionSet), optionSetStructName(optionSet.Name))
+			if !cfg.Reference && !isPointerLangType(cfg.LangType) {
+				defaultExpr = "*" + defaultExpr
+			}
+			cfg.DefaultValue = field.ToOptionalString(defaultExpr)
+		}
+		return
+	}
 	enabledTag := strings.ToLower(optionEnabledFieldName)
 	for _, optionSet := range spec.Options {
 		structName := optionSetStructName(optionSet.Name)
 		if optionSet.EnablesTogether() {
-			if baseLangType(cfg.LangType) == fmt.Sprintf("%s.%s", optionPackageName(&optionSet), structName) && reflection.IsEmpty(cfg.DefaultValue) {
-				defaultExpr := fmt.Sprintf("%s.Default%s()", optionPackageName(&optionSet), structName)
-				if !cfg.Reference && !isPointerLangType(cfg.LangType) {
-					defaultExpr = "*" + defaultExpr
-				}
-				cfg.DefaultValue = field.ToOptionalString(defaultExpr)
-			}
 			continue
 		}
 		for _, parameter := range (&optionSet).Parameters() {

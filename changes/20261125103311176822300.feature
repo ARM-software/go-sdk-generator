@@ -1,0 +1,1 @@
+:boom: Generate AsList and AsIterator conversions for options objects. Interface arguments declared as options objects now consume functional-option collections, while CLI configuration keeps editable objects and their constructor defaults.

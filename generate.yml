@@ -70,8 +70,7 @@ specification:
             lang_type: logs.Loggers
             description: Logger to use for informational generation messages
           - name: overwriteOptions
-            lang_type: options.OverwriteOption
-            list: true
+            lang_type: options.OverwriteOptions
             description: Settings defining how overwrite regeneration of the generated SDK should be performed.
         returns:
           - name: err

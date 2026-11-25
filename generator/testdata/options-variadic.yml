@@ -65,8 +65,7 @@ specification:
             lang_type: string
             description: Relative path to the project definition file.
           - name: buildOptions
-            lang_type: options.BuildOption
-            list: true
+            lang_type: options.BuildOptions
             description: Functional options applied to the build.
         returns:
           - name: ok
