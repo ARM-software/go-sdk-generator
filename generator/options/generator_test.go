@@ -66,3 +66,9 @@ func TestWithOverwriteEnabled(t *testing.T) {
 	}
 	require.NotPanics(t, func() { WithOverwriteEnabled(true)(nil) })
 }
+
+func TestExplicitDisableOverridesSelectorInference(t *testing.T) {
+	opt := WithOverwriteOptions(WithExcludeGroups([]string{"project"}), WithOverwriteEnabled(false))
+	require.False(t, opt.Enabled)
+	require.Error(t, opt.Validate())
+}

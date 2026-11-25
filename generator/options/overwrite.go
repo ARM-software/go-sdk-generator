@@ -11,6 +11,7 @@ func WithOverwriteEnabled(enabled bool) OverwriteOption {
 	return func(opt *OverwriteOptions) {
 		if opt != nil {
 			opt.Enabled = enabled
+			opt.enabledSetExplicitly = true
 		}
 	}
 }

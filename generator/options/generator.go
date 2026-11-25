@@ -42,6 +42,8 @@ type OverwriteOptions struct {
 	OnlyGroups []string `mapstructure:"only_groups"`
 	// OnlyFiles is generate only exact basenames or output-relative paths when overwrite is enabled. Both slash styles are accepted; absolute and escaping paths are rejected. Combines with only-groups to select additional files; exclusions take precedence. Unmatched entries are ignored, and no files are generated if nothing matches. Supporting files must also be selected. If neither only option contains values, generation is unrestricted.
 	OnlyFiles []string `mapstructure:"only_files"`
+
+	enabledSetExplicitly bool
 }
 
 func (opt *OverwriteOptions) hasNonEmptyValues() bool {
@@ -49,7 +51,7 @@ func (opt *OverwriteOptions) hasNonEmptyValues() bool {
 }
 
 func (opt *OverwriteOptions) syncEnabledFromNonEmptyValues() {
-	if opt != nil && opt.hasNonEmptyValues() {
+	if opt != nil && !opt.enabledSetExplicitly && opt.hasNonEmptyValues() {
 		opt.Enabled = true
 	}
 }
@@ -157,6 +159,7 @@ func WithExcludeGroups(value []string) OverwriteOption {
 		}
 		opt.ExcludeGroups = value
 		opt.Enabled = true
+		opt.enabledSetExplicitly = true
 	}
 }
 
@@ -167,6 +170,7 @@ func WithExcludeFiles(value []string) OverwriteOption {
 		}
 		opt.ExcludeFiles = value
 		opt.Enabled = true
+		opt.enabledSetExplicitly = true
 	}
 }
 
@@ -177,6 +181,7 @@ func WithOnlyGroups(value []string) OverwriteOption {
 		}
 		opt.OnlyGroups = value
 		opt.Enabled = true
+		opt.enabledSetExplicitly = true
 	}
 }
 
@@ -187,5 +192,6 @@ func WithOnlyFiles(value []string) OverwriteOption {
 		}
 		opt.OnlyFiles = value
 		opt.Enabled = true
+		opt.enabledSetExplicitly = true
 	}
 }
