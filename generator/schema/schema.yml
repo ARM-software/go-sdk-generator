@@ -311,6 +311,7 @@ $defs:
             overrides are not supported because there are no parameter wrappers.
       infer_enabled_from_non_empty_values:
         type: boolean
+        default: false
         description: |
           This is only valid when `enable_mode: together` is selected.
 
