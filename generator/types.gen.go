@@ -1363,6 +1363,11 @@ type OptionSet struct {
 	//
 	EnableMode OptionSetEnableMode `json:"enable_mode,omitempty,omitzero" yaml:"enable_mode,omitempty" mapstructure:"enable_mode,omitempty"`
 
+	// Functions corresponds to the JSON schema field "functions".
+	Functions []OptionFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
+
+	// This is only valid when `enable_mode: together` is selected.
+	//
 	// When `enable_mode: together` is selected, infer `Enabled = true` during
 	// validation and `AsList`/`AsIterator` snapshot conversion whenever any
 	// generated option field contains a non-empty value.
@@ -1374,9 +1379,6 @@ type OptionSet struct {
 	// if a default value is non-empty, it also counts towards inference.
 	//
 	InferEnabledFromNonEmptyValues bool `json:"infer_enabled_from_non_empty_values,omitempty,omitzero" yaml:"infer_enabled_from_non_empty_values,omitempty" mapstructure:"infer_enabled_from_non_empty_values,omitempty"`
-
-	// Functions corresponds to the JSON schema field "functions".
-	Functions []OptionFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
 
 	// The name of the functional option collection
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
@@ -1444,6 +1446,9 @@ func (j *OptionSet) UnmarshalJSON(value []byte) error {
 	}
 	if plain.Functions != nil && len(plain.Functions) < 1 {
 		return fmt.Errorf("field %s length: must be >= %d", "functions", 1)
+	}
+	if v, ok := raw["infer_enabled_from_non_empty_values"]; !ok || v == nil {
+		plain.InferEnabledFromNonEmptyValues = false
 	}
 	if v, ok := raw["package"]; !ok || v == nil {
 		plain.Package = "options"
