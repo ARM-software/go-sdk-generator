@@ -1297,6 +1297,8 @@ func (optionSet *OptionSet) Validate() error {
 	err := validation.ValidateStruct(optionSet,
 		validation.Field(&optionSet.EnableMode, validation.When(reflection.IsNotEmpty(optionSet.EnableMode), validationUtils.Enum(OptionSetEnableModeIndependent, OptionSetEnableModeTogether))),
 
+		validation.Field(&optionSet.InferEnabledFromNonEmptyValues, validation.When(optionSet.EnableMode != OptionSetEnableModeTogether, validation.Empty)),
+
 		validation.Field(&optionSet.DeprecationNotice, validation.By(func(value any) error {
 
 			return optionSet.DeprecationNotice.Validate()

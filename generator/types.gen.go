@@ -1363,6 +1363,18 @@ type OptionSet struct {
 	//
 	EnableMode OptionSetEnableMode `json:"enable_mode,omitempty,omitzero" yaml:"enable_mode,omitempty" mapstructure:"enable_mode,omitempty"`
 
+	// When `enable_mode: together` is selected, infer `Enabled = true` during
+	// validation and `AsList`/`AsIterator` snapshot conversion whenever any
+	// generated option field contains a non-empty value.
+	//
+	// This is useful for selector-style together-mode option sets such as
+	// overwrite include/exclude lists.
+	//
+	// Do not enable this when non-empty default values should remain disabled:
+	// if a default value is non-empty, it also counts towards inference.
+	//
+	InferEnabledFromNonEmptyValues bool `json:"infer_enabled_from_non_empty_values,omitempty,omitzero" yaml:"infer_enabled_from_non_empty_values,omitempty" mapstructure:"infer_enabled_from_non_empty_values,omitempty"`
+
 	// Functions corresponds to the JSON schema field "functions".
 	Functions []OptionFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
 

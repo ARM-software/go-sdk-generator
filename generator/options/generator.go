@@ -40,10 +40,21 @@ type OverwriteOptions struct {
 	OnlyFiles []string `mapstructure:"only_files"`
 }
 
+func (opt *OverwriteOptions) hasNonEmptyValues() bool {
+	return opt != nil && (reflection.IsNotEmpty(opt.ExcludeGroups) || reflection.IsNotEmpty(opt.ExcludeFiles) || reflection.IsNotEmpty(opt.OnlyGroups) || reflection.IsNotEmpty(opt.OnlyFiles))
+}
+
+func (opt *OverwriteOptions) syncEnabledFromNonEmptyValues() {
+	if opt != nil && opt.hasNonEmptyValues() {
+		opt.Enabled = true
+	}
+}
+
 func (opt *OverwriteOptions) Validate() (err error) {
 	if opt == nil {
 		return nil
 	}
+	opt.syncEnabledFromNonEmptyValues()
 	if opt.Enabled {
 		if err = validateOptionValue(&opt.ExcludeGroups, opt.ExcludeGroups); err != nil {
 			return err
@@ -112,6 +123,7 @@ func (opt *OverwriteOptions) AsList() []OverwriteOption {
 		return nil
 	}
 	snapshot := opt.Clone()
+	snapshot.syncEnabledFromNonEmptyValues()
 	return []OverwriteOption{func(target *OverwriteOptions) {
 		if target != nil {
 			*target = *snapshot.Clone()

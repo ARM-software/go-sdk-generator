@@ -18,18 +18,22 @@ func TestOptionSetEnableModes(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		mode     OptionSetEnableMode
+		infer    bool
 		wantMode OptionSetEnableMode
 		together bool
-		invalid  bool
+		unmarshalInvalid bool
+		validateInvalid  bool
 	}{
 		{name: "default", wantMode: OptionSetEnableModeIndependent},
 		{name: "independent", mode: OptionSetEnableModeIndependent, wantMode: OptionSetEnableModeIndependent},
 		{name: "together", mode: OptionSetEnableModeTogether, wantMode: OptionSetEnableModeTogether, together: true},
-		{name: "unsupported", mode: "unsupported", invalid: true},
+		{name: "together with inference", mode: OptionSetEnableModeTogether, infer: true, wantMode: OptionSetEnableModeTogether, together: true},
+		{name: "inference requires together", infer: true, validateInvalid: true},
+		{name: "unsupported", mode: "unsupported", unmarshalInvalid: true, validateInvalid: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			optionSet := OptionSet{
-				Name: "Build", Description: "Build settings", EnableMode: tc.mode,
+				Name: "Build", Description: "Build settings", EnableMode: tc.mode, InferEnabledFromNonEmptyValues: tc.infer,
 				Functions: []OptionFunction{{Parameters: []OptionParameter{{
 					Name: "Label", LangType: "string", Description: "Build label",
 				}}}},
@@ -38,20 +42,29 @@ func TestOptionSetEnableModes(t *testing.T) {
 			require.NoError(t, err)
 			var decoded OptionSet
 			err = jsonutils.Unmarshal(content, &decoded)
-			if tc.invalid {
+			if tc.unmarshalInvalid {
 				require.Error(t, err)
 				require.ErrorIs(t, optionSet.Validate(), commonerrors.ErrInvalid)
 				return
 			}
 			require.NoError(t, err)
+			if tc.validateInvalid {
+				require.ErrorIs(t, optionSet.Validate(), commonerrors.ErrInvalid)
+				require.ErrorIs(t, decoded.Validate(), commonerrors.ErrInvalid)
+				return
+			}
 			require.NoError(t, optionSet.Validate())
 			require.NoError(t, decoded.Validate())
 			require.Equal(t, tc.wantMode, decoded.EnableMode)
+			require.Equal(t, tc.infer, decoded.InferEnabledFromNonEmptyValues)
 			require.Equal(t, tc.together, optionSet.EnablesTogether())
 			require.Equal(t, tc.together, decoded.EnablesTogether())
+			require.Equal(t, tc.infer && tc.together, optionSet.InfersEnabledFromNonEmptyValues())
+			require.Equal(t, tc.infer && tc.together, decoded.InfersEnabledFromNonEmptyValues())
 		})
 	}
 	require.False(t, (*OptionSet)(nil).EnablesTogether())
+	require.False(t, (*OptionSet)(nil).InfersEnabledFromNonEmptyValues())
 }
 
 func TestIndependentOptionSetValidation(t *testing.T) {

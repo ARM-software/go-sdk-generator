@@ -589,6 +589,10 @@ func (optionSet *OptionSet) UsesPresenceGuardForValidation() bool {
 	})
 }
 
+func (optionSet *OptionSet) InfersEnabledFromNonEmptyValues() bool {
+	return optionSet != nil && optionSet.EnablesTogether() && optionSet.InferEnabledFromNonEmptyValues
+}
+
 func (optionSet *OptionSet) HasConstraintValidationRules() bool {
 	return optionSet != nil && collection.AnyFunc(optionSet.Parameters(), func(parameter OptionParameter) bool {
 		return parameter.Constraints.HasAnyValidationRules()

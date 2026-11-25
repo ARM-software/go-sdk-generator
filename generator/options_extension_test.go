@@ -400,6 +400,26 @@ func TestOptionsTemplateGeneratesWrapperValidation(t *testing.T) {
 	assert.NotContains(t, output, "opt.NoAPI == false.Enabled")
 }
 
+func TestTogetherListOptionSetInfersEnabledFromSelections(t *testing.T) {
+	t.Parallel()
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, "templates/options.go.tmpl")
+	require.NoError(t, err)
+
+	data := &DataModel{SDK: SDK{Specification: SDKSpecification{PackageName: "petshop"}}, CurrentOptionPackage: "options", CurrentOptionSets: OptionSets{{
+		Name: "Overwrite", Description: "Overwrite options.", EnableMode: OptionSetEnableModeTogether, InferEnabledFromNonEmptyValues: true,
+		Functions: []OptionFunction{{Parameters: []OptionParameter{{Name: "ExcludeGroups", LangType: "string", List: true}}}},
+	}}}
+
+	var b strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&b, "options.go.tmpl", data))
+	output := b.String()
+	assert.Contains(t, output, "func (opt *OverwriteOptions) hasNonEmptyValues() bool {")
+	assert.Contains(t, output, "func (opt *OverwriteOptions) syncEnabledFromNonEmptyValues() {")
+	assert.Contains(t, output, "opt.syncEnabledFromNonEmptyValues()")
+	assert.Contains(t, output, "snapshot.syncEnabledFromNonEmptyValues()")
+	assert.Contains(t, output, `return opt != nil && (reflection.IsNotEmpty(opt.ExcludeGroups))`)
+}
+
 func TestOptionFunctionValidateRequiresFunctionNameForMultipleParameters(t *testing.T) {
 	t.Parallel()
 	optionFunction := &OptionFunction{Parameters: []OptionParameter{{
