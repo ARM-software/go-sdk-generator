@@ -1325,7 +1325,13 @@ func (j *OptionParameter) UnmarshalJSON(value []byte) error {
 	return nil
 }
 
-// A functional option collection
+// A generated options object and its functional option helpers.
+// AsList and AsIterator convert an object into functional options while
+// preserving its enabled state and Clone semantics.
+// Interface arguments naming this generated object use a list of functional
+// options by default, or an iterator when iterator is true. A final list
+// argument is variadic. CLI configuration retains an editable options object,
+// even when list or iterator is specified; convert it at the SDK call boundary.
 type OptionSet struct {
 	// DeprecationNotice corresponds to the JSON schema field "deprecation_notice".
 	DeprecationNotice *DeprecationNotice `json:"deprecation_notice,omitempty,omitzero" yaml:"deprecation_notice,omitempty" mapstructure:"deprecation_notice,omitempty"`
@@ -1334,6 +1340,28 @@ type OptionSet struct {
 	// Multiline YAML descriptions using `|` are supported.
 	//
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+
+	// Choose whether option parameters are enabled independently or together.
+	//
+	// independent (the default): each parameter has a separate wrapper containing
+	// its value and its own Enabled flag. A generated helper enables only the
+	// parameters it sets.
+	//
+	// together: the generated struct contains one Enabled bool for the entire
+	// option set and the parameter fields directly, for example ExcludeFiles
+	// []string. Calling any generated With... or Without... helper sets the
+	// shared Enabled flag to true.
+	//
+	// In together mode:
+	// - Field-level validation, such as enum and pattern checks, runs only when
+	//   Enabled is true.
+	// - Rules involving other fields, such as forbidden_when, always run.
+	//   Use parameter: Enabled to allow or forbid values depending on whether
+	//   the option set is enabled.
+	// - Fields use the parameter names declared in the manifest. value_field
+	//   overrides are not supported because there are no parameter wrappers.
+	//
+	EnableMode OptionSetEnableMode `json:"enable_mode,omitempty,omitzero" yaml:"enable_mode,omitempty" mapstructure:"enable_mode,omitempty"`
 
 	// Functions corresponds to the JSON schema field "functions".
 	Functions []OptionFunction `json:"functions" yaml:"functions" mapstructure:"functions"`
@@ -1347,6 +1375,36 @@ type OptionSet struct {
 	Package string `json:"package,omitempty,omitzero" yaml:"package,omitempty" mapstructure:"package,omitempty"`
 
 	AdditionalProperties interface{} `mapstructure:",remain"`
+}
+
+type OptionSetEnableMode string
+
+const OptionSetEnableModeIndependent OptionSetEnableMode = "independent"
+const OptionSetEnableModeTogether OptionSetEnableMode = "together"
+
+var enumValues_OptionSetEnableMode = []interface{}{
+	"independent",
+	"together",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OptionSetEnableMode) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_OptionSetEnableMode {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_OptionSetEnableMode, v)
+	}
+	*j = OptionSetEnableMode(v)
+	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1368,6 +1426,9 @@ func (j *OptionSet) UnmarshalJSON(value []byte) error {
 	var plain Plain
 	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
+	}
+	if v, ok := raw["enable_mode"]; !ok || v == nil {
+		plain.EnableMode = "independent"
 	}
 	if plain.Functions != nil && len(plain.Functions) < 1 {
 		return fmt.Errorf("field %s length: must be >= %d", "functions", 1)

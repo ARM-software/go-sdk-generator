@@ -9,6 +9,7 @@ import (
 	"maps"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/ARM-software/golang-utils/utils/collection"
@@ -17,8 +18,10 @@ import (
 )
 
 const (
-	defaultOptionPackage   = "options"
-	optionEnabledFieldName = "Enabled"
+	defaultOptionPackage       = "options"
+	optionEnabledFieldName     = "Enabled"
+	optionAsListMethodName     = "AsList"
+	optionAsIteratorMethodName = "AsIterator"
 )
 
 var optionConditionReferencePattern = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_]*)(.*)$`)
@@ -26,6 +29,12 @@ var optionConditionReferencePattern = regexp.MustCompile(`^([A-Za-z_][A-Za-z0-9_
 type generatedOptionIdentifier struct {
 	Name   string
 	Source string
+}
+
+// EnablesTogether reports whether one Enabled flag selects the entire option set.
+// An omitted mode uses the independent behaviour, including Go zero values.
+func (optionSet *OptionSet) EnablesTogether() bool {
+	return optionSet != nil && optionSet.EnableMode == OptionSetEnableModeTogether
 }
 
 func normaliseOptionPackageName(value string) string {
@@ -83,6 +92,55 @@ func optionSetStructName(name string) string {
 
 func optionSetOptionTypeName(name string) string {
 	return fmt.Sprintf("%sOption", toPascalCase(name))
+}
+
+func generatedOptionSetForObject(spec *SDKSpecification, langType string) *OptionSet {
+	if spec == nil {
+		return nil
+	}
+	name := convertLangType(baseLangType(langType))
+	for i := range spec.Options {
+		optionSet := &spec.Options[i]
+		if name == fmt.Sprintf("%s.%s", optionPackageName(optionSet), optionSetStructName(optionSet.Name)) {
+			return optionSet
+		}
+	}
+	return nil
+}
+
+// processOptionObjectShapes keeps editable CLI objects separate from the
+// functional options consumed by SDK methods.
+func processOptionObjectShapes(spec *SDKSpecification) error {
+	for i := range spec.Interface.Methods {
+		for j := range spec.Interface.Methods[i].Args {
+			arg := &spec.Interface.Methods[i].Args[j]
+			optionSet := generatedOptionSetForObject(spec, arg.LangType)
+			if optionSet == nil {
+				continue
+			}
+			if err := validateParameterShape(arg.Name, arg.LangType, arg.List, arg.Iterator); err != nil {
+				return err
+			}
+			arg.LangType = fmt.Sprintf("%s.%s", optionPackageName(optionSet), optionSetOptionTypeName(optionSet.Name))
+			arg.Reference = false
+			arg.List = !arg.Iterator
+		}
+	}
+	if spec.CommandLineCommands != nil {
+		for i := range spec.CommandLineCommands.Functions {
+			for j := range spec.CommandLineCommands.Functions[i].Configuration {
+				cfg := &spec.CommandLineCommands.Functions[i].Configuration[j]
+				if generatedOptionSetForObject(spec, cfg.LangType) == nil {
+					continue
+				}
+				if err := validateParameterShape(cfg.Name, cfg.LangType, cfg.List, cfg.Iterator); err != nil {
+					return err
+				}
+				cfg.List, cfg.Iterator = false, false
+			}
+		}
+	}
+	return nil
 }
 
 func optionParameterWrapperTypeName(ownerName string, parameter *OptionParameter) string {
@@ -175,6 +233,9 @@ func optionParameterConditionExpression(optionSet *OptionSet, condition, receive
 			if !strings.EqualFold(parameter.Name, referenceName) {
 				continue
 			}
+			if optionSet.EnablesTogether() {
+				return fmt.Sprintf("%s%s", optionSetParameterValueSelector(optionSet, parameter, receiver), suffix)
+			}
 			return fmt.Sprintf("%s && %s%s", optionParameterEnabledSelector(parameter, receiver), optionParameterValueSelector(parameter, receiver), suffix)
 		}
 	}
@@ -193,9 +254,24 @@ func addOptionCLIEnabledBindings(spec *SDKSpecification, cfg *FunctionConfigFiel
 	if spec == nil || cfg == nil {
 		return
 	}
+	if optionSet := generatedOptionSetForObject(spec, cfg.LangType); optionSet != nil {
+		// CLI bindings edit one settings object; conversion happens at the SDK call.
+		cfg.List, cfg.Iterator = false, false
+		if reflection.IsEmpty(cfg.DefaultValue) {
+			defaultExpr := fmt.Sprintf("%s.Default%s()", optionPackageName(optionSet), optionSetStructName(optionSet.Name))
+			if !cfg.Reference && !isPointerLangType(cfg.LangType) {
+				defaultExpr = "*" + defaultExpr
+			}
+			cfg.DefaultValue = field.ToOptionalString(defaultExpr)
+		}
+		return
+	}
 	enabledTag := strings.ToLower(optionEnabledFieldName)
 	for _, optionSet := range spec.Options {
 		structName := optionSetStructName(optionSet.Name)
+		if optionSet.EnablesTogether() {
+			continue
+		}
 		for _, parameter := range (&optionSet).Parameters() {
 			typeName := fmt.Sprintf("%s.%s", optionPackageName(&optionSet), optionParameterWrapperTypeName(structName, &parameter))
 			if baseLangType(cfg.LangType) != typeName {
@@ -294,6 +370,21 @@ func optionParameterType(ownerName string, parameter *OptionParameter) string {
 	return parameterTypeFromBase(parameter.Reference, parameter.List, parameter.Iterator, baseType)
 }
 
+func optionFieldEnumValidationRule(ownerName string, parameter *OptionParameter, fieldExpr string) string {
+	enum := parameter.EffectiveEnum()
+	if !parameter.List && !parameter.Iterator {
+		return fieldEnumValidationRule(ownerName, parameter.Name, parameter.LangType, parameter.Reference, false, false, parameter.IsRequired(), enum, fieldExpr)
+	}
+	if !hasEnum(enum) {
+		return ""
+	}
+	rule := wrapCollectionItemRule(parameter.List, parameter.Iterator, fmt.Sprintf("validationUtils.Enum(%s)", enumStringConstRefs(ownerName, parameter.Name, parameter.LangType, enum)))
+	if parameter.IsRequired() {
+		return ", " + rule
+	}
+	return fmt.Sprintf(", validation.When(reflection.IsNotEmpty(%s), %s)", fieldExpr, rule)
+}
+
 func optionBooleanParameterValueExpression(ownerName string, parameter *OptionParameter, value bool) string {
 	valueExpression := "false"
 	if value {
@@ -351,11 +442,78 @@ func optionFunctionAssignments(optionFunction *OptionFunction) string {
 	}), "\n\t\t")
 }
 
+func optionSetParameterValueSelector(optionSet *OptionSet, parameter *OptionParameter, receiver string) string {
+	if optionSet.EnablesTogether() {
+		return fmt.Sprintf("%s.%s", receiver, toPascalCase(parameter.Name))
+	}
+	return optionParameterValueSelector(parameter, receiver)
+}
+
+func optionSetParameterEnabledSelector(optionSet *OptionSet, parameter *OptionParameter, receiver string) string {
+	if optionSet.EnablesTogether() {
+		return receiver + ".Enabled"
+	}
+	return optionParameterEnabledSelector(parameter, receiver)
+}
+
+func optionSetFunctionAssignments(optionSet *OptionSet, optionFunction *OptionFunction) string {
+	if !optionSet.EnablesTogether() {
+		return optionFunctionAssignments(optionFunction)
+	}
+	assignments := collection.Map(optionFunction.Parameters, func(parameter OptionParameter) string {
+		return fmt.Sprintf("%s = %s", optionSetParameterValueSelector(optionSet, &parameter, "opt"), optionFunctionArgumentName(optionFunction, &parameter))
+	})
+	return strings.Join(append(assignments, "opt.Enabled = true"), "\n\t\t")
+}
+
+func optionSetParameterCloneStatements(optionSet *OptionSet, parameter *OptionParameter) string {
+	if !optionSet.EnablesTogether() {
+		return optionParameterCloneStatements(parameter)
+	}
+	if !parameter.List || parameter.Iterator {
+		return ""
+	}
+	name := toPascalCase(parameter.Name)
+	if parameter.Reference {
+		return fmt.Sprintf("if opt.%s != nil { values := slices.Clone(*opt.%s); clone.%s = &values }", name, name, name)
+	}
+	return fmt.Sprintf("clone.%s = slices.Clone(opt.%s)", name, name)
+}
+
+func togetherOptionParameterDefaultValue(additionalTypesPackages map[string]string, currentPackage, toolName, toolVersion, ownerName string, parameter *OptionParameter) string {
+	value := field.OptionalString(parameter.DefaultValue, "")
+	if !parameter.List || parameter.Iterator {
+		return defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, parameter.Name, parameter.LangType, parameter.EffectiveEnum(), value, parameter.Reference)
+	}
+	var item string
+	if parameter.HasEnum() {
+		// Collection enums use literal strings, without scalar enum constants or semantic defaults.
+		item = strconv.Quote(value)
+	} else {
+		item = defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, parameter.Name, parameter.LangType, nil, value, false)
+	}
+	literal := fmt.Sprintf("%s{%s}", strings.TrimPrefix(optionParameterType(ownerName, parameter), "*"), item)
+	if parameter.Reference {
+		return "&" + literal
+	}
+	return literal
+}
+
 func optionSetConstraintValidationRules(optionSet *OptionSet) []string {
 	if optionSet == nil {
 		return nil
 	}
 	return optionSet.ConstraintValidationRules()
+}
+
+// optionSetConstraintParameters includes the generated selection field when
+// resolving together-mode constraints, without generating it as a parameter.
+func optionSetConstraintParameters(optionSet *OptionSet) []OptionParameter {
+	parameters := optionSet.Parameters()
+	if optionSet.EnablesTogether() {
+		parameters = append(parameters, OptionParameter{Name: optionEnabledFieldName, LangType: "bool"})
+	}
+	return parameters
 }
 
 func optionSetIdentifiers(optionSet *OptionSet) []generatedOptionIdentifier {
@@ -391,11 +549,13 @@ func optionSetIdentifiers(optionSet *OptionSet) []generatedOptionIdentifier {
 	ownerName := optionSetStructName(optionSet.Name)
 	for _, parameter := range optionSet.Parameters() {
 		parameter := parameter
-		identifiers = append(identifiers, generatedOptionIdentifier{
-			Name:   optionParameterWrapperTypeName(ownerName, &parameter),
-			Source: fmt.Sprintf("wrapper type for %q.%s", optionSet.Name, parameter.Name),
-		})
-		if !hasGeneratedEnumType(parameter.List, parameter.Iterator, parameter.EffectiveEnum()) {
+		if !optionSet.EnablesTogether() {
+			identifiers = append(identifiers, generatedOptionIdentifier{
+				Name:   optionParameterWrapperTypeName(ownerName, &parameter),
+				Source: fmt.Sprintf("wrapper type for %q.%s", optionSet.Name, parameter.Name),
+			})
+		}
+		if !parameter.HasEnum() {
 			continue
 		}
 		enumType := enumTypeName(ownerName, parameter.Name, baseLangType(parameter.LangType), parameter.EffectiveEnum())

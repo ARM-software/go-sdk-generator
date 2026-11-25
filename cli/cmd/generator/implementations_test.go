@@ -7,10 +7,8 @@ package generator
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -28,6 +26,7 @@ import (
 	"github.com/ARM-software/golang-utils/utils/logs"
 	"github.com/ARM-software/golang-utils/utils/logs/annotations"
 	"github.com/ARM-software/golang-utils/utils/logs/summary"
+	jsonutils "github.com/ARM-software/golang-utils/utils/serialisation/json"
 )
 
 func TestSchema(t *testing.T) {
@@ -37,7 +36,7 @@ func TestSchema(t *testing.T) {
 	require.NoError(t, err)
 
 	var schema map[string]any
-	require.NoError(t, json.Unmarshal(output.Bytes(), &schema))
+	require.NoError(t, jsonutils.Unmarshal(output.Bytes(), &schema))
 	assert.Equal(t, "SDK", schema["title"])
 }
 
@@ -46,19 +45,14 @@ func TestAgent(t *testing.T) {
 		workingDir := t.TempDir()
 		localFs := filesystem.NewStandardFileSystem()
 
-		originalDir, err := filesystem.CurrentDirectory()
-		require.NoError(t, err)
-		require.NoError(t, os.Chdir(workingDir))
-		t.Cleanup(func() {
-			require.NoError(t, os.Chdir(originalDir))
-		})
+		t.Chdir(workingDir)
 
 		logger, loggerErr := logs.NewPlainStringLogger()
 		require.NoError(t, loggerErr)
 		annotationLogger, loggerErr := resolveAnnotationLogger(logger, config.GenerateAnnotationNone.String())
 		require.NoError(t, loggerErr)
 
-		err = AgentWithAnnotations(context.Background(), annotationLogger, &config.AgentConfiguration{Init: true})
+		err := AgentWithAnnotations(context.Background(), annotationLogger, &config.AgentConfiguration{Init: true})
 		require.NoError(t, err)
 
 		for _, path := range []string{
@@ -297,11 +291,12 @@ func TestSummaryLoggerFactory(t *testing.T) {
 	})
 
 	t.Run("uses file logger when possible", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "summary.md")
+		localFs := filesystem.GetGlobalFileSystem()
+		path := filesystem.FilePathJoin(localFs, t.TempDir(), "summary.md")
 		logger := SummaryLoggerFactory(config.GenerateSummaryFile, path, nil)
 		require.NotNil(t, logger)
 		require.NoError(t, logger.WriteString("hello"))
-		data, err := os.ReadFile(path)
+		data, err := localFs.ReadFile(path)
 		require.NoError(t, err)
 		assert.Contains(t, string(data), "hello")
 	})
@@ -470,11 +465,12 @@ func TestResolveRuntimeLoggerAndAnnotations(t *testing.T) {
 	})
 
 	t.Run("file logger writes to the requested path", func(t *testing.T) {
-		logPath := filepath.Join(t.TempDir(), "tool.log")
+		localFs := filesystem.GetGlobalFileSystem()
+		logPath := filesystem.FilePathJoin(localFs, t.TempDir(), "tool.log")
 		logger, _, err := ResolveRuntimeLoggerAndAnnotations(config.GenerateLoggerFile.String(), logPath, config.GenerateAnnotationNone.String(), "Generate")
 		require.NoError(t, err)
 		logger.Log("hello")
-		data, readErr := os.ReadFile(logPath)
+		data, readErr := localFs.ReadFile(logPath)
 		require.NoError(t, readErr)
 		assert.Contains(t, string(data), "hello")
 	})

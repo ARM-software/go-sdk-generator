@@ -137,11 +137,18 @@ docker run --rm {{ $.OCI.ImageName }}:v<version>-ubuntu {{ $fn.Name | toKebab }}
 Required:
 {{- $hasRequired := false }}
 {{- range $cfg := $fn.Configuration }}
-{{- if $cfg.Required }}
+{{- if and $cfg.Required (not $cfg.Hidden) }}
+{{- if $cfg.Bindings }}
+{{- range $option := documentedCLIOptionsFromConfig "" $cfg false }}
+{{- $hasRequired = true }}
+- `{{ $option.FlagName }}`: {{ $option.Description }}
+{{- end }}
+{{- else }}
 {{- $hasRequired = true }}
 - `{{ $cfg.MapstructureTag | toSnake }}`: {{ $cfg.Description }}
 {{- if or $cfg.Example $cfg.Examples }}
   {{ descriptionWithExamples "" $cfg.Example $cfg.Examples }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -152,11 +159,18 @@ Required:
 Optional:
 {{- $hasOptional := false }}
 {{- range $cfg := $fn.Configuration }}
-{{- if not $cfg.Required }}
+{{- if and (not $cfg.Required) (not $cfg.Hidden) }}
+{{- if $cfg.Bindings }}
+{{- range $option := documentedCLIOptionsFromConfig "" $cfg false }}
+{{- $hasOptional = true }}
+- `{{ $option.FlagName }}`: {{ $option.Description }}
+{{- end }}
+{{- else }}
 {{- $hasOptional = true }}
 - `{{ $cfg.MapstructureTag | toSnake }}`: {{ $cfg.Description }}
 {{- if or $cfg.Example $cfg.Examples }}
   {{ descriptionWithExamples "" $cfg.Example $cfg.Examples }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -210,7 +224,7 @@ No command-specific options.
 
 {{- $hasDefaults := false }}
 {{- range $cfg := $fn.Configuration }}
-{{- if $cfg.DefaultValue }}
+{{- if and $cfg.DefaultValue (not $cfg.Bindings) (not $cfg.Hidden) }}
 {{- $hasDefaults = true }}
 {{- end }}
 {{- end }}
@@ -218,7 +232,7 @@ No command-specific options.
 {{ if $hasDefaults }}
 Defaults:
 {{- range $cfg := $fn.Configuration }}
-{{- if $cfg.DefaultValue }}
+{{- if and $cfg.DefaultValue (not $cfg.Bindings) (not $cfg.Hidden) }}
 - `{{ $cfg.MapstructureTag | toSnake }}` → {{ defaultValue $cfg.LangType (dereferenceString $cfg.DefaultValue) }}
 {{- end }}
 {{- end }}

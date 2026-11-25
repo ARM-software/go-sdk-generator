@@ -1,0 +1,1 @@
+:boom: Move SDK overwrite control from global configuration to per-call OverwriteOptions.Enabled. Replace SDKGeneratorManagerConfiguration.Overwrite with options.WithOverwriteEnabled(true) or selection helpers when calling Generate.

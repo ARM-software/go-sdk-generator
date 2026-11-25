@@ -91,6 +91,51 @@ func TestProcessOptionPackagesRejectsPackageCollisionWithAdditionalTypes(t *test
 	assert.Contains(t, err.Error(), `option package "options" conflicts with an additional type package`)
 }
 
+func TestTogetherOptionCLICollectionDefaults(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name         string
+		langType     string
+		reference    bool
+		list         bool
+		iterator     bool
+		defaultValue *string
+		expected     *string
+	}{
+		{name: "scalar", langType: "options.BuildOptions", expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
+		{name: "reference scalar", langType: "options.BuildOptions", reference: true, expected: field.ToOptionalString("options.DefaultBuildOptions()")},
+		{name: "pointer scalar", langType: "*options.BuildOptions", expected: field.ToOptionalString("options.DefaultBuildOptions()")},
+		{name: "list keeps object", langType: "options.BuildOptions", list: true, expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
+		{name: "iterator keeps object", langType: "options.BuildOptions", iterator: true, expected: field.ToOptionalString("*options.DefaultBuildOptions()")},
+		{name: "explicit scalar default", langType: "options.BuildOptions", defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
+		{name: "explicit object default with list flag", langType: "options.BuildOptions", list: true, defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
+		{name: "explicit object default with iterator flag", langType: "options.BuildOptions", iterator: true, defaultValue: field.ToOptionalString("customBuildOptions()"), expected: field.ToOptionalString("customBuildOptions()")},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			spec := &SDKSpecification{Options: OptionSets{{
+				Name: "Build", EnableMode: OptionSetEnableModeTogether,
+				Functions: []OptionFunction{{Parameters: []OptionParameter{{Name: "Tracing", LangType: "bool"}}}},
+			}}}
+			cfg := &FunctionConfigFields{
+				Name: "Build", LangType: test.langType, Reference: test.reference,
+				List: test.list, Iterator: test.iterator, DefaultValue: test.defaultValue,
+			}
+
+			addOptionCLIEnabledBindings(spec, cfg)
+
+			require.NotNil(t, cfg.DefaultValue)
+			assert.Equal(t, *test.expected, *cfg.DefaultValue)
+			assert.False(t, cfg.List)
+			assert.False(t, cfg.Iterator)
+
+			assert.Empty(t, cfg.Bindings, "together-mode CLI fields must not acquire per-parameter bindings")
+		})
+	}
+}
+
 func TestOptionHelpers(t *testing.T) {
 	t.Parallel()
 	data := &DataModel{CurrentOptionSets: OptionSets{{Name: "Generate", Functions: []OptionFunction{{Parameters: []OptionParameter{{
@@ -278,6 +323,37 @@ func TestEmbeddedOptionEnumsTemplateUsesTypedFirstConstantOnly(t *testing.T) {
 	assert.Contains(t, output, "BuildOptionsModeFast BuildOptionsMode = iota // fast")
 	assert.Contains(t, output, "BuildOptionsModeSafe // safe")
 	assert.NotContains(t, output, "BuildOptionsModeSafe BuildOptionsMode")
+}
+
+func TestEmbeddedOptionEnumsTemplateDocumentsCollectionsAndEmptyFiles(t *testing.T) {
+	tmpl, err := template.New("sdk").Funcs(templateFuncMap).ParseFS(fs, optionsEnumFile)
+	require.NoError(t, err)
+	data := &DataModel{CurrentOptionPackage: "options", CurrentOptionSets: OptionSets{{Name: "Build", Functions: []OptionFunction{{Parameters: []OptionParameter{
+		{Name: "Modes", LangType: "string", List: true, Enum: []string{"fast", "safe"}},
+		{Name: "States", LangType: "string", Iterator: true, Enum: []string{"ready", "waiting"}},
+	}}}}}}
+	var output strings.Builder
+	require.NoError(t, tmpl.ExecuteTemplate(&output, "options.enums.go.tmpl", data))
+	assert.Contains(t, output.String(), "This file defines enum types and allowed values for option parameters")
+	assert.Contains(t, output.String(), "BuildOptionsModesFast BuildOptionsModes = iota // fast")
+	assert.Contains(t, output.String(), "BuildOptionsModesSafe // safe")
+	assert.Contains(t, output.String(), "BuildOptionsStatesReady BuildOptionsStates = iota // ready")
+	assert.Contains(t, output.String(), "type BuildOptionsModes int")
+	assert.Contains(t, output.String(), "//go:generate go tool enumer -type=BuildOptionsModes -linecomment -text -json -yaml")
+	assert.Contains(t, output.String(), "//go:generate go tool enumer -type=BuildOptionsStates -linecomment -text -json -yaml")
+	assert.NotContains(t, output.String(), "no declarations")
+	data.CurrentOptionSets[0].Functions = nil
+	output.Reset()
+	require.NoError(t, tmpl.ExecuteTemplate(&output, "options.enums.go.tmpl", data))
+	assert.Contains(t, output.String(), "This file has no declarations because the manifest defines no enum values")
+}
+
+func TestOptionCollectionEnumIdentifiersDetectCollisions(t *testing.T) {
+	sets := OptionSets{{Name: "Build", Functions: []OptionFunction{{
+		FunctionName: field.ToOptionalString("BuildOptionsModesFast"),
+		Parameters:   []OptionParameter{{Name: "Modes", LangType: "string", List: true, Enum: []string{"fast", "safe"}}},
+	}}}}
+	require.ErrorContains(t, sets.ValidateGeneratedIdentifiers(), "BuildOptionsModesFast")
 }
 
 func TestOptionsTemplateGeneratesWrapperValidation(t *testing.T) {

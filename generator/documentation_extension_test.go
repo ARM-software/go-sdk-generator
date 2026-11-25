@@ -6,6 +6,8 @@ package generator
 
 import (
 	"context"
+	"fmt"
+	"os/exec"
 	"strings"
 	"testing"
 	"text/template"
@@ -440,6 +442,138 @@ func TestConfigTemplateUsesArrayItemsForIteratorPatternStringAndNumericConstrain
 	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMinimum(0))`)
 	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.ExclusiveMaximum(70000))`)
 	assert.Contains(t, output, `validationUtils.ArrayItems(validationUtils.MultipleOf(1))`)
+}
+
+func TestCLIConfigGeneratedSummaryValidation(t *testing.T) {
+	tests := []struct {
+		name          string
+		configuration []FunctionConfigFields
+	}{
+		{
+			name: "whole-field slice default",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, MapstructureTag: "modes",
+				DefaultValue: field.ToOptional(`func() []string { return []string{"fast", "safe"} }()`),
+			}},
+		},
+		{
+			name: "slice item example",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, MapstructureTag: "modes",
+				Example: field.ToOptional("fast"),
+			}},
+		},
+		{
+			name: "whole-field referenced slice default",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, Reference: true, MapstructureTag: "modes",
+				DefaultValue: field.ToOptional(`func() *[]string { values := []string{"fast", "safe"}; return &values }()`),
+			}},
+		},
+		{
+			name: "referenced slice item example",
+			configuration: []FunctionConfigFields{{
+				Name: "Modes", LangType: "string", List: true, Reference: true, MapstructureTag: "modes",
+				Example: field.ToOptional("fast"),
+			}},
+		},
+		{
+			name: "conditionally required optional forbidden field",
+			configuration: []FunctionConfigFields{
+				{Name: "Tracing", LangType: "bool", MapstructureTag: "tracing"},
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label", Condition: "Tracing == true",
+					Constraints: &ParameterConstraints{ForbiddenWhen: &ParameterValueConstraint{
+						Parameter: "Tracing", Operator: "not_equals", Value: true,
+					}},
+				},
+			},
+		},
+		{
+			name: "forbidden field default is cleared",
+			configuration: []FunctionConfigFields{
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label", Condition: "Tracing == true",
+					DefaultValue: field.ToOptional("must be cleared"),
+					Constraints: &ParameterConstraints{ForbiddenWhen: &ParameterValueConstraint{
+						Parameter: "Tracing", Operator: "not_equals", Value: true,
+					}},
+				},
+				{Name: "Tracing", LangType: "bool", MapstructureTag: "tracing", DefaultValue: field.ToOptional("false")},
+			},
+		},
+		{
+			name: "enum condition allows required field",
+			configuration: []FunctionConfigFields{
+				{Name: "Mode", LangType: "string", MapstructureTag: "mode", Enum: []string{"fast", "safe"}, DefaultValue: field.ToOptional("fast")},
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label",
+					Constraints: &ParameterConstraints{
+						RequiredWhen:  &ParameterValueConstraint{Parameter: "Mode", Operator: "equals", Value: "fast"},
+						ForbiddenWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: "not_in", Values: []interface{}{"fast"}},
+					},
+				},
+			},
+		},
+		{
+			name: "enum condition forbids field",
+			configuration: []FunctionConfigFields{
+				{Name: "Mode", LangType: "string", MapstructureTag: "mode", Enum: []string{"fast", "safe"}, DefaultValue: field.ToOptional("safe")},
+				{
+					Name: "Label", LangType: "string", MapstructureTag: "label",
+					Constraints: &ParameterConstraints{
+						RequiredWhen:  &ParameterValueConstraint{Parameter: "Mode", Operator: "equals", Value: "fast"},
+						ForbiddenWhen: &ParameterValueConstraint{Parameter: "Mode", Operator: "not_in", Values: []interface{}{"fast"}},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			data := &DataModel{SDK: SDK{Specification: SDKSpecification{
+				PackageName: "cli-regression", MainModule: "example.com/cli-regression",
+				CommandLineCommands: &CommandLineCommands{Functions: []CliFunction{{
+					Name: "Generate", WithSummary: field.ToOptional(true), Configuration: test.configuration,
+				}}},
+			}}}
+			require.NoError(t, ProcessExtraImports(t.Context(), &data.SDK))
+			require.NoError(t, ProcessArguments(t.Context(), &data.SDK))
+			require.True(t, data.Specification.CommandLineCommands.Functions[0].CanGenerateSummaryValidationTest(data.Specification.CommandLineCommands))
+
+			localFs := filesystem.GetGlobalFileSystem()
+			dir := t.TempDir()
+			args := []string{"test", "-count=1", "-v"}
+			for _, name := range []string{"config.cli.go", "config.cli.enums.go", "config.cli_test.go"} {
+				outputPath := filesystem.FilePathJoin(localFs, dir, name)
+				require.NoError(t, populateTemplate(t.Context(), data, fmt.Sprintf("templates/%s.tmpl", name), outputPath, nil))
+				args = append(args, outputPath)
+			}
+
+			var enumTypes []string
+			for _, cfg := range data.Specification.CommandLineCommands.Functions[0].Configuration {
+				if hasGeneratedEnumType(cfg.List, cfg.Iterator, cfg.Enum) {
+					enumTypes = append(enumTypes, enumTypeName("Generate", cfg.Name, cfg.LangType, cfg.Enum))
+				}
+			}
+
+			enumsPath := filesystem.FilePathJoin(localFs, dir, "config.cli.enums.go")
+			parserPath := filesystem.FilePathJoin(localFs, dir, "config_enumer.go")
+			cmd := exec.CommandContext(t.Context(), "go", "tool", "enumer", fmt.Sprintf("-type=%s", strings.Join(enumTypes, ",")), "-linecomment", "-text", "-json", "-yaml", fmt.Sprintf("-output=%s", parserPath), enumsPath) //nolint:gosec // Fixed executable and arguments derived only from test fixtures.
+			output, err := cmd.CombinedOutput()
+			require.NoError(t, err, "enumer failed: %s", output)
+			args = append(args, parserPath)
+
+			// File-list mode uses this module's pinned dependencies for the real templates.
+			cmd = exec.CommandContext(t.Context(), "go", args...)
+			output, err = cmd.CombinedOutput()
+			t.Logf("%s", output)
+			require.NoError(t, err, "generated configuration tests should compile and pass")
+		})
+	}
 }
 
 func TestCLIConfigTemplateIncludesSummaryRuntimeValidationRules(t *testing.T) {

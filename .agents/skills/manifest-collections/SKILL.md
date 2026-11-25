@@ -49,6 +49,10 @@ and [Manifest Authoring](../manifest-authoring/SKILL.md) for broader design guid
   collection of pointers. Use it only when that distinction is intentional.
 - Avoid combining `list: true` with `lang_type: "[]string"`; that adds another
   collection layer.
+- For declared options objects, retain the editable object in CLI configuration
+  and convert it with `AsList()` or `AsIterator()` when calling the SDK. Interface
+  arguments use functional-option collections. See
+  [options-object conversions](../../../guides/configure-options.md#pass-an-options-object-to-an-sdk-method).
 
 ## Keep collection and item validation separate
 

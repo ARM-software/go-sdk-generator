@@ -25,7 +25,6 @@ import (
 var gitHubFuncMap = template.FuncMap{
 	"isHostedOnGitHub":                             isHostedOnGitHub,
 	"repositoryLocationOnGitHub":                   repositoryLocationOnGitHub,
-	"repositoryImportPathOnGitHub":                 repositoryImportPathOnGitHub,
 	"githubPagesURL":                               githubPagesURL,
 	"githubPagesThirdPartyIPReportURL":             githubPagesThirdPartyIPReportURL,
 	"projectOwnGitHubActionsLocation":              projectOwnGitHubActionsLocation,

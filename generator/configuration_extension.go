@@ -135,6 +135,20 @@ func configFieldTestValue(additionalTypesPackages map[string]string, currentPack
 		return ""
 	}
 
+	// Explicit defaults initialise the whole field; examples and fallbacks describe an item.
+	if cfg.List && !cfg.Iterator && reflection.IsEmpty(cfg.DefaultValue) {
+		value := defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, cfg.Name, baseType, nil, valueSource, false)
+		if cfg.Secret && convertLangType(baseType) == stringLangType {
+			value = fmt.Sprintf("%s(%s)", secretProtectedStringType, value)
+		}
+		reference := cfg.Reference
+		cfg.Reference = false
+		literal := fmt.Sprintf("%s{%s}", cliConfigFieldType(cfg), value)
+		if reference {
+			return "&" + literal
+		}
+		return literal
+	}
 	return defaultFieldValue(additionalTypesPackages, currentPackage, toolName, toolVersion, ownerName, cfg.Name, baseType, cfg.EffectiveEnum(), valueSource, isReferenceLikeSecretField(cfg))
 }
 

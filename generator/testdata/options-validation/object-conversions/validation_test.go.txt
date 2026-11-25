@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"slices"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestObjectConversions(t *testing.T) {
+	var absent *BuildOptions
+	require.Empty(t, absent.AsList())
+	require.Empty(t, slices.Collect(absent.AsIterator()))
+
+	defaults := DefaultBuildOptions()
+	require.Equal(t, defaults, WithBuildOptions(defaults.AsList()...))
+	require.Equal(t, defaults, WithBuildOptions(slices.Collect(defaults.AsIterator())...))
+
+	tags := []string{"original"}
+	original := WithBuildOptions(WithTags(tags))
+	expected := original.Clone()
+	list, sequence := original.AsList(), original.AsIterator()
+	tags[0] = "changed after conversion"
+
+	require.Len(t, list, 1)
+	require.Equal(t, expected, WithBuildOptions(list...))
+	require.Equal(t, expected, WithBuildOptions(slices.Collect(sequence)...))
+	require.Equal(t, expected, WithBuildOptions(slices.Collect(sequence)...), "iterator must be replayable")
+	require.NotPanics(t, func() { list[0](nil) })
+
+	// A snapshot is a complete replacement, not a merge that retains prior state.
+	require.Equal(t, defaults, WithBuildOptions(append([]BuildOption{WithTags([]string{"earlier"})}, defaults.AsList()...)...))
+}

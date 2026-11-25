@@ -23,6 +23,7 @@ import (
 	"github.com/ARM-software/go-sdk-generator/cli/cmd/config"
 	rootgenerator "github.com/ARM-software/go-sdk-generator/generator"
 	generatorConfig "github.com/ARM-software/go-sdk-generator/generator/config"
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 )
 
 /*
@@ -40,14 +41,13 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 	gCfg := generatorConfig.DefaultSDKGeneratorManagerConfiguration()
 	gCfg.Input = cfg.Input
 	gCfg.Output = cfg.Output
-	gCfg.Overwrite = cfg.Generate
 	gCfg.TargetedGoVersion = cfg.TargetedGo
 	gCfg.ToolVersion = cfg.ToolVersion
 	g, err := rootgenerator.NewSDKGenerator(gCfg)
 	if err != nil {
 		return
 	}
-	err = rootgenerator.NewSDKGeneratorWithDelegate(g).Generate(ctx, logger)
+	err = rootgenerator.NewSDKGeneratorWithDelegate(g).Generate(ctx, logger, overwriteOptions(cfg)...)
 	if err != nil {
 		_ = summaryLogger.WriteStringF("Failed to generate SDK with `go-sdk-generator` %s from `%s` into `%s`: %s", toolVersion, cfg.Input, cfg.Output, err.Error())
 		_ = logger.WriteError(fmt.Sprintf("Failed to generate SDK with error: %v", err.Error()))
@@ -60,6 +60,10 @@ func GenerateWithSummaryAndAnnotations(ctx context.Context, logger annotations.I
 	}
 	_ = summaryLogger.WriteStringF("Generated SDK with `go-sdk-generator` %s from `%s` into `%s`.", toolVersion, cfg.Input, cfg.Output)
 	return
+}
+
+func overwriteOptions(cfg *config.GenerateConfiguration) []options.OverwriteOption {
+	return cfg.Overwrite.AsList()
 }
 
 /*

@@ -1,0 +1,32 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestFalseCondition(t *testing.T) {
+	opt := DefaultBuildOptions()
+	WithoutTracing()(opt)
+	WithLabel("")(opt)
+	require.NoError(t, opt.Validate())
+}
+
+func TestTrueConditionRequiresLabel(t *testing.T) {
+	opt := DefaultBuildOptions()
+	WithTracing()(opt)
+	WithLabel("")(opt)
+	require.Error(t, opt.Validate())
+}
+
+func TestTrueConditionAcceptsLabel(t *testing.T) {
+	opt := DefaultBuildOptions()
+	WithTracing()(opt)
+	WithLabel("trace")(opt)
+	require.NoError(t, opt.Validate())
+}

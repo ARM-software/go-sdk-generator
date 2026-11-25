@@ -1,0 +1,22 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestIndependentOptions(t *testing.T) {
+	opt := WithBuildOptions(WithLabel("build"))
+	require.True(t, opt.Label.Enabled)
+	require.Equal(t, "build", opt.Label.Label)
+	require.False(t, opt.Tracing.Enabled)
+	WithoutTracing()(opt)
+	require.True(t, opt.Tracing.Enabled)
+	require.False(t, opt.Tracing.Tracing)
+	require.NoError(t, opt.Validate())
+}

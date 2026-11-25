@@ -9,7 +9,13 @@ Use `specification.options` in a [generator manifest](write-a-manifest.md) to de
 
 ## Define an option and its value field
 
-Each generated option value has an `Enabled bool` field with `mapstructure:"enabled"`. A `default_value` prepares its value but does **not** enable the option. Calling a generated `With…(...)` helper enables it, even if the supplied value is empty. The `value_field` setting changes the name and mapstructure tag of the value held by the option; it does not rename the enabling flag.
+In the default `enable_mode: independent`, each generated option value has an
+`Enabled bool` field with `mapstructure:"enabled"`. With `enable_mode: together`,
+one `Enabled` field controls the whole options object. A `default_value` prepares
+its value but does **not** enable the option. Calling a generated `With…(...)`
+helper enables the corresponding option or set, even if the supplied value is
+empty. The `value_field` setting changes an independent option's value field; it
+does not rename the enabling flag.
 
 For example, within `specification`:
 
@@ -76,3 +82,80 @@ You can rename the enabling CLI flag by adding an `Enabled` binding to the **CLI
 ```
 
 This changes the default `--page-size` flag to `--use-paging` while retaining the `PageSizeOption.Enabled` destination and its environment binding. Omit the binding to keep the default flag name. See the [pet shop manifest](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/testdata/petshop-purchase.yml) for the complete option and CLI definitions.
+
+## Pass an options object to an SDK method
+
+A locally declared options set has two generated types:
+
+- `SearchOptions`: the editable settings object.
+- `SearchOption`: a function that applies settings to a `*SearchOptions`.
+
+An interface argument can name the object instead of spelling out the functional
+option type. For example, under `specification.interface.methods`:
+
+```yaml
+- name: Search
+  description: Search the product catalogue.
+  args:
+    - name: Settings
+      lang_type: search.SearchOptions
+      description: Settings to apply to the search.
+  returns:
+    - name: err
+      lang_type: error
+      description: Whether the search failed.
+```
+
+The generator recognises the declared options object and emits functional options:
+
+```go
+Search(ctx context.Context, settings ...search.SearchOption) (err error)
+```
+
+A final argument is variadic. An earlier argument uses `[]search.SearchOption`.
+Setting `iterator: true` produces `iter.Seq[search.SearchOption]` instead. Object
+pointer/reference markers do not make these interface arguments pointers to
+collections. Return values and unrelated custom types keep their declared shapes.
+
+### Keep CLI configuration editable
+
+A CLI configuration field naming `search.SearchOptions` retains that object type,
+even when `list` or `iterator` is specified. Its default is
+`*search.DefaultSearchOptions()`, or the constructor's pointer result for a
+reference field. Explicit defaults must likewise produce one settings object.
+Bindings continue to edit the object's fields; collection constraints belong on
+its parameters rather than on the outer CLI object.
+
+Convert the object when implementing the call into the SDK:
+
+```go
+return manager.Search(ctx, cfg.Settings.AsList()...)
+```
+
+For an iterator-shaped interface argument, pass `cfg.Settings.AsIterator()`
+without the spread operator. The operation can collect that sequence before
+calling the existing variadic builder:
+
+```go
+settings := search.WithSearchOptions(slices.Collect(optionSequence)...)
+```
+
+The generated CLI implementation is still an application stub: it does not infer
+which SDK operation or arguments your command should call.
+
+### Conversion semantics
+
+`AsList()` returns `[]SearchOption`; `AsIterator()` returns
+`iter.Seq[SearchOption]`. Generated option packages use Go 1.23 or later for these
+helpers. Both capture a snapshot using the object's `Clone`
+semantics. The snapshot preserves enabled flags and all configured values,
+including disabled values that validation may reject.
+
+The conversion supplies one functional option that replaces the destination's
+complete state. Earlier options are replaced; options applied afterwards can
+override it. Reusing the list or iterator creates another clone on application.
+A nil object produces an empty list or sequence. Conversion does not enable the
+object or validate it: validate the settings built by the receiving operation.
+
+`AsList` and `AsIterator` are reserved generated method names and cannot be used
+as option parameter names.

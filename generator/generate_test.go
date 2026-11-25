@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 	"github.com/ARM-software/golang-utils/utils/collection"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
@@ -487,7 +488,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out, nil)
 
 		assert.NoError(t, err)
 
@@ -513,7 +514,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out)
+		err = populateTemplate(ctx, &DataModel{}, filesystem.FilePathJoin(testFs, "templates", "test.go.tmpl"), out, nil)
 
 		assert.NoError(t, err)
 
@@ -534,7 +535,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		ctx := context.Background()
 
-		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test-not-exist.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test-not-exist.go.tmpl"), out, nil)
 
 		errortest.AssertError(t, err, commonerrors.ErrUnexpected)
 
@@ -552,7 +553,7 @@ func TestPopulateTemplate(t *testing.T) {
 
 		cancel()
 
-		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test.go.tmpl"), out)
+		err := populateTemplate(ctx, &DataModel{}, path.Join("templates", "test.go.tmpl"), out, nil)
 
 		errortest.AssertError(t, err, commonerrors.ErrCancelled)
 
@@ -749,7 +750,7 @@ func TestGenerate(t *testing.T) {
 
 		{
 
-			title: "No CLI (generated option helpers can be passed as variadic interface arguments)",
+			title: "Yes CLI (generated option helpers cover variadic arguments, together-mode validation, and collection defaults)",
 
 			recipe: "options-variadic.yml",
 
@@ -1045,7 +1046,7 @@ func TestGenerateQltyConfigIgnoresGeneratedFiles(t *testing.T) {
 	qltyConfig, err := localFs.ReadFile(filesystem.FilePathJoin(localFs, tmpDir, ".qlty", "qlty.toml"))
 	require.NoError(t, err)
 
-	content := string(qltyConfig)
+	content := strings.ReplaceAll(string(qltyConfig), "\r\n", "\n")
 	assert.Contains(t, content, "\".qlty/qlty.toml\"")
 	assert.Contains(t, content, "\"cli/cmd/verify.go\"")
 	assert.NotContains(t, content, "\"cli/cmd/verify/implementations.go\"")
@@ -1148,7 +1149,6 @@ func TestGeneratePreservesExistingModulePropertiesOnOverwrite(t *testing.T) {
 	cfg := config.DefaultSDKGeneratorManagerConfiguration()
 	cfg.Input = filesystem.FilePathJoin(localFs, "testdata", "verify.yml")
 	cfg.Output = tmpDir
-	cfg.Overwrite = true
 	logger, err := logs.NewPlainStringLogger()
 	require.NoError(t, err)
 
@@ -1156,7 +1156,7 @@ func TestGeneratePreservesExistingModulePropertiesOnOverwrite(t *testing.T) {
 	require.NoError(t, localFs.MkDir(filesystem.FilePathDir(localFs, modulePropertiesPath)))
 	require.NoError(t, localFs.WriteFile(modulePropertiesPath, []byte("Version=9.9.9\nCommitHash=keepme\n"), 0644))
 
-	require.NoError(t, Generate(ctx, logger, cfg))
+	require.NoError(t, Generate(ctx, logger, cfg, options.WithOverwriteEnabled(true)))
 
 	content, err := localFs.ReadFile(modulePropertiesPath)
 	require.NoError(t, err)

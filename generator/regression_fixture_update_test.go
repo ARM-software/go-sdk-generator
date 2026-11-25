@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -34,7 +33,7 @@ func updateRegressionFixture(t *testing.T, repoRoot string, fixture struct {
 	require.NoError(t, Generate(context.Background(), nil, cfg))
 	buildGeneratedModules(context.Background(), localFs, outputDir, t)
 
-	zipPath := filepath.Join(repoRoot, "testdata", fixture.zip)
+	zipPath := filesystem.FilePathJoin(localFs, repoRoot, "testdata", fixture.zip)
 	if localFs.Exists(zipPath) {
 		require.NoError(t, localFs.Rm(zipPath))
 	}
@@ -46,7 +45,7 @@ func TestUpdateRegressionFixtures(t *testing.T) {
 		t.Skip("set UPDATE_GENERATOR_FIXTURES=1 to rewrite regression fixtures")
 	}
 
-	repoRoot, err := os.Getwd()
+	repoRoot, err := filesystem.CurrentDirectory()
 	require.NoError(t, err)
 
 	fixtures := []struct {

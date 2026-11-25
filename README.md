@@ -78,6 +78,7 @@ Choose a task:
 - [Express collections, lists and iterators](./guides/collections-and-streams.md)
 - [Configure functional options](./guides/configure-options.md)
 - [Generate or regenerate a Go project](./guides/generate-a-project.md)
+- [Generate selected parts of a project](./guides/granular-generation.md)
 - [Run the generator in GitHub Actions](./guides/use-github-actions.md)
 - [Manage secrets in a generated CLI](./guides/secret-management.md)
 - [Manage breaking changes and deprecation](./guides/evolving-a-contract.md)

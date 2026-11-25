@@ -6,7 +6,6 @@
 package generator
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"slices"
@@ -22,6 +21,7 @@ import (
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	"github.com/ARM-software/golang-utils/utils/field"
 	"github.com/ARM-software/golang-utils/utils/reflection"
+	jsonutils "github.com/ARM-software/golang-utils/utils/serialisation/json"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 )
 
@@ -559,7 +559,7 @@ func validateExampleValue(name string, langType string, list bool, iterator bool
 
 		var tmp any
 
-		return wrapExampleParseError(name, json.Unmarshal([]byte(value), &tmp))
+		return wrapExampleParseError(name, jsonutils.Unmarshal([]byte(value), &tmp))
 
 	case "datetime":
 
@@ -1295,6 +1295,7 @@ func (optionSet *OptionSet) Validate() error {
 	}
 
 	err := validation.ValidateStruct(optionSet,
+		validation.Field(&optionSet.EnableMode, validation.When(reflection.IsNotEmpty(optionSet.EnableMode), validationUtils.Enum(OptionSetEnableModeIndependent, OptionSetEnableModeTogether))),
 
 		validation.Field(&optionSet.DeprecationNotice, validation.By(func(value any) error {
 
@@ -2196,7 +2197,7 @@ func validateCollectionParameters(sdk *SDK) error {
 
 	if err := collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
 
-		return validateParameterCollectionConstraintReferences(collection.Map((&optionSet).Parameters(), func(parameter OptionParameter) *OptionParameter { return &parameter }))
+		return validateParameterCollectionConstraintReferences(collection.Map(optionSetConstraintParameters(&optionSet), func(parameter OptionParameter) *OptionParameter { return &parameter }))
 
 	}); err != nil {
 
@@ -2206,7 +2207,7 @@ func validateCollectionParameters(sdk *SDK) error {
 
 	if err := collection.ForAll(sdk.Specification.Options, func(optionSet OptionSet) error {
 
-		return validateParameterCollectionConditionReferences(collection.Map((&optionSet).Parameters(), func(parameter OptionParameter) *OptionParameter { return &parameter }))
+		return validateParameterCollectionConditionReferences(collection.Map(optionSetConstraintParameters(&optionSet), func(parameter OptionParameter) *OptionParameter { return &parameter }))
 
 	}); err != nil {
 

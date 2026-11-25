@@ -6,7 +6,6 @@ package generator
 
 import (
 	"context"
-	"os"
 	"strings"
 	"testing"
 
@@ -28,6 +27,9 @@ func TestEmbeddedAgentSkills(t *testing.T) {
 	actionSkill := string(skills["using-go-sdk-generator-in-a-github-action/SKILL.md"])
 	runSkill := string(skills["run-go-sdk-generator/SKILL.md"])
 	assert.NotContains(t, runSkill, "go-sdk-generator credentials")
+	assert.Contains(t, runSkill, "- `overwrite`: overwrite state files")
+	assert.Contains(t, runSkill, "- `exclude-groups`:")
+	assert.Contains(t, runSkill, "- `exclude-files`:")
 	assert.Contains(t, actionSkill, "branch names and commit SHAs build the CLI from source")
 	assert.Contains(t, actionSkill, "the action **fails**")
 	assert.NotContains(t, actionSkill, "installation and execution are skipped")
@@ -60,14 +62,9 @@ func TestInitialiseAgentSkillsInCurrentDirectory(t *testing.T) {
 	workingDir := t.TempDir()
 	localFs := filesystem.NewStandardFileSystem()
 
-	originalDir, err := filesystem.CurrentDirectory()
-	require.NoError(t, err)
-	require.NoError(t, os.Chdir(workingDir))
-	t.Cleanup(func() {
-		require.NoError(t, os.Chdir(originalDir))
-	})
+	t.Chdir(workingDir)
 
-	err = InitialiseAgentSkillsInCurrentDirectory(context.Background())
+	err := InitialiseAgentSkillsInCurrentDirectory(context.Background())
 	require.NoError(t, err)
 
 	data, err := filesystem.ReadFile(filesystem.FilePathJoin(localFs, workingDir, ".agents", "skills", "run-go-sdk-generator", "SKILL.md"))
@@ -89,7 +86,7 @@ func TestCopyGoSDKGeneratorSkillsForEmbedding(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	generated, err := copyGoSDKGeneratorSkillsForEmbedding(outputDir, nil)
+	generated, err := copyGoSDKGeneratorSkillsForEmbedding(outputDir, nil, nil)
 	require.NoError(t, err)
 	assert.Contains(t, generated, filesystem.FilePathJoin(localFs, outputDir, "generator", "skills", "run-go-sdk-generator", "SKILL.md"))
 

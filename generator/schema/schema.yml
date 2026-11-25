@@ -257,7 +257,14 @@ $defs:
     items:
       $ref: "#/$defs/option_set"
   option_set:
-    description: A functional option collection
+    description: |
+      A generated options object and its functional option helpers.
+      AsList and AsIterator convert an object into functional options while
+      preserving its enabled state and Clone semantics.
+      Interface arguments naming this generated object use a list of functional
+      options by default, or an iterator when iterator is true. A final list
+      argument is variadic. CLI configuration retains an editable options object,
+      even when list or iterator is specified; convert it at the SDK call boundary.
     type: object
     required:
       - name
@@ -276,6 +283,32 @@ $defs:
           Defaults to `options`.
       description: *x-description
       deprecation_notice: *x-deprecation-notice-ref
+      enable_mode:
+        type: string
+        enum:
+          - independent
+          - together
+        default: independent
+        description: |
+          Choose whether option parameters are enabled independently or together.
+
+          independent (the default): each parameter has a separate wrapper containing
+          its value and its own Enabled flag. A generated helper enables only the
+          parameters it sets.
+
+          together: the generated struct contains one Enabled bool for the entire
+          option set and the parameter fields directly, for example ExcludeFiles
+          []string. Calling any generated With... or Without... helper sets the
+          shared Enabled flag to true.
+
+          In together mode:
+          - Field-level validation, such as enum and pattern checks, runs only when
+            Enabled is true.
+          - Rules involving other fields, such as forbidden_when, always run.
+            Use parameter: Enabled to allow or forbid values depending on whether
+            the option set is enabled.
+          - Fields use the parameter names declared in the manifest. value_field
+            overrides are not supported because there are no parameter wrappers.
       functions:
         type: array
         minItems: 1

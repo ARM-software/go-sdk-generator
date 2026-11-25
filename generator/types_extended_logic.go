@@ -617,8 +617,13 @@ func (optionSet *OptionSet) ConstraintValidationRules() []string {
 	if optionSet == nil {
 		return nil
 	}
-	return parameterConstraintValidationRuleLines(collection.Map(optionSet.Parameters(), func(parameter OptionParameter) constrainedParameter {
-		return (&parameter).constrainedOptionParameter()
+	return parameterConstraintValidationRuleLines(collection.Map(optionSetConstraintParameters(optionSet), func(parameter OptionParameter) constrainedParameter {
+		constrained := (&parameter).constrainedOptionParameter()
+		if optionSet.EnablesTogether() {
+			constrained.ValueRef = "&opt." + toPascalCase(parameter.Name)
+			constrained.PresenceRef = constrained.ValueRef
+		}
+		return constrained
 	}), false)
 }
 
@@ -701,10 +706,19 @@ func (optionSet *OptionSet) ValidateOptionParameterNames() error {
 	for i := range optionSet.Functions {
 		for j := range optionSet.Functions[i].Parameters {
 			parameter := optionSet.Functions[i].Parameters[j]
+			if optionSet.EnablesTogether() && parameter.ValueField != nil {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "option set %q with enable_mode together cannot use value_field for parameter %q", optionSet.Name, parameter.Name)
+			}
+			if optionSet.EnablesTogether() && strings.EqualFold(parameter.Name, optionEnabledFieldName) {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "option set %q with enable_mode together reserves the Enabled field", optionSet.Name)
+			}
 			if strings.EqualFold(optionParameterValueFieldName(&parameter), optionEnabledFieldName) {
 				return commonerrors.Newf(commonerrors.ErrInvalid, "option parameter %q in option set %q cannot use %s as its value field; set value_field.name to a different name", parameter.Name, optionSet.Name, optionEnabledFieldName)
 			}
 			generatedName := toPascalCase(parameter.Name)
+			if collection.In([]string{optionAsListMethodName, optionAsIteratorMethodName}, generatedName, collection.StringCleanCaseInsensitiveMatch) {
+				return commonerrors.Newf(commonerrors.ErrInvalid, "option set %q reserves generated conversion method %s", optionSet.Name, generatedName)
+			}
 			key := normaliseKeyNames(generatedName)
 			if existing, found := parametersByName[key]; found {
 				if existing.LangType != parameter.LangType || existing.Reference != parameter.Reference || existing.List != parameter.List || existing.Iterator != parameter.Iterator {
@@ -959,6 +973,9 @@ func (fct *CliFunction) CanGenerateSummaryValidationTest(cmds *CommandLineComman
 	}
 	err := collection.ForAll(fct.Configuration, func(cfg FunctionConfigFields) error {
 		if cfg.Name == summaryArgument || cfg.Name == summaryFileArg {
+			return nil
+		}
+		if !cfg.IsRequired() && cfg.DefaultValue != nil && !shouldAssignCLIConfigTestValue(cfg, "value") {
 			return nil
 		}
 		if len(cfg.Bindings) > 0 && !isBuiltInManifestLangType(cfg.LangType) {

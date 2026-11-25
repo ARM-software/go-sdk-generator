@@ -1,0 +1,30 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestEnumListDefaultRemainsLiteral(t *testing.T) {
+	opt := DefaultBuildOptions()
+	require.NotNil(t, opt)
+	assert.False(t, opt.Enabled)
+	assert.Equal(t, []string{"home"}, opt.Locations, "enum defaults must not expand semantic keywords")
+	require.NotNil(t, opt.LocationReferences)
+	assert.Equal(t, []string{"home"}, *opt.LocationReferences)
+	assert.Equal(t, []string{`quoted "home"\path`}, opt.Names, "constraint enum defaults must preserve escaped characters")
+	home, err := os.UserHomeDir()
+	require.NoError(t, err)
+	assert.Equal(t, []string{home}, opt.Directories, "non-enum defaults still expand semantic keywords")
+
+	WithTracing()(opt)
+	assert.True(t, opt.Enabled)
+	require.NoError(t, opt.Validate(), "enabling the set must accept its declared enum default")
+}

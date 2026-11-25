@@ -57,7 +57,7 @@ func TestDisableDependabotGeneratorWorkflow(t *testing.T) {
 				assert.Equal(t, tc.disabled, sdk.Specification.DisableDependabotGeneratorWorkflow)
 				data := &DataModel{SDK: sdk, ToolVersion: "0.31.0", TargetedGoVersion: "1.27.3", ManifestFileName: "generate.yml"}
 				output := filesystem.FilePathJoin(localFs, t.TempDir(), "upgrade-generator.yml")
-				require.NoError(t, populateTemplate(t.Context(), data, upgradeGeneratorWorkflowFile, output))
+				require.NoError(t, populateTemplate(t.Context(), data, upgradeGeneratorWorkflowFile, output, nil))
 				generated, err := localFs.ReadFile(output)
 				require.NoError(t, err)
 				generatedText := strings.ReplaceAll(string(generated), "\r\n", "\n")

@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/ARM-software/go-sdk-generator/generator/config"
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/logs"
 )
@@ -20,8 +21,8 @@ func (g *sdkGenerator) GetConfig() *config.SDKGeneratorManagerConfiguration {
 	return g.cfg
 }
 
-func (g *sdkGenerator) Generate(ctx context.Context, logger logs.Loggers) error {
-	return Generate(ctx, logger, g.GetConfig())
+func (g *sdkGenerator) Generate(ctx context.Context, logger logs.Loggers, overwriteOptions ...options.OverwriteOption) error {
+	return Generate(ctx, logger, g.GetConfig(), overwriteOptions...)
 }
 
 func NewSDKGenerator(cfg *config.SDKGeneratorManagerConfiguration) (g ISDKGeneratorManager, err error) {

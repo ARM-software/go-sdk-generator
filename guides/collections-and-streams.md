@@ -27,6 +27,11 @@ The same shape rules apply to other item types, such as `int` or a declared
 additional type. `list` and `iterator` both default to `false` and cannot both be
 `true`.
 
+Declared options objects are a special case: CLI configuration keeps one editable
+object, while SDK interface arguments use collections of functional options.
+Use `AsList()` or `AsIterator()` at that boundary; see
+[options-object conversions](configure-options.md#pass-an-options-object-to-an-sdk-method).
+
 Shape flags are available on method arguments and returns, configuration fields,
 additional-type fields, and option parameters. The field examples below are
 fragments to place in the appropriate manifest section; a complete SDK example

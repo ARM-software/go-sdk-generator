@@ -10,6 +10,7 @@ import (
 	{{ end -}}
 	"github.com/ARM-software/golang-utils/utils/commonerrors"
 	"github.com/ARM-software/golang-utils/utils/commonerrors/errortest"
+	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,6 +26,16 @@ func valid{{ $configName }}Configuration() *{{ $configName }}Configuration {
 	cfg.{{ .Name | toPascal }} = {{ $testValue }}
 	{{ end -}}
 	{{ end }}
+	{{ $function := . -}}
+	{{ range .Configuration -}}
+	{{ $forbiddenRule := cliConfigTestForbiddenRule $function . -}}
+	{{ if $forbiddenRule }}
+	if {{ $forbiddenRule }}.Validate(cfg) != nil {
+		var empty {{ cliConfigFieldType . }}
+		cfg.{{ .Name | toPascal }} = empty
+	}
+	{{ end -}}
+	{{ end -}}
 	return cfg
 }
 

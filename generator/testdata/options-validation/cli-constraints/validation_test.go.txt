@@ -1,0 +1,31 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestEnabledValidPageSize(t *testing.T) {
+	cfg := DefaultSearchConfiguration()
+	cfg.PageSizeOption.PageSize = 25
+	cfg.PageSizeOption.Enabled = true
+	require.NoError(t, cfg.Validate())
+}
+
+func TestEnabledInvalidPageSize(t *testing.T) {
+	cfg := DefaultSearchConfiguration()
+	cfg.PageSizeOption.PageSize = 200
+	cfg.PageSizeOption.Enabled = true
+	require.Error(t, cfg.Validate(), "enabled page size must obey maximum: 100")
+}
+
+func TestDisabledInvalidPageSize(t *testing.T) {
+	cfg := DefaultSearchConfiguration()
+	cfg.PageSizeOption.PageSize = 200
+	require.NoError(t, cfg.Validate())
+}

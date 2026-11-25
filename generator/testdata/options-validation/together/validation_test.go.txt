@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestTogetherOptions(t *testing.T) {
+	opt := DefaultBuildOptions()
+	require.False(t, opt.Enabled)
+	require.Equal(t, []string{"safe"}, opt.Tags)
+	opt.Tags = []string{"invalid"}
+	require.NoError(t, opt.Validate(), "individual field validation is skipped for disabled sets")
+	WithTags([]string{"fast", "invalid"})(opt)
+	require.True(t, opt.Enabled)
+	require.Error(t, opt.Validate(), "each list item must obey its enum")
+	WithTags([]string{"fast", "safe"})(opt)
+	require.NoError(t, opt.Validate())
+
+	cloned := opt.Clone()
+	cloned.Tags[0] = "safe"
+	require.Equal(t, "fast", opt.Tags[0], "clone must not share list storage")
+	(*cloned.References)[0] = "changed"
+	require.Equal(t, []string{"original"}, *opt.References, "clone must also copy referenced lists")
+
+	WithTracing()(opt)
+	require.Error(t, opt.Validate(), "the selected condition requires a label")
+	WithLabel("trace")(opt)
+	WithProfile("debug")(opt)
+	require.NoError(t, opt.Validate())
+	WithoutTracing()(opt)
+	require.True(t, opt.Enabled, "a negative boolean helper still selects the set")
+	require.Error(t, opt.Validate(), "cross-field constraints use direct parameter fields")
+	WithProfile("")(opt)
+	require.NoError(t, opt.Validate())
+
+	WithWindow(80, 24)(opt)
+	require.Equal(t, 80, opt.Width)
+	require.Equal(t, 24, opt.Height)
+	opt.Default()
+	require.False(t, opt.Enabled)
+	require.Equal(t, []string{"safe"}, opt.Tags)
+	require.False(t, opt.Tracing)
+
+	WithTags(nil)(nil)
+	WithTracing()(nil)
+	WithoutTracing()(nil)
+	WithWindow(1, 2)(nil)
+	require.Nil(t, (*BuildOptions)(nil).Clone())
+	require.NoError(t, (*BuildOptions)(nil).Validate())
+}

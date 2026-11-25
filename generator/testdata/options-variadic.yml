@@ -2,7 +2,7 @@ specification:
   package_name: options-variadic-sdk
   main_module: optionsvariadic
   name: OptionsVariadicSDK
-  description: Test manifest ensuring generated options can be passed as variadic interface arguments.
+  description: Test manifest covering variadic option arguments, together-mode validation, and CLI collection defaults.
   update_copyright_headers: false
 
   options:
@@ -56,6 +56,53 @@ specification:
               description: Requested output height.
               default_value: "24"
 
+    - name: Deployment
+      description: Together-mode deployment settings with literal enum defaults and disabled-state requirements.
+      enable_mode: together
+      functions:
+        - parameters:
+            - name: Locations
+              lang_type: string
+              list: true
+              description: Deployment locations whose enum defaults must remain literal.
+              enum: [home, remote]
+              default_value: home
+        - parameters:
+            - name: LocationReferences
+              lang_type: string
+              list: true
+              reference: true
+              description: Referenced deployment locations whose enum defaults must remain literal.
+              enum: [home, remote]
+              default_value: home
+        - parameters:
+            - name: Names
+              lang_type: string
+              list: true
+              description: Deployment names containing quotes and backslashes.
+              constraints:
+                enum: ['quoted "home"\path']
+              default_value: 'quoted "home"\path'
+        - parameters:
+            - name: Directories
+              lang_type: string
+              list: true
+              description: Non-enum defaults still resolve the home directory.
+              default_value: home
+        - parameters:
+            - name: Reason
+              lang_type: string
+              description: Reason required when deployment is disabled.
+              condition: Enabled == false
+              default_value: not requested
+        - parameters:
+            - name: Target
+              lang_type: string
+              description: Required target validated only when deployment is enabled.
+              required: true
+              pattern: ^valid$
+              default_value: valid
+
   interface:
     methods:
       - name: Build
@@ -65,8 +112,7 @@ specification:
             lang_type: string
             description: Relative path to the project definition file.
           - name: buildOptions
-            lang_type: options.BuildOption
-            list: true
+            lang_type: options.BuildOptions
             description: Functional options applied to the build.
         returns:
           - name: ok
@@ -76,9 +122,50 @@ specification:
             lang_type: error
             description: Whether the build failed.
 
+      - name: Deploy
+        description: Deploy a project using together-mode functional options.
+        args:
+          - name: deploymentOptions
+            lang_type: options.DeploymentOptions
+            description: Functional options applied to deployment.
+        returns:
+          - name: err
+            lang_type: error
+            description: Whether deployment failed.
+
   global_configuration:
     - name: Enabled
       lang_type: bool
       mapstructure_tag: enabled
       description: Whether the generated manager is enabled.
       default_value: "true"
+
+  command_line_commands:
+    binary: options-variadic
+    root_environment_var: OPTIONS_VARIADIC
+    description: CLI for collection-default regression coverage.
+    no_actions: true
+    functions:
+      - name: Deploy
+        description: Deploy with whole-field collection defaults.
+        with_summary: true
+        configuration:
+          - name: Modes
+            lang_type: string
+            list: true
+            mapstructure_tag: modes
+            description: Whole-field slice default used by generated validation tests.
+            default_value: 'func() []string { return []string{"fast", "safe"} }()'
+          - name: ModeReferences
+            lang_type: string
+            list: true
+            reference: true
+            mapstructure_tag: mode_references
+            description: Whole-field referenced slice default used by generated validation tests.
+            default_value: 'func() *[]string { values := []string{"fast", "safe"}; return &values }()'
+          - name: ExampleModes
+            lang_type: string
+            list: true
+            mapstructure_tag: example_modes
+            description: Item example that must still become a one-item test collection.
+            example: fast

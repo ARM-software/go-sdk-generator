@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   shapes, validate items and counts, and understand CLI parsing.
 - [Configure functional options](configure-options.md): enable option values and expose them through CLI flags.
 - [Generate and regenerate a project](generate-a-project.md): run generation, implement operations, and preserve handwritten work.
+- [Generate selected parts of a project](granular-generation.md): combine file and group selections with exclusions for granular regeneration.
 - [Use the GitHub Actions](use-github-actions.md): run generation in a workflow or install the binary for later steps.
 - [Manage secrets in a generated CLI](secret-management.md): mark secret inputs, use keyring-backed commands and understand security boundaries.
 - [Evolve a contract safely](evolving-a-contract.md): deprecate incompatible manifest and generated-surface changes.
