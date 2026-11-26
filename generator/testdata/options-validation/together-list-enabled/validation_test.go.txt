@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package config
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestTogetherListSelectorsEnableValidation(t *testing.T) {
+	opt := DefaultOverwriteOptions()
+	opt.ExcludeGroups = []string{"sdk"}
+	require.NoError(t, opt.Validate())
+	require.True(t, opt.Enabled)
+
+	opt = DefaultOverwriteOptions()
+	opt.OnlyGroups = []string{"ci"}
+	require.NoError(t, opt.Validate())
+	require.True(t, opt.Enabled)
+}
+
+func TestTogetherListSelectorsStillValidateValues(t *testing.T) {
+	opt := DefaultOverwriteOptions()
+	opt.ExcludeGroups = []string{"unknown"}
+	require.Error(t, opt.Validate())
+}
+
+func TestTogetherListSelectorSnapshotsPreserveEnabledState(t *testing.T) {
+	opt := DefaultOverwriteOptions()
+	opt.OnlyGroups = []string{"sdk"}
+	snapshot := WithOverwriteOptions(opt.AsList()...)
+	require.True(t, snapshot.Enabled)
+	require.Equal(t, []string{"sdk"}, snapshot.OnlyGroups)
+	require.NoError(t, snapshot.Validate())
+}

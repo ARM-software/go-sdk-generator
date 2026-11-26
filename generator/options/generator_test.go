@@ -17,13 +17,13 @@ func TestOverwriteOptionsValidateSelection(t *testing.T) {
 		invalid bool
 	}{
 		{name: "disabled empty"},
-		{name: "disabled groups", options: OverwriteOptions{ExcludeGroups: []string{"project"}}, invalid: true},
-		{name: "disabled files", options: OverwriteOptions{ExcludeFiles: []string{"README.md"}}, invalid: true},
+		{name: "groups imply enabled", options: OverwriteOptions{ExcludeGroups: []string{"project"}}},
+		{name: "files imply enabled", options: OverwriteOptions{ExcludeFiles: []string{"README.md"}}},
 		{name: "enabled empty", options: OverwriteOptions{Enabled: true}},
 		{name: "enabled exclusions", options: OverwriteOptions{Enabled: true, ExcludeGroups: []string{"project", "agent"}, ExcludeFiles: []string{"README.md"}}},
 		{name: "invalid group item", options: OverwriteOptions{Enabled: true, ExcludeGroups: []string{"project", "unknown"}}, invalid: true},
-		{name: "disabled only groups", options: OverwriteOptions{OnlyGroups: []string{"sdk"}}, invalid: true},
-		{name: "disabled only files", options: OverwriteOptions{OnlyFiles: []string{"README.md"}}, invalid: true},
+		{name: "only groups imply enabled", options: OverwriteOptions{OnlyGroups: []string{"sdk"}}},
+		{name: "only files imply enabled", options: OverwriteOptions{OnlyFiles: []string{"README.md"}}},
 		{name: "enabled only selection", options: OverwriteOptions{Enabled: true, OnlyGroups: []string{"sdk"}, OnlyFiles: []string{"README.md"}}},
 		{name: "invalid only group item", options: OverwriteOptions{Enabled: true, OnlyGroups: []string{"sdk", "unknown"}}, invalid: true},
 	} {
@@ -32,6 +32,9 @@ func TestOverwriteOptionsValidateSelection(t *testing.T) {
 				require.Error(t, tc.options.Validate())
 			} else {
 				require.NoError(t, tc.options.Validate())
+				if tc.options.hasNonEmptyValues() {
+					require.True(t, tc.options.Enabled)
+				}
 			}
 		})
 	}
@@ -62,4 +65,10 @@ func TestWithOverwriteEnabled(t *testing.T) {
 		require.NoError(t, opt.Validate())
 	}
 	require.NotPanics(t, func() { WithOverwriteEnabled(true)(nil) })
+}
+
+func TestExplicitDisableOverridesSelectorInference(t *testing.T) {
+	opt := WithOverwriteOptions(WithExcludeGroups([]string{"project"}), WithOverwriteEnabled(false))
+	require.False(t, opt.Enabled)
+	require.Error(t, opt.Validate())
 }

@@ -750,7 +750,7 @@ func TestGenerate(t *testing.T) {
 
 		{
 
-			title: "Yes CLI (generated option helpers cover variadic arguments, together-mode validation, and collection defaults)",
+			title: "Yes CLI (generated option helpers cover variadic arguments, together-mode validation, inferred enabling, and collection defaults)",
 
 			recipe: "options-variadic.yml",
 
@@ -1204,6 +1204,65 @@ func TestValidateManifest(t *testing.T) {
 `
 
 		manifestPath := filesystem.FilePathJoin(localFs, t.TempDir(), "invalid-main-module.yml")
+
+		require.NoError(t, filesystem.WriteFile(manifestPath, []byte(manifest), 0600))
+
+		validationErr, err := Validate(context.Background(), manifestPath)
+		require.NoError(t, err)
+		require.Error(t, validationErr)
+		errortest.AssertError(t, validationErr, commonerrors.ErrInvalid)
+	})
+
+	t.Run("infer enabled from non-empty values accepts together mode", func(t *testing.T) {
+
+		manifest := `specification:
+  package_name: example-sdk
+  main_module: example
+  global_configuration: []
+  options:
+    - name: Build
+      description: Build settings.
+      enable_mode: together
+      infer_enabled_from_non_empty_values: true
+      functions:
+        - parameters:
+            - name: Labels
+              lang_type: string
+              list: true
+              description: Build labels.
+  interface:
+    methods: []
+`
+
+		manifestPath := filesystem.FilePathJoin(localFs, t.TempDir(), "valid-infer-enabled-mode.yml")
+
+		require.NoError(t, filesystem.WriteFile(manifestPath, []byte(manifest), 0600))
+
+		validationErr, err := Validate(context.Background(), manifestPath)
+		require.NoError(t, err)
+		assert.NoError(t, validationErr)
+	})
+
+	t.Run("infer enabled from non-empty values requires together mode", func(t *testing.T) {
+
+		manifest := `specification:
+  package_name: example-sdk
+  main_module: example
+  global_configuration: []
+  options:
+    - name: Build
+      description: Build settings.
+      infer_enabled_from_non_empty_values: true
+      functions:
+        - parameters:
+            - name: Label
+              lang_type: string
+              description: Build label.
+  interface:
+    methods: []
+`
+
+		manifestPath := filesystem.FilePathJoin(localFs, t.TempDir(), "invalid-infer-enabled-mode.yml")
 
 		require.NoError(t, filesystem.WriteFile(manifestPath, []byte(manifest), 0600))
 

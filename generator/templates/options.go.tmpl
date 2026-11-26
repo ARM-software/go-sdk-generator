@@ -11,7 +11,7 @@ import (
 	{{ end -}}
 	configUtils "github.com/ARM-software/golang-utils/utils/config"
 	validationUtils "github.com/ARM-software/golang-utils/utils/validation"
-	{{ if .CurrentOptionSets -}}{{ range .CurrentOptionSets }}{{ if .UsesReflectInConstraintValidationRules -}}
+	{{ if .CurrentOptionSets -}}{{ range .CurrentOptionSets }}{{ if or .UsesReflectInConstraintValidationRules .InfersEnabledFromNonEmptyValues -}}
 	"reflect"
 	{{ break }}{{ end }}{{ end }}{{ end -}}
 	{{ if .CurrentOptionSets.UsesPresenceGuardForValidation -}}
@@ -111,11 +111,27 @@ type {{ $structName }} struct {
 {{ end }}
 }
 
+{{ if .InfersEnabledFromNonEmptyValues -}}
+func (opt *{{ $structName }}) hasNonEmptyValues() bool {
+	return opt != nil && ({{ range $index, $parameter := .Parameters }}{{ if gt $index 0 }} || {{ end }}reflection.IsNotEmpty(opt.{{ $parameter.Name | toPascal }}){{ end }})
+}
+
+func (opt *{{ $structName }}) syncEnabledFromNonEmptyValues() {
+	if opt != nil && opt.hasNonEmptyValues() {
+		opt.Enabled = true
+	}
+}
+
+{{ end -}}
+
 func (opt *{{ $structName }}) Validate() (err error) {
 	{{ if .EnablesTogether -}}
 	if opt == nil {
 		return nil
 	}
+	{{ if .InfersEnabledFromNonEmptyValues -}}
+	opt.syncEnabledFromNonEmptyValues()
+	{{ end -}}
 	if opt.Enabled {
 	{{ range .Parameters -}}
 	if err = validateOptionValue(&opt.{{ .Name | toPascal }}, opt.{{ .Name | toPascal }}); err != nil {
@@ -262,6 +278,9 @@ func (opt *{{ $structName }}) {{ optionAsListMethodName }}() []{{ $optionTypeNam
 		return nil
 	}
 	snapshot := opt.Clone()
+	{{ if .InfersEnabledFromNonEmptyValues -}}
+	snapshot.syncEnabledFromNonEmptyValues()
+	{{ end -}}
 	return []{{ $optionTypeName }}{func(target *{{ $structName }}) {
 		if target != nil {
 			*target = *snapshot.Clone()

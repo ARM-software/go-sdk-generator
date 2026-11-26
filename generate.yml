@@ -13,6 +13,7 @@ specification:
     - name: Overwrite
       description: Settings defining how overwrite regeneration of the generated SDK should be performed.
       enable_mode: together
+      infer_enabled_from_non_empty_values: true
       functions:
         - parameters:
             - name: ExcludeGroups

@@ -71,6 +71,18 @@ func TestOptionValidationCLIConstraints(t *testing.T) {
 	runOptionValidationFixture(t, parameters, cli, "cli-constraints")
 }
 
+func TestTogetherListOptionValidationInfersEnabled(t *testing.T) {
+	t.Parallel()
+	optionSet := OptionSet{
+		Name: "Overwrite", EnableMode: OptionSetEnableModeTogether, InferEnabledFromNonEmptyValues: true,
+		Functions: []OptionFunction{
+			{Parameters: []OptionParameter{{Name: "ExcludeGroups", LangType: "string", List: true, Enum: []string{"ci", "sdk"}, Description: "Groups to preserve."}}},
+			{Parameters: []OptionParameter{{Name: "OnlyGroups", LangType: "string", List: true, Enum: []string{"ci", "sdk"}, Description: "Groups to generate."}}},
+		},
+	}
+	runOptionSetValidationFixture(t, optionSet, nil, "together-list-enabled")
+}
+
 func TestOptionCollectionEnumParsing(t *testing.T) {
 	parameters := []OptionParameter{
 		{Name: "Modes", LangType: "string", List: true, Enum: []string{"fast", "safe"}},

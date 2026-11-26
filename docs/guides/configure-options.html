@@ -33,6 +33,12 @@ its value but does <strong>not</strong> enable the option. Calling a generated <
 helper enables the corresponding option or set, even if the supplied value is
 empty. The <code>value_field</code> setting changes an independent option's value field; it
 does not rename the enabling flag.</p>
+<p>When <code>enable_mode: together</code> is selected, you can also set
+<code>infer_enabled_from_non_empty_values: true</code> on the option set. This makes
+<code>Validate()</code>, <code>AsList()</code>, and <code>AsIterator()</code> treat any non-empty generated field
+value as an instruction to set <code>Enabled = true</code>. This is intended for selector-style together-mode option sets such as overwrite include/exclude lists.</p>
+<p>Do not enable this when non-empty defaults should remain disabled. If a default
+value is non-empty, it also counts towards the inference.</p>
 <p>For example, within <code>specification</code>:</p>
 <pre><code class="language-yaml">options:
   - name: Search
@@ -135,7 +141,8 @@ including disabled values that validation may reject.</p>
 complete state. Earlier options are replaced; options applied afterwards can
 override it. Reusing the list or iterator creates another clone on application.
 A nil object produces an empty list or sequence. Conversion does not enable the
-object or validate it: validate the settings built by the receiving operation.</p>
+object unless the together-mode option set explicitly enables
+<code>infer_enabled_from_non_empty_values</code>, and it does not validate it: validate the settings built by the receiving operation.</p>
 <p><code>AsList</code> and <code>AsIterator</code> are reserved generated method names and cannot be used
 as option parameter names.</p></main>
 </body>

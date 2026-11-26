@@ -59,6 +59,7 @@ specification:
     - name: Deployment
       description: Together-mode deployment settings with literal enum defaults and disabled-state requirements.
       enable_mode: together
+      infer_enabled_from_non_empty_values: true
       functions:
         - parameters:
             - name: Locations

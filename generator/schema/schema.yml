@@ -309,12 +309,38 @@ $defs:
             the option set is enabled.
           - Fields use the parameter names declared in the manifest. value_field
             overrides are not supported because there are no parameter wrappers.
+      infer_enabled_from_non_empty_values:
+        type: boolean
+        default: false
+        description: |
+          This is only valid when `enable_mode: together` is selected.
+
+          When `enable_mode: together` is selected, infer `Enabled = true` during
+          validation and `AsList`/`AsIterator` snapshot conversion whenever any
+          generated option field contains a non-empty value.
+
+          This is useful for selector-style together-mode option sets such as
+          overwrite include/exclude lists.
+
+          Do not enable this when non-empty default values should remain disabled:
+          if a default value is non-empty, it also counts towards inference.
       functions:
         type: array
         minItems: 1
         items:
           $ref: "#/$defs/option_function"
     additionalProperties: true
+    allOf:
+      - if:
+          required:
+            - infer_enabled_from_non_empty_values
+          properties:
+            infer_enabled_from_non_empty_values:
+              const: true
+        then:
+          properties:
+            enable_mode:
+              const: together
   option_function:
     description: A generated functional option helper
     type: object
