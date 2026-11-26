@@ -2,6 +2,17 @@
 Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
+# 0.57.0 (2026-11-26)
+
+## Features
+
+- Add `infer_enabled_from_non_empty_values` for `enable_mode: together` option sets so manifests can opt into syncing `Enabled` from non-empty option values during validation and `AsList`/`AsIterator`, with the generator's overwrite options enabling it by default. (#202611251726)
+
+
+<!--
+Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
 # 0.56.0 (2026-11-25)
 
 ## Features

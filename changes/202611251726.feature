@@ -1,1 +1,0 @@
-Add `infer_enabled_from_non_empty_values` for `enable_mode: together` option sets so manifests can opt into syncing `Enabled` from non-empty option values during validation and `AsList`/`AsIterator`, with the generator's overwrite options enabling it by default.
