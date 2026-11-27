@@ -127,6 +127,10 @@ For `list` or `iterator` shapes, treat each example as an item value rather than
 
 ### Prefer `constraints` for parameter relationships and conditional requirements
 
+Use [Manifest Validation](../manifest-validation/SKILL.md) and the
+[validation guide](../../../guides/validation-constraints.md) for supported rules,
+JSON Schema/OpenAPI references and validation on CLI configuration load.
+
 When one parameter depends on another, or parameters have to be provided together or kept apart, prefer the `constraints` block instead of encoding that relationship in the older `condition` field.
 
 Use `constraints` for cases such as:

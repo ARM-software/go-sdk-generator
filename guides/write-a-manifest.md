@@ -63,7 +63,7 @@ For repeated values, see
 item enums, cardinality constraints and CLI input.
 
 - Use specific `lang_type` aliases such as `duration`, `uuid`, `filepath`, or `service` where they match the value. See [types, formats and defaults](types-and-defaults.md) for the complete built-in reference. Prefer `reference: true`, `list: true`, or `iterator: true` to encoding shapes into the type string; `list` and `iterator` cannot be combined.
-- Use `enum` for closed string choices, `constraints` for validation and relationships, and `example` or `examples` for representative values. These feed generated validation, help, documentation, and action inputs.
+- Use `enum` for closed string choices, `constraints` for validation and relationships, and `example` or `examples` for representative values. These feed generated validation, help, documentation, and action inputs. See [define validation constraints](validation-constraints.md) for examples and fail-fast CLI loading behaviour.
 - Keep truly shared values in `global_configuration`; put operation-specific values on that command. Mark credentials with `secret: true` and follow [secret management in generated CLI tools](secret-management.md) for storage and loading behaviour.
 - Give operations verb names and write descriptions from a user's perspective. Avoid defining a transport endpoint as an entire operation if the intended action is a higher-level workflow.
 - For incompatible changes to a published contract, document a replacement with `deprecation_notice` before removing the old surface. Follow [breaking changes and deprecation](evolving-a-contract.md).
