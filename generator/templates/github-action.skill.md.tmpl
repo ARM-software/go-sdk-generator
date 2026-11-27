@@ -2,18 +2,16 @@
 {{- $cli := $spec.CommandLineCommands -}}
 {{- $install := .InstallAction -}}
 ---
-name: using-{{ $cli.Binary }}-in-a-github-action
-description: "Use `actions/install-tool` and subcommand GitHub Actions with released or source-built `{{ $cli.Binary }}` binaries in workflows"
-license: {{ $spec.Licence }}
-compatibility: opencode
+name: {{ githubActionSkillName $cli.Binary }}
+description: {{ skillDescription "action" $cli.Binary | quote }}
+license: {{ $spec.Licence | quote }}
 metadata:
-  action_path: actions/{{ $install.DirectoryName }}
+  action_path: {{ printf "actions/%s" $install.DirectoryName | quote }}
   action_type: composite
-  package: {{ $spec.PackageName }}
-  binary: {{ $cli.Binary }}
+  package: {{ $spec.PackageName | quote }}
+  binary: {{ $cli.Binary | quote }}
   release_source: github-releases
   platforms: "linux,macos,windows"
-  safe_to_retry: true
 ---
 
 <!--

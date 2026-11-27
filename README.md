@@ -52,19 +52,19 @@ On systems with man pages installed, run `man go-sdk-generator`.
 
 On supported Linux distributions, install package `go-sdk-generator` with the configured system package manager (`apt`, `dnf`, or `yum`). See [install and inspect](./guides/install-and-inspect.md) for commands, verification, and container usage.
 
-Released Linux packages also install the skills related to the tool under `/etc/go-sdk-generator/.agents/skills`.
+Released Linux packages also install product skills under `/etc/go-sdk-generator/.agents/skills`.
 
 OCI images are also available at `ghcr.io/arm-software/go-sdk-generator` for CI and container-based use. The [installation guide](./guides/install-and-inspect.md) covers image selection, authentication, verification and troubleshooting.
 
-## Agent
+## Agent Skills
 
-Skills for working with `go-sdk-generator`:
+Portable [Agent Skills](https://agentskills.io) help coding agents install and use Go SDK Generator. Install them with the recommended Skills CLI:
 
-- [Install `go-sdk-generator`](./.agents/skills/install-go-sdk-generator/SKILL.md)
-- [Run `go-sdk-generator`](./.agents/skills/run-go-sdk-generator/SKILL.md)
-- [Integrate the project's GitHub Actions](./.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md)
+```sh
+npx skills add ARM-software/go-sdk-generator --all
+```
 
-Repository-maintained skills for [manifest authoring](./.agents/skills/manifest-authoring/SKILL.md), [schema changes](./.agents/skills/change-manifest-schema/SKILL.md), and other development tasks live in [`.agents/skills/`](./.agents/skills/). The three skills above are generated; `go-sdk-generator agent --init` installs the embedded versions into a target repository.
+See [Agent Skills in DOCUMENTATION.md](./DOCUMENTATION.md#agent-skills) for the catalogue, installation, updates and Linux package paths, and the [skills guide](./guides/agent-skills.md) for agent setup and local validation.
 
 
 ## Documentation

@@ -47,7 +47,7 @@ jobs:
       - name: Refresh licence files
         shell: bash
         run: |
-          python -m pip install continuous-delivery-scripts
+          python -m pip install --upgrade 'continuous-delivery-scripts>=4.8.2'
           cd-license-files
 
       - name: Detect generated changes

@@ -2,7 +2,7 @@
 name: extend-generated-model-logic
 description: Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions.
 license: Apache-2.0
-compatibility: opencode
+compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 
 # Skill: Extend Generated Model Logic
@@ -14,7 +14,7 @@ Use this skill when changing generator behaviour that depends on traversing the 
 - small derived maps or lookups
 - rewrite or normalisation passes over nested schema values
 
-For the manifest contract those types represent, see [write a manifest](../../../guides/write-a-manifest.md) and the [schema](../../../generator/schema/schema.yml). If model changes alter user-visible output, update the relevant guide and follow [generate and regenerate a project](../../../guides/generate-a-project.md) when checking generated results.
+Repository paths refer to the target checkout, not this skill's installation directory. Read `guides/write-a-manifest.md` and `generator/schema/schema.yml` there. If model changes alter user-visible output, update the relevant guide and follow `guides/generate-a-project.md` when checking generated results.
 
 ## Preferred Pattern
 

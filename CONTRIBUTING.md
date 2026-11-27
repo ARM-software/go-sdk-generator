@@ -63,7 +63,7 @@ As with pull request titles below, try to use an emoji prefix so the purpose is 
 You can also use the [continuous delivery tools](https://github.com/ARMmbed/continuous-delivery-scripts) to generate those files.
 
 ```bash
-  pip install continuous-delivery-scripts
+  pip install 'continuous-delivery-scripts>=4.8.2'
   cd-create-news-file --type <change type> ":emoji: <message>"
 ```
 

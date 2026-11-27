@@ -2,14 +2,14 @@
 name: integration-regression-tests
 description: Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests.
 license: Apache-2.0
-compatibility: opencode
+compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 
 # Integration And Regression Tests
 
 Use this skill when changing the generator, templates, preprocessing, schema, or generated project shape and the repository's integration or regression tests may need updating.
 
-Use [generate and regenerate a project](../../../guides/generate-a-project.md) for the expected user-facing workflow; compare regression output against that workflow before accepting a fixture refresh.
+Read `guides/generate-a-project.md` in the target checkout for the expected user-facing workflow; compare regression output against that workflow before accepting a fixture refresh. All repository paths refer to the target checkout, not this skill's installation directory.
 
 This skill is especially relevant for fixture-backed tests such as `generator/generate_test.go`, where generated output is compared against archived snapshots like:
 

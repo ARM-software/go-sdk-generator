@@ -7,6 +7,7 @@ package generator
 import (
 	"context"
 	"embed"
+	iofs "io/fs"
 	"maps"
 	"slices"
 	"strings"
@@ -26,7 +27,7 @@ var embeddedAgentSkillPaths = []string{
 }
 
 var (
-	//go:embed skills/*/SKILL.md
+	//go:embed all:skills
 	embeddedSkillsFS embed.FS
 )
 
@@ -39,7 +40,19 @@ func EmbeddedAgentSkills() (skills map[string][]byte, err error) {
 		return
 	}
 
-	for _, skillPath := range embeddedAgentSkillPaths {
+	var paths []string
+	if err = iofs.WalkDir(embeddedSkillsFS, embeddedSkillsDir, func(name string, entry iofs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if !entry.IsDir() {
+			paths = append(paths, strings.TrimPrefix(name, embeddedSkillsDir+"/"))
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	for _, skillPath := range paths {
 		embeddedPath := filesystem.FilePathJoin(embeddedFs, embeddedSkillsDir, skillPath)
 
 		skill, subErr := embeddedFs.ReadFile(embeddedPath)
@@ -97,14 +110,18 @@ func InitialiseAgentSkills(ctx context.Context, outputDir string) (err error) {
 		skillFilePath := filesystem.FilePathJoin(localFs, append([]string{skillsDir}, strings.Split(skillPath, "/")...)...)
 		skillDir := filesystem.FilePathDir(localFs, skillFilePath)
 		if !filesystem.Exists(skillDir) {
-			err = filesystem.MkDir(skillDir)
+			err = localFs.MkDirAll(skillDir, 0755)
 			if err != nil {
 				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not create %q", skillDir)
 				return
 			}
 		}
 
-		err = filesystem.WriteFile(skillFilePath, skills[skillPath], 0644)
+		mode := iofs.FileMode(0644)
+		if strings.Contains(skillPath, "/scripts/") && strings.HasPrefix(string(skills[skillPath]), "#!") {
+			mode = 0755
+		}
+		err = filesystem.WriteFile(skillFilePath, skills[skillPath], mode)
 		if err != nil {
 			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not write skill %q", skillPath)
 			return

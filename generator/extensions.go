@@ -80,6 +80,7 @@ func argFlagType(s string) string {
 }
 
 var templateFuncMap = maps.Merge(template.FuncMap{
+	"skillDescription": skillDescription,
 	"title": func(s string) string {
 		if len(s) == 1 {
 			return strings.ToUpper(s)

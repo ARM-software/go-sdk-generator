@@ -1,20 +1,16 @@
 {{- $spec := .Specification -}}
 {{- $cli := $spec.CommandLineCommands -}}
 ---
-name: run-{{ $cli.Binary }}
-description: {{ $spec.Description | quote }}
-license: {{ $spec.Licence }}
-compatibility: opencode
+name: {{ runSkillName $cli.Binary }}
+description: {{ skillDescription "run" $cli.Binary | quote }}
+license: {{ $spec.Licence | quote }}
 metadata:
-  binary: {{ $cli.Binary }}
-  package: {{ $spec.PackageName }}
-  module: {{ $spec.MainModule }}
+  binary: {{ $cli.Binary | quote }}
+  package: {{ $spec.PackageName | quote }}
+  module: {{ $spec.MainModule | quote }}
   config_sources: "flags,env,dotenv,keyring"
-  env_prefix: {{ $cli.RootEnvironmentVar }}
+  env_prefix: {{ or $cli.RootEnvironmentVar "" | quote }}
   use_remote_services: "{{- if or $cli.CallCloud (hasCloudCommands $cli.Functions) -}}true{{- else -}}false{{- end -}}"
-  idempotent: true
-  has_defaults: true
-  safe_to_retry: true
 ---
 
 <!--

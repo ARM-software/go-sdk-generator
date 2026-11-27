@@ -35,7 +35,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install CI/CD tools
-        run: pip install continuous-delivery-scripts>=2.7 && pip list
+        run: pip install 'continuous-delivery-scripts>=4.8.2' && pip list
 
       - name: Download Go module dependencies
         shell: bash

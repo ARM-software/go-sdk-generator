@@ -127,12 +127,12 @@ func toolSkillsInstallPath(spec *SDKSpecification) string {
 		return ""
 	}
 
-	binary := strings.TrimSpace(field.OptionalString(spec.CommandLineCommands.Binary, ""))
-	if reflection.IsEmpty(binary) {
+	packageName := strings.TrimSpace(spec.PackageName)
+	if reflection.IsEmpty(packageName) {
 		return ""
 	}
 
-	return fmt.Sprintf("/etc/%s/.agents/skills", binary)
+	return fmt.Sprintf("/etc/%s/.agents/skills", packageName)
 }
 
 func toolLicenceInstallPath(spec *SDKSpecification) string {

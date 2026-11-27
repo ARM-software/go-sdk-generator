@@ -66,9 +66,7 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
-      - src: ./.agents/skills/
-        dst: {{ .Distribution.ToolSkillsPath }}/
-        type: tree
+{{ template "skill-contents" . }}
   - formats:
       - apk
     id: alpine-package
@@ -77,9 +75,6 @@ nfpms:
     description: |-
       {{ .Specification.Description }}
     contents:
-      # FIXME: nfpm currently produces APK archives that apk-tools rejects when a
-      # contents entry uses `type: tree`, so APK packaging lists the skill files
-      # explicitly instead of packaging the whole directory as a tree.
       - src: ./LICENSE
         dst: {{ .Distribution.ToolLicencePath }}
 {{- if .Specification.Public }}
@@ -90,14 +85,7 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
-      - src: ./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-        dst: {{ .Distribution.ToolSkillsPath }}/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-      - src: ./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-        dst: {{ .Distribution.ToolSkillsPath }}/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-{{- if .GeneratedActions }}
-      - src: ./.agents/skills/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-        dst: {{ .Distribution.ToolSkillsPath }}/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md
-{{- end }}
+{{ template "skill-contents" . }}
 {{ if .OCI.PublishesToGHCR }}
 dockers_v2:
   - id: {{ .Specification.PackageName }}-ubuntu
@@ -144,3 +132,13 @@ release:
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease
   prerelease: auto
   name_template: "Release {{ "{{" }}.Version}}"
+{{- define "skill-contents" -}}
+{{- range .SkillCatalogue }}
+      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
+      - src: ./{{ .Path }}
+        dst: {{ $.Distribution.ToolSkillsPath }}/{{ .Name }}
+        file_info:
+          owner: root
+          group: root
+{{- end }}
+{{- end }}
