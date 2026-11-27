@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 - [Write a manifest](write-a-manifest.md): define a focused project, choose types and constraints, and validate the contract.
 - [What the generator produces](what-it-generates.md): SDK, CLI, action and documentation outputs, and what remains to implement.
 - [Types, formats and defaults](types-and-defaults.md): choose built-in `lang_type` values and generated default behaviour.
+- [Define validation constraints](validation-constraints.md): constrain arguments and fields, express relationships, and fail fast when CLI configuration loads.
 - [Collections, lists and iterators](collections-and-streams.md): choose collection
   shapes, validate items and counts, and understand CLI parsing.
 - [Configure functional options](configure-options.md): enable option values and expose them through CLI flags.
