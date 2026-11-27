@@ -1,0 +1,4 @@
+# Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+jsonschema-markdown==2026.11.0
+PyYAML==6.0.3

@@ -57,6 +57,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.ARM_SOFTWARE_TOKEN || github.token }}
 
+      - name: Generate manifest schema reference
+        uses: $/actions/schema-docs
+        with:
+          schema: generator/schema/schema.yml
+          output: guides/schema-reference.md
+          title: Generator manifest schema reference
+      - name: Stage generated schema guide for the release commit
+        run: git add -- guides/schema-reference.md
+
       - name: Tag and release
         run: cd-tag-and-release -b "$GIT_BRANCH" -t ${{ github.event.inputs.release_type }} -vv
         env:

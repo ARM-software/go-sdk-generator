@@ -24,6 +24,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Further reference
 
+- [Manifest schema reference](schema-reference.md): describes the schema, its fields and supported values.
 - [Schema source](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml): authoritative manifest field definitions.
 - [This repository's manifest](https://github.com/ARM-software/go-sdk-generator/blob/main/generate.yml): a real generator input.
 - [Generated SDK and CLI reference](https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md): configuration, commands, and Go interfaces.
