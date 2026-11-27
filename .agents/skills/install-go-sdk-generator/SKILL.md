@@ -1,7 +1,3 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: install-go-sdk-generator
 description: "Install, upgrade, or reinstall the go-sdk-generator CLI tool using the system package manager (preferred approach)"

@@ -1,7 +1,3 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: using-go-sdk-generator-in-a-github-action
 description: "Use `actions/install-tool` and subcommand GitHub Actions with released or source-built `go-sdk-generator` binaries in workflows"

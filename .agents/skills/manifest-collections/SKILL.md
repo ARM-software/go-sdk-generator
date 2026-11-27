@@ -1,7 +1,3 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: manifest-collections
 description: Use when authoring or reviewing manifest collections, list or iterator shapes, item enums, collection constraints, or repeated CLI inputs.

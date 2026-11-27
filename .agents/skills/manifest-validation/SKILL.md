@@ -1,7 +1,3 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: manifest-validation
 description: Use when defining or reviewing validation constraints on manifest arguments, configuration fields, domain fields or option parameters, including fail-fast CLI validation.
