@@ -1,0 +1,39 @@
+# Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Generate JSON Schema guides
+description: Generate Markdown documentation from a JSON Schema written in YAML or JSON.
+
+inputs:
+  schema:
+    description: Path to the source JSON Schema (.yaml, .yml or .json), relative to the workspace.
+    required: true
+  output:
+    description: Path to the generated Markdown file, relative to the workspace.
+    required: true
+  title:
+    description: Optional heading to use instead of the schema title.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python for schema documentation
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.11'
+    - name: Generate Markdown guide
+      shell: bash
+      env:
+        SCHEMA: ${{ inputs.schema }}
+        OUTPUT: ${{ inputs.output }}
+        TITLE: ${{ inputs.title }}
+      run: |
+        set -euo pipefail
+        venv="$(mktemp -d "$RUNNER_TEMP/schema-docs.XXXXXX")"
+        trap 'rm -rf -- "$venv"' EXIT
+        python -m venv "$venv"
+        "$venv/bin/python" -m pip install --disable-pip-version-check -r "$GITHUB_ACTION_PATH/requirements.txt"
+        "$venv/bin/python" "$GITHUB_ACTION_PATH/generate.py" \
+          --schema "$SCHEMA" --output "$OUTPUT" --title "$TITLE"

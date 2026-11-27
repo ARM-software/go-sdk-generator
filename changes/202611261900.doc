@@ -1,0 +1,1 @@
+:book: Add a local action to generate Markdown guides from YAML or JSON Schema, and refresh the generator's schema reference before release tagging so it is included in the normal release commit.

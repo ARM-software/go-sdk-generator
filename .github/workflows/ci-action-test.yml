@@ -20,6 +20,24 @@ env:
   GOPROXY: "https://proxy.golang.org|direct"
 
 jobs:
+  test-schema-docs:
+    name: Schema documentation action
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Generate manifest schema reference
+        uses: $/actions/schema-docs
+        with:
+          schema: generator/schema/schema.yml
+          output: guides/schema-reference.md
+          title: Generator manifest schema reference
+      - name: Test YAML and JSON schema generation
+        run: |
+          python -m pip install -r actions/schema-docs/requirements.txt
+          python -m unittest discover -s actions/schema-docs/tests -v
+
   test-action-github-runner:
     name: Action integration test on GH runners
     runs-on: ubuntu-latest
