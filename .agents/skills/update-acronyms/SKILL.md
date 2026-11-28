@@ -1,19 +1,17 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: update-acronyms
 description: Use when identifier casing is wrong and acronym or exception rules in the generator need to be added or updated.
 license: Apache-2.0
-compatibility: opencode
+metadata:
+  scope: "repo"
+compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 
 # Skill: Update Acronyms
 
 Use this skill when the user wants to add a new acronym, change an existing acronym rule, or expand the exception list for a token such as `AI`, `API`, or `HAL`.
 
-For how names in a manifest become user-facing operations and types, see [write a manifest](../../../guides/write-a-manifest.md). Keep this skill focused on generator identifier normalisation rather than manifest authoring.
+For how names in a manifest become user-facing operations and types, read `guides/write-a-manifest.md` in the target checkout. Repository paths refer to that checkout, not this skill's installation directory. Keep this skill focused on generator identifier normalisation rather than manifest authoring.
 
 ## Goal
 

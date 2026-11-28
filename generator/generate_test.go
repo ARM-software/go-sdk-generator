@@ -995,7 +995,10 @@ func TestGenerate(t *testing.T) {
 
 		require.NoError(t, err)
 
-		assert.NoDirExists(t, filesystem.FilePathJoin(localFs, tmpDir, "actions"))
+		// no_actions disables command wrappers, not the skills QA action.
+		actionFiles, globErr := localFs.Glob(filesystem.FilePathJoin(localFs, tmpDir, "actions", "*", "action.yml"))
+		require.NoError(t, globErr)
+		assert.Equal(t, []string{filesystem.FilePathJoin(localFs, tmpDir, "actions", "validate-skills", "action.yml")}, actionFiles)
 
 		assert.NoFileExists(t, filesystem.FilePathJoin(localFs, tmpDir, ".agents", "skills", "using-fpga-service-agent-in-a-github-action", "SKILL.md"))
 

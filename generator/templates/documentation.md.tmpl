@@ -321,12 +321,7 @@ Examples:
 {{ end }}
 {{ end }}
 
-Skills:
-
-- [Install `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
-- [Run `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
-
-Linux packages built for this tool also install the skills related to the tool under `{{ .Distribution.ToolSkillsPath }}`.
+For agent-assisted use, see [Agent Skills](#agent-skills).
 
 {{ if .OCI.PublishesToGHCR -}}
 ### OCI Images
@@ -602,4 +597,94 @@ The action resolves official releases from the action version:
 - `@v0` installs the latest `v0.x.y` release
 - `@latest` installs the latest released version
 {{ end }}
+{{ end -}}
+{{ if .Specification.CommandLineCommands }}
+## Agent Skills
+
+[Agent Skills](https://agentskills.io/specification) are portable directories of task-specific instructions and resources. Agents first discover their names and descriptions, then load instructions and supporting resources as needed. These skills help agents install, configure and use `{{ .Specification.CommandLineCommands.Binary }}` alongside its CLI and SDK documentation.
+
+### Available skills
+
+Product skills live in [`.agents/skills/`](./.agents/skills/). This catalogue is derived from their generated frontmatter:
+
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
+{{ range .SkillCatalogue -}}
+| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ or (index .Metadata "scope") "unspecified" }} | {{ .Description }} |
+{{ end }}
+{{ if eq .Specification.PackageName "go-sdk-generator" -}}
+The repository also maintains manifest-authoring skills for tool users and contributor workflows for working on the generator itself. All are included in the Linux package collection.
+{{ end }}
+{{ with .AdditionalSkillCatalogue }}
+Additional handwritten skills (catalogued from their metadata):
+
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
+{{ range . -}}
+| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ or (index .Metadata "scope") "unspecified" }} | {{ .Description }} |
+{{ end }}
+{{ end }}
+
+### Discover, install and update
+
+`metadata.scope` identifies the intended audience: `tool` for consumers of the tool (including authoring its inputs), and `repo` for contributors maintaining the source repository. It is informational; packaging currently includes the entire `.agents/skills/` tree. See [skill scope](./guides/agent-skills.md#skill-scope) for authoring guidance.
+
+**Recommended: use the [Skills CLI](https://github.com/vercel-labs/skills)** with Node.js 22.20 or newer. Run these commands from the project where you want to use the skills:
+
+```sh
+# List the repository's available skills
+npx skills add {{ repositoryURL .Specification }} --list
+
+# Install every skill (to all supported agents, without prompts)
+npx skills add {{ repositoryURL .Specification }} --all
+
+# Install one skill and choose the target agent interactively
+npx skills add {{ repositoryURL .Specification }} --skill {{ runSkillName .Specification.CommandLineCommands.Binary }}
+
+# Install all skills to a specific agent instead
+npx skills add {{ repositoryURL .Specification }} --skill '*' --agent codex
+
+# Check and update previously installed skills
+npx skills check
+npx skills update
+```
+
+Installation is project-local by default; add `--global` for user-wide installation. To align with a software release, select its Git tag using the Skills CLI's `@<tag>` source syntax. Installation does not install the CLI binary itself.
+
+Ask your agent to use the skill by name, or describe a matching task. Agent-specific setup and invocation are covered in the [skills guide](./guides/agent-skills.md#agent-specific-setup).
+
+{{ if eq .Specification.PackageName "go-sdk-generator" -}}
+### Install embedded skills with the generator
+
+If Go SDK Generator is already installed, run this from the project where you want to use its skills:
+
+```sh
+go-sdk-generator agent --init
+```
+
+This writes the three embedded install, usage and GitHub Action skills, with any supporting files, into the current project's `.agents/skills/`. It works offline and requires neither Node.js nor the Skills CLI. Re-run it after upgrading the generator to refresh those skills; existing matching files are overwritten.
+
+The embedded selection is smaller than the full repository and Linux package collection. For handwritten skills such as manifest authoring, use the Skills CLI or the packaged directories below. The `scope` metadata does not change the embedded selection.
+
+{{ end -}}
+### Skills included in Linux packages
+
+Package `{{ .Specification.PackageName }}` installs the entire `.agents/skills/` collection under `{{ .Distribution.ToolSkillsPath }}/`, including handwritten skills and both `tool` and `repo` scopes. Their contents correspond to the packaged software version and include supporting scripts, references and assets. Package upgrades refresh these files; package removal removes them. They are ordinary package-owned files, readable by non-root users. Scope metadata does not currently filter package contents.
+
+With the Skills CLI already available locally, no GitHub repository or marketplace is needed:
+
+```sh
+skills add {{ .Distribution.ToolSkillsPath }} --list
+skills add {{ .Distribution.ToolSkillsPath }} --skill {{ runSkillName .Specification.CommandLineCommands.Binary }}
+```
+
+Alternatively, `npx skills add {{ .Distribution.ToolSkillsPath }} --all` uses the local skills, but npm may need network access to obtain the Skills CLI. CLI installs are managed copies; re-run the local installation after a package upgrade. Prefer the guide's direct links or directory configuration when you want agent skills to follow package upgrades automatically.
+
+Linux packages never modify home directories or agent configuration. Activation is an explicit user choice. See [consuming packaged skills](./guides/agent-skills.md#consuming-packaged-skills) for offline linking and configuration.
+
+### Generation and maintenance
+
+Defining `command_line_commands` in the generator manifest enables product skills, this documentation, the skills guide and local QA tools. GitHub-hosted projects also receive the Agent Skills workflow. There is no separate skills switch. `no_actions: true` omits the GitHub Action integration skill but retains usage/install skills and their validation workflow. Projects without a CLI receive none of these outputs.
+
+The [skills guide](./guides/agent-skills.md#validation-and-maintenance) explains local checks, authoring requirements and discovery through external platforms. The Git repository remains the canonical source.
 {{ end -}}

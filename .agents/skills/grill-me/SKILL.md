@@ -1,19 +1,17 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: grill-me
 description: Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation.
 license: MIT
-compatibility: opencode
+metadata:
+  scope: "repo"
+compatibility: Requires a Go SDK Generator source checkout.
 ---
 
 # Skill: Grill Me
 
 Use this skill when the user wants to stress-test a plan against the generator's existing decisions and code.
 
-For proposed changes to user-facing generator behaviour, check the [guide index](../../../guides/index.md) and the [manifest contract guide](../../../guides/write-a-manifest.md) before questioning established behaviour.
+For proposed changes to user-facing generator behaviour, check `guides/index.md` and `guides/write-a-manifest.md` in the target checkout before questioning established behaviour. Repository paths refer to that checkout, not this skill's installation directory.
 
 This skill is influenced by [Matt Pocock's equivalent skill](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md), but adapted for the generator.
 
@@ -84,7 +82,7 @@ Only offer to create an ADR when one or more of the following are true:
 2. Surprising without the rationale, and too large for a news file to summarise properly: a future reader would reasonably ask why this approach was chosen.
 3. The result of a real trade-off: there were real alternatives and the choice was deliberate.
 
-Use the format in [ADR-TEMPLATE.md](../../../adr/ADR-TEMPLATE.md). Update the [ADR index](../../../adr/adr-index.md) if an ADR is added.
+Use the checkout's `adr/ADR-TEMPLATE.md`. Update `adr/adr-index.md` if an ADR is added.
 
 ### Connect ADRs to news files
 

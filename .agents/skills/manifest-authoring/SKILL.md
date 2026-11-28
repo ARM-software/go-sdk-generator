@@ -1,19 +1,16 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: manifest-authoring
 description: Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly.
 license: Apache-2.0
-compatibility: opencode
+metadata:
+  scope: "tool"
 ---
 
 # Skill: Manifest Authoring
 
 Use this skill when creating or updating a generator manifest such as `generate.yml`, `verify.yml`, `agent.yml`, or another YAML/JSON file that follows `generator/schema/schema.yml`.
 
-Start with [write a manifest](../../../guides/write-a-manifest.md) for the contract shape and minimal example; use [generate and regenerate a project](../../../guides/generate-a-project.md) for the CLI workflow. This skill adds authoring and review detail. Check the [schema](../../../generator/schema/schema.yml) for the definitive field definitions.
+This skill contains authoring and review guidance. For optional background see [write a manifest](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/write-a-manifest.md) and [generate a project](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/generate-a-project.md). For version-matched field definitions, run `go-sdk-generator schema` with the installed tool; this also works offline.
 
 ## Goal
 
@@ -111,7 +108,7 @@ Use this when the value set is truly closed and stable. Do not use it for open-e
 
 String lists and iterators also support `enum`: it validates each item while
 retaining the collection's string item type. See
-[Manifest Collections](../manifest-collections/SKILL.md) for collection-specific
+[Manifest Collections](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-collections/SKILL.md) for collection-specific
 guidance.
 
 ### Add `example` or `examples` when representative values help users
@@ -127,8 +124,8 @@ For `list` or `iterator` shapes, treat each example as an item value rather than
 
 ### Prefer `constraints` for parameter relationships and conditional requirements
 
-Use [Manifest Validation](../manifest-validation/SKILL.md) and the
-[validation guide](../../../guides/validation-constraints.md) for supported rules,
+Use [Manifest Validation](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-validation/SKILL.md) and the
+[validation guide](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/validation-constraints.md) for supported rules,
 JSON Schema/OpenAPI references and validation on CLI configuration load.
 
 When one parameter depends on another, or parameters have to be provided together or kept apart, prefer the `constraints` block instead of encoding that relationship in the older `condition` field.
@@ -273,8 +270,8 @@ unless there is a very specific repository constraint that the dedicated manifes
 
 This keeps the manifest more declarative and lets the generator own the final Go type construction consistently.
 
-Use [Manifest Collections](../manifest-collections/SKILL.md) and the
-[collections guide](../../../guides/collections-and-streams.md) to check
+Use [Manifest Collections](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-collections/SKILL.md) and the
+[collections guide](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/collections-and-streams.md) to check
 final-argument variadics, iterator consumption, item validation, examples and
 string-list CLI flags.
 

@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""Run the pinned spec validator and isolated Skills CLI installation checks.
+
+This is orchestration, not a replacement specification linter. Extra checks cover
+the validator's gaps: duplicate names, local resource containment and installation
+fidelity. No skill scripts are executed and no external links are fetched.
+"""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+from urllib.parse import unquote, urlsplit
+
+from markdown_it import MarkdownIt
+import yaml
+
+VALIDATOR_VERSION = "0.2.0"
+SKILLS_VERSION = "1.9.1"
+SKIP = {".git", "node_modules", ".venv", "venv", "dist", "__pycache__"}
+
+
+def discover(root):
+    skills = []
+    for current, dirs, files in os.walk(root, followlinks=False):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP)
+        if "SKILL.md" in files:
+            skills.append(Path(current))
+            dirs[:] = []
+    return sorted(skills)
+
+
+def run(command, **kwargs):
+    result = subprocess.run(command, check=True, text=True, encoding="utf-8",
+                            errors="replace", stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, **kwargs)
+    print(result.stdout, end="", flush=True)
+    return result.stdout
+
+
+def metadata(skill):
+    return yaml.safe_load((skill / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[1])
+
+
+def inventory(skill):
+    files = {}
+    for file in sorted(skill.rglob("*")):
+        if not file.resolve().is_relative_to(skill.resolve()):
+            raise ValueError(f"{file}: resource points outside its skill directory")
+        if file.is_file():
+            content = file.read_bytes()
+            if b"\0" not in content:
+                content = content.replace(b"\r\n", b"\n")
+            files[file.relative_to(skill).as_posix()] = content
+    return files
+
+
+def check_resources(skill):
+    # Markdown parsing handles fenced examples and inline/reference-style links.
+    parser = MarkdownIt()
+    for file in skill.rglob("*.md"):
+        for block in parser.parse(file.read_text(encoding="utf-8")):
+            for token in block.children or []:
+                target = token.attrGet("href") or token.attrGet("src")
+                if not target:
+                    continue
+                url = urlsplit(target)
+                if url.scheme in {"http", "https", "mailto"} or url.netloc or not url.path:
+                    continue
+                if url.scheme:
+                    raise ValueError(f"{file}: non-portable resource URI {target!r}")
+                resource = (file.parent / unquote(url.path)).resolve()
+                if not resource.is_relative_to(skill.resolve()) or not resource.exists():
+                    raise ValueError(f"{file}: missing or non-portable resource {target!r}; bundle it inside the skill")
+
+
+def check_installations(root, skills, env, work, cli):
+    # Tool acquisition happens once before isolation. All installation exercises
+    # use the cached, pinned CLI and local sources, without registry requests.
+    listing = run(cli + ["add", str(root), "--list"], cwd=work, env=env)
+    for skill in skills:
+        name = metadata(skill)["name"]
+        if name not in listing:
+            raise ValueError(f"Skills CLI did not discover {name} from {root}")
+    # --all exercises the documented whole-collection command, in an empty home.
+    collection = work / "collection"
+    collection.mkdir()
+    run(cli + ["add", str(root), "--all", "--copy"], cwd=collection, env=env)
+    for index, skill in enumerate(skills):
+        name = metadata(skill)["name"]
+        expected = inventory(skill)
+        installed = collection / ".agents" / "skills" / name
+        if not installed.is_dir() or inventory(installed) != expected:
+            raise ValueError(f"Collection installation lost or changed files in {name}")
+        single = work / f"single-{index}"
+        single.mkdir()
+        run(cli + ["add", str(root), "--skill", name, "--agent", "codex", "--copy", "--yes"],
+            cwd=single, env=env)
+        installed = single / ".agents" / "skills" / name
+        if not installed.is_dir() or inventory(installed) != expected:
+            raise ValueError(f"Individual installation lost or changed files in {name}")
+        check_resources(installed)
+
+
+def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("root", nargs="?", default=".", type=Path)
+    parser.add_argument("--install", action="store_true", help="also exercise Skills CLI in temporary homes/projects")
+    parser.add_argument("--validator", default="agent-skills-validator")
+    args = parser.parse_args()
+    root = args.root.resolve()
+    skills = discover(root)
+    if not skills:
+        raise ValueError(f"No SKILL.md files found under {root}")
+    version = run([args.validator, "--version"])
+    if VALIDATOR_VERSION not in version.split() and f"v{VALIDATOR_VERSION}" not in version.split():
+        # `go install module@version` leaves the upstream CLI's banner as "dev".
+        # Verify Go's embedded module provenance instead of trusting that banner.
+        binary = shutil.which(args.validator) or args.validator
+        build = run(["go", "version", "-m", binary])
+        expected = f"mod\tgithub.com/coolapso/agent-skills-validator\tv{VALIDATOR_VERSION}\t"
+        if expected not in build:
+            raise ValueError(f"Expected agent-skills-validator {VALIDATOR_VERSION}; see guides/agent-skills.md")
+    unique = {}
+    for skill in skills:
+        run([args.validator, "validate", str(skill)])
+        info = metadata(skill)
+        name = info["name"]
+        check_resources(skill)
+        if name in unique:
+            # The generator embeds a build-time mirror of its public product skills.
+            # Check exact parity instead of treating that build input as a second skill.
+            canonical = root / ".agents" / "skills" / name
+            embedded = root / "generator" / "skills" / name
+            if {skill, unique[name]} != {canonical, embedded} or inventory(skill) != inventory(unique[name]):
+                raise ValueError(f"Duplicate skill {name}: {unique[name]} and {skill}")
+            continue
+        unique[name] = skill
+    if args.install:
+        with tempfile.TemporaryDirectory(prefix="skills-check-") as tmp:
+            work = Path(tmp)
+            home = work / "home"
+            home.mkdir()
+            env = os.environ.copy()
+            env.update(DISABLE_TELEMETRY="1", DO_NOT_TRACK="1", CI="1")
+            node, npm = shutil.which("node"), shutil.which("npm")
+            if not node or not npm:
+                raise ValueError("Install Node.js 22.20+ (including npm)")
+            tools = work / "tools"
+            run([npm, "install", "--prefix", str(tools), "--ignore-scripts", "--no-audit",
+                 "--no-fund", "--no-package-lock", f"skills@{SKILLS_VERSION}"], cwd=work, env=env)
+            package = tools / "node_modules" / "skills"
+            info = json.loads((package / "package.json").read_text(encoding="utf-8"))
+            if info["version"] != SKILLS_VERSION:
+                raise ValueError("Unexpected Skills CLI version")
+            cli = [node, str(package / info["bin"]["skills"])]
+            # Never use or mutate the caller's agent configuration or send telemetry.
+            env.update(HOME=str(home), USERPROFILE=str(home),
+                       XDG_CONFIG_HOME=str(home / ".config"),
+                       XDG_DATA_HOME=str(home / ".local/share"),
+                       XDG_CACHE_HOME=str(home / ".cache"),
+                       APPDATA=str(home / "AppData/Roaming"),
+                       LOCALAPPDATA=str(home / "AppData/Local"),
+                       CODEX_HOME=str(home / ".codex"),
+                       CLAUDE_CONFIG_DIR=str(home / ".claude"),
+                       DISABLE_TELEMETRY="1", DO_NOT_TRACK="1", CI="1")
+            check_installations(root, list(unique.values()), env, work, cli)
+    print(f"Validated {len(unique)} unique skills ({len(skills)} directories).")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except subprocess.CalledProcessError as error:
+        print(error.stdout or str(error))
+        raise SystemExit(error.returncode) from error
+    except (ValueError, OSError) as error:
+        raise SystemExit(str(error)) from error

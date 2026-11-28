@@ -16,10 +16,10 @@ Use this tool when:
 {{- end }}
 
 Before acting, read the relevant skill in `.agents/skills/`:
-- `run-{{ $cli.Binary }}/SKILL.md` for command usage, config, and authentication
+- `{{ runSkillName $cli.Binary }}/SKILL.md` for command usage, config, and authentication
 {{- if not $cli.NoActions }}
-- `using-{{ $cli.Binary }}-in-a-github-action/SKILL.md` for CI integration and workflow usage
+- `{{ githubActionSkillName $cli.Binary }}/SKILL.md` for CI integration and workflow usage
 {{- end }}
-- `install-{{ $cli.Binary }}/SKILL.md` for installation or upgrade
+- `{{ installSkillName $cli.Binary }}/SKILL.md` for installation or upgrade
 
 Do not duplicate skill content here.

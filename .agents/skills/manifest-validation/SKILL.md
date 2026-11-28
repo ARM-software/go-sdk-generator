@@ -1,12 +1,9 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: manifest-validation
 description: Use when defining or reviewing validation constraints on manifest arguments, configuration fields, domain fields or option parameters, including fail-fast CLI validation.
 license: Apache-2.0
-compatibility: opencode
+metadata:
+  scope: "tool"
 ---
 
 <!--
@@ -18,10 +15,10 @@ SPDX-License-Identifier: Apache-2.0
 
 Use this skill to express allowed values and cross-field relationships in a
 generator manifest. Start with
-[Define validation constraints](../../../guides/validation-constraints.md) for
+[Define validation constraints](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/validation-constraints.md) for
 examples and the keyword reference, and check
-[the schema](../../../generator/schema/schema.yml) for supported definitions.
-Use [Manifest Authoring](../manifest-authoring/SKILL.md) for the wider contract.
+[the schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml) for supported definitions. For offline, version-matched definitions run `go-sdk-generator schema`.
+Use [Manifest Authoring](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md) for optional wider-contract guidance.
 
 The generator offers a wide range of validation rules. Use them to make the
 manifest as explicit as possible about valid inputs and relationships, rather
@@ -55,7 +52,7 @@ the same contract; reserve handwritten checks for requirements it cannot express
   code points, and patterns must compile as Go regular expressions.
 - Separate per-item rules from `min_items`, `max_items` and `unique_items`.
   `not_empty` on a collection checks items; use a cardinality rule to require items.
-  See [Manifest Collections](../manifest-collections/SKILL.md) for iterator
+  See [Manifest Collections](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-collections/SKILL.md) for iterator
   consumption and CLI parsing.
 - `nullable` wraps constraint rules; it does not override a separate requirement
   that the field be present.

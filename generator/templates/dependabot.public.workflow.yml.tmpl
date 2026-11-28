@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v6
       - name: Install CI/CD tools
-        run: pip install continuous-delivery-scripts && pip list
+        run: pip install 'continuous-delivery-scripts>=4.8.2' && pip list
       - name: Dependabot metadata
         id: dependabot-metadata
         uses: dependabot/fetch-metadata@v3.1.0

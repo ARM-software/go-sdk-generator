@@ -36,6 +36,11 @@ const (
 	cliSkillFile                 = "templates/cli.skill.md.tmpl"
 	githubActionSkillFile        = "templates/github-action.skill.md.tmpl"
 	installSkillFile             = "templates/install.skill.md.tmpl"
+	skillsGuideFile              = "templates/agent-skills.md.tmpl"
+	skillsCheckFile              = "templates/validate-skills.py.tmpl"
+	skillsRequirementsFile       = "templates/skills-requirements.txt.tmpl"
+	skillsWorkflowFile           = "templates/skills.yml.tmpl"
+	skillsActionFile             = "templates/validate-skills.action.yml.tmpl"
 	actionDefinitionFile         = "templates/action.yml.tmpl"
 	actionSharedScriptFile       = "templates/install-and-run.sh.tmpl"
 	precommitConfigFile          = "templates/preconfig.yaml.tmpl"
@@ -119,7 +124,7 @@ var generatedFileGroups = map[string]generatedFileGroupDefinition{
 		additionalPaths: func(spec *SDKSpecification, actions []GeneratedAction) []string {
 			paths := []string{"Dockerfile." + spec.MainModule}
 			if spec.CommandLineCommands != nil {
-				paths = append(paths, "scripts/pre.sh")
+				paths = append(paths, "scripts/pre.sh", ".github/workflows/skills.yml", "actions/validate-skills/action.yml")
 				if spec.DistributeOci != nil {
 					paths = append(paths, "Dockerfile.oci.alpine", "Dockerfile.oci.ubuntu")
 				}
@@ -221,7 +226,7 @@ var generatedFileGroups = map[string]generatedFileGroupDefinition{
 			var paths []string
 			if cli := spec.CommandLineCommands; cli != nil {
 				binary := field.OptionalString(cli.Binary, "")
-				paths = append(paths, "agent.md", ".github/copilot-instructions.md",
+				paths = append(paths, "agent.md", ".github/copilot-instructions.md", "guides/agent-skills.md", "actions/validate-skills/validate_skills.py", "actions/validate-skills/requirements.txt",
 					path.Join(".agents/skills", runSkillName(binary), "SKILL.md"),
 					path.Join(".agents/skills", installSkillName(binary), "SKILL.md"),
 				)
@@ -292,6 +297,7 @@ func (t *templates) Populate(ctx context.Context, data *DataModel, overwriteRule
 }
 
 type DataModel struct {
+	OutputDirectory  string
 	SchemaFileName   string
 	ManifestFileName string
 	SDK
@@ -596,18 +602,11 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), overwriteRules.enabled, true)
 	}
 
+	if err = templatesToPopulate.addAgentFiles(&sdk.Specification, cfg.Output, generatedActions, overwriteRules.enabled); err != nil {
+		return
+	}
 	if sdk.Specification.CommandLineCommands != nil {
 		cliDir := sdk.Specification.CommandLineCommands.Package
-		templatesToPopulate.addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
-		if onGithub {
-			templatesToPopulate.addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
-		}
-		binary := field.OptionalString(sdk.Specification.CommandLineCommands.Binary, "")
-		templatesToPopulate.addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
-		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), overwriteRules.enabled, true)
-		if generateAction {
-			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
-		}
 		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
 		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
@@ -665,6 +664,7 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 	oci := precomputeOCIImageDistribution(&sdk.Specification)
 
 	data := &DataModel{
+		OutputDirectory:               cfg.Output,
 		SchemaFileName:                filesystem.FilePathStemOnFilesystem(localFs, cfg.Input),
 		ManifestFileName:              resolveManifestFileName(localFs, cfg.Input),
 		SDK:                           sdk,
@@ -859,63 +859,16 @@ func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
 	return ""
 }
 
-func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string, overwriteRules *overwrite) (updatedGenerated []string, err error) {
-	updatedGenerated = generated
-	localFs := filesystem.GetGlobalFileSystem()
-
-	skillsRoot := filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills")
-	if !localFs.Exists(skillsRoot) {
-		return
-	}
-
-	for _, skillPath := range embeddedAgentSkillPaths {
-		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
-		if overwriteRules.shouldExclude(embeddedPath) {
-			updatedGenerated = append(updatedGenerated, embeddedPath)
-			continue
-		}
-		sourcePath := filesystem.FilePathJoin(localFs, append([]string{skillsRoot}, strings.Split(skillPath, "/")...)...)
-		if !localFs.Exists(sourcePath) {
-			continue
-		}
-
-		skill, subErr := localFs.ReadFile(sourcePath)
-		if subErr != nil {
-			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read tool-related skill %q", sourcePath)
-			return
-		}
-
-		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
-		if !localFs.Exists(embeddedDir) {
-			err = localFs.MkDir(embeddedDir)
-			if err != nil {
-				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not create %q", embeddedDir)
-				return
-			}
-		}
-
-		err = localFs.WriteFile(embeddedPath, skill, 0644)
-		if err != nil {
-			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not write embedded skill %q", embeddedPath)
-			return
-		}
-
-		updatedGenerated = append(updatedGenerated, embeddedPath)
-	}
-
-	return
-}
-
 func runSkillName(binary string) string {
-	return fmt.Sprintf("run-%s", binary)
+	return portableSkillName(fmt.Sprintf("run-%s", binary))
 }
 
 func installSkillName(binary string) string {
-	return fmt.Sprintf("install-%s", binary)
+	return portableSkillName(fmt.Sprintf("install-%s", binary))
 }
 
 func githubActionSkillName(binary string) string {
-	return fmt.Sprintf("using-%s-in-a-github-action", binary)
+	return portableSkillName(fmt.Sprintf("using-%s-in-a-github-action", binary))
 }
 
 func (t *templates) addStateFile(templateFile, dest string, overwrite bool, markAsGenerated bool) {

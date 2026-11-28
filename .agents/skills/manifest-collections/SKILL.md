@@ -1,12 +1,9 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: manifest-collections
 description: Use when authoring or reviewing manifest collections, list or iterator shapes, item enums, collection constraints, or repeated CLI inputs.
 license: Apache-2.0
-compatibility: opencode
+metadata:
+  scope: "tool"
 ---
 
 <!--
@@ -19,10 +16,10 @@ SPDX-License-Identifier: Apache-2.0
 Use this skill when a manifest value represents several items, such as asset tags,
 supported platforms or streamed search results.
 
-Start with [Collections, lists and iterators](../../../guides/collections-and-streams.md),
+Optional background: [Collections, lists and iterators](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/collections-and-streams.md),
 including its complete SDK example. Use the
-[schema](../../../generator/schema/schema.yml) as the authoritative field reference
-and [Manifest Authoring](../manifest-authoring/SKILL.md) for broader design guidance.
+[schema](https://github.com/ARM-software/go-sdk-generator/blob/main/generator/schema/schema.yml) as the authoritative field reference
+and [Manifest Authoring](https://github.com/ARM-software/go-sdk-generator/blob/main/.agents/skills/manifest-authoring/SKILL.md) for broader design guidance. For offline, version-matched definitions run `go-sdk-generator schema`.
 
 ## Author the contract in this order
 
@@ -52,7 +49,7 @@ and [Manifest Authoring](../manifest-authoring/SKILL.md) for broader design guid
 - For declared options objects, retain the editable object in CLI configuration
   and convert it with `AsList()` or `AsIterator()` when calling the SDK. Interface
   arguments use functional-option collections. See
-  [options-object conversions](../../../guides/configure-options.md#pass-an-options-object-to-an-sdk-method).
+  [options-object conversions](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/configure-options.md#pass-an-options-object-to-an-sdk-method).
 
 ## Keep collection and item validation separate
 
@@ -133,7 +130,7 @@ For string-valued CLI lists:
   CLI/configuration boundaries.
 
 See the guide's
-[CLI input section](../../../guides/collections-and-streams.md#cli-input)
+[CLI input section](https://github.com/ARM-software/go-sdk-generator/blob/main/guides/collections-and-streams.md#cli-input)
 for an example.
 
 ## Review checklist

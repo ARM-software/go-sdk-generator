@@ -1,19 +1,17 @@
-<!--
-Copyright (C) 2026-2026 Arm Limited or its affiliates and Contributors. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
--->
 ---
 name: change-manifest-schema
-description: Use when editing `generator/schema/schema.yml` or changing how manifests are validated or generated. This skill covers the follow-up work: regenerate generated files and dogfood the generator in the correct order.
+description: "Use when editing generator/schema/schema.yml or changing manifest validation or generation. Covers schema regeneration and dogfooding the generator in the correct order."
 license: Apache-2.0
-compatibility: opencode
+metadata:
+  scope: "repo"
+compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 
 # Skill: Change Manifest Schema
 
 Use this skill when the user wants to add, remove, or change fields or behaviour in the generator manifest schema in `schema.yml`.
 
-Read [write a manifest](../../../guides/write-a-manifest.md) for the user-facing contract and [generate and regenerate a project](../../../guides/generate-a-project.md) for the consumer workflow. Keep those guides accurate if the schema changes how users author or generate projects.
+Read `guides/write-a-manifest.md` and `guides/generate-a-project.md` in the target checkout for the user-facing contract and consumer workflow. All repository paths in these instructions are relative to that checkout, not the installed skill directory. Keep those guides accurate if the schema changes how users author or generate projects.
 
 ## Required Workflow
 
@@ -28,7 +26,7 @@ Follow this workflow in order:
 7. Regenerate generated files using `go generate ./...`.
 8. Never edit generated files matching `*.gen.*` manually.
 9. Build the updated generator using `go build` in the `cli` project.
-10. Dogfood the updated generator against this repository's own manifest `generate.yml`. Follow [generate and regenerate a project](../../../guides/generate-a-project.md), using the newly built CLI rather than a previous release.
+10. Dogfood the updated generator against the checkout's `generate.yml`. Follow `guides/generate-a-project.md`, using the newly built CLI rather than a previous release.
 
 ## Implementation Rules
 
@@ -49,7 +47,7 @@ Follow this workflow in order:
 After implementing the change:
 
 1. Build the generator CLI from this repository using `go build` in the `cli` project.
-2. Run the built generator against `generate.yml` as in [generate and regenerate a project](../../../guides/generate-a-project.md). Use the newly built CLI rather than a previous release. Pass the repository's current Go version explicitly via `--go-version` instead of changing the manifest default value.
+2. Run the built generator against `generate.yml` as in the checkout's `guides/generate-a-project.md`. Use the newly built CLI rather than a previous release. Pass the repository's current Go version explicitly via `--go-version` instead of changing the manifest default value.
 3. Inspect the generated output for regressions in the generator's own SDK and CLI.
 4. Treat dogfooding as a validation step, not as permission to remove repository-local development wiring or handwritten logic that this repository still needs in order to build, test, or develop the generator itself.
 

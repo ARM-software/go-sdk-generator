@@ -80,17 +80,19 @@ docker run --rm {{ .OCI.ImageName }}:v<version>-alpine --help
 ```
 {{ end }}
 
-See the [Agent](#agent) section for skills that describe how to install, run, and integrate `{{ .Specification.CommandLineCommands.Binary }}`.
+## Agent Skills
 
-## Agent
+This project provides portable [Agent Skills](https://agentskills.io) to help coding agents install and use `{{ .Specification.CommandLineCommands.Binary }}`. Install them with the recommended Skills CLI:
 
-Skills for working with `{{ .Specification.CommandLineCommands.Binary }}`:
+```sh
+npx skills add {{ repositoryURL .Specification }} --all
+```
 
-- [Install `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ installSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
-- [Run `{{ .Specification.CommandLineCommands.Binary }}`](./.agents/skills/{{ runSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
-{{ if not .Specification.CommandLineCommands.NoActions -}}
-- [Integrate the project's GitHub Actions](./.agents/skills/{{ githubActionSkillName .Specification.CommandLineCommands.Binary }}/SKILL.md)
-{{- end }}
+See [Agent Skills in DOCUMENTATION.md](./DOCUMENTATION.md#agent-skills) for the catalogue, installation, updates and Linux package paths, and the [skills guide](./guides/agent-skills.md) for agent setup and local validation.
+
+{{ if eq .Specification.PackageName "go-sdk-generator" -}}
+Already installed the generator? Run `go-sdk-generator agent --init` from your project to install its embedded install, usage and GitHub Action skills into `.agents/skills/`, without downloading them. Use the Skills CLI or Linux package collection for additional skills such as manifest authoring.
+{{ end -}}
 
 {{ if .Specification.CommandLineCommands -}}
 {{ range .Specification.CommandLineCommands.Functions -}}

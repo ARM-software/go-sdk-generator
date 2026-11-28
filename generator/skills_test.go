@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ARM-software/go-sdk-generator/generator/options"
 	"github.com/ARM-software/golang-utils/utils/filesystem"
 )
 
@@ -79,6 +80,7 @@ func TestCopyGoSDKGeneratorSkillsForEmbedding(t *testing.T) {
 	for _, skillPath := range []string{
 		filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills", "run-go-sdk-generator", "SKILL.md"),
 		filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills", "install-go-sdk-generator", "SKILL.md"),
+		filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills", "run-go-sdk-generator", "references", "examples", "input.json"),
 	} {
 		err := filesystem.MkDir(filesystem.FilePathDir(localFs, skillPath))
 		require.NoError(t, err)
@@ -99,6 +101,18 @@ func TestCopyGoSDKGeneratorSkillsForEmbedding(t *testing.T) {
 	sourceData, err := filesystem.ReadFile(sourcePath)
 	require.NoError(t, err)
 	assert.Equal(t, "run-go-sdk-generator", string(sourceData))
+	asset := filesystem.FilePathJoin(localFs, outputDir, "generator", "skills", "run-go-sdk-generator", "references", "examples", "input.json")
+	assert.FileExists(t, asset)
+	assert.Contains(t, generated, asset)
+	// Agent-group exclusions must protect newly added supporting assets as well.
+	require.NoError(t, localFs.WriteFile(asset, []byte("preserve custom resource"), 0644))
+	rules, err := newOverwrite(outputDir, options.WithOverwriteEnabled(true), options.WithExcludeGroups([]string{"agent"}))
+	require.NoError(t, err)
+	_, err = copyGoSDKGeneratorSkillsForEmbedding(outputDir, nil, rules)
+	require.NoError(t, err)
+	content, err := localFs.ReadFile(asset)
+	require.NoError(t, err)
+	assert.Equal(t, "preserve custom resource", string(content))
 }
 
 func TestInitialiseAgentSkillsCancelledContext(t *testing.T) {
