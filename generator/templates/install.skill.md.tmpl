@@ -6,6 +6,7 @@ name: {{ installSkillName $cli.Binary }}
 description: {{ skillDescription "install" $cli.Binary | quote }}
 license: {{ $spec.Licence | quote }}
 metadata:
+  scope: "tool"
   binary: {{ $cli.Binary | quote }}
   package_name: {{ $spec.PackageName | quote }}
   supported_os: "debian,ubuntu,fedora,rhel,centos"

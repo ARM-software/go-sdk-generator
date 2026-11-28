@@ -2,6 +2,8 @@
 name: manifest-validation
 description: Use when defining or reviewing validation constraints on manifest arguments, configuration fields, domain fields or option parameters, including fail-fast CLI validation.
 license: Apache-2.0
+metadata:
+  scope: "tool"
 ---
 
 <!--

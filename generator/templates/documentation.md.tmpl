@@ -607,25 +607,27 @@ The action resolves official releases from the action version:
 
 Product skills live in [`.agents/skills/`](./.agents/skills/). This catalogue is derived from their generated frontmatter:
 
-| Skill | Description and intended use |
-| --- | --- |
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
 {{ range .SkillCatalogue -}}
-| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ .Description }} |
+| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ or (index .Metadata "scope") "unspecified" }} | {{ .Description }} |
 {{ end }}
 {{ if eq .Specification.PackageName "go-sdk-generator" -}}
-The repository also maintains contributor and manifest-authoring skills in `.agents/skills/`; list them with the command below. Contributor-only skills are not included in Linux packages. `go-sdk-generator agent --init` installs the embedded product skills and their supporting files into the current repository.
+The repository also maintains manifest-authoring skills for tool users and contributor workflows for working on the generator itself. All are included in the Linux package collection.
 {{ end }}
 {{ with .AdditionalSkillCatalogue }}
-Additional repository-maintained skills (catalogued from their metadata, not included in the generated product packages):
+Additional handwritten skills (catalogued from their metadata):
 
-| Skill | Description and intended use |
-| --- | --- |
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
 {{ range . -}}
-| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ .Description }} |
+| [{{ .Name }}](./{{ .Path }}/SKILL.md) | {{ or (index .Metadata "scope") "unspecified" }} | {{ .Description }} |
 {{ end }}
 {{ end }}
 
 ### Discover, install and update
+
+`metadata.scope` identifies the intended audience: `tool` for consumers of the tool (including authoring its inputs), and `repo` for contributors maintaining the source repository. It is informational; packaging currently includes the entire `.agents/skills/` tree. See [skill scope](./guides/agent-skills.md#skill-scope) for authoring guidance.
 
 **Recommended: use the [Skills CLI](https://github.com/vercel-labs/skills)** with Node.js 22.20 or newer. Run these commands from the project where you want to use the skills:
 
@@ -651,9 +653,23 @@ Installation is project-local by default; add `--global` for user-wide installat
 
 Ask your agent to use the skill by name, or describe a matching task. Agent-specific setup and invocation are covered in the [skills guide](./guides/agent-skills.md#agent-specific-setup).
 
+{{ if eq .Specification.PackageName "go-sdk-generator" -}}
+### Install embedded skills with the generator
+
+If Go SDK Generator is already installed, run this from the project where you want to use its skills:
+
+```sh
+go-sdk-generator agent --init
+```
+
+This writes the three embedded install, usage and GitHub Action skills, with any supporting files, into the current project's `.agents/skills/`. It works offline and requires neither Node.js nor the Skills CLI. Re-run it after upgrading the generator to refresh those skills; existing matching files are overwritten.
+
+The embedded selection is smaller than the full repository and Linux package collection. For handwritten skills such as manifest authoring, use the Skills CLI or the packaged directories below. The `scope` metadata does not change the embedded selection.
+
+{{ end -}}
 ### Skills included in Linux packages
 
-Package `{{ .Specification.PackageName }}` installs complete product skill directories under `{{ .Distribution.ToolSkillsPath }}/`. Their contents correspond to the packaged software version and include supporting scripts, references and assets. Package upgrades refresh these files; package removal removes them. They are ordinary package-owned files, readable by non-root users.
+Package `{{ .Specification.PackageName }}` installs the entire `.agents/skills/` collection under `{{ .Distribution.ToolSkillsPath }}/`, including handwritten skills and both `tool` and `repo` scopes. Their contents correspond to the packaged software version and include supporting scripts, references and assets. Package upgrades refresh these files; package removal removes them. They are ordinary package-owned files, readable by non-root users. Scope metadata does not currently filter package contents.
 
 With the Skills CLI already available locally, no GitHub repository or marketplace is needed:
 

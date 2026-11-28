@@ -52,7 +52,7 @@ On systems with man pages installed, run `man go-sdk-generator`.
 
 On supported Linux distributions, install package `go-sdk-generator` with the configured system package manager (`apt`, `dnf`, or `yum`). See [install and inspect](./guides/install-and-inspect.md) for commands, verification, and container usage.
 
-Released Linux packages also install product skills under `/etc/go-sdk-generator/.agents/skills`.
+Released Linux packages also install the complete skills collection under `/etc/go-sdk-generator/.agents/skills`.
 
 OCI images are also available at `ghcr.io/arm-software/go-sdk-generator` for CI and container-based use. The [installation guide](./guides/install-and-inspect.md) covers image selection, authentication, verification and troubleshooting.
 
@@ -65,6 +65,8 @@ npx skills add ARM-software/go-sdk-generator --all
 ```
 
 See [Agent Skills in DOCUMENTATION.md](./DOCUMENTATION.md#agent-skills) for the catalogue, installation, updates and Linux package paths, and the [skills guide](./guides/agent-skills.md) for agent setup and local validation.
+
+Already installed the generator? Run `go-sdk-generator agent --init` from your project to install its embedded install, usage and GitHub Action skills into `.agents/skills/`, without downloading them. Use the Skills CLI or Linux package collection for additional skills such as manifest authoring.
 
 
 ## Documentation

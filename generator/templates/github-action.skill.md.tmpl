@@ -6,6 +6,7 @@ name: {{ githubActionSkillName $cli.Binary }}
 description: {{ skillDescription "action" $cli.Binary | quote }}
 license: {{ $spec.Licence | quote }}
 metadata:
+  scope: "tool"
   action_path: {{ printf "actions/%s" $install.DirectoryName | quote }}
   action_type: composite
   package: {{ $spec.PackageName | quote }}

@@ -48,7 +48,7 @@ Discovered mirror files are registered with the `agent` overwrite group before c
 
 Copying is an overlay: it updates selected files and does not prune obsolete mirror files. When removing or renaming a resource, review and remove its obsolete mirror explicitly. Keep `generator/skills/` free of unrelated content: `//go:embed all:skills` includes the entire tree, including hidden files.
 
-When adding a new embedded product skill, update its template/generation wiring and the directory selection in `embeddedAgentSkillPaths`. Review the product catalogue and distribution selection too. Adding a file inside an already selected directory does not require another registry entry.
+When adding a new embedded product skill, update its template/generation wiring and the directory selection in `embeddedAgentSkillPaths`. Review the catalogue too. Adding a file inside an already selected directory does not require another registry entry. `metadata.scope` describes the audience but does not change this explicit embedding selection.
 
 ## Building and installing
 
@@ -60,7 +60,7 @@ When adding a new embedded product skill, update its template/generation wiring 
 
 `EmbeddedAgentSkills()` reads the compiled tree. `InitialiseAgentSkills()` writes those files under the target repository's `.agents/skills/`, creating nested directories as needed. New files are written with mode `0644`; scripts under a `scripts/` directory with a shebang use `0755` (subject to the operating system's permission handling). Existing matching target files are overwritten; unrelated files are not removed. This is an explicit command, not a package-install hook.
 
-Linux packages follow a separate delivery path: GoReleaser packages the selected product directories directly from `.agents/skills/` into `/etc/<package-name>/.agents/skills/`. Both delivery paths originate from the same rendered product skills.
+Linux packages follow a separate, broader delivery path: GoReleaser packages the entire `.agents/skills/` collection into `/etc/<package-name>/.agents/skills/`, including handwritten manifest-authoring skills and contributor workflows. The three embedded skills are a subset of that collection. Both `tool` and `repo` scopes are packaged for now; scope is informational and does not filter either delivery path.
 
 ## Verification
 

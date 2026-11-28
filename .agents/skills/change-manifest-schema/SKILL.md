@@ -2,6 +2,8 @@
 name: change-manifest-schema
 description: "Use when editing generator/schema/schema.yml or changing manifest validation or generation. Covers schema regeneration and dogfooding the generator in the correct order."
 license: Apache-2.0
+metadata:
+  scope: "repo"
 compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 

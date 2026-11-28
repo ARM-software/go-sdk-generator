@@ -3,6 +3,7 @@ name: using-go-sdk-generator-in-a-github-action
 description: "Use go-sdk-generator in GitHub Actions. Use when writing workflows that install a release, build from source, or invoke the tool's generated actions."
 license: "Apache-2.0"
 metadata:
+  scope: "tool"
   action_path: "actions/install-tool"
   action_type: composite
   package: "go-sdk-generator"

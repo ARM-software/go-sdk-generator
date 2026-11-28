@@ -66,7 +66,9 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
-{{ template "skill-contents" . }}
+      - src: ./.agents/skills/
+        dst: {{ .Distribution.ToolSkillsPath }}/
+        type: tree
   - formats:
       - apk
     id: alpine-package
@@ -85,7 +87,10 @@ nfpms:
       - src: ./.manpages/
         dst: /usr/share/man/man1/
         type: tree
-{{ template "skill-contents" . }}
+      # Expand the full directory without type: tree for APK compatibility.
+      # No trailing slash on dst: preserve relative resource paths.
+      - src: ./.agents/skills
+        dst: {{ .Distribution.ToolSkillsPath }}
 {{ if .OCI.PublishesToGHCR }}
 dockers_v2:
   - id: {{ .Specification.PackageName }}-ubuntu
@@ -132,13 +137,3 @@ release:
   # If the version tag looks like a pre-release e.g. beta then the GitHub release is set to prerelease
   prerelease: auto
   name_template: "Release {{ "{{" }}.Version}}"
-{{- define "skill-contents" -}}
-{{- range .SkillCatalogue }}
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./{{ .Path }}
-        dst: {{ $.Distribution.ToolSkillsPath }}/{{ .Name }}
-        file_info:
-          owner: root
-          group: root
-{{- end }}
-{{- end }}

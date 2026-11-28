@@ -3,6 +3,7 @@ name: run-go-sdk-generator
 description: "Run and configure the go-sdk-generator CLI. Use when selecting commands, supplying arguments, configuring authentication, or interpreting tool output."
 license: "Apache-2.0"
 metadata:
+  scope: "tool"
   binary: "go-sdk-generator"
   package: "go-sdk-generator"
   module: "generator"

@@ -36,14 +36,14 @@ func TestAdditionalSkillCatalogue(t *testing.T) {
 	}}}
 	root := filepath.Join(d.OutputDirectory, ".agents", "skills", "custom")
 	require.NoError(t, os.MkdirAll(root, 0755))
-	require.NoError(t, os.WriteFile(filepath.Join(root, "SKILL.md"), []byte("---\nname: custom\ndescription: Use when maintaining examples.\n---\nInstructions.\n"), 0600))
+	require.NoError(t, os.WriteFile(filepath.Join(root, "SKILL.md"), []byte("---\nname: custom\ndescription: Use when maintaining examples.\nmetadata:\n  scope: repo\n---\nInstructions.\n"), 0600))
 	catalogue, err := d.AdditionalSkillCatalogue()
 	require.NoError(t, err)
 	require.Len(t, catalogue, 1)
-	assert.Equal(t, SkillInfo{Name: "custom", Description: "Use when maintaining examples.", Path: ".agents/skills/custom"}, catalogue[0])
+	assert.Equal(t, SkillInfo{Name: "custom", Description: "Use when maintaining examples.", Path: ".agents/skills/custom", Metadata: map[string]string{"scope": "repo"}}, catalogue[0])
 	product, err := d.SkillCatalogue()
 	require.NoError(t, err)
-	assert.Len(t, product, 2, "repository-maintained skills do not become product distribution entries")
+	assert.Len(t, product, 2, "handwritten skills have their own catalogue alongside generated skills")
 }
 
 // These projects are generated through the public entrypoint, rather than by
@@ -121,6 +121,7 @@ func TestGeneratedSkillsQuality(t *testing.T) {
 				var meta map[string]any
 				require.NoError(t, yaml.Unmarshal([]byte(strings.SplitN(string(data), "---", 3)[1]), &meta))
 				assert.Equal(t, filepath.Base(filepath.Dir(skill)), meta["name"])
+				assert.Equal(t, "tool", meta["metadata"].(map[string]any)["scope"])
 				for key, value := range meta["metadata"].(map[string]any) {
 					assert.IsType(t, "", value, key)
 				}

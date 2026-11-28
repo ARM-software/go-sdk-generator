@@ -65,24 +65,9 @@ nfpms:
         dst: /usr/share/man/man1/
         type: tree
 
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/install-go-sdk-generator
-        dst: /etc/go-sdk-generator/.agents/skills/install-go-sdk-generator
-        file_info:
-          owner: root
-          group: root
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/run-go-sdk-generator
-        dst: /etc/go-sdk-generator/.agents/skills/run-go-sdk-generator
-        file_info:
-          owner: root
-          group: root
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/using-go-sdk-generator-in-a-github-action
-        dst: /etc/go-sdk-generator/.agents/skills/using-go-sdk-generator-in-a-github-action
-        file_info:
-          owner: root
-          group: root
+      - src: ./.agents/skills/
+        dst: /etc/go-sdk-generator/.agents/skills/
+        type: tree
   - formats:
       - apk
     id: alpine-package
@@ -100,24 +85,10 @@ nfpms:
         dst: /usr/share/man/man1/
         type: tree
 
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/install-go-sdk-generator
-        dst: /etc/go-sdk-generator/.agents/skills/install-go-sdk-generator
-        file_info:
-          owner: root
-          group: root
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/run-go-sdk-generator
-        dst: /etc/go-sdk-generator/.agents/skills/run-go-sdk-generator
-        file_info:
-          owner: root
-          group: root
-      # Directory expansion preserves relative paths; do not add a trailing slash to dst.
-      - src: ./.agents/skills/using-go-sdk-generator-in-a-github-action
-        dst: /etc/go-sdk-generator/.agents/skills/using-go-sdk-generator-in-a-github-action
-        file_info:
-          owner: root
-          group: root
+      # Expand the full directory without type: tree for APK compatibility.
+      # No trailing slash on dst: preserve relative resource paths.
+      - src: ./.agents/skills
+        dst: /etc/go-sdk-generator/.agents/skills
 
 # FIXME enable this when there is an Github app or a user with the correct scope for pushing images
 # dockers_v2:

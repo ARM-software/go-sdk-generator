@@ -2,6 +2,8 @@
 name: grill-me
 description: Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation.
 license: MIT
+metadata:
+  scope: "repo"
 compatibility: Requires a Go SDK Generator source checkout.
 ---
 

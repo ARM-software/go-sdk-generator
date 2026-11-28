@@ -5,6 +5,7 @@ name: {{ runSkillName $cli.Binary }}
 description: {{ skillDescription "run" $cli.Binary | quote }}
 license: {{ $spec.Licence | quote }}
 metadata:
+  scope: "tool"
   binary: {{ $cli.Binary | quote }}
   package: {{ $spec.PackageName | quote }}
   module: {{ $spec.MainModule | quote }}

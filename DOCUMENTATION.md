@@ -671,31 +671,33 @@ The action resolves official releases from the action version:
 
 Product skills live in [`.agents/skills/`](./.agents/skills/). This catalogue is derived from their generated frontmatter:
 
-| Skill | Description and intended use |
-| --- | --- |
-| [install-go-sdk-generator](./.agents/skills/install-go-sdk-generator/SKILL.md) | Install, upgrade, or troubleshoot the go-sdk-generator CLI. Use when setting up the tool or checking its installed version. |
-| [run-go-sdk-generator](./.agents/skills/run-go-sdk-generator/SKILL.md) | Run and configure the go-sdk-generator CLI. Use when selecting commands, supplying arguments, configuring authentication, or interpreting tool output. |
-| [using-go-sdk-generator-in-a-github-action](./.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md) | Use go-sdk-generator in GitHub Actions. Use when writing workflows that install a release, build from source, or invoke the tool's generated actions. |
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
+| [install-go-sdk-generator](./.agents/skills/install-go-sdk-generator/SKILL.md) | tool | Install, upgrade, or troubleshoot the go-sdk-generator CLI. Use when setting up the tool or checking its installed version. |
+| [run-go-sdk-generator](./.agents/skills/run-go-sdk-generator/SKILL.md) | tool | Run and configure the go-sdk-generator CLI. Use when selecting commands, supplying arguments, configuring authentication, or interpreting tool output. |
+| [using-go-sdk-generator-in-a-github-action](./.agents/skills/using-go-sdk-generator-in-a-github-action/SKILL.md) | tool | Use go-sdk-generator in GitHub Actions. Use when writing workflows that install a release, build from source, or invoke the tool's generated actions. |
 
-The repository also maintains contributor and manifest-authoring skills in `.agents/skills/`; list them with the command below. Contributor-only skills are not included in Linux packages. `go-sdk-generator agent --init` installs the embedded product skills and their supporting files into the current repository.
+The repository also maintains manifest-authoring skills for tool users and contributor workflows for working on the generator itself. All are included in the Linux package collection.
 
 
-Additional repository-maintained skills (catalogued from their metadata, not included in the generated product packages):
+Additional handwritten skills (catalogued from their metadata):
 
-| Skill | Description and intended use |
-| --- | --- |
-| [change-manifest-schema](./.agents/skills/change-manifest-schema/SKILL.md) | Use when editing generator/schema/schema.yml or changing manifest validation or generation. Covers schema regeneration and dogfooding the generator in the correct order. |
-| [extend-generated-model-logic](./.agents/skills/extend-generated-model-logic/SKILL.md) | Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions. |
-| [grill-me](./.agents/skills/grill-me/SKILL.md) | Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation. |
-| [integration-regression-tests](./.agents/skills/integration-regression-tests/SKILL.md) | Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests. |
-| [manifest-authoring](./.agents/skills/manifest-authoring/SKILL.md) | Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly. |
-| [manifest-collections](./.agents/skills/manifest-collections/SKILL.md) | Use when authoring or reviewing manifest collections, list or iterator shapes, item enums, collection constraints, or repeated CLI inputs. |
-| [manifest-validation](./.agents/skills/manifest-validation/SKILL.md) | Use when defining or reviewing validation constraints on manifest arguments, configuration fields, domain fields or option parameters, including fail-fast CLI validation. |
-| [update-acronyms](./.agents/skills/update-acronyms/SKILL.md) | Use when identifier casing is wrong and acronym or exception rules in the generator need to be added or updated. |
+| Skill | Scope | Description and intended use |
+| --- | --- | --- |
+| [change-manifest-schema](./.agents/skills/change-manifest-schema/SKILL.md) | repo | Use when editing generator/schema/schema.yml or changing manifest validation or generation. Covers schema regeneration and dogfooding the generator in the correct order. |
+| [extend-generated-model-logic](./.agents/skills/extend-generated-model-logic/SKILL.md) | repo | Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions. |
+| [grill-me](./.agents/skills/grill-me/SKILL.md) | repo | Use when a generator design or refactor needs to be challenged against existing terminology, ADRs, and repo decisions before implementation. |
+| [integration-regression-tests](./.agents/skills/integration-regression-tests/SKILL.md) | repo | Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests. |
+| [manifest-authoring](./.agents/skills/manifest-authoring/SKILL.md) | tool | Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly. |
+| [manifest-collections](./.agents/skills/manifest-collections/SKILL.md) | tool | Use when authoring or reviewing manifest collections, list or iterator shapes, item enums, collection constraints, or repeated CLI inputs. |
+| [manifest-validation](./.agents/skills/manifest-validation/SKILL.md) | tool | Use when defining or reviewing validation constraints on manifest arguments, configuration fields, domain fields or option parameters, including fail-fast CLI validation. |
+| [update-acronyms](./.agents/skills/update-acronyms/SKILL.md) | repo | Use when identifier casing is wrong and acronym or exception rules in the generator need to be added or updated. |
 
 
 
 ### Discover, install and update
+
+`metadata.scope` identifies the intended audience: `tool` for consumers of the tool (including authoring its inputs), and `repo` for contributors maintaining the source repository. It is informational; packaging currently includes the entire `.agents/skills/` tree. See [skill scope](./guides/agent-skills.md#skill-scope) for authoring guidance.
 
 **Recommended: use the [Skills CLI](https://github.com/vercel-labs/skills)** with Node.js 22.20 or newer. Run these commands from the project where you want to use the skills:
 
@@ -721,9 +723,21 @@ Installation is project-local by default; add `--global` for user-wide installat
 
 Ask your agent to use the skill by name, or describe a matching task. Agent-specific setup and invocation are covered in the [skills guide](./guides/agent-skills.md#agent-specific-setup).
 
+### Install embedded skills with the generator
+
+If Go SDK Generator is already installed, run this from the project where you want to use its skills:
+
+```sh
+go-sdk-generator agent --init
+```
+
+This writes the three embedded install, usage and GitHub Action skills, with any supporting files, into the current project's `.agents/skills/`. It works offline and requires neither Node.js nor the Skills CLI. Re-run it after upgrading the generator to refresh those skills; existing matching files are overwritten.
+
+The embedded selection is smaller than the full repository and Linux package collection. For handwritten skills such as manifest authoring, use the Skills CLI or the packaged directories below. The `scope` metadata does not change the embedded selection.
+
 ### Skills included in Linux packages
 
-Package `go-sdk-generator` installs complete product skill directories under `/etc/go-sdk-generator/.agents/skills/`. Their contents correspond to the packaged software version and include supporting scripts, references and assets. Package upgrades refresh these files; package removal removes them. They are ordinary package-owned files, readable by non-root users.
+Package `go-sdk-generator` installs the entire `.agents/skills/` collection under `/etc/go-sdk-generator/.agents/skills/`, including handwritten skills and both `tool` and `repo` scopes. Their contents correspond to the packaged software version and include supporting scripts, references and assets. Package upgrades refresh these files; package removal removes them. They are ordinary package-owned files, readable by non-root users. Scope metadata does not currently filter package contents.
 
 With the Skills CLI already available locally, no GitHub repository or marketplace is needed:
 

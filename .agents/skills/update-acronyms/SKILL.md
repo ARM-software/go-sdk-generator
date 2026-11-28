@@ -2,6 +2,8 @@
 name: update-acronyms
 description: Use when identifier casing is wrong and acronym or exception rules in the generator need to be added or updated.
 license: Apache-2.0
+metadata:
+  scope: "repo"
 compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 

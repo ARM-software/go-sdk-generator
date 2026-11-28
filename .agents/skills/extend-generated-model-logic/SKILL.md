@@ -2,6 +2,8 @@
 name: extend-generated-model-logic
 description: Use when generator behaviour depends on traversing generated manifest model types and the logic should live on those types instead of in large helper functions.
 license: Apache-2.0
+metadata:
+  scope: "repo"
 compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 

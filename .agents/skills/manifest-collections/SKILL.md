@@ -2,6 +2,8 @@
 name: manifest-collections
 description: Use when authoring or reviewing manifest collections, list or iterator shapes, item enums, collection constraints, or repeated CLI inputs.
 license: Apache-2.0
+metadata:
+  scope: "tool"
 ---
 
 <!--

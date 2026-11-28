@@ -23,13 +23,14 @@ import (
 // SkillInfo is read from the rendered frontmatter, keeping documentation and
 // distribution tied to the same metadata as the installed skill.
 type SkillInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Path        string `json:"-"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Path        string            `json:"-"`
+	Metadata    map[string]string `json:"metadata"`
 }
 
-// AdditionalSkillCatalogue documents repository-maintained skills without
-// promoting them into the product's distribution set.
+// AdditionalSkillCatalogue documents handwritten skills alongside the generated
+// catalogue. Metadata describes their audience, not their packaging policy.
 func (d *DataModel) AdditionalSkillCatalogue() ([]SkillInfo, error) {
 	if d.OutputDirectory == "" || d.Specification.CommandLineCommands == nil {
 		return nil, nil

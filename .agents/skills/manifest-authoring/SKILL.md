@@ -2,6 +2,8 @@
 name: manifest-authoring
 description: Use when creating or editing manifest files such as `generate.yml`, `verify.yml`, or `agent.yml`, especially to choose types, names, and configuration shapes clearly.
 license: Apache-2.0
+metadata:
+  scope: "tool"
 ---
 
 # Skill: Manifest Authoring

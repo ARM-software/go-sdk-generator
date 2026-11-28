@@ -3,6 +3,7 @@ name: install-go-sdk-generator
 description: "Install, upgrade, or troubleshoot the go-sdk-generator CLI. Use when setting up the tool or checking its installed version."
 license: "Apache-2.0"
 metadata:
+  scope: "tool"
   binary: "go-sdk-generator"
   package_name: "go-sdk-generator"
   supported_os: "debian,ubuntu,fedora,rhel,centos"

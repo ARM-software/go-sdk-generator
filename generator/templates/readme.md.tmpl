@@ -90,6 +90,10 @@ npx skills add {{ repositoryURL .Specification }} --all
 
 See [Agent Skills in DOCUMENTATION.md](./DOCUMENTATION.md#agent-skills) for the catalogue, installation, updates and Linux package paths, and the [skills guide](./guides/agent-skills.md) for agent setup and local validation.
 
+{{ if eq .Specification.PackageName "go-sdk-generator" -}}
+Already installed the generator? Run `go-sdk-generator agent --init` from your project to install its embedded install, usage and GitHub Action skills into `.agents/skills/`, without downloading them. Use the Skills CLI or Linux package collection for additional skills such as manifest authoring.
+{{ end -}}
+
 {{ if .Specification.CommandLineCommands -}}
 {{ range .Specification.CommandLineCommands.Functions -}}
 {{ if .StoreToKeyring }}

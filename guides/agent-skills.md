@@ -90,7 +90,7 @@ For other tools, consult the [Skills CLI supported agents](https://github.com/ve
 
 ## Consuming packaged skills
 
-The package manager installs product skills into `/etc/go-sdk-generator/.agents/skills` without touching user settings. You can use these files offline, with an already-installed agent or Skills CLI. See the [local installation commands](../DOCUMENTATION.md#skills-included-in-linux-packages).
+The package manager installs the complete `.agents/skills/` collection into `/etc/go-sdk-generator/.agents/skills` without touching user settings. This includes handwritten skills and both scopes described below. You can use these files offline, with an already-installed agent or Skills CLI. See the [local installation commands](../DOCUMENTATION.md#skills-included-in-linux-packages).
 
 For Codex, explicitly link one installed skill into the personal discovery directory:
 
@@ -108,6 +108,22 @@ For OpenClaw, a direct source avoids copying:
 ```
 
 Use the matching native setup above for other agents. A copied skill needs refreshing after a package upgrade; a linked or configured directory uses the package-owned files directly.
+
+## Skill scope
+
+Record the intended audience in the standard frontmatter `metadata` map:
+
+```yaml
+metadata:
+  scope: "tool"
+```
+
+- `tool`: helps consumers use the software, including installation, CLI usage, workflow integration and authoring or validating its inputs. Handwritten manifest-authoring skills belong here too.
+- `repo`: helps contributors maintain this particular source repository, such as changing generator internals, updating regression fixtures or writing repository code. Use this value for local contributor workflows.
+
+This is a project convention inside the Agent Skills specification's extensible, string-valued metadata map. It is not a new top-level frontmatter requirement. Existing or externally authored skills without it remain valid and appear as `unspecified` in the catalogue.
+
+Scope is informational for now: it does not filter discovery, installation, validation, embedding or packaging. Linux packages currently include **every skill** under `.agents/skills/`. A future distribution policy can use this classification without conflating handwritten tool guidance with contributor-only skills.
 
 ## Validation and maintenance
 
@@ -128,9 +144,17 @@ Keep `SKILL.md` frontmatter first. Use `continuous-delivery-scripts>=4.8.2` when
 
 Author descriptions that say **what** the skill does and **when** to use it. Keep the main instructions focused (under 500 lines and approximately 5,000 tokens is recommended); place details in `references/`, scripts in `scripts/`, and examples or templates in `assets/`. Bundle required resources within each skill and use relative links. Do not require sibling skills or files from the original checkout after installation. Commit scripts with executable permissions when they are meant to be run directly.
 
-Generated product skills are selected for Linux distribution; extra contributor-only skills remain repository-local. Additional product skills can be distributed by adding their complete directories to the same package contents configuration. Do not add package hooks that modify users' home directories.
+Add handwritten skills and their supporting files under `.agents/skills/`; the whole collection is picked up by Linux packaging. Do not add package hooks that modify users' home directories.
 
 ## Embedded skills in the generator
+
+If you already have Go SDK Generator installed, run this from a target project:
+
+```sh
+go-sdk-generator agent --init
+```
+
+This installs its three embedded install, usage and GitHub Action skills into `.agents/skills/` without network access or Node.js. Re-running after upgrading the binary refreshes those files and overwrites matching local copies. For additional handwritten skills, including manifest authoring, use the full repository or Linux package collection. `metadata.scope` does not currently select which skills are embedded.
 
 See [Embedded Agent Skills](embedded-agent-skills.md) for the source-to-binary lifecycle, the purpose of `generator/skills/`, overwrite rules, and how to rebuild and verify `agent --init` after changing a skill.
 

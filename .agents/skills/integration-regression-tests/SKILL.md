@@ -2,6 +2,8 @@
 name: integration-regression-tests
 description: Use when generator, templates, or generated project shape changes may require refreshing fixture archives or snapshot-style integration tests.
 license: Apache-2.0
+metadata:
+  scope: "repo"
 compatibility: Requires a Go SDK Generator source checkout and its Go toolchain.
 ---
 
