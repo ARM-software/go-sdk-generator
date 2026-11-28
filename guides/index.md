@@ -31,5 +31,6 @@ SPDX-License-Identifier: Apache-2.0
 - [Generated SDK and CLI reference](https://github.com/ARM-software/go-sdk-generator/blob/main/DOCUMENTATION.md): configuration, commands, and Go interfaces.
 - [Repository README](https://github.com/ARM-software/go-sdk-generator/blob/main/README.md): purpose, quick start and design decisions.
 - [Agent Skills guide](agent-skills.md): discovery, agent setup, packaged skills and local validation. See [the skills reference](../DOCUMENTATION.md#agent-skills) for installation and the catalogue. The tool can also install its embedded product skills with `go-sdk-generator agent --init`.
+- [Embedded Agent Skills](embedded-agent-skills.md): how the generator renders, mirrors, embeds and installs its product skills, including rebuild and overwrite behaviour.
 
 The Markdown in `guides/` is the source. `cd-generate-docs` renders it alongside the API documentation in `docs/guides/` when documentation is rebuilt; edit the Markdown rather than the rendered output.

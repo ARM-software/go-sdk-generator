@@ -9,7 +9,6 @@ import (
 	"embed"
 	"fmt"
 	"maps"
-	"os"
 	"path"
 	"slices"
 	"strings"
@@ -603,30 +602,11 @@ func Generate(ctx context.Context, logger logs.Loggers, cfg *config.SDKGenerator
 		templatesToPopulate.addStateFile(goreleaserLibraryFile, filesystem.FilePathJoin(localFs, cfg.Output, ".goreleaser.yml"), overwriteRules.enabled, true)
 	}
 
+	if err = templatesToPopulate.addAgentFiles(&sdk.Specification, cfg.Output, generatedActions, overwriteRules.enabled); err != nil {
+		return
+	}
 	if sdk.Specification.CommandLineCommands != nil {
 		cliDir := sdk.Specification.CommandLineCommands.Package
-		templatesToPopulate.addStateFile(skillsGuideFile, filesystem.FilePathJoin(localFs, cfg.Output, "guides", "agent-skills.md"), overwriteRules.enabled, true)
-		templatesToPopulate.addStateFile(skillsCheckFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "validate-skills", "validate_skills.py"), overwriteRules.enabled, true)
-		templatesToPopulate.addStateFile(skillsRequirementsFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "validate-skills", "requirements.txt"), overwriteRules.enabled, true)
-		if onGithub {
-			templatesToPopulate.addStateFile(skillsWorkflowFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "workflows", "skills.yml"), overwriteRules.enabled, true)
-			for _, action := range generatedActions {
-				if action.DirectoryName == "validate-skills" {
-					return commonerrors.Newf(commonerrors.ErrInvalid, "action directory validate-skills is reserved for skill validation")
-				}
-			}
-			templatesToPopulate.addStateFile(skillsActionFile, filesystem.FilePathJoin(localFs, cfg.Output, "actions", "validate-skills", "action.yml"), overwriteRules.enabled, true)
-		}
-		templatesToPopulate.addStateFile(agentFile, filesystem.FilePathJoin(localFs, cfg.Output, "agent.md"), true, true)
-		if onGithub {
-			templatesToPopulate.addStateFile(copilotFile, filesystem.FilePathJoin(localFs, cfg.Output, ".github", "copilot-instructions.md"), true, true)
-		}
-		binary := field.OptionalString(sdk.Specification.CommandLineCommands.Binary, "")
-		templatesToPopulate.addStateFile(cliSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", runSkillName(binary), "SKILL.md"), true, true)
-		templatesToPopulate.addStateFile(installSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", installSkillName(binary), "SKILL.md"), overwriteRules.enabled, true)
-		if generateAction {
-			templatesToPopulate.addStateFile(githubActionSkillFile, filesystem.FilePathJoin(localFs, cfg.Output, ".agents", "skills", githubActionSkillName(binary), "SKILL.md"), true, true)
-		}
 		templatesToPopulate.addStateFile(cliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", fmt.Sprintf("%v.go", sdk.Specification.MainModule)), true, true)
 		templatesToPopulate.addStateFile(rootCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "cmd", "root.go"), true, true)
 		templatesToPopulate.addStateFile(mainCliFile, filesystem.FilePathJoin(localFs, cfg.Output, cliDir, "main.go"), true, true)
@@ -877,86 +857,6 @@ func resolveYAMLManifestTwin(localFs filesystem.FS, inputPath string) string {
 	}
 
 	return ""
-}
-
-func copyGoSDKGeneratorSkillsForEmbedding(outputDir string, generated []string, overwriteRules *overwrite) (updatedGenerated []string, err error) {
-	updatedGenerated = generated
-	localFs := filesystem.GetGlobalFileSystem()
-
-	skillsRoot := filesystem.FilePathJoin(localFs, outputDir, ".agents", "skills")
-	if !localFs.Exists(skillsRoot) {
-		return
-	}
-
-	var skillPaths []string
-	for _, entry := range embeddedAgentSkillPaths {
-		root := filesystem.FilePathJoin(localFs, skillsRoot, path.Dir(entry))
-		if !localFs.Exists(root) {
-			continue
-		}
-		err = localFs.Walk(root, func(name string, info os.FileInfo, walkErr error) error {
-			if walkErr != nil {
-				return walkErr
-			}
-			if info.Mode().IsRegular() {
-				relative, relErr := localFs.ConvertToRelativePath(skillsRoot, name)
-				if relErr != nil {
-					return relErr
-				}
-				skillPaths = append(skillPaths, filesystem.FilePathToSlash(localFs, relative[0]))
-			}
-			return nil
-		})
-		if err != nil {
-			return
-		}
-	}
-	if overwriteRules != nil {
-		embeddedPaths := collection.Map(skillPaths, func(skillPath string) string {
-			return path.Join("generator/skills", skillPath)
-		})
-		overwriteRules.addGeneratedGroups(map[string][]string{options.OverwriteOptionsExcludeGroupsAgent.String(): embeddedPaths})
-	}
-	for _, skillPath := range skillPaths {
-		embeddedPath := filesystem.FilePathJoin(localFs, append([]string{outputDir, "generator", "skills"}, strings.Split(skillPath, "/")...)...)
-		if overwriteRules.shouldExclude(embeddedPath) {
-			updatedGenerated = append(updatedGenerated, embeddedPath)
-			continue
-		}
-		sourcePath := filesystem.FilePathJoin(localFs, append([]string{skillsRoot}, strings.Split(skillPath, "/")...)...)
-		if !localFs.Exists(sourcePath) {
-			continue
-		}
-
-		skill, subErr := localFs.ReadFile(sourcePath)
-		if subErr != nil {
-			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, subErr, "could not read tool-related skill %q", sourcePath)
-			return
-		}
-
-		embeddedDir := filesystem.FilePathDir(localFs, embeddedPath)
-		if !localFs.Exists(embeddedDir) {
-			err = localFs.MkDirAll(embeddedDir, 0755)
-			if err != nil {
-				err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not create %q", embeddedDir)
-				return
-			}
-		}
-
-		info, statErr := localFs.Stat(sourcePath)
-		if statErr != nil {
-			return updatedGenerated, statErr
-		}
-		err = localFs.WriteFile(embeddedPath, skill, info.Mode().Perm())
-		if err != nil {
-			err = commonerrors.WrapErrorf(commonerrors.ErrUnexpected, err, "could not write embedded skill %q", embeddedPath)
-			return
-		}
-
-		updatedGenerated = append(updatedGenerated, embeddedPath)
-	}
-
-	return
 }
 
 func runSkillName(binary string) string {

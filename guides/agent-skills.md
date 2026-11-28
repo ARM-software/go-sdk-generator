@@ -130,6 +130,10 @@ Author descriptions that say **what** the skill does and **when** to use it. Kee
 
 Generated product skills are selected for Linux distribution; extra contributor-only skills remain repository-local. Additional product skills can be distributed by adding their complete directories to the same package contents configuration. Do not add package hooks that modify users' home directories.
 
+## Embedded skills in the generator
+
+See [Embedded Agent Skills](embedded-agent-skills.md) for the source-to-binary lifecycle, the purpose of `generator/skills/`, overwrite rules, and how to rebuild and verify `agent --init` after changing a skill.
+
 ## Discoverability and registries
 
 Keep the Git repository canonical, with valid, uniquely named skills under `.agents/skills/`. Verify discovery using `npx skills add https://github.com/ARM-software/go-sdk-generator --list`. Public repositories can be installed through Skills CLI and discovered through [Skills.sh](https://skills.sh); indexing and ranking are platform-controlled and are not guaranteed by validation.
